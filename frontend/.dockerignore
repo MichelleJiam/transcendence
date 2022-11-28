@@ -1,0 +1,3 @@
+Dockerfile
+.dockerignore
+app/node_modules
