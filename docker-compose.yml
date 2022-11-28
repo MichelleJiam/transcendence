@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+
+ database:
+  container_name: database
+  build: ./database
+  restart: always
+  env_file:
+   - ./database/.env
+  ports:
+   - 5432:5432
+  volumes:
+   - postgres_data:/var/lib/postgresql/data/
+
+ pgadmin:
+  container_name: pgadmin4
+  depends_on:
+    - database
+  build: ./pgadmin
+  restart: always
+  env_file:
+   - ./pgadmin/.pgadminenv
+  ports:
+   - 5050:80
+
+ backend:
+  container_name: backend
+  depends_on:
+   - database
+  build: ./backend
+  env_file:
+   - ./backend/app/.env
+  ports:
+   - 3000:3000
+  volumes:
+   - ./backend/app:/app
+
+ frontend:
+  container_name: frontend
+  depends_on:
+   - backend
+  build: ./frontend
+  ports:
+   - 5173:5173
+  volumes:
+   - ./frontend/app:/app
+
+volumes:
+ postgres_data:
