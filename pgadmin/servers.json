@@ -1,0 +1,14 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "transcendence",
+            "Group": "Servers",
+            "Host": "database",
+            "Port": 5432,
+            "MaintenanceDB": "postgres",
+            "Username": "admin",
+            "SSLMode": "prefer",
+            "PassFile": "/pgpass"
+        }
+    }
+}
