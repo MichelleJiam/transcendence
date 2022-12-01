@@ -1,15 +1,21 @@
 import { Message } from "src/message/message.entity";
-import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+	Column,
+	Entity,
+	JoinColumn,
+	OneToMany,
+	PrimaryGeneratedColumn,
+} from "typeorm";
 
 @Entity()
 export class User {
 	@PrimaryGeneratedColumn({
-		name: 'user_id' // alias for the column
+		name: "user_id", // alias for the column
 	})
 	public id?: number;
 
 	@Column({
-		nullable: false
+		nullable: false,
 	})
 	public username: string;
 
@@ -20,7 +26,7 @@ export class User {
 	public email: string; // email must be unique
 
 	@Column({
-		nullable: false
+		nullable: false,
 	})
 	public password: string;
 
