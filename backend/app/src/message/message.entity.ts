@@ -1,10 +1,17 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+	Column,
+	CreateDateColumn,
+	Entity,
+	JoinColumn,
+	ManyToOne,
+	PrimaryGeneratedColumn,
+} from "typeorm";
 import { User } from "src/user/user.entity";
 
 @Entity()
 export class Message {
 	@PrimaryGeneratedColumn({
-		name: 'message_id'
+		name: "message_id",
 	})
 	public id?: number;
 
