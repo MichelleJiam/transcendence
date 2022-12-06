@@ -8,34 +8,20 @@
 </template>
 
 <script lang="ts">
-// import axios from 'axios';
+import axios from 'axios';
 import { defineComponent } from 'vue';
-
-export default {
-	data() {
-		return {
-			messages: new Array(),
-		};
-	},
-	mounted() {
-	fetch("http://localhost:3000/message")
-	.then((res) => res.json())
-	.then((data) => (this.messages = data))
-	.catch((err) => console.log(err.message))
+export default defineComponent({
+  data() {
+    return {
+      messages: [] // using defineComponent this can be used to retrieve the user table from the backend using the axio.get
+    }
   },
-};
-// export default defineComponent({
-//   data() {
-//     return {
-//       messages: [] // using defineComponent this can be used to retrieve the user table from the backend using the axio.get
-//     }
-//   },
-//   mounted() {
-//     axios
-//       .get('http://localhost:3000/message')
-//       .then((response) => {
-//         this.messages = response.data // returns the response data into the users variable which can then be used in the template
-//       })
-//   }
-// })
+  mounted() {
+    axios
+      .get('http://localhost:3000/message')
+      .then((response) => {
+        this.messages = response.data // returns the response data into the users variable which can then be used in the template
+      })
+  }
+})
 </script>
