@@ -12,6 +12,8 @@ import {
 	UseInterceptors,
 	UploadedFile,
 	Req,
+	Res,
+	StreamableFile,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { extname, parse } from "path";
@@ -23,6 +25,10 @@ import { AvatarService } from "src/avatar/avatar.service";
 import { get } from "http";
 import { Avatar } from "src/avatar/avatar.entity";
 import { Request } from "express";
+import { Readable } from "typeorm/platform/PlatformTools";
+import { Response } from "express";
+import { createReadStream } from "fs";
+import { join } from "path";
 
 // the code for each function can be found in:
 // user.service.ts
@@ -79,10 +85,10 @@ export class UserController {
 	/* localhost:3000/user/id/avatar */
 	// curl -X POST -H 'Content-Type: multipart/form-data' -F 'file=@cat-gf6fa74711_640.jpg' http://localhost:3000/user/2/avatar
 
-	@Get(":id/avatar")
-	getAvatar(@Param("id", ParseIntPipe) id: number) {
-		return this.avatarService.getAvatar(id);
-	}
+	// @Get(":id/avatar")
+	// getAvatar(@Param("id", ParseIntPipe) id: number) {
+	// 	return this.avatarService.getAvatar(id);
+	// }
 
 	// @Put(":id/avatar")
 	// async updateAvatar(
@@ -98,6 +104,20 @@ export class UserController {
 	) {
 		file.filename = "avatar" + Math.random();
 		return this.userService.addAvatar(id, file.buffer, file.filename);
+	}
+
+	@Get(":id/avatar")
+	async getAvatar(
+		@Param("id", ParseIntPipe) id: number,
+		@Res() response: Response
+	) {
+		const file = await this.userService.getAvatarById(id);
+		const stream = Readable.from(file.data);
+		// response.set({
+		// 	"Content-Disposition": `inline; filename="${file.filename}"`,
+		// 	"Content-Type": "image",
+		// });
+		return new StreamableFile(stream);
 	}
 
 	/* ------------------------------------------------------------- */

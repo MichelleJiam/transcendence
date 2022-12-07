@@ -72,4 +72,9 @@ export class UserService {
 		await this.userRepository.update(userId, { avatarId: avatar.id });
 		return avatar;
 	}
+
+	async getAvatarById(id: number) {
+		const user = await this.findUserById(id);
+		return this.avatarService.getAvatarById(id);
+	}
 }

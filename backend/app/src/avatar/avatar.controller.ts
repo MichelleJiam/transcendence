@@ -1,9 +1,18 @@
-import { Controller, Get } from "@nestjs/common";
+import {
+	ClassSerializerInterceptor,
+	Controller,
+	Get,
+	Param,
+	ParseIntPipe,
+	Res,
+	UseInterceptors,
+} from "@nestjs/common";
 import { AvatarService } from "./avatar.service";
 
 // Avatar controller we probably don't need, this happens in user.controller.ts
 
 @Controller("avatar")
+@UseInterceptors(ClassSerializerInterceptor)
 export class AvatarController {
 	constructor(private AvatarService: AvatarService) {}
 	// @Get("/")

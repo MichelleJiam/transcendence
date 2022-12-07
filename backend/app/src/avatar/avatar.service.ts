@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { Avatar } from "./avatar.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -21,5 +21,13 @@ export class AvatarService {
 		});
 		await this.avatarRepository.save(newFile);
 		return newFile;
+	}
+
+	async getAvatarById(id: number) {
+		const file = await this.avatarRepository.findOne({ where: { id: id } });
+		if (!file) {
+			throw new NotFoundException();
+		}
+		return file;
 	}
 }
