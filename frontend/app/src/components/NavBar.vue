@@ -10,7 +10,7 @@
       />
     </a>
     <ul class="navbar-nav">
-      <li v-for="route in routes" :key="route.name" class="nav-item">
+      <li v-for="route in routes" :key="route.id" class="nav-item">
         <router-link class="nav-link" :to="route.path">{{
           route.name
         }}</router-link>
@@ -25,10 +25,11 @@ export default {
   data() {
     return {
       routes: [
-        { path: "/", name: "Home" },
-        { path: "/about", name: "About" },
-        { path: "/pong", name: "Pong" },
-        { path: "/chat", name: "Chat" },
+        { path: "/", name: "Home", id: 1 },
+        { path: "/about", name: "About", id: 2 },
+        { path: "/pong", name: "Pong", id: 3 },
+        { path: "/chat", name: "Chat", id: 4 },
+        { path: "/settings", name: "Settings", id: 5 },
       ],
     };
   },

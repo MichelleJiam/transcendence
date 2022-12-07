@@ -4,6 +4,7 @@ import Home from "../views/Home.vue";
 import About from "../views/About.vue";
 import Chat from "../views/Chat.vue";
 import Game from "../views/Game.vue";
+import Settings from "../views/Settings.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,11 @@ const router = createRouter({
       path: "/pong",
       name: "Game",
       component: Game,
+    },
+    {
+      path: "/:id/settings",
+      name: "Settings",
+      component: Settings,
     },
   ],
 });

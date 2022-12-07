@@ -1,18 +1,16 @@
-import {
-	HttpCode,
-	HttpException,
-	HttpStatus,
-	Injectable,
-} from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { AvatarService } from "src/avatar/avatar.service";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create_user.dto";
+import { UpdateUserSettingsDto } from "./dto/update_user_settings.dto";
 import { User } from "./user.entity";
 
 @Injectable()
 export class UserService {
 	constructor(
-		@InjectRepository(User) private readonly userRepository: Repository<User>
+		@InjectRepository(User) private readonly userRepository: Repository<User>,
+		private readonly avatarService: AvatarService
 	) {}
 
 	getAllUsers() {
@@ -63,5 +61,15 @@ export class UserService {
 		if (!deleteResponse.affected) {
 			throw new HttpException("User not found", HttpStatus.NOT_FOUND);
 		}
+	}
+
+	async UpdateUser(id: number, settings: UpdateUserSettingsDto) {
+		return await this.userRepository.update(id, settings);
+	}
+
+	async addAvatar(userId: number, imageBuffer: Buffer, filename: string) {
+		const avatar = await this.avatarService.uploadAvatar(imageBuffer, filename);
+		await this.userRepository.update(userId, { avatarId: avatar.id });
+		return avatar;
 	}
 }
