@@ -16,7 +16,7 @@ This is a collaborative project between [mjiam](https://github.com/MichelleJiam)
 
 1. Install and run `Docker`
 
-2. Run `bash run.sh` 
+2. Run `./run.sh` 
 
 	- NOTE: manually build with `docker compose up --build`
 
@@ -30,7 +30,7 @@ This is a collaborative project between [mjiam](https://github.com/MichelleJiam)
 
 ### Clean
 
-run `bash clean.sh` and select  a clean option
+run `./clean.sh` and select  a clean option
 
 | Prompt ||
 | ------ | ----------- |
