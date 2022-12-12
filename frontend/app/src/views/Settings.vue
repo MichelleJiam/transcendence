@@ -7,8 +7,10 @@
     </p>
 
     <!-- Start avatar img -->
+    <!-- :src="avatar.image" -->
+    <!-- src="@/assets/default-avatar.jpg" -->
     <img
-      src="@/assets/default-avatar.jpg"
+      :src="avatar.image"
       alt="Avatar"
       class="img-thumbnail rounded-circle"
       style="max-width: 25%"
@@ -19,7 +21,12 @@
       <!-- start upload avatar -->
       <div class="mb-3">
         <label for="formFile" class="form-label">Avatar</label>
-        <input class="form-control" type="file" id="formFile" />
+        <input
+          class="form-control"
+          type="file"
+          id="formFile"
+          @change="onFileSelected"
+        />
       </div>
       <!-- end upload avatar -->
 
@@ -81,13 +88,22 @@ export default {
       username?: string;
       email?: string;
       twoFA?: boolean;
+      avatarId?: number;
+    };
+
+    type Avatar = {
+      selectedFile?: string;
+      status?: string;
+      image?: any;
     };
 
     const user: UserAccount = {};
+    const avatar: Avatar = {};
     const displayUser: string = "";
 
     return {
       user,
+      avatar,
       displayUser,
       styleObject: {
         color: "gray",
@@ -97,7 +113,7 @@ export default {
   methods: {
     updateProfile() {
       this.updateUser();
-      this.updateAvatar();
+      this.onAvatarUpload();
       alert("Your profile succesfully updated");
     },
 
@@ -107,6 +123,7 @@ export default {
       );
       const data = await res.json();
       this.user = data;
+      console.log("TEST =", this.user.avatarId);
       this.displayUser = data.username;
     },
     async updateUser() {
@@ -123,13 +140,43 @@ export default {
         requestOptions
       );
     },
-    async updateAvatar() {
-      console.log("hello from update avatar");
+    onFileSelected(event: any) {
+      this.avatar.selectedFile = event.target.files[0];
+      this.avatar.status = "";
+      console.log(this.avatar.selectedFile);
+    },
+    async onAvatarUpload() {
+      const formData = new FormData();
+      formData.append("file", this.avatar.selectedFile!);
+      const response = await fetch(
+        `http://localhost:3000/user/${this.$route.params.id}/avatar`,
+        { method: "POST", body: formData }
+      );
+      if (response.ok) {
+        this.avatar.status = "Successfully updated avatar!";
+      } else {
+        this.avatar.status = "Something went wrong with uploading avatar";
+      }
+      console.log(this.avatar.status);
+    },
+    async getFile() {
+      console.log("getfile()");
+      const res = await fetch(
+        `http://localhost:3000/user/${this.$route.params.id}/avatar`
+      );
+      if (res.ok) {
+        console.log("response is ok");
+      } else {
+        console.log("response is not ok");
+      }
+      this.avatar.image = res.url;
+      // console.log(this.avatar.image);
     },
   },
   /* data available when page loads */
   mounted() {
     this.getUser();
+    this.getFile();
   },
 };
 </script>

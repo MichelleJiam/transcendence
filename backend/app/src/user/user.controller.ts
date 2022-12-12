@@ -14,13 +14,14 @@ import {
 	Req,
 	Res,
 	StreamableFile,
+	Header,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { extname, parse } from "path";
 import { CreateUserDto } from "./dto/create_user.dto";
 import { UpdateUserSettingsDto } from "./dto/update_user_settings.dto";
 import { UserService } from "./user.service";
-import { diskStorage } from "multer";
+// import { diskStorage } from "multer";
 import { AvatarService } from "src/avatar/avatar.service";
 import { get } from "http";
 import { Avatar } from "src/avatar/avatar.entity";
@@ -107,42 +108,27 @@ export class UserController {
 	}
 
 	@Get(":id/avatar")
+	@Header("Content-Type", "image")
+	@Header("Content-Disposition", 'attachment; filename="filename.jpg"')
 	async getAvatar(
-		@Param("id", ParseIntPipe) id: number,
-		@Res() response: Response
+		@Param("id", ParseIntPipe) id: number
+		// @Res({ passthrough: true }) res: Response
 	) {
-		const file = await this.userService.getAvatarById(id);
+		const user = this.findUsersById(id);
+		const avatarId = (await user).avatarId;
+
+		if (avatarId == null) {
+			const defaultAvatar = createReadStream(
+				join(process.cwd(), "src/assets/default-avatar.png")
+			);
+			return new StreamableFile(defaultAvatar);
+		}
+		const file = await this.userService.getAvatarById(avatarId);
 		const stream = Readable.from(file.data);
-		// response.set({
+		// res.set({
 		// 	"Content-Disposition": `inline; filename="${file.filename}"`,
 		// 	"Content-Type": "image",
 		// });
 		return new StreamableFile(stream);
 	}
-
-	/* ------------------------------------------------------------- */
-
-	/* http://localhost:3000/user/upload-avatar */
-	// uploads a simple .txt file to the /files folder for now, nothing done in frontend yet
-	// curl -X POST -F 'file=@upload.txt' http://localhost:3000/user/upload-avatar
-
-	// @Post("upload-avatar")
-	// @UseInterceptors(
-	// 	FileInterceptor("file", {
-	// 		storage: diskStorage({
-	// 			destination: "./files",
-	// 			filename: (req, file, callback) => {
-	// 				const uniqueSuffix =
-	// 					Date.now() + "-" + Math.round(Math.random() * 1e9);
-	// 				const ext = extname(file.originalname);
-	// 				const filename = `${uniqueSuffix}${ext}`;
-	// 				callback(null, filename);
-	// 			},
-	// 		}),
-	// 	})
-	// )
-	// uploadAvatar(@UploadedFile() file: Express.Multer.File) {
-	// 	console.log(file);
-	// 	return "File upload API";
-	// }
 }

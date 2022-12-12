@@ -74,7 +74,7 @@ export class UserService {
 	}
 
 	async getAvatarById(id: number) {
-		const user = await this.findUserById(id);
+		// const user = await this.findUserById(id);
 		return this.avatarService.getAvatarById(id);
 	}
 }
