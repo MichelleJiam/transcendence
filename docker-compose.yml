@@ -20,7 +20,7 @@ services:
   build: ./pgadmin
   restart: always
   env_file:
-   - ./pgadmin/.pgadminenv
+   - ./pgadmin/.env
   ports:
    - 5050:80
 
