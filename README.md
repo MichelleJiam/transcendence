@@ -12,6 +12,34 @@ This is a collaborative project between [mjiam](https://github.com/MichelleJiam)
 
 ## Usage
 
+### Run
+
+1. Install and run `Docker`
+
+2. Run `./run.sh` 
+
+	- NOTE: manually build with `docker compose up --build`
+
+|||
+| ------ | ----------- |
+| [`localhost:3000`](http://localhost:3000) | Navigate here to see backend from NestJS |
+| [`localhost:5173`](http://localhost:5173) | Navigate here to see frontend from Vue + Vite |
+| [`localhost:5050`](http://localhost:5050) | Navigate here to see GUI for postgreSQL |
+
+---
+
+### Clean
+
+run `./clean.sh` and select  a clean option
+
+| Prompt ||
+| ------ | ----------- |
+| 1. clean | this option will remove containers and delete images |
+| 2. clean all | this option will additionally delete the volumes |
+
+-	NOTE: manually clean all with `docker compose down --rmi all -v`
+
+
 ## Resources
 
 ## About Us
