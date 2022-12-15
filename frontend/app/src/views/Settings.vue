@@ -1,10 +1,7 @@
 <template>
   <div class="container">
     <h1 class="pt-3 pb-3">Edit your profile ⚙️</h1>
-    <p>
-      Hello <b>{{ displayUser }}</b
-      >! You can edit your account settings here.
-    </p>
+    <p>Hello! You can edit your account settings here.</p>
 
     <!-- Start avatar img -->
     <!-- :src="avatar.image" -->
@@ -82,13 +79,22 @@
 </template>
 
 <script lang="ts">
+import {
+  apiRequest,
+  apiRequestBody,
+  apiRequestFormData,
+} from "@/utils/apiRequest";
+
+// import { useUserSettings } from "@/stores/userSettings";
+
+// const storeUserSettings = useUserSettings();
+
 export default {
   data() {
     type UserAccount = {
       username?: string;
       email?: string;
       twoFA?: boolean;
-      avatarId?: number;
     };
 
     type Avatar = {
@@ -99,12 +105,10 @@ export default {
 
     const user: UserAccount = {};
     const avatar: Avatar = {};
-    const displayUser: string = "";
 
     return {
       user,
       avatar,
-      displayUser,
       styleObject: {
         color: "gray",
       },
@@ -118,59 +122,59 @@ export default {
     },
 
     async getUser() {
-      const res = await fetch(
-        `http://localhost:3000/user/id/${this.$route.params.id}`
-      );
-      const data = await res.json();
-      this.user = data;
-      console.log("TEST =", this.user.avatarId);
-      this.displayUser = data.username;
+      const res = await apiRequest(`/user/id/${this.$route.params.id}`, "get");
+      this.user = res.data;
+      console.log("this.user = ", this.user);
     },
-    async updateUser() {
-      const requestOptions = {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: this.user.username,
-          twoFA: this.user.twoFA,
-        }),
+
+    updateUser() {
+      const data = {
+        username: this.user.username,
+        twoFA: this.user.twoFA,
       };
-      await fetch(
-        `http://localhost:3000/user/${this.$route.params.id}/update-settings`,
-        requestOptions
+
+      apiRequestBody(
+        `/user/${this.$route.params.id}/update-settings`,
+        "put",
+        data
       );
     },
+
     onFileSelected(event: any) {
       this.avatar.selectedFile = event.target.files[0];
       this.avatar.status = "";
       console.log(this.avatar.selectedFile);
     },
+
     async onAvatarUpload() {
-      const formData = new FormData();
-      formData.append("file", this.avatar.selectedFile!);
-      const response = await fetch(
-        `http://localhost:3000/user/${this.$route.params.id}/avatar`,
-        { method: "POST", body: formData }
-      );
-      if (response.ok) {
-        this.avatar.status = "Successfully updated avatar!";
-      } else {
-        this.avatar.status = "Something went wrong with uploading avatar";
+      if (this.avatar.selectedFile) {
+        const formData = new FormData();
+        formData.append("file", this.avatar.selectedFile!);
+
+        const res = await apiRequestFormData(
+          `/user/${this.$route.params.id}/avatar`,
+          "post",
+          formData
+        );
+        if (res.status) {
+          this.avatar.status = "Successfully updated avatar!";
+        } else {
+          this.avatar.status = "Something went wrong with uploading avatar";
+        }
       }
-      console.log(this.avatar.status);
     },
     async getFile() {
-      console.log("getfile()");
-      const res = await fetch(
-        `http://localhost:3000/user/${this.$route.params.id}/avatar`
+      const res = await apiRequest(
+        `/user/${this.$route.params.id}/avatar`,
+        "get"
       );
-      if (res.ok) {
+
+      if (res.status) {
         console.log("response is ok");
       } else {
         console.log("response is not ok");
       }
-      this.avatar.image = res.url;
-      // console.log(this.avatar.image);
+      this.avatar.image = res.config.url;
     },
   },
   /* data available when page loads */

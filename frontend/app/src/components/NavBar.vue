@@ -30,6 +30,7 @@ export default {
         { path: "/pong", name: "Pong", id: 3 },
         { path: "/chat", name: "Chat", id: 4 },
         { path: "/settings", name: "Settings", id: 5 },
+        { path: "/user-settings", name: "userSettings", id: 6 },
       ],
     };
   },
