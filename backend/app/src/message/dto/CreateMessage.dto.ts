@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
+import { IsNotEmpty, MinLength } from "class-validator";
 
 /*
   DTOs stand for data transfer objects
@@ -6,7 +6,7 @@ import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
 */
 
 export class CreateMessageDto {
-	@IsNotEmpty()
-	@MinLength(3)
-	body: string;
+  @IsNotEmpty()
+  @MinLength(3)
+  body: string;
 }

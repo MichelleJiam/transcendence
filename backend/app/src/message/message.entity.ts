@@ -1,29 +1,29 @@
 import {
-	Column,
-	CreateDateColumn,
-	Entity,
-	JoinColumn,
-	ManyToOne,
-	PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from "typeorm";
-import { User } from "src/user/user.entity";
+import { User } from "src/user/User.entity";
 
 @Entity()
 export class Message {
-	@PrimaryGeneratedColumn({
-		name: "message_id",
-	})
-	public id?: number;
+  @PrimaryGeneratedColumn({
+    name: "messageId",
+  })
+  public id?: number;
 
-	@Column({
-		nullable: false,
-	})
-	public body: string;
+  @Column({
+    nullable: false,
+  })
+  public body = "";
 
-	@CreateDateColumn()
-	created_at: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 
-	@ManyToOne(() => User, (user_id: User) => user_id.messages)
-	@JoinColumn()
-	public user_id: User;
+  @ManyToOne(() => User, (userId: User) => userId.messages)
+  @JoinColumn()
+  public userId: User;
 }
