@@ -1,5 +1,5 @@
 import { Message } from "src/message/Message.entity";
-import {src/message/Message.entity
+import {
   Column,
   Entity,
   JoinColumn,
@@ -10,28 +10,28 @@ import {src/message/Message.entity
 @Entity()
 export class User {
   @PrimaryGeneratedColumn({
-    name: "user_id", // alias for the column
+    name: "userId", // alias for the column
   })
   public id?: number;
 
   @Column({
     nullable: false,
   })
-  public username: string;
+  public username!: string;
 
   @Column({
     unique: true,
     nullable: false, // column cannot be empty
   })
-  public email: string; // email must be unique
+  public email!: string; // email must be unique
 
   @Column({
     nullable: false,
   })
-  public password: string;
+  public password!: string;
 
   //link message table to user
   @JoinColumn()
-  @OneToMany(() => Message, (messages: Message) => messages.user_id)
-  public messages: Message[];
+  @OneToMany(() => Message, (messages: Message) => messages.userId)
+  public messages!: Message[];
 }
