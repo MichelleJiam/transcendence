@@ -1,6 +1,6 @@
 <template>
 	<div v-for="message in messages" :key="message.id">
-	<p><pre><b>{{ message.user_id.username }}</b>	<i style="font-size: 12px;">Posted at: {{ message.created_at }}</i></pre></p>
+	<p><pre><b>{{ message.userId.username }}</b>	<i style="font-size: 12px;">Posted at: {{ message.createdAt }}</i></pre></p>
 	<p>{{ message.body }}</p>
 	<hr/>
 	<!-- if there are squiggly lines, they don't actually mean it's broken for some reason it can't resolve that the user IS being called -->
