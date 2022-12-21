@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h1 class="pt-3 pb-3">About</h1>
-    <p for v-for="member in team">{{ member.name }}</p>
+    <p v-for="member in team" :key="member.name" for>{{ member.name }}</p>
   </div>
 </template>
 
