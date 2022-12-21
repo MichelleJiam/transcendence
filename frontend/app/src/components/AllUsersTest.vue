@@ -25,10 +25,16 @@
 <!-- API call -->
 
 <script lang="ts">
+type User = {
+  id: string;
+  username: string;
+  password: string;
+  email: string;
+};
 export default {
   data() {
     return {
-      users: new Array(),
+      users: new Array<User>(),
     };
   },
   mounted() {
