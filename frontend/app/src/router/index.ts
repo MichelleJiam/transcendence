@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import Home from "../views/HomeView.vue";
 import About from "../views/AboutView.vue";
-import Chat from "../views/ChatView.vue";
+import ChatOverview from "../views/ChatOverview.vue";
+import Chatroom from "../views/Chatroom.vue";
 import Game from "../views/GameView.vue";
 
 const router = createRouter({
@@ -20,8 +21,13 @@ const router = createRouter({
     },
     {
       path: "/chat",
-      name: "Chat",
-      component: Chat,
+      name: "ChatOverview",
+      component: ChatOverview,
+    },
+    {
+      path: "/chat/all",
+      name: "SpecificChatRoom",
+      component: Chatroom,
     },
     {
       path: "/pong",
