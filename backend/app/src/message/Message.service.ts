@@ -11,9 +11,11 @@ export class MessageService {
     private readonly messageRepository: Repository<Message>,
   ) {}
 
-  getAllMessages() {
+  async getAllMessages() {
     return this.messageRepository.find({
-      relations: ["userId"],
+      relations: {
+        userId: true,
+      },
       order: {
         userId: {
           id: "asc",
@@ -24,7 +26,12 @@ export class MessageService {
 
   async create(createMessageDto: CreateMessageDto) {
     const newMessage = this.messageRepository.create(createMessageDto);
-    return this.messageRepository.save(newMessage);
+    const existingUser = await this.messageRepository.findOneBy({
+      userId: {
+        id: createMessageDto.userId.id,
+      },
+    });
+    if (existingUser) return this.messageRepository.save(newMessage);
   }
 
   async getMessageByUserId(id: number) {
@@ -44,7 +51,7 @@ export class MessageService {
           email: true,
         },
         body: true,
-        createdAt: true,
+        created_at: true,
       },
     });
     if (messages) return messages;
@@ -74,7 +81,7 @@ export class MessageService {
           email: true,
         },
         body: true,
-        createdAt: true,
+        created_at: true,
       },
     });
     if (messages) return messages;
