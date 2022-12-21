@@ -7,7 +7,7 @@ import {
   Param,
 } from "@nestjs/common";
 import { CreateMessageDto } from "./dto/CreateMessage.dto";
-import { MessageService } from "./message.service";
+import { MessageService } from "./Message.service";
 
 @Controller("message")
 export class MessageController {
