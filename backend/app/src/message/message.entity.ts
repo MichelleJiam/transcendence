@@ -18,12 +18,12 @@ export class Message {
   @Column({
     nullable: false,
   })
-  public body = "";
+  public body!: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @ManyToOne(() => User, (userId: User) => userId.messages)
   @JoinColumn()
-  public userId: User;
+  public userId!: User;
 }

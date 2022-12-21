@@ -1,5 +1,4 @@
 import { IsNotEmpty, MinLength } from "class-validator";
-src / user / User.entity;
 /*
   DTOs stand for data transfer objects
   this is what is used to save data into the database
@@ -8,5 +7,5 @@ src / user / User.entity;
 export class CreateMessageDto {
   @IsNotEmpty()
   @MinLength(3)
-  body: string;
+  body!: string;
 }
