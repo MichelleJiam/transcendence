@@ -6,7 +6,7 @@ import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
 */
 
 export class CreateMessageDto {
-	@IsNotEmpty()
-	@MinLength(3)
-	body: string;
+  @IsNotEmpty()
+  @MinLength(3)
+  body!: string;
 }
