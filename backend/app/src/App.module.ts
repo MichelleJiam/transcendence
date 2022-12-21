@@ -6,11 +6,13 @@ import { AppService } from "./App.service";
 import { MessageModule } from "./message/Message.module";
 import { UserModule } from "./user/User.module";
 import { DatabaseModule } from "./Database.module";
+import { ChatModule } from "./chat/Chat.module";
 
 @Module({
   imports: [
     UserModule,
     MessageModule,
+    ChatModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="pt-3 pb-3">Chat</h1>
+    <h1 class="pt-3" pb-3>Chat</h1>
     <PostMessages />
     <GetMessages />
   </div>
