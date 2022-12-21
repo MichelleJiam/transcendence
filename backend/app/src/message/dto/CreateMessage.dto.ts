@@ -1,5 +1,5 @@
 import { IsNotEmpty, MinLength } from "class-validator";
-
+src / user / User.entity;
 /*
   DTOs stand for data transfer objects
   this is what is used to save data into the database
