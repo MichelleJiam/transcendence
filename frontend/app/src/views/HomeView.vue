@@ -5,7 +5,7 @@
 <script lang="ts">
 import AllUsersTest from "../components/AllUsersTest.vue";
 export default {
-  name: "Home",
+  name: "HomeView",
   components: { AllUsersTest },
 };
 </script>
