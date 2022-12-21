@@ -3,7 +3,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./App.controller";
 import { AppService } from "./App.service";
-import { DatabaseModule } from "./Database.module";
+import { DatabaseModule } fr./chat/Chat.moduleule";
 import { MessageModule } from "./message/Message.module";
 import { UserModule } from "./user/User.module";
 

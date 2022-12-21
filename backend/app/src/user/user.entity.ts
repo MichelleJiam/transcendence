@@ -1,5 +1,5 @@
 import { Message } from "src/message/Message.entity";
-import {
+import {src/message/Message.entity
   Column,
   Entity,
   JoinColumn,
