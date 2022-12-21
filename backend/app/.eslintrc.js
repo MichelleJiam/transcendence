@@ -43,16 +43,11 @@ module.exports = {
         format: ["PascalCase"],
       },
       // variable, parameter, functions, properties, methods are in camelCase
+      // global constants can be in UPPER_CASE
       {
         selector: ["memberLike", "variableLike", "property", "method"],
-        format: ["camelCase"],
+        format: ["camelCase", "UPPER_CASE"],
         leadingUnderscore: "forbid",
-      },
-      // global constants must be UPPER_CASE
-      {
-        selector: ["variable"],
-        modifiers: ["global"],
-        format: ["UPPER_CASE"],
       },
     ],
     // enable if no explicit type annotations of string/number/boolean desired
