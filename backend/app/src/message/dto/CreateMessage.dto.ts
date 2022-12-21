@@ -1,4 +1,8 @@
-import { IsNotEmpty, MinLength } from "class-validator";
+import { IsNotEmpty, MinLength, MaxLength } from "class-validator";
+import { User } from "src/user/User.entity";
+import { Chatroom } from "src/chat/Chat.entity";
+import { DeepPartial } from "typeorm";
+
 /*
   DTOs stand for data transfer objects
   this is what is used to save data into the database
@@ -6,6 +10,14 @@ import { IsNotEmpty, MinLength } from "class-validator";
 
 export class CreateMessageDto {
   @IsNotEmpty()
-  @MinLength(3)
+  @MinLength(1, {
+    message: "Cannot be empty",
+  })
+  @MaxLength(500, {
+    message: "Message too long",
+  })
   body!: string;
+
+  userId!: DeepPartial<User>;
+  chatroomId!: DeepPartial<Chatroom>;
 }
