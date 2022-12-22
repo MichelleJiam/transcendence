@@ -4,6 +4,7 @@ import Home from "../views/HomeView.vue";
 import About from "../views/AboutView.vue";
 import Chat from "../views/ChatView.vue";
 import Game from "../views/GameView.vue";
+import UserSettings from "../views/UserSettingsView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,11 @@ const router = createRouter({
       path: "/pong",
       name: "Game",
       component: Game,
+    },
+    {
+      path: "/:id/user-settings",
+      name: "UserSettings",
+      component: UserSettings,
     },
   ],
 });
