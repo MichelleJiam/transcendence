@@ -1,9 +1,11 @@
+import { Game } from "src/game/entities/Game.entity";
 import { Message } from "src/message/Message.entity";
 import {
   Column,
   Entity,
   JoinColumn,
   OneToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
@@ -40,4 +42,9 @@ export class User {
     default: false,
   })
   public twoFA!: boolean;
+
+  // many users to one game
+  @JoinColumn()
+  @ManyToOne(() => Game, (gameId: Game) => gameId.users)
+  public gameId!: Game;
 }
