@@ -29,7 +29,7 @@ export default {
         { path: "/about", name: "About" },
         { path: "/pong", name: "Pong" },
         { path: "/chat", name: "Chat" },
-        { path: "/user-settings", name: "UserSettings" },
+        { path: "/account-settings", name: "AccountSettings" },
       ],
     };
   },

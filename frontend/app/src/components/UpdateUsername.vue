@@ -5,11 +5,9 @@
       id="username"
       type="text"
       class="form-control"
-      :placeholder="store.userSettings.username"
       autocomplete="off"
       @input="updateUsername"
     />
-    <h2>Two-factor authentication: {{ store.userSettings.twoFA }}</h2>
     <!-- <p>{{ username }}</p> -->
     <!-- <div v-if="error">
       {{ error }}
@@ -19,9 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import { useUserSettings } from "@/stores/userSettings";
+// import { useAccountSettings } from "@/stores/AccountSettings";
 
-const store = useUserSettings();
+// const store = useAccountSettings();
 
 // const username: string | null = null; // this variable can be used for inline type validation
 
@@ -50,4 +48,6 @@ const updateUsername = (e: Event) => {
 <!--
   https://formkit.com/
   '$event.target' is possibly 'null'.ts(18047)
+
+        :placeholder="store.accountSettings.username"
   -->

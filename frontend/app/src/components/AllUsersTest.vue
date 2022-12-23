@@ -6,6 +6,7 @@
         <div class="col-sm"><b>Name</b></div>
         <div class="col-sm"><b>Password</b></div>
         <div class="col-sm"><b>Email</b></div>
+        <div class="col-sm"><b>2FA</b></div>
         <br />
         <br />
       </div>
@@ -14,6 +15,8 @@
           <div class="col-sm">{{ user.username }}</div>
           <div class="col-sm">{{ user.password }}</div>
           <div class="col-sm">{{ user.email }}</div>
+          <div class="col-sm">{{ user.twoFA }}</div>
+
           <hr />
         </div>
       </div>
@@ -30,6 +33,7 @@ type User = {
   username: string;
   password: string;
   email: string;
+  twoFA: boolean;
 };
 export default {
   data() {
