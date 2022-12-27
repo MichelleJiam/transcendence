@@ -9,13 +9,11 @@
       <UpdateUserName v-model="username" />
       <InputCheckbox
         id="twoFactorAuthentication"
-        v-model:checked="store.accountSettings.twoFA"
+        v-model:checked="twoFactorAuthentication"
         label="Two-factor authentication:"
       />
     </form>
-    <button @click="store.updateAccountSettings(username)">
-      Update account settings
-    </button>
+    <button @click="updateAccountSettings">Update account settings</button>
   </div>
 </template>
 
@@ -23,24 +21,24 @@
 import UpdateUserName from "@/components/UpdateUsername.vue";
 import InputCheckbox from "@/components/InputCheckbox.vue";
 import { useAccountSettings } from "@/stores/AccountSettings";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+
+const twoFactorAuthentication = ref<boolean>();
+const username = ref<string>("");
 
 const route = useRoute();
 const store = useAccountSettings();
 
 store.setUserId(route.params.id);
 
-store.getAccountSettings();
+onMounted(async () => {
+  await store.getAccountSettings();
+  twoFactorAuthentication.value = store.accountSettings.twoFA;
+  username.value = store.accountSettings.username;
+});
 
-// hooks?
-
-// const twoFactorAuthentication = ref<boolean>(store.accountSettings.twoFA);
-const username = ref<string>(store.accountSettings.username);
-
-console.log("test = ", store.accountSettings.twoFA);
-console.log("test = ", store.accountSettings.username);
-
-// setter function
-// on submit function for button
+function updateAccountSettings() {
+  store.updateAccountSettings(username.value, twoFactorAuthentication.value);
+}
 </script>

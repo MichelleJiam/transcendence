@@ -4,28 +4,18 @@
     <input
       id="username"
       type="text"
-      class="form-control"
       autocomplete="off"
       @input="updateUsername"
     />
-    <!-- <p>{{ username }}</p> -->
-    <!-- <div v-if="error">
-      {{ error }}
-    </div> -->
   </div>
-  <!-- <button @click="store.updateUserName(username)">Change name</button> -->
 </template>
 
 <script setup lang="ts">
-// import { useAccountSettings } from "@/stores/AccountSettings";
+// import { ref } from "vue";
 
-// const store = useAccountSettings();
+// const input = ref("");
 
 // const username: string | null = null; // this variable can be used for inline type validation
-
-// const error = computed(() => {
-//   return username === "" ? "The Input field is required" : "";
-// });
 
 /*  $emit
  **
