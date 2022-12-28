@@ -6,6 +6,8 @@
       type="text"
       autocomplete="off"
       :value="value"
+      :placeholder="placeholder"
+      :disabled="disabled"
       @input="updateText"
     />
   </div>
@@ -16,6 +18,8 @@ defineProps({
   id: { type: String, required: true },
   label: { type: String, default: "" },
   value: { type: String, default: "" },
+  disabled: { type: Boolean, default: false },
+  placeholder: { type: String, default: "" },
 });
 
 const emit = defineEmits<{

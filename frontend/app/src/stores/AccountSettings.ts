@@ -5,6 +5,7 @@ export type settings = {
   userId: string | string[];
   username: string;
   twoFA: boolean;
+  email: string;
 };
 
 export const useAccountSettings = defineStore("accountSettings", {
@@ -22,6 +23,7 @@ export const useAccountSettings = defineStore("accountSettings", {
         );
         this.accountSettings.username = res.data.username;
         this.accountSettings.twoFA = res.data.twoFA;
+        this.accountSettings.email = res.data.email;
       } catch (error) {
         console.log(`Error in getAccountSettings(): ${error}`);
       }

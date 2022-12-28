@@ -5,6 +5,7 @@
       Hello <i>{{ store.accountSettings.username }}</i
       >! You can edit your account settings here.
     </h2>
+    <AvatarDisplay />
     <form>
       <InputText
         id="username"
@@ -13,24 +14,32 @@
         :value="username"
       />
       <p class="validate">
-        <i>{{ msg }}</i>
+        <i>{{ message }}</i>
       </p>
       <InputCheckbox
         id="twoFactorAuthentication"
         v-model:checked="twoFactorAuthentication"
         label="Two-factor authentication:"
+        @test="updateTest"
+      />
+      <InputText
+        id="email"
+        label="Email:"
+        :placeholder="store.accountSettings.email"
+        :disabled="true"
       />
     </form>
     <button :disabled="isDisabled" @click="updateAccountSettings">
       Update account settings
     </button>
-    <p>|{{ username }}|</p>
   </div>
+  {{ twoFactorAuthentication }}
 </template>
 
 <script setup lang="ts">
 import InputText from "@/components/InputText.vue";
 import InputCheckbox from "@/components/InputCheckbox.vue";
+import AvatarDisplay from "@/components/AvatarDisplay.vue";
 import { useAccountSettings } from "@/stores/AccountSettings";
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -38,12 +47,12 @@ import { useRoute } from "vue-router";
 const twoFactorAuthentication = ref<boolean>();
 const username = ref<string>("");
 const isDisabled = ref<boolean>();
-let msg = "";
+let message = "";
 
 const route = useRoute();
 const store = useAccountSettings();
 
-store.setUserId(route.params.id);
+store.setUserId(route.params.id); // temporary workaround: remove when user authentication is fixed
 
 onMounted(async () => {
   await store.getAccountSettings();
@@ -55,20 +64,28 @@ function updateAccountSettings() {
   store.updateAccountSettings(username.value, twoFactorAuthentication.value);
 }
 
+/* input validation */
+
 watch(username, () => {
   if (username.value.length <= 3 || username.value.length > 25) {
-    msg = "Username must be between 3 and 25 characters";
+    message = "Username must be between 3 and 25 characters";
     isDisabled.value = true;
-  } else if (containsWhitespace(username.value)) {
-    msg = "username can not contain whitespace";
+  } else if (!validUsername(username.value)) {
+    message =
+      "Username can only include alphabetic characters, digits and the following special characters -_";
+    isDisabled.value = true;
   } else {
-    msg = "";
+    message = "";
     isDisabled.value = false;
   }
 });
 
-function containsWhitespace(username: string) {
-  return /\s/.test(username);
+function validUsername(username: string) {
+  return /^[a-zA-Z0-9-_!]+$/.test(username);
+}
+
+function updateTest(value: string) {
+  console.log(value);
 }
 </script>
 
