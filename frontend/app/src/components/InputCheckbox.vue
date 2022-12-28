@@ -1,8 +1,6 @@
 <template>
   <div class="form-group">
-    <label :for="id">
-      {{ label }}
-    </label>
+    <label :for="id"> {{ label }} </label>
     <input
       :id="id"
       type="checkbox"
@@ -14,11 +12,9 @@
 
 <script setup lang="ts">
 defineProps({
-  label: { type: String, default: "" },
+  checked: { type: Boolean },
   id: { type: String, required: true },
-  checked: {
-    type: Boolean,
-  },
+  label: { type: String, default: "" },
 });
 
 const emit = defineEmits(["update:checked"]);

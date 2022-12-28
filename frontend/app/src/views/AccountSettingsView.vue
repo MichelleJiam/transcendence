@@ -6,26 +6,39 @@
       >! You can edit your account settings here.
     </h2>
     <form>
-      <UpdateUserName v-model="username" />
+      <InputText
+        id="username"
+        v-model="username"
+        label="Username:"
+        :value="username"
+      />
+      <p class="validate">
+        <i>{{ msg }}</i>
+      </p>
       <InputCheckbox
         id="twoFactorAuthentication"
         v-model:checked="twoFactorAuthentication"
         label="Two-factor authentication:"
       />
     </form>
-    <button @click="updateAccountSettings">Update account settings</button>
+    <button :disabled="isDisabled" @click="updateAccountSettings">
+      Update account settings
+    </button>
+    <p>|{{ username }}|</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import UpdateUserName from "@/components/UpdateUsername.vue";
+import InputText from "@/components/InputText.vue";
 import InputCheckbox from "@/components/InputCheckbox.vue";
 import { useAccountSettings } from "@/stores/AccountSettings";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 
 const twoFactorAuthentication = ref<boolean>();
 const username = ref<string>("");
+const isDisabled = ref<boolean>();
+let msg = "";
 
 const route = useRoute();
 const store = useAccountSettings();
@@ -41,4 +54,26 @@ onMounted(async () => {
 function updateAccountSettings() {
   store.updateAccountSettings(username.value, twoFactorAuthentication.value);
 }
+
+watch(username, () => {
+  if (username.value.length <= 3 || username.value.length > 25) {
+    msg = "Username must be between 3 and 25 characters";
+    isDisabled.value = true;
+  } else if (containsWhitespace(username.value)) {
+    msg = "username can not contain whitespace";
+  } else {
+    msg = "";
+    isDisabled.value = false;
+  }
+});
+
+function containsWhitespace(username: string) {
+  return /\s/.test(username);
+}
 </script>
+
+<style scoped>
+.validate {
+  color: red;
+}
+</style>
