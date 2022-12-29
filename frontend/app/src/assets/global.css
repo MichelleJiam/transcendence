@@ -1,0 +1,44 @@
+@import url("https://fonts.cdnfonts.com/css/arcade-classic");
+
+body {
+  /* set border and margin to null otherwise vh and vw will have some overflow  */
+  border: 0;
+  margin: 0;
+  font-family: sans-serif;
+  background: #1c1b1bfa;
+  color: white;
+}
+
+div #display-content {
+  height: 80%;
+  width: 70%;
+  background: #1c1b1b;
+  text-align: center;
+  border: 2px #302d2d solid;
+  border-radius: 5px;
+}
+
+h1, h2 {
+  font-family: "ArcadeClassic", sans-serif;
+}
+
+nav {
+  position: absolute;
+  height: 6vh;
+  width: 100vw;
+  top: 0;
+}
+
+main {
+  position: absolute;
+  /* use the whole page with vh vw */
+  height: 94vh;
+  width: 100vw;
+  /* padding: 0; */
+  /* margin: 0; */
+  bottom: 0;
+  /* display the items within main in the center */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
