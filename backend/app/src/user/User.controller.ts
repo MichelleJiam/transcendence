@@ -6,8 +6,12 @@ import {
   Param,
   ParseIntPipe,
   Delete,
+  Put,
+  ValidationPipe,
+  UsePipes,
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/CreateUser";
+import { UpdateUserSettingsDto } from "./dto/UpdateUserSettings";
 import { UserService } from "./User.service";
 
 // the code for each function can be found in:
@@ -45,5 +49,21 @@ export class UserController {
   @Post("create")
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
+  }
+
+  /* localhost:3000/user/:id/update-settings */
+  /* curl -i --header "Content-Type: application/json" --request PUT --data '{"username":"Nilo"}' http://localhost:3000/user/3/update-settings */
+
+  /* TODO:
+   **  add server-side validation for user input
+   */
+
+  @Put(":id/update-settings")
+  @UsePipes(ValidationPipe)
+  async updateUser(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() userSettings: UpdateUserSettingsDto,
+  ) {
+    return await this.userService.updateUser(id, userSettings);
   }
 }

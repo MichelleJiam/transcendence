@@ -34,4 +34,10 @@ export class User {
   @JoinColumn()
   @OneToMany(() => Message, (messages: Message) => messages.userId)
   public messages!: Message[];
+
+  @Column({
+    type: "boolean",
+    default: false,
+  })
+  public twoFA!: boolean;
 }

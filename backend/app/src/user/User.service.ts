@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/CreateUser";
+import { UpdateUserSettingsDto } from "./dto/UpdateUserSettings";
 import { User } from "./User.entity";
 
 @Injectable()
@@ -58,5 +59,9 @@ export class UserService {
     if (!deleteResponse.affected) {
       throw new HttpException("User not found", HttpStatus.NOT_FOUND);
     }
+  }
+
+  async updateUser(id: number, settings: UpdateUserSettingsDto) {
+    return await this.userRepository.update(id, settings);
   }
 }
