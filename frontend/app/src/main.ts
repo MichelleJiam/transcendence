@@ -4,13 +4,14 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
 
-import "bootstrap/dist/css/bootstrap.css";
-import bootstrap from "bootstrap/dist/js/bootstrap.bundle.js";
+// import "bootstrap/dist/css/bootstrap.css";
+// import bootstrap from "bootstrap/dist/js/bootstrap.bundle.js";
+import "./assets/global.css";
 
 const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
-app.use(bootstrap);
+// app.use(bootstrap);
 
 app.mount("#app");
