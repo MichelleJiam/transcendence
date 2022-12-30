@@ -39,7 +39,7 @@ module.exports = {
       },
       // classes/enums/types must be in PascalCase
       {
-        selector: ["typeLike"],
+        selector: ["typeLike", "enumMember"],
         format: ["PascalCase"],
       },
       // variable, parameter, functions, properties, methods are in camelCase
