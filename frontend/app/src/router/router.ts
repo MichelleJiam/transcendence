@@ -12,6 +12,7 @@ const routes: { path: string; component: Component; alias?: string[] }[] = [
   { path: "/", component: HomePage, alias: ["/home", "/homepage"] },
   { path: "/login", component: LoginPage },
   { path: "/game", component: GamePage },
+  { path: "/:id/account", component: UserPage } /* temp workaround */,
   { path: "/account", component: UserPage, alias: ["/user"] },
   { path: "/leaderboard", component: LeaderBoard },
   { path: "/stream", component: LiveStream },
