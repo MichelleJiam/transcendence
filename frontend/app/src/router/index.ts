@@ -1,34 +1,14 @@
 import { createRouter, createWebHistory } from "vue-router";
-
-import Home from "../views/HomeView.vue";
-import About from "../views/AboutView.vue";
-import Chat from "../views/ChatView.vue";
-import Game from "../views/GameView.vue";
+import routes from "./router";
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: "/",
-      name: "Home",
-      component: Home,
-    },
-    {
-      path: "/about",
-      name: "About",
-      component: About,
-    },
-    {
-      path: "/chat",
-      name: "Chat",
-      component: Chat,
-    },
-    {
-      path: "/pong",
-      name: "Game",
-      component: Game,
-    },
-  ],
+  history: createWebHistory(),
+  // sets the active CSS class on <router-link> components
+  // active to make the nav bar links compatible with the css
+  routes,
 });
 
+// check if user is logged in
+// if not can only access public pages
+// router.beforeEach
 export default router;
