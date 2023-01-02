@@ -9,11 +9,18 @@ import {
   Put,
   ValidationPipe,
   UsePipes,
+  StreamableFile,
+  Res,
+  UseInterceptors,
+  UploadedFile,
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/CreateUser";
 import { UpdateUserSettingsDto } from "./dto/UpdateUserSettings";
 import { UserService } from "./User.service";
-
+import { createReadStream } from "fs";
+import { join } from "path";
+import { Response } from "express";
+import { FileInterceptor } from "@nestjs/platform-express";
 // the code for each function can be found in:
 // user.service.ts
 
@@ -65,5 +72,48 @@ export class UserController {
     @Body() userSettings: UpdateUserSettingsDto,
   ) {
     return await this.userService.updateUser(id, userSettings);
+  }
+
+  // @Post(":id/avatar")
+  // @UseInterceptors(FileInterceptor("file"))
+  // async addAvatar(
+  //   @Param("id", ParseIntPipe) id: number,
+  //   @UploadedFile() file: Express.Multer.File,
+  // ) {
+  //   console.log(file);
+  //   // file.filename = "avatar" + Math.random();
+  //   // console.log(file.filename);
+  //   // return this.userService.addAvatar(id, file.buffer, file.filename);
+  // }
+
+  @Post(":id/avatar")
+  @UseInterceptors(FileInterceptor("file"))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log(file);
+  }
+
+  @Get(":id/avatar")
+  async getAvatar(
+    @Param("id", ParseIntPipe) id: number,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const user = await this.findUsersById(id);
+    const avatarId = user?.avatarId;
+    if (user?.avatarId == null) {
+      res.header("Content-Type", "image");
+      res.header(
+        "Content-Disposition",
+        `inline; filename="default-avatar.jpg"`,
+      );
+      const defaultAvatar = createReadStream(
+        join(process.cwd(), "src/assets/default-avatar.png"),
+      );
+      return new StreamableFile(defaultAvatar);
+    }
+
+    console.log(avatarId);
+    // const file = await this.userService.getAvatarById(avatarId);
+    // const stream = Readable.from(file.data);
+    // return new StreamableFile(stream);
   }
 }
