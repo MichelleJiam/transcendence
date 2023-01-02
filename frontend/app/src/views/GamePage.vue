@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import Pong from "../components/pong/Pong.vue";
+import pongGame from "../components/pong/pongGame.vue";
 
 const showStartButton = ref(true);
 const showWatchButton = ref(true);
@@ -23,7 +23,7 @@ function updateInPlay(value: boolean) {
         <button class="btn">WATCH</button>
       </div>
       <div v-else>
-        <Pong @game-over="updateInPlay" />
+        <pongGame @game-over="updateInPlay" />
       </div>
     </div>
   </main>
@@ -49,7 +49,7 @@ button {
   display: block;
 }
 button:hover {
-  color: rgba(15, 15, 217, 0.847);;
+  color: #39ff14;
 }
 .my-btn {
   height: 100%;

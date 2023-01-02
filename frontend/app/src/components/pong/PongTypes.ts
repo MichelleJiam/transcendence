@@ -24,4 +24,11 @@ export interface Canvas {
   width: number;
   height: number;
   offset: number;
+  borderLines: number;
+}
+
+export interface Player {
+  id: number;
+  score: number;
+  paddle?: Paddle;
 }
