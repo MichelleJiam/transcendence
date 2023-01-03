@@ -4,11 +4,13 @@ import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/CreateUser";
 import { UpdateUserSettingsDto } from "./dto/UpdateUserSettings";
 import { User } from "./User.entity";
+import { AvatarService } from "src/avatar/avatar.service";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private readonly avatarService: AvatarService,
   ) {}
 
   getAllUsers() {
@@ -63,5 +65,15 @@ export class UserService {
 
   async updateUser(id: number, settings: UpdateUserSettingsDto) {
     return await this.userRepository.update(id, settings);
+  }
+
+  async addAvatar(userId: number, imageBuffer: Buffer, filename: string) {
+    const avatar = await this.avatarService.uploadAvatar(imageBuffer, filename);
+    await this.userRepository.update(userId, { avatarId: avatar.id });
+    return avatar;
+  }
+
+  async getAvatarById(id: number) {
+    return this.avatarService.getAvatarById(id);
   }
 }

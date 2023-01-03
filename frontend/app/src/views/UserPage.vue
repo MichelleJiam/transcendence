@@ -8,35 +8,35 @@
 <template>
   <main>
     <div id="display-content">
-      <h1>account settings</h1>
-      <h2>
-        Hello <i>{{ store.accountSettings.username }}</i
-        >! You can edit your account settings here.
-      </h2>
-      <AvatarDisplay />
+      <h1>
+        Hi <span class="username">{{ store.accountSettings.username }}</span>
+      </h1>
+      <h2>You can edit your account settings here.</h2>
+      <AvatarDisplay :src="store.avatar.url" />
       <form>
+        <AvatarUpload />
         <InputText
           id="username"
           v-model="username"
-          label="Username:"
+          label="Username: "
           :value="username"
         />
-        <p class="validate">
+        <span class="validate">
           <i>{{ message }}</i>
-        </p>
+        </span>
         <InputCheckbox
           id="twoFactorAuthentication"
           v-model:checked="twoFactorAuthentication"
-          label="Two-factor authentication:"
+          label="Two-factor authentication: "
         />
         <InputText
           id="email"
-          label="Email:"
+          label="Email: "
           :placeholder="store.accountSettings.email"
           :disabled="true"
         />
       </form>
-      <button :disabled="isDisabled" @click="updateAccountSettings">
+      <button :disabled="isDisabled" @click="submitAccountSettings">
         Update account settings
       </button>
     </div>
@@ -47,6 +47,7 @@
 import InputText from "@/components/InputText.vue";
 import InputCheckbox from "@/components/InputCheckbox.vue";
 import AvatarDisplay from "@/components/AvatarDisplay.vue";
+import AvatarUpload from "@/components/AvatarUpload.vue";
 import { useAccountSettings } from "@/stores/AccountSettings";
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -54,6 +55,7 @@ import { useRoute } from "vue-router";
 const twoFactorAuthentication = ref<boolean>();
 const username = ref<string>("");
 const isDisabled = ref<boolean>();
+
 let message = "";
 
 const route = useRoute();
@@ -65,13 +67,14 @@ onMounted(async () => {
   await store.getAccountSettings();
   twoFactorAuthentication.value = store.accountSettings.twoFA;
   username.value = store.accountSettings.username;
+  await store.getAvatar();
 });
 
-function updateAccountSettings() {
+function submitAccountSettings() {
   store.updateAccountSettings(username.value, twoFactorAuthentication.value);
 }
 
-/* input validation */
+/*  client-Side input validation */
 
 watch(username, () => {
   if (username.value.length <= 3 || username.value.length > 8) {
@@ -99,5 +102,9 @@ h1 {
 
 .validate {
   color: red;
+}
+
+.username {
+  color: #39ff14;
 }
 </style>

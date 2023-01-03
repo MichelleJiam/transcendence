@@ -4,7 +4,7 @@ const baseUrl = "http://localhost:3000";
 
 interface ConfigOptions {
   headers?: object;
-  data?: object | FormData;
+  data?: object | File;
 }
 
 export async function apiRequest(

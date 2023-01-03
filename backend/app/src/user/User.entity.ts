@@ -1,9 +1,11 @@
 import { Message } from "src/message/Message.entity";
+import { Avatar } from "src/avatar/avatar.entity";
 import {
   Column,
   Entity,
   JoinColumn,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
@@ -40,4 +42,23 @@ export class User {
     default: false,
   })
   public twoFA!: boolean;
+
+  @JoinColumn({ name: "avatarId" })
+  @OneToOne(() => Avatar, {
+    nullable: true,
+  })
+  @Column({ nullable: true })
+  public avatarId?: number;
+
+  // @OneToOne(() => Avatar, {
+  //   nullable: true,
+  // })
+  // public avatar?: Avatar;
+  // @JoinColumn({ name: "avatarId" })
+  // @Column({ nullable: true })
+  // public avatarId?: number;
+
+  // @OneToOne(() => Avatar)
+  // @JoinColumn()
+  // avatar?: Avatar;
 }

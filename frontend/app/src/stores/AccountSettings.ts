@@ -8,10 +8,15 @@ export type settings = {
   email: string;
 };
 
+export type avatar = {
+  url: string | undefined;
+};
+
 export const useAccountSettings = defineStore("accountSettings", {
   state: () => {
     return {
       accountSettings: {} as settings,
+      avatar: {} as avatar,
     };
   },
   actions: {
@@ -47,6 +52,34 @@ export const useAccountSettings = defineStore("accountSettings", {
     },
     setUserId(userId: string | string[]) {
       this.accountSettings.userId = userId;
+    },
+
+    async getAvatar() {
+      try {
+        const res = await apiRequest(
+          `/user/${this.accountSettings.userId}/avatar`,
+          "get"
+        );
+        this.avatar.url = res.config.url;
+      } catch (error) {
+        console.log(`Error in getAvatar(): ${error}`);
+      }
+    },
+
+    async updateAvatar(selectedFile: File) {
+      try {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        await apiRequest(
+          `/user/${this.accountSettings.userId}/avatar`,
+          "post",
+          {
+            data: formData,
+          }
+        );
+      } catch (error) {
+        console.log(`Error in updateAvatar(): ${error}`);
+      }
     },
   },
 });
