@@ -12,25 +12,9 @@
         Hi <span class="username">{{ store.accountSettings.username }}</span>
       </h1>
       <h2>You can edit your account settings here.</h2>
-
-      <!-- start avatar related stuff, split into components when working -->
-
-      <img class="avatar" :src="store.avatar.url" alt="Avatar" />
+      <AvatarDisplay :src="store.avatar.url" />
       <form>
-        <div>
-          <label>Avatar: </label>
-          <input type="file" @change="onFileSelected($event)" />
-        </div>
-        <button
-          :disabled="isDisabledAvatar"
-          style="margin-bottom: 50px"
-          @click="submitAvatar"
-        >
-          Update avatar
-        </button>
-
-        <!-- end avatar related stuff, split into components when working -->
-
+        <AvatarUpload />
         <InputText
           id="username"
           v-model="username"
@@ -62,17 +46,15 @@
 <script setup lang="ts">
 import InputText from "@/components/InputText.vue";
 import InputCheckbox from "@/components/InputCheckbox.vue";
+import AvatarDisplay from "@/components/AvatarDisplay.vue";
+import AvatarUpload from "@/components/AvatarUpload.vue";
 import { useAccountSettings } from "@/stores/AccountSettings";
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
-import { apiRequest } from "@/utils/apiRequest";
-import axios from "axios";
 
 const twoFactorAuthentication = ref<boolean>();
 const username = ref<string>("");
 const isDisabled = ref<boolean>();
-const isDisabledAvatar = ref<boolean>(true);
-let fileName: string | undefined;
 
 let message = "";
 
@@ -111,71 +93,6 @@ watch(username, () => {
 function validUsername(username: string) {
   return /^[a-zA-Z0-9-_!]+$/.test(username);
 }
-
-async function onFileSelected(e: Event) {
-  const formData = new FormData();
-
-  formData.append("file", "yooooo");
-
-  axios({
-    method: "post",
-    url: `http://localhost:3000/user/${route.params.id}/avatar`,
-    data: formData,
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-    .then((response) => {
-      console.log(response);
-    })
-    .catch((response) => {
-      console.log(response);
-    });
-
-  // const target = e.target as HTMLInputElement;
-  // fileName = target.files?.item(0)?.name;
-  // const formData = new FormData();
-  // if (typeof fileName === "string") {
-  //   formData.append("file", fileName);
-  // }
-  // console.log("type = ", typeof formData);
-  // const res = await axios({
-  //   method: "post",
-  //   url: `http://localhost:3000/user/${route.params.id}/avatar`,
-  //   data: formData,
-  //   headers: {
-  //     "Content-Type": "multipart/form-data",
-  //   },
-  // });
-  // console.log("res = ", res);
-  // try {
-  //   apiRequest(`/user/${route.params.id}/avatar`, "post", {
-  //     data: { formData },
-  //   });
-  //   console.log("seems like it worked?");
-  // } catch (error) {
-  //   console.log(`Error in updateAvatar(): ${error}`);
-  // }
-  // validate file before disabling the button
-  // implement option of setting back the default avatar?
-  isDisabledAvatar.value = false;
-}
-
-// const res = await axios.post('//localhost:5001/upload', formData, {
-//   headers: {
-//     'Content-Type': 'multipart/form-data'
-//   }
-// });
-
-function submitAvatar() {
-  // try {
-  //   apiRequest(`/user/${route.params.id}/avatar`, "post", {
-  //     data: { formData },
-  //   });
-  //   console.log("seems like it worked?");
-  // } catch (error) {
-  //   console.log(`Error in updateAvatar(): ${error}`);
-  // }
-  // store.updateAvatar(fileName);
-}
 </script>
 
 <style scoped>
@@ -189,10 +106,5 @@ h1 {
 
 .username {
   color: #39ff14;
-}
-
-.avatar {
-  width: 250px;
-  height: 250px;
 }
 </style>
