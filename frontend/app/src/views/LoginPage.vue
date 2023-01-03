@@ -5,12 +5,12 @@
 
       <div class="input-parent">
         <label for="username">Username</label>
-        <input type="text" id="username" v-model="username" />
+        <input id="username" v-model="username" type="text"/>
       </div>
 
       <div class="input-parent">
         <label for="password">Password</label>
-        <input type="password" id="password" v-model="password" />
+        <input id="password" v-model="password" type="password"/>
       </div>
 
       <button @click.prevent="submitLogin">Login</button>
@@ -21,15 +21,17 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import router from "../router";
+import { useNavigationStore } from "../stores/navigation";
+
+const navigationGuard = useNavigationStore();
 
 const username = ref<string>("");
 const password = ref<string>("");
-let login = ref<boolean>(false);
 function submitLogin(): void {
   // hardcoded user and passwordt ATM
   if (username.value == "username" && password.value == "password") {
     alert("Correct Login.");
-    login.value = true;
+    navigationGuard.loggedIn = true;
     router.push("/");
   } else {
     alert("Invalid Login.");
@@ -47,9 +49,9 @@ function submitLogin(): void {
 
 form {
   text-align: center;
-  width: 30%;
+  width: 25%;
   margin: 1em auto;
-  padding: 25px 28px;
+  padding: 20px 28px;
   border: 2px #302d2d solid;
   border-radius: 5px;
   background: #151414e4;
