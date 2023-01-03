@@ -21,6 +21,7 @@ import { createReadStream } from "fs";
 import { join } from "path";
 import { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { Readable } from "typeorm/platform/PlatformTools";
 // the code for each function can be found in:
 // user.service.ts
 
@@ -74,22 +75,17 @@ export class UserController {
     return await this.userService.updateUser(id, userSettings);
   }
 
-  // @Post(":id/avatar")
-  // @UseInterceptors(FileInterceptor("file"))
-  // async addAvatar(
-  //   @Param("id", ParseIntPipe) id: number,
-  //   @UploadedFile() file: Express.Multer.File,
-  // ) {
-  //   console.log(file);
-  //   // file.filename = "avatar" + Math.random();
-  //   // console.log(file.filename);
-  //   // return this.userService.addAvatar(id, file.buffer, file.filename);
-  // }
+  /* avatar */
 
   @Post(":id/avatar")
   @UseInterceptors(FileInterceptor("file"))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    console.log(file);
+  async addAvatar(
+    @Param("id", ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    // delete avatar before posting a new one
+    file.filename = "avatar" + "-" + id + "-" + Date.now();
+    return this.userService.addAvatar(id, file.buffer, file.filename);
   }
 
   @Get(":id/avatar")
@@ -98,22 +94,33 @@ export class UserController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const user = await this.findUsersById(id);
-    const avatarId = user?.avatarId;
-    if (user?.avatarId == null) {
-      res.header("Content-Type", "image");
-      res.header(
-        "Content-Disposition",
-        `inline; filename="default-avatar.jpg"`,
-      );
-      const defaultAvatar = createReadStream(
-        join(process.cwd(), "src/assets/default-avatar.png"),
-      );
-      return new StreamableFile(defaultAvatar);
+    if (user != null) {
+      const avatarId = user.avatarId;
+      if (user.avatarId == null) {
+        res.header("Content-Type", "image");
+        res.header(
+          "Content-Disposition",
+          `inline; filename="default-avatar.jpg"`,
+        );
+        const defaultAvatar = createReadStream(
+          join(process.cwd(), "src/assets/default-avatar.png"),
+        );
+        return new StreamableFile(defaultAvatar);
+        // split up into different functions
+      } else {
+        if (avatarId) {
+          const file = await this.userService.getAvatarById(avatarId);
+          res.header("Content-Type", "image");
+          res.header(
+            "Content-Disposition",
+            `inline; filename="${file.filename}"`,
+          );
+          if (file.data) {
+            const stream = Readable.from(file.data);
+            return new StreamableFile(stream);
+          }
+        }
+      }
     }
-
-    console.log(avatarId);
-    // const file = await this.userService.getAvatarById(avatarId);
-    // const stream = Readable.from(file.data);
-    // return new StreamableFile(stream);
   }
 }

@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { apiRequest } from "@/utils/apiRequest";
-import axios from "axios";
 
 export type settings = {
   userId: string | string[];
@@ -67,30 +66,20 @@ export const useAccountSettings = defineStore("accountSettings", {
       }
     },
 
-    async updateAvatar(selectedFile: string | undefined) {
-      if (selectedFile) {
+    async updateAvatar(selectedFile: File) {
+      try {
         const formData = new FormData();
         formData.append("file", selectedFile);
-        console.log(formData);
+        await apiRequest(
+          `/user/${this.accountSettings.userId}/avatar`,
+          "post",
+          {
+            data: formData,
+          }
+        );
+      } catch (error) {
+        console.log(`Error in updateAvatar(): ${error}`);
       }
     },
   },
 });
-
-// async onAvatarUpload() {
-//   if (this.avatar.selectedFile) {
-//     const formData = new FormData();
-//     formData.append("file", this.avatar.selectedFile!);
-
-//     const res = await apiRequestFormData(
-//       `/user/${this.$route.params.id}/avatar`,
-//       "post",
-//       formData
-//     );
-//     if (res.status) {
-//       this.avatar.status = "Successfully updated avatar!";
-//     } else {
-//       this.avatar.status = "Something went wrong with uploading avatar";
-//     }
-//   }
-// },
