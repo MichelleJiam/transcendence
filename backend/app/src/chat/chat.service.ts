@@ -118,7 +118,6 @@ export class ChatService {
         admin: {
           id: true,
           username: true,
-          email: true,
         },
         member: {
           id: true,
