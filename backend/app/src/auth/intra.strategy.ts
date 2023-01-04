@@ -20,16 +20,12 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(
-    accessToken: string,
-    refreshToken: string,
-    profile: any,
-  ): Promise<User | undefined> {
+  async validate(accessToken: string, refreshToken: string, profile: any) {
     const createUser = {
       intraId: profile.id,
       password: "password", // TODO: remove once 42Auth implemented
     };
-    const user = await this.authService.validateUser(createUser);
-    return user;
+
+    return await this.authService.validateUser(createUser);
   }
 }
