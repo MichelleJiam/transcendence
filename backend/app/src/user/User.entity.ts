@@ -42,6 +42,18 @@ export class User {
   @OneToMany(() => Message, (messages: Message) => messages.userId)
   public messages!: Message[];
 
+@ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.member, {
+    cascade: true,
+  })
+  @JoinTable()
+  public chatroomMember!: Chatroom[];
+
+  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.admin, {
+    cascade: true,
+  })
+  @JoinTable()
+  public chatroomAdmin!: Chatroom[];
+
   @Column({
     type: "boolean",
     default: false,
