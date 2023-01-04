@@ -36,10 +36,13 @@ export class User {
   public password!: string;
 
   // add owner entity
+  @OneToMany( () => Chatroom, (chatroom: Chatroom) => chatroom.owner)
+  @JoinColumn()
+  public chatroomOwner!: Chatroom[];
 
   //link message table to user
-  @JoinColumn()
   @OneToMany(() => Message, (messages: Message) => messages.userId)
+  @JoinColumn()
   public messages!: Message[];
 
 @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.member, {
