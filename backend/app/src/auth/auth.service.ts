@@ -29,9 +29,9 @@ export class AuthService {
 
     console.log("Validated user: ", existingUser.intraId);
 
-    // add jwt token as cookie
+    const accessToken = this.getJwtToken(existingUser);
 
-    return existingUser;
+    return { user: existingUser, accessToken };
   }
 
   async registerUser(user: CreateUserDto) {
