@@ -1,4 +1,9 @@
-import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumberString,
+  MinLength,
+} from "class-validator";
 
 // DTOs stand for data transfer objects
 /*
@@ -7,14 +12,18 @@ import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
 
 export class CreateUserDto {
   @IsNotEmpty()
-  @MinLength(3)
-  username!: string; // will be initialised upon use
+  @IsNumberString()
+  intraId!: string;
 
   @IsNotEmpty()
   @MinLength(8)
-  password!: string;
+  password!: string; // TODO: remove once 42Auth implemented
 
-  @IsNotEmpty()
-  @IsEmail()
-  email!: string;
+  // @IsNotEmpty()
+  // @IsEmail()
+  // email!: string; // TODO: remove once 42Auth implemented
+
+  // @IsNotEmpty()
+  // @MinLength(3)
+  // username!: string; // will be initialised upon use
 }
