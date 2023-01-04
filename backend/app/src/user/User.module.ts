@@ -9,7 +9,7 @@ import { Avatar } from "src/avatar/avatar.entity";
 import { AvatarService } from "src/avatar/avatar.service";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Message, Avatar])],
+  imports: [TypeOrmModule.forFeature([User, Message, Avatar, Chatroom])],
   controllers: [UserController],
   providers: [UserService, AvatarService],
 })

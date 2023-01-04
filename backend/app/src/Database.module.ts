@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { User } from "./user/User.entity";
 import { Message } from "./message/Message.entity";
 import { Avatar } from "./avatar/avatar.entity";
+import { Chatroom } from "./chat/Chat.entity";
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { Avatar } from "./avatar/avatar.entity";
         username: configService.get("POSTGRES_USER"),
         password: configService.get("POSTGRES_PASSWORD"),
         database: configService.get("POSTGRES_DB"),
-        entities: [User, Message, Avatar],
+        entities: [User, Message, Avatar, Chatroom],
         synchronize: true,
       }),
     }),
