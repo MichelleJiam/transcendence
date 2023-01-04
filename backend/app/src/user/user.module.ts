@@ -1,12 +1,12 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Chatroom } from "src/chat/Chat.entity";
-import { Message } from "src/message/Message.entity";
-import { UserController } from "./User.controller";
-import { User } from "./User.entity";
-import { UserService } from "./User.service";
+import { Message } from "src/message/message.entity";
+import { UserController } from "./user.controller";
+import { User } from "./user.entity";
+import { UserService } from "./user.service";
 import { Avatar } from "src/avatar/avatar.entity";
 import { AvatarService } from "src/avatar/avatar.service";
+import { Chatroom } from "src/chat/Chat.entity";
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Message, Avatar, Chatroom])],

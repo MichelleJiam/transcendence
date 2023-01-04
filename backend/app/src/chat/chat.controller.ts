@@ -9,7 +9,7 @@ import {
   Body,
   ParseIntPipe,
 } from "@nestjs/common";
-import { ChatService } from "./Chat.service";
+import { ChatService } from "./chat.service";
 import { AddAdminDto } from "./dto/AddAdmin.dto";
 import { AddMemberDto } from "./dto/AddMember.dto";
 import { CreateChatroomDto } from "./dto/CreateChat.dto";

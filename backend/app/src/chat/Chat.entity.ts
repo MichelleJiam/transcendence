@@ -7,8 +7,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Message } from "src/message/Message.entity";
-import { User } from "src/user/User.entity";
+import { Message } from "src/message/message.entity";
+import { User } from "src/user/user.entity";
 
 @Entity()
 export class Chatroom {
@@ -52,6 +52,4 @@ export class Chatroom {
   @ManyToOne(() => User, (userId: User) => userId.chatroomOwner)
   @JoinColumn()
   public owner!: User;
-
-  
 }
