@@ -11,7 +11,12 @@ export class CreateChatroomDto {
 
   password!: string;
 
+  @IsNotEmpty()
+  owner!: DeepPartial<User[]>;
+
+  @IsNotEmpty()
   admin!: DeepPartial<User[]>;
 
+  @IsNotEmpty()
   member!: DeepPartial<User[]>;
 }

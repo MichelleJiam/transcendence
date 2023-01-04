@@ -4,6 +4,7 @@ import {
   JoinColumn,
   OneToMany,
   ManyToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Message } from "src/message/Message.entity";
@@ -44,7 +45,13 @@ export class Chatroom {
   public member!: User[];
 
   // shows messages belonging to this chatroom
-  @JoinColumn()
   @OneToMany(() => Message, (messages: Message) => messages.chatroomId)
+  @JoinColumn()
   public messages!: Message[];
+
+  @ManyToOne(() => User, (userId: User) => userId.chatroomOwner)
+  @JoinColumn()
+  public owner!: User;
+
+  
 }

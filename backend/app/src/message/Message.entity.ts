@@ -22,7 +22,7 @@ export class Message {
   public body!: string;
 
   @CreateDateColumn()
-  created_at!: Date;
+  createdAt!: Date;
 
   @ManyToOne(() => User, (userId: User) => userId.messages)
   @JoinColumn()
