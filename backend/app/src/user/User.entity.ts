@@ -1,6 +1,10 @@
 import { Chatroom } from "src/chat/Chat.entity";
 import { Message } from "src/message/Message.entity";
+<<<<<<< HEAD
 // import { Chatroom } from "src/chat/chat.entity";
+=======
+import { Avatar } from "src/avatar/avatar.entity";
+>>>>>>> 84f48f5d57180e95ffc2362fae56a71a0d24623f
 import {
   Column,
   Entity,
@@ -8,6 +12,7 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
@@ -41,6 +46,7 @@ export class User {
   @OneToMany(() => Message, (messages: Message) => messages.userId)
   public messages!: Message[];
 
+<<<<<<< HEAD
   @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.admin, {
     cascade: true,
   })
@@ -52,4 +58,30 @@ export class User {
   })
   @JoinTable()
   public chatroomMember!: Chatroom[];
+=======
+  @Column({
+    type: "boolean",
+    default: false,
+  })
+  public twoFA!: boolean;
+
+  @JoinColumn({ name: "avatarId" })
+  @OneToOne(() => Avatar, {
+    nullable: true,
+  })
+  @Column({ nullable: true })
+  public avatarId?: number;
+
+  // @OneToOne(() => Avatar, {
+  //   nullable: true,
+  // })
+  // public avatar?: Avatar;
+  // @JoinColumn({ name: "avatarId" })
+  // @Column({ nullable: true })
+  // public avatarId?: number;
+
+  // @OneToOne(() => Avatar)
+  // @JoinColumn()
+  // avatar?: Avatar;
+>>>>>>> 84f48f5d57180e95ffc2362fae56a71a0d24623f
 }

@@ -1,15 +1,13 @@
 <template>
-  <header>
+  <nav v-if="navigationGuard.loggedIn === true">
     <NavBar />
-  </header>
+  </nav>
   <RouterView />
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import NavBar from "./components/NavBar.vue";
+import { useNavigationStore } from "./stores/navigation";
 
-export default {
-  name: "App",
-  components: { NavBar },
-};
+const navigationGuard = useNavigationStore();
 </script>
