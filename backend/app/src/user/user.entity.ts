@@ -1,4 +1,4 @@
-import { Chatroom } from "src/chat/Chat.entity";
+import { Chatroom } from "src/chat/chat.entity";
 import { Message } from "src/message/message.entity";
 import { Avatar } from "src/avatar/avatar.entity";
 import {
@@ -36,7 +36,7 @@ export class User {
   public password!: string;
 
   // add owner entity
-  @OneToMany( () => Chatroom, (chatroom: Chatroom) => chatroom.owner)
+  @OneToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.owner)
   @JoinColumn()
   public chatroomOwner!: Chatroom[];
 
@@ -45,7 +45,7 @@ export class User {
   @JoinColumn()
   public messages!: Message[];
 
-@ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.member, {
+  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.member, {
     cascade: true,
   })
   @JoinTable()

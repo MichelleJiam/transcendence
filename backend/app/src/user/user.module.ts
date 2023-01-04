@@ -6,7 +6,7 @@ import { User } from "./user.entity";
 import { UserService } from "./user.service";
 import { Avatar } from "src/avatar/avatar.entity";
 import { AvatarService } from "src/avatar/avatar.service";
-import { Chatroom } from "src/chat/Chat.entity";
+import { Chatroom } from "src/chat/chat.entity";
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Message, Avatar, Chatroom])],
