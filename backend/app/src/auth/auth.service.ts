@@ -1,14 +1,9 @@
-import { CreateUserDto } from "./../user/dto/CreateUser";
-import { exist } from "@hapi/joi";
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from "@nestjs/common";
+import { CreateUserDto } from "./../user/dto/create-user.dto";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
-import { User } from "../user/User.entity";
-import { UserService } from "./../user/User.service";
+import { User } from "../user/user.entity";
+import { UserService } from "./../user/user.service";
 
 @Injectable()
 export class AuthService {
@@ -18,35 +13,39 @@ export class AuthService {
   ) {}
 
   // returns JWT access token
-  public jwtLogin(user: User): string {
-    const payload = { username: user.username, sub: user.id };
+  public getJwtToken(user: User): string {
+    const payload = { intraId: user.intraId, sub: user.id, twoFA: !user.twoFA };
 
+    console.log("Signed token for user: ", user.id);
     return this.jwtService.sign(payload);
   }
 
   async validateUser(user: CreateUserDto) {
-    const existingUser = await this.userService.findUserById(user.id);
+    let existingUser = await this.userService.findUserByIntraId(user.intraId);
 
-    // TODO: check if null returned when user doesn't exist
     if (!existingUser) {
-      this.registerUser(user);
-      // throw new UnauthorizedException("User not found");
+      existingUser = await this.registerUser(user);
     }
 
-    console.log("Validated user: ", existingUser);
+    console.log("Validated user: ", existingUser.intraId);
+
+    // add jwt token as cookie
+
     return existingUser;
   }
 
   async registerUser(user: CreateUserDto) {
-    const existingUser = await this.userService.findUser(user.email);
+    const existingUser = await this.userService.findUserByIntraId(user.intraId);
 
     if (existingUser) {
-      throw new ConflictException("Email already in use");
+      throw new ConflictException("Intra ID already in tied to player account");
     }
 
     console.log("Creating user: ", user);
     return await this.userService.create(user);
   }
+
+  // twofactor methods
 
   public async hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 42);
