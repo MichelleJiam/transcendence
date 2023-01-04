@@ -12,9 +12,9 @@ import { Chatroom } from "src/chat/chat.entity";
 @Entity()
 export class Message {
   @PrimaryGeneratedColumn({
-    name: "message_id",
+    name: "messageId",
   })
-  public id?: number;
+  public id!: number;
 
   @Column({
     nullable: false,
