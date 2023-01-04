@@ -1,5 +1,4 @@
 <template>
-  <!-- navigation bar -->
   <nav>
     <ul>
       <li><router-link to="/">Home</router-link></li>
@@ -11,17 +10,23 @@
       <li><router-link to="/stream">Live</router-link></li>
       <!-- when this is click login should be set to false -->
       <li id="logout">
-        <router-link to="/login">Logout</router-link>
+        <router-link to="/login" @click="setNavigationGuard">Logout</router-link>
       </li>
     </ul>
   </nav>
 </template>
 
+<script setup lang="ts">
+import { useNavigationStore } from "../stores/navigation";
+const navigationGuard = useNavigationStore();
+function setNavigationGuard(): void {
+  navigationGuard.loggedIn = false;
+}
+</script>
+
 <style>
 nav {
-  /* border: 5px solid white; */
   position: fixed;
-  /* spread it out over the full width of the page */
   top: 0;
   left: 0;
   right: 0;

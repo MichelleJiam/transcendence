@@ -6,8 +6,8 @@ import {
   ParseIntPipe,
   Param,
 } from "@nestjs/common";
-import { CreateMessageDto } from "./dto/CreateMessage.dto";
-import { MessageService } from "./Message.service";
+import { CreateMessageDto } from "./dto/create-message.dto";
+import { MessageService } from "./message.service";
 
 @Controller("message")
 export class MessageController {

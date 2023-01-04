@@ -14,9 +14,9 @@ import {
   UseInterceptors,
   UploadedFile,
 } from "@nestjs/common";
-import { CreateUserDto } from "./dto/CreateUser";
-import { UpdateUserSettingsDto } from "./dto/UpdateUserSettings";
-import { UserService } from "./User.service";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserSettingsDto } from "./dto/update-user-settings.dto";
+import { UserService } from "./user.service";
 import { createReadStream } from "fs";
 import { join } from "path";
 import { Response } from "express";
