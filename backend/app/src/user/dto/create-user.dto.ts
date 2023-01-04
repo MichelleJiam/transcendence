@@ -11,13 +11,9 @@ import {
 */
 
 export class CreateUserDto {
-  // @IsNotEmpty()
-  // @MinLength(3)
-  // username!: string; // will be initialised upon use
-
   @IsNotEmpty()
   @IsNumberString()
-  id!: number;
+  intraId!: string;
 
   @IsNotEmpty()
   @MinLength(8)
@@ -26,4 +22,8 @@ export class CreateUserDto {
   // @IsNotEmpty()
   // @IsEmail()
   // email!: string; // TODO: remove once 42Auth implemented
+
+  // @IsNotEmpty()
+  // @MinLength(3)
+  // username!: string; // will be initialised upon use
 }

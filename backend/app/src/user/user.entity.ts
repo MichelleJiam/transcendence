@@ -20,14 +20,13 @@ export class User {
     unique: true,
     nullable: false,
   })
-  public playerName!: string;
-  // public username!: string;
+  intraId!: string;
 
-  // @Column({
-  //   unique: true,
-  //   nullable: false, // column cannot be empty
-  // })
-  // public email!: string; // email must be unique
+  @Column({
+    unique: true,
+    nullable: true,
+  })
+  public playerName!: string;
 
   @Column({
     nullable: false,
@@ -52,15 +51,9 @@ export class User {
   @Column({ nullable: true })
   public avatarId?: number;
 
-  // @OneToOne(() => Avatar, {
-  //   nullable: true,
+  // @Column({
+  //   unique: true,
+  //   nullable: false, // column cannot be empty
   // })
-  // public avatar?: Avatar;
-  // @JoinColumn({ name: "avatarId" })
-  // @Column({ nullable: true })
-  // public avatarId?: number;
-
-  // @OneToOne(() => Avatar)
-  // @JoinColumn()
-  // avatar?: Avatar;
+  // public email!: string; // email must be unique
 }
