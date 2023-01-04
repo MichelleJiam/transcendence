@@ -41,11 +41,11 @@ export class UserController {
     return this.userService.findUserById(id);
   }
 
-  /* localhost:3000/user/{username}/messages - show all messages by specified user */
-  @Get(":username/messages")
-  getUserMessages(@Param("username") username: string) {
-    return this.userService.getUserMessages(username);
-  }
+  /* localhost:3000/user/{an+id}/messages - show all messages by specified user */
+  // @Get(":id/messages")
+  // getUserMessages(@Param("id", ParseIntPipe) id: number) {
+  //   return this.userService.getUserMessages(id);
+  // }
 
   /* deletes the user based on the id given when a delete request is made */
   @Delete("id/:id")
