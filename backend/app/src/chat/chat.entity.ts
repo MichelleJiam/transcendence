@@ -6,9 +6,11 @@ import {
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
+  OneToOne,
 } from "typeorm";
 import { Message } from "src/message/message.entity";
 import { User } from "src/user/user.entity";
+import { Penalty } from "./penalty.entity";
 
 @Entity()
 export class Chatroom {
@@ -34,6 +36,11 @@ export class Chatroom {
   })
   public chatroomName!: string;
 
+  // shows owner of the chatroom
+  @ManyToOne(() => User, (userId: User) => userId.chatroomOwner)
+  @JoinColumn()
+  public owner!: User;
+
   // shows admins of the chat
   @ManyToMany(() => User, (user: User) => user.chatroomAdmin)
   @JoinColumn()
@@ -47,9 +54,13 @@ export class Chatroom {
   // shows messages belonging to this chatroom
   @OneToMany(() => Message, (messages: Message) => messages.chatroomId)
   @JoinColumn()
-  public messages!: Message[];
+  public messages?: Message[];
 
-  @ManyToOne(() => User, (userId: User) => userId.chatroomOwner)
+  @OneToMany(() => Penalty, (penalty: Penalty) => penalty.bannedFrom)
   @JoinColumn()
-  public owner!: User;
+  ban?: Penalty[];
+
+  @OneToMany(() => Penalty, (penalty: Penalty) => penalty.mutedFrom)
+  @JoinColumn()
+  mute?: Penalty[];
 }

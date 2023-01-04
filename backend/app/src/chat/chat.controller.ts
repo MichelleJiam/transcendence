@@ -25,6 +25,7 @@ import { UpdateChatroomDto } from "./dto/update-chat.dto";
 export class ChatController {
   constructor(private readonly chatroomService: ChatService) {}
 
+  // DISPLAY AVAILABLE CHATROOMS
   @Get()
   getAllChatRooms() {
     try {
@@ -34,6 +35,7 @@ export class ChatController {
     }
   }
 
+  // GENERAL CHAT FUNCTIONS
   @Post("create")
   async createChatroom(@Body() createChatroomDto: CreateChatroomDto) {
     try {
@@ -52,8 +54,25 @@ export class ChatController {
     }
   }
 
+  // function to add members
+  @Post("room/:id/add/member")
+  async addMemberToChatroomById(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() addMemberDto: AddMemberDto,
+  ) {
+    try {
+      // check if user is not banned from chat
+      return this.chatroomService.addMemberToChatroomById(id, addMemberDto);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  // ADMIN FUNCTIONALITIES //
+
+  // UPDATERS //
   // function to update password or change chatroom name
-  @Put("room/:id/update/info")
+  @Put("room/:id/admin/:adminId/update/info")
   async updateChatroomById(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateChatroomDto: UpdateChatroomDto,
@@ -65,25 +84,43 @@ export class ChatController {
     }
   }
 
-  // function to add members
-  @Put("room/:id/update/members")
-  async addMemberToChatroomById(
+  // function to add admin
+  @Post("room/:id/admin/:adminId/add/admin")
+  async addAdminToChatroomById(
     @Param("id", ParseIntPipe) id: number,
-    @Body() addMemberDto: AddMemberDto,
+    @Param("adminId", ParseIntPipe) adminId: number,
+    @Body() addAdminDto: AddAdminDto,
   ) {
     try {
-      return this.chatroomService.addMemberToChatroomById(id, addMemberDto);
+      return this.chatroomService.addAdminToChatroomById(
+        id,
+        adminId,
+        addAdminDto,
+      );
     } catch (err) {
       console.log(err);
     }
   }
 
-  // function to remove members
+  // DELETE FUNCTIONS
+  @Delete("room/:id/delete/:userId")
+  async leaveChatroom(
+    @Param("id", ParseIntPipe) id: number,
+    @Param("userId", ParseIntPipe) userId: number,
+  ) {
+    try {
+      return this.chatroomService.leaveChatroom(id, userId);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  // function to remove members as admin
   @Delete("room/:id/admin/:adminId/delete/member/:userId")
   async removeMemberFromChatroom(
     @Param("id", ParseIntPipe) id: number,
-    @Param("userId") userId: number,
-    @Param("adminId") adminId: number,
+    @Param("userId", ParseIntPipe) userId: number,
+    @Param("adminId", ParseIntPipe) adminId: number,
   ) {
     try {
       return this.chatroomService.removeMemberFromChatroom(id, userId, adminId);
@@ -92,25 +129,12 @@ export class ChatController {
     }
   }
 
-  // function to add admin
-  @Put("room/:id/update/admins")
-  async addAdminToChatroomById(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() addAdminDto: AddAdminDto,
-  ) {
-    try {
-      return this.chatroomService.addAdminToChatroomById(id, addAdminDto);
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-  // function to remove admin
+  // function to remove admin as admin
   @Delete("room/:id/admin/:adminId/delete/admin/:userId")
   async removeAdminFromChatroom(
     @Param("id", ParseIntPipe) id: number,
-    @Param("userId") userId: number,
-    @Param("adminId") adminId: number,
+    @Param("userId", ParseIntPipe) userId: number,
+    @Param("adminId", ParseIntPipe) adminId: number,
   ) {
     try {
       return this.chatroomService.removeMemberFromChatroom(id, userId, adminId);

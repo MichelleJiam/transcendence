@@ -165,10 +165,11 @@ export class ChatService {
 
   async addAdminToChatroomById(
     id: number,
+    adminId: number,
     addAdminDto: AddAdminDto,
   ): Promise<Chatroom> {
     const chatroom = await this.getChatroomById(id);
-
+    // check if adminId is actually an admin
     this.chatroomRepository.update(id, addAdminDto);
     return await this.getChatroomById(id);
   }
