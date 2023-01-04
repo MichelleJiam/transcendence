@@ -1,10 +1,8 @@
 import { AuthService } from "./auth.service";
-import { Strategy } from "passport-jwt";
+import { Strategy, VerifyCallback } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
 import { Injectable } from "@nestjs/common";
-import { validate } from "class-validator";
-import { User } from "src/user/User.entity";
-import { Profile } from "passport";
+import { User } from "src/user/user.entity";
 
 @Injectable()
 export class IntraStrategy extends PassportStrategy(Strategy) {
@@ -13,11 +11,11 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
       clientID: process.env.INTRA_CLIENT_ID,
       clientSecret: process.env.INTRA_SECRET,
       callbackURL: process.env.INTRA_CALLBACK,
+      scope: "public",
       profileFields: {
         id: function (obj: any) {
           return String(obj.id);
         },
-        username: "login",
       },
     });
   }
@@ -26,16 +24,12 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     accessToken: string,
     refreshToken: string,
     profile: any,
-    callback: (error: any, user: User) => void,
   ): Promise<User | undefined> {
-    // const { id: intraId, username } = profile;
-    const userProfile = {
-      username: profile.username,
-      id: profile.id,
-      email: "", // TODO: remove once gone from CreateUserDto
-      password: "",
+    const createUser = {
+      intraId: profile.id,
+      password: "password", // TODO: remove once 42Auth implemented
     };
-    const user = await this.authService.validateUser(userProfile);
-    return callback(err, user);
+    const user = await this.authService.validateUser(createUser);
+    return user;
   }
 }
