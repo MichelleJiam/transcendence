@@ -1,4 +1,4 @@
-import { Message } from "src/message/Message.entity";
+import { Message } from "src/message/message.entity";
 import { Avatar } from "src/avatar/avatar.entity";
 import {
   Column,

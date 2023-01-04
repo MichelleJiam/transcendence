@@ -8,9 +8,18 @@ import ChatRoom from "../views/ChatRoom.vue";
 import NotFound from "../views/NotFound.vue";
 import type { Component } from "vue";
 
-const routes: { path: string; component: Component; alias?: string[] }[] = [
-  { path: "/", component: HomePage, alias: ["/home", "/homepage"] },
-  { path: "/login", component: LoginPage },
+const routes: {
+  path: string;
+  component: Component;
+  alias?: string[];
+  name?: string;
+}[] = [
+  {
+    path: "/",
+    component: HomePage,
+    alias: ["/home", "/homepage"],
+  },
+  { path: "/login", component: LoginPage, name: "login" },
   { path: "/game", component: GamePage },
   { path: "/:id/account", component: UserPage } /* temp workaround */,
   { path: "/account", component: UserPage, alias: ["/user"] },
