@@ -1,10 +1,6 @@
 import { Chatroom } from "src/chat/Chat.entity";
 import { Message } from "src/message/Message.entity";
-<<<<<<< HEAD
-// import { Chatroom } from "src/chat/chat.entity";
-=======
 import { Avatar } from "src/avatar/avatar.entity";
->>>>>>> 84f48f5d57180e95ffc2362fae56a71a0d24623f
 import {
   Column,
   Entity,
@@ -46,19 +42,6 @@ export class User {
   @OneToMany(() => Message, (messages: Message) => messages.userId)
   public messages!: Message[];
 
-<<<<<<< HEAD
-  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.admin, {
-    cascade: true,
-  })
-  @JoinTable()
-  public chatroomAdmin!: Chatroom[];
-
-  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.member, {
-    cascade: true,
-  })
-  @JoinTable()
-  public chatroomMember!: Chatroom[];
-=======
   @Column({
     type: "boolean",
     default: false,
@@ -83,5 +66,4 @@ export class User {
   // @OneToOne(() => Avatar)
   // @JoinColumn()
   // avatar?: Avatar;
->>>>>>> 84f48f5d57180e95ffc2362fae56a71a0d24623f
 }
