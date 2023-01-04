@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { CreateMessageDto } from "./dto/CreateMessage.dto";
-import { Message } from "./Message.entity";
+import { CreateMessageDto } from "./dto/create-message.dto";
+import { Message } from "./message.entity";
 
 @Injectable()
 export class MessageService {
@@ -51,7 +51,7 @@ export class MessageService {
           email: true,
         },
         body: true,
-        created_at: true,
+        createdAt: true,
       },
     });
     if (messages) return messages;
@@ -81,7 +81,7 @@ export class MessageService {
           email: true,
         },
         body: true,
-        created_at: true,
+        createdAt: true,
       },
     });
     if (messages) return messages;

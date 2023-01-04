@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { User } from "./user/User.entity";
-import { Message } from "./message/Message.entity";
+import { User } from "./user/user.entity";
+import { Message } from "./message/message.entity";
 import { Avatar } from "./avatar/avatar.entity";
 import { Chatroom } from "./chat/Chat.entity";
 

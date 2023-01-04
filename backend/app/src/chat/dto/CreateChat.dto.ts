@@ -1,6 +1,6 @@
 import { IsNotEmpty } from "class-validator";
 import { DeepPartial } from "typeorm";
-import { User } from "src/user/User.entity";
+import { User } from "src/user/user.entity";
 
 export class CreateChatroomDto {
   @IsNotEmpty()
