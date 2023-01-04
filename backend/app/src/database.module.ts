@@ -4,7 +4,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { User } from "./user/user.entity";
 import { Message } from "./message/message.entity";
 import { Avatar } from "./avatar/avatar.entity";
-import { Chatroom } from "./chat/Chat.entity";
+import { Chatroom } from "./chat/chat.entity";
 
 @Module({
   imports: [

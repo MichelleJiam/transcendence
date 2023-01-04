@@ -10,10 +10,10 @@ import {
   ParseIntPipe,
 } from "@nestjs/common";
 import { ChatService } from "./chat.service";
-import { AddAdminDto } from "./dto/AddAdmin.dto";
-import { AddMemberDto } from "./dto/AddMember.dto";
-import { CreateChatroomDto } from "./dto/CreateChat.dto";
-import { UpdateChatroomDto } from "./dto/UpdateChat.dto";
+import { AddAdminDto } from "./dto/add-admin.dto";
+import { AddMemberDto } from "./dto/add-member.dto";
+import { CreateChatroomDto } from "./dto/create-chat.dto";
+import { UpdateChatroomDto } from "./dto/update-chat.dto";
 
 // TODO:
 // 	- create function that updates password

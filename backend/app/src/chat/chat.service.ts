@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Chatroom } from "./Chat.entity";
-import { AddAdminDto } from "./dto/AddAdmin.dto";
-import { AddMemberDto } from "./dto/AddMember.dto";
-import { CreateChatroomDto } from "./dto/CreateChat.dto";
-import { UpdateChatroomDto } from "./dto/UpdateChat.dto";
+import { Chatroom } from "./chat.entity";
+import { AddAdminDto } from "./dto/add-admin.dto";
+import { AddMemberDto } from "./dto/add-member.dto";
+import { CreateChatroomDto } from "./dto/create-chat.dto";
+import { UpdateChatroomDto } from "./dto/update-chat.dto";
 
 function validateChatroomType(type: string): void {
   if (type != "public" && type != "password" && type != "private") {

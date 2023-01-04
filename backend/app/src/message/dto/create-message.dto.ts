@@ -1,6 +1,6 @@
 import { IsNotEmpty, MinLength, MaxLength } from "class-validator";
 import { User } from "src/user/user.entity";
-import { Chatroom } from "src/chat/Chat.entity";
+import { Chatroom } from "src/chat/chat.entity";
 import { DeepPartial } from "typeorm";
 
 /*
