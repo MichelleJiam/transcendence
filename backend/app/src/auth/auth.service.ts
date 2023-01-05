@@ -3,7 +3,7 @@ import { ConflictException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { User } from "../user/user.entity";
-import { UserService } from "./../user/user.service";
+import { UserService } from "../user/user.service";
 
 @Injectable()
 export class AuthService {
@@ -13,11 +13,11 @@ export class AuthService {
   ) {}
 
   // returns JWT access token
-  public getJwtToken(user: User): string {
-    const payload = { intraId: user.intraId, sub: user.id, twoFA: !user.twoFA };
+  public getJwtToken(user: User) {
+    const payload = { sub: user.id, iid: user.intraId };
 
     console.log("Signed token for user: ", user.id);
-    return this.jwtService.sign(payload);
+    return { accessToken: this.jwtService.sign(payload) };
   }
 
   async validateUser(user: CreateUserDto) {
@@ -30,7 +30,6 @@ export class AuthService {
     console.log("Validated user: ", existingUser.intraId);
 
     const accessToken = this.getJwtToken(existingUser);
-
     return { user: existingUser, accessToken };
   }
 
