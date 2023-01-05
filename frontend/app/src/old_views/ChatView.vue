@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="container">
     <h1 class="pt-3 pb-3">Chat</h1>
     <PostMessages />
@@ -16,4 +16,4 @@ export default {
   },
 };
 // creates a view that displays a way to send chat messages AND view them
-</script>
+</script> -->

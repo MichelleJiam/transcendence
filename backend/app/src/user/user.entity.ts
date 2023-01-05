@@ -17,23 +17,24 @@ export class User {
   @PrimaryGeneratedColumn({
     name: "userId", // alias for the column
   })
-  public id?: number;
-
-  @Column({
-    nullable: false,
-  })
-  public username!: string;
+  public id!: number;
 
   @Column({
     unique: true,
-    nullable: false, // column cannot be empty
+    nullable: false,
   })
-  public email!: string; // email must be unique
+  intraId!: string;
+
+  @Column({
+    unique: true,
+    nullable: true,
+  })
+  public playerName!: string;
 
   @Column({
     nullable: false,
   })
-  public password!: string;
+  public password!: string; // TODO: remove once 42Auth implemented
 
   // add owner entity
   @OneToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.owner)
@@ -70,15 +71,9 @@ export class User {
   @Column({ nullable: true })
   public avatarId?: number;
 
-  // @OneToOne(() => Avatar, {
-  //   nullable: true,
+  // @Column({
+  //   unique: true,
+  //   nullable: false, // column cannot be empty
   // })
-  // public avatar?: Avatar;
-  // @JoinColumn({ name: "avatarId" })
-  // @Column({ nullable: true })
-  // public avatarId?: number;
-
-  // @OneToOne(() => Avatar)
-  // @JoinColumn()
-  // avatar?: Avatar;
+  // public email!: string; // email must be unique
 }

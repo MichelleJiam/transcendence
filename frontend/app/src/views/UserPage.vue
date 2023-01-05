@@ -9,17 +9,18 @@
   <main>
     <div id="display-content">
       <h1>
-        Hi <span class="username">{{ store.accountSettings.username }}</span>
+        Hi
+        <span class="playerName">{{ store.accountSettings.playerName }}</span>
       </h1>
       <h2>You can edit your account settings here.</h2>
       <AvatarDisplay :src="store.avatar.url" />
       <form>
         <AvatarUpload />
         <InputText
-          id="username"
-          v-model="username"
-          label="Username: "
-          :value="username"
+          id="playerName"
+          v-model="playerName"
+          label="Player Name: "
+          :value="playerName"
         />
         <span class="validate">
           <i>{{ message }}</i>
@@ -28,12 +29,6 @@
           id="twoFactorAuthentication"
           v-model:checked="twoFactorAuthentication"
           label="Two-factor authentication: "
-        />
-        <InputText
-          id="email"
-          label="Email: "
-          :placeholder="store.accountSettings.email"
-          :disabled="true"
         />
       </form>
       <button :disabled="isDisabled" @click="submitAccountSettings">
@@ -53,7 +48,7 @@ import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 
 const twoFactorAuthentication = ref<boolean>();
-const username = ref<string>("");
+const playerName = ref<string>("");
 const isDisabled = ref<boolean>();
 
 let message = "";
@@ -66,23 +61,23 @@ store.setUserId(route.params.id); // temporary workaround: remove when user auth
 onMounted(async () => {
   await store.getAccountSettings();
   twoFactorAuthentication.value = store.accountSettings.twoFA;
-  username.value = store.accountSettings.username;
+  playerName.value = store.accountSettings.playerName;
   await store.getAvatar();
 });
 
 function submitAccountSettings() {
-  store.updateAccountSettings(username.value, twoFactorAuthentication.value);
+  store.updateAccountSettings(playerName.value, twoFactorAuthentication.value);
 }
 
 /*  client-Side input validation */
 
-watch(username, () => {
-  if (username.value.length <= 3 || username.value.length > 8) {
-    message = "Username must be between 3 and 8 characters";
+watch(playerName, () => {
+  if (playerName.value.length <= 3 || playerName.value.length > 8) {
+    message = "Player name must be between 3 and 8 characters";
     isDisabled.value = true;
-  } else if (!validUsername(username.value)) {
+  } else if (!validPlayerName(playerName.value)) {
     message =
-      "Username can only include alphabetic characters, digits and the following special characters -_";
+      "Player name can only include alphabetic characters, digits and the following special characters -_";
     isDisabled.value = true;
   } else {
     message = "";
@@ -90,8 +85,8 @@ watch(username, () => {
   }
 });
 
-function validUsername(username: string) {
-  return /^[a-zA-Z0-9-_!]+$/.test(username);
+function validPlayerName(playerName: string) {
+  return /^[a-zA-Z0-9-_!]+$/.test(playerName);
 }
 </script>
 
@@ -104,7 +99,7 @@ h1 {
   color: red;
 }
 
-.username {
+.playerName {
   color: #39ff14;
 }
 </style>

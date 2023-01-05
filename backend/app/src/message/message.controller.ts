@@ -26,10 +26,10 @@ export class MessageController {
     return this.messageService.getMessageByUserId(id);
   }
 
-  @Get("user/:username")
-  getMessageByUsername(@Param("username") username: string) {
-    return this.messageService.getMessageByUsername(username);
-  }
+  // @Get("user/:username")
+  // getMessageByUsername(@Param("username") username: string) {
+  //   return this.messageService.getMessageByUsername(username);
+  // }
 
   @Post("create")
   create(@Body() createMessageDto: CreateMessageDto) {

@@ -22,9 +22,9 @@ export class UserService {
     return this.userRepository.save(newUser);
   }
 
-  async findUser(email: string) {
+  async findUserByIntraId(intraId: string) {
     const foundUser = this.userRepository.findOneBy({
-      email: email,
+      intraId: intraId,
     });
     if (!foundUser) {
       throw new HttpException("User not found", HttpStatus.NOT_FOUND);
@@ -42,19 +42,19 @@ export class UserService {
     return foundUser;
   }
 
-  async getUserMessages(username: string) {
-    // this is how you do it from the opposite side, gets user and displays all messages by said user (Og from message.service.ts)
-    const users = await this.userRepository.find({
-      select: ["id", "username", "email"],
-      where: {
-        username: username, // compares usernames and retrieves all the messages
-      },
-      relations: {
-        messages: true,
-      },
-    });
-    if (users) return users;
-  }
+  // async getUserMessages(id: number) {
+  //   // this is how you do it from the opposite side, gets user and displays all messages by said user (Og from message.service.ts)
+  //   const users = await this.userRepository.find({
+  //     select: ["id"],
+  //     where: {
+  //       id: id, // compares ids and retrieves all the messages
+  //     },
+  //     relations: {
+  //       messages: true,
+  //     },
+  //   });
+  //   if (users) return users;
+  // }
 
   async deleteUser(id: number) {
     const deleteResponse = await this.userRepository.delete(id);

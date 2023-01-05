@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <section>
     <form @submit.prevent="createPost">
       <div>
@@ -12,8 +12,8 @@
       <button>Post Message</button>
     </form>
   </section>
-</template>
-
+</template> -->
+<!-- 
 <script lang="ts">
 import axios from "axios";
 import { defineComponent } from "vue";
@@ -40,4 +40,4 @@ export default defineComponent({
     },
   },
 });
-</script>
+</script> -->
