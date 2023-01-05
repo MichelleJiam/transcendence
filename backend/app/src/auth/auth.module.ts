@@ -14,6 +14,7 @@ import { UserController } from "../user/user.controller";
       useFactory: () => ({
         secret: process.env.JWT_SECRET,
         signOptions: {
+          algorithm: "HS256",
           expiresIn: "60m",
         },
       }),
