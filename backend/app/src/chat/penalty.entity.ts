@@ -5,24 +5,30 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  PrimaryGeneratedColumn,
 } from "typeorm";
 import { Chatroom } from "./chat.entity";
 
 @Entity()
 export class Penalty {
+  @PrimaryGeneratedColumn({
+    name: "penaltyId",
+  })
+  public id!: number;
+
   @Column({
     nullable: false,
   })
-  public userId?: User;
+  public userId!: User;
 
   @CreateDateColumn()
-  bannedAt?: Date;
+  bannedAt!: Date;
 
   @ManyToOne(() => Chatroom, (chatroom: Chatroom) => chatroom.mute)
   @JoinColumn()
-  mutedFrom?: Chatroom;
+  mutedFrom!: Chatroom;
 
   @ManyToOne(() => Chatroom, (chatroom: Chatroom) => chatroom.ban)
   @JoinColumn()
-  bannedFrom?: Chatroom;
+  bannedFrom!: Chatroom;
 }

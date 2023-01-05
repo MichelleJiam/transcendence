@@ -62,7 +62,7 @@ export class ChatController {
   ) {
     try {
       // check if user is not banned from chat
-      return this.chatroomService.addMemberToChatroomById(id, addMemberDto);
+      return this.chatroomService.addMemberToChatroom(id, addMemberDto);
     } catch (err) {
       console.log(err);
     }
@@ -78,7 +78,7 @@ export class ChatController {
     @Body() updateChatroomDto: UpdateChatroomDto,
   ) {
     try {
-      return this.chatroomService.updateChatroomById(id, updateChatroomDto);
+      return this.chatroomService.updateChatroom(id, updateChatroomDto);
     } catch (err) {
       console.log(err);
     }
