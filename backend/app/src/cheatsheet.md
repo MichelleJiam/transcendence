@@ -5,7 +5,7 @@ npm install @nestjs/config
 npm install @nestjs/typeorm typeorm mysql2
 npm install pg
 npm install class-validator
-npm install @hapi/joi @types/hapi__joi
+npm install joi
 ```
 
 ## Packages to install frontend
@@ -17,7 +17,7 @@ npm install axios --save
 1. create an .env file and fill in variables for HOST, PORT, DB_USERNAME, DB_PASSWORD and DB_NAME (you can change the names as you see fit.)
 2. in app.module.ts, apply the ConfigModule and Joi module in imports
 ```ts
-import Joi from '@hapi/joi';
+import Joi from "joi";
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
