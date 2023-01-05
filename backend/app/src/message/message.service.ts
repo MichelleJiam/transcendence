@@ -40,8 +40,7 @@ export class MessageService {
       select: {
         userId: {
           id: true,
-          username: true,
-          email: true,
+          playerName: true,
         },
         body: true,
         createdAt: true,
@@ -57,27 +56,25 @@ export class MessageService {
   // where defines where username is the same as the given username
   // select shows which columns should be returned
   // https://typeorm.io/find-options#find-options
-  async getMessageByUsername(username: string) {
-    const messages = await this.messageRepository.find({
-      relations: {
-        userId: true,
-      },
-      where: {
-        userId: {
-          username: username,
-        },
-      },
-      select: {
-        userId: {
-          id: true,
-          username: true,
-          email: true,
-        },
-        body: true,
-        createdAt: true,
-      },
-    });
-    if (messages) return messages;
-    throw new HttpException("Posts not found", HttpStatus.NOT_FOUND);
-  }
+  //   async getMessageByUsername(username: string) {
+  //     const messages = await this.messageRepository.find({
+  //       relations: {
+  //         userId: true,
+  //       },
+  //       where: {
+  //         userId: {
+  //           // username: username,
+  //         },
+  //       },
+  //       select: {
+  //         userId: {
+  //           id: true,
+  //         },
+  //         body: true,
+  //         createdAt: true,
+  //       },
+  //     });
+  //     if (messages) return messages;
+  //     throw new HttpException("Posts not found", HttpStatus.NOT_FOUND);
+  //   }
 }
