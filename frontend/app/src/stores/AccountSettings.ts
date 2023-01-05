@@ -3,9 +3,8 @@ import { apiRequest } from "@/utils/apiRequest";
 
 export type settings = {
   userId: string | string[];
-  username: string;
+  playerName: string;
   twoFA: boolean;
-  email: string;
 };
 
 export type avatar = {
@@ -26,23 +25,22 @@ export const useAccountSettings = defineStore("accountSettings", {
           `/user/id/${this.accountSettings.userId}`,
           "get"
         );
-        this.accountSettings.username = res.data.username;
+        this.accountSettings.playerName = res.data.playerName;
         this.accountSettings.twoFA = res.data.twoFA;
-        this.accountSettings.email = res.data.email;
       } catch (error) {
         console.log(`Error in getAccountSettings(): ${error}`);
       }
     },
 
     async updateAccountSettings(
-      newUsername: string,
+      newPlayerName: string,
       twoFA: boolean | undefined
     ) {
       try {
         await apiRequest(
           `/user/${this.accountSettings.userId}/update-settings`,
           "put",
-          { data: { username: newUsername, twoFA: twoFA } }
+          { data: { playerName: newPlayerName, twoFA: twoFA } }
         );
         this.getAccountSettings(); /* how to protect this? */
         alert("Your account settings succesfully updated");
