@@ -1,9 +1,4 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsNumberString,
-  MinLength,
-} from "class-validator";
+import { IsNotEmpty, IsNumberString, MinLength } from "class-validator";
 
 // DTOs stand for data transfer objects
 /*
