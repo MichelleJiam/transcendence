@@ -54,13 +54,13 @@ export class Chatroom {
   // shows messages belonging to this chatroom
   @OneToMany(() => Message, (messages: Message) => messages.chatroomId)
   @JoinColumn()
-  public messages?: Message[];
+  public messages!: Message[];
 
   @OneToMany(() => Penalty, (penalty: Penalty) => penalty.bannedFrom)
   @JoinColumn()
-  ban?: Penalty[];
+  ban!: Penalty[];
 
   @OneToMany(() => Penalty, (penalty: Penalty) => penalty.mutedFrom)
   @JoinColumn()
-  mute?: Penalty[];
+  mute!: Penalty[];
 }
