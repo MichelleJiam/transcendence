@@ -5,7 +5,7 @@ intraNames=("mjiam" "nhariman" "nvan-win" "salbregh" "smiller")
 for i in ${!intraNames[@]}; do
 
   jsonVar="{\
-	\"intraId\" : \"${i+1}\",\
+	\"intraId\" : \"${i}\",\
 	\"playerName\" : \"${intraNames[$i]}\",\
 	\"password\" : \"${intraNames[$i]}123\"\
   }"

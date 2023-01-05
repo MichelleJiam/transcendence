@@ -60,7 +60,7 @@ export class UserController {
   }
 
   /* localhost:3000/user/:id/update-settings */
-  /* curl -i --header "Content-Type: application/json" --request PUT --data '{"username":"Nilo"}' http://localhost:3000/user/3/update-settings */
+  /* curl -i --header "Content-Type: application/json" --request PUT --data '{"playerName":"Nilo"}' http://localhost:3000/user/3/update-settings */
 
   /* TODO:
    **  add server-side validation for user input
