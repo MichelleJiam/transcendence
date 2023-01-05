@@ -1,3 +1,4 @@
+import { JwtAuthGuard } from "./../auth/jwt-auth.guard";
 import {
   Controller,
   Post,
@@ -13,6 +14,7 @@ import {
   Res,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserSettingsDto } from "./dto/update-user-settings.dto";
@@ -67,6 +69,7 @@ export class UserController {
    */
 
   @Put(":id/update-settings")
+  @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   async updateUser(
     @Param("id", ParseIntPipe) id: number,
@@ -78,6 +81,7 @@ export class UserController {
   /* avatar */
 
   @Post(":id/avatar")
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor("file"))
   async addAvatar(
     @Param("id", ParseIntPipe) id: number,
