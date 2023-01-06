@@ -11,6 +11,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Penalty } from "src/penalty/penalty.entity";
 
 @Entity()
 export class User {
@@ -46,17 +47,9 @@ export class User {
   @JoinColumn()
   public messages!: Message[];
 
-  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.member, {
-    cascade: true,
-  })
-  @JoinTable()
-  public chatroomMember!: Chatroom[];
-
-  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.admin, {
-    cascade: true,
-  })
-  @JoinTable()
-  public chatroomAdmin!: Chatroom[];
+  @ManyToMany(() => Penalty)
+  @JoinColumn()
+  public penalty!: Penalty[];
 
   @Column({
     type: "boolean",
