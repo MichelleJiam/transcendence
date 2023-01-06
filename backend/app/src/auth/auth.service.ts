@@ -31,8 +31,6 @@ export class AuthService {
 
     console.log("Validated user: ", existingUser.intraId);
 
-    // const accessToken = this.getJwtToken(existingUser);
-    // return { user: existingUser, accessToken };
     return existingUser;
   }
 
