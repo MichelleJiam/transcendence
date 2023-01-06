@@ -75,6 +75,8 @@ export class ChatService {
     banUserDto: BanUserDto,
   ) {
     const chatroom = await this.getChatroomById(chatroomId);
+    // create a pentalty object
+    // then save that into chat
     if (isAdmin(chatroom, adminId) == true) {
     }
   }
