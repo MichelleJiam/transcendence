@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import { Message } from "src/message/message.entity";
 import { User } from "src/user/user.entity";
-import { Penalty } from "./penalty.entity";
+import { Penalty } from "../penalty/penalty.entity";
 
 @Entity()
 export class Chatroom {
@@ -42,12 +42,12 @@ export class Chatroom {
   public owner!: User;
 
   // shows admins of the chat
-  @ManyToMany(() => User, (user: User) => user.chatroomAdmin)
+  @ManyToMany(() => User)
   @JoinColumn()
   public admin!: User[];
 
   // shows members in chat
-  @ManyToMany(() => User, (user: User) => user.chatroomMember)
+  @ManyToMany(() => User)
   @JoinColumn()
   public member!: User[];
 
@@ -56,11 +56,7 @@ export class Chatroom {
   @JoinColumn()
   public messages!: Message[];
 
-  @OneToMany(() => Penalty, (penalty: Penalty) => penalty.bannedFrom)
+  @ManyToMany(() => Penalty)
   @JoinColumn()
-  ban!: Penalty[];
-
-  @OneToMany(() => Penalty, (penalty: Penalty) => penalty.mutedFrom)
-  @JoinColumn()
-  mute!: Penalty[];
+  public penalty!: Penalty[];
 }

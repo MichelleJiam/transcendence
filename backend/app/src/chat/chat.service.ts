@@ -10,8 +10,6 @@ import { Chatroom } from "./chat.entity";
 import { AddAdminDto } from "./dto/add-admin.dto";
 import { AddMemberDto } from "./dto/add-member.dto";
 import { CreateChatroomDto } from "./dto/create-chat.dto";
-import { BanUserDto } from "./dto/punish-user.dto";
-import { UpdateChatroomDto } from "./dto/update-chat.dto";
 
 @Injectable()
 export class ChatService {
@@ -31,6 +29,32 @@ export class ChatService {
       "Unable to create chatroom",
       HttpStatus.BAD_REQUEST,
     );
+  }
+
+  async getAllChatrooms(): Promise<Chatroom[]> {
+    const foundChats = await this.chatroomRepository.find({
+      relations: {
+        admin: true,
+        member: true,
+        messages: true,
+      },
+      select: {
+        id: true,
+        chatroomName: true,
+        type: true,
+        password: true,
+        admin: {
+          id: true,
+          playerName: true,
+        },
+        member: {
+          id: true,
+          playerName: true,
+        },
+        messages: true,
+      },
+    });
+    return foundChats;
   }
 
   async getChatroomById(id: number): Promise<Chatroom> {
@@ -67,17 +91,5 @@ export class ChatService {
         HttpStatus.BAD_REQUEST,
       );
     return await this.getChatroomById(chatroomId);
-  }
-
-  async banUserFromChatroom(
-    chatroomId: number,
-    adminId: number,
-    banUserDto: BanUserDto,
-  ) {
-    const chatroom = await this.getChatroomById(chatroomId);
-    // create a pentalty object
-    // then save that into chat
-    if (isAdmin(chatroom, adminId) == true) {
-    }
   }
 }
