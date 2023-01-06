@@ -15,9 +15,11 @@ export class AuthService {
   // returns JWT access token
   public getJwtToken(user: User) {
     const payload = { sub: user.id, iid: user.intraId };
+    const accessToken = this.jwtService.sign(payload);
 
     console.log("Signed token for user: ", user.id);
-    return { accessToken: this.jwtService.sign(payload) };
+    console.log("Token: ", accessToken);
+    return accessToken;
   }
 
   async validateUser(user: CreateUserDto) {
@@ -29,8 +31,9 @@ export class AuthService {
 
     console.log("Validated user: ", existingUser.intraId);
 
-    const accessToken = this.getJwtToken(existingUser);
-    return { user: existingUser, accessToken };
+    // const accessToken = this.getJwtToken(existingUser);
+    // return { user: existingUser, accessToken };
+    return existingUser;
   }
 
   async registerUser(user: CreateUserDto) {

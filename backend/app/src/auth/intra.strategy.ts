@@ -21,6 +21,7 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any) {
+    console.log("Attempting to validate user according to IntraStrategy");
     const createUser = {
       intraId: profile.id,
       password: "password", // TODO: remove once 42Auth implemented

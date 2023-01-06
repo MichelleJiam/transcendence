@@ -12,10 +12,25 @@ export class AuthController {
   @Get("login/intra")
   @UseGuards(IntraAuthGuard)
   @Redirect(process.env.INTRA_REDIRECT, 302)
-  async loginIntra(@Req() req: Request) {
-    console.log("Login attempt", req);
+  async loginIntra(@currentUser() user: User) {
+    console.log("User logged in: ", user.id);
     // res.redirect(process.env.INTRA_REDIRECT);
     // return this.authService.validateUser(user);
+    return {
+      id: user.id,
+      token: this.authService.getJwtToken(user),
+    };
+  }
+
+  @Get("callback")
+  @UseGuards(IntraAuthGuard)
+  @Redirect(process.env.INTRA_REDIRECT, 302)
+  async callback(@currentUser() user: User) {
+    console.log("Reached callback function");
+    return {
+      id: user.id,
+      token: this.authService.getJwtToken(user),
+    };
   }
 
   @Get("test")
@@ -26,7 +41,7 @@ export class AuthController {
   }
 
   @Get("logout")
-  async logout() {
+  async logout(@currentUser() user: User) {
     console.log("User logged out");
   }
 }
