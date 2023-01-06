@@ -4,4 +4,4 @@ FROM node:latest
 USER node
 WORKDIR /app
 RUN chown node:node ./
-CMD npm ci && npm run dev
+CMD npm install && npm run dev
