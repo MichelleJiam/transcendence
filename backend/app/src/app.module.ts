@@ -5,12 +5,14 @@ import { AppService } from "./app.service";
 import { MessageModule } from "./message/message.module";
 import { UserModule } from "./user/user.module";
 import { DatabaseModule } from "./database.module";
+import { GameModule } from "./game/game.module";
 import * as Joi from "joi";
 
 @Module({
   imports: [
     UserModule,
     MessageModule,
+    GameModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),

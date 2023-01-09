@@ -1,11 +1,14 @@
 import { Message } from "src/message/message.entity";
 import { Avatar } from "src/avatar/avatar.entity";
+import { Game } from "src/game/entities/game.entity";
+
 import {
   Column,
   Entity,
   JoinColumn,
   OneToMany,
   OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
@@ -56,4 +59,9 @@ export class User {
   //   nullable: false, // column cannot be empty
   // })
   // public email!: string; // email must be unique
+
+  // many users to one game
+  @JoinColumn()
+  @ManyToOne(() => Game, (gameId: Game) => gameId.users)
+  public gameId!: Game;
 }
