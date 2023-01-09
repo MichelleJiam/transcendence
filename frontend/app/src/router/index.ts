@@ -7,11 +7,11 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(async (to, from) => {
-  const navigationGuard = useNavigationStore();
-  if (!navigationGuard.loggedIn && to.name !== "login") {
-    return { name: "login" };
-  }
-});
+// router.beforeEach(async (to, from) => {
+//   const navigationGuard = useNavigationStore();
+//   if (!navigationGuard.loggedIn && to.name !== "login") {
+//     return { name: "login" };
+//   }
+// });
 
 export default router;

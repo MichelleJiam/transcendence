@@ -1,22 +1,69 @@
-<!--
-    this should be the main page layout
-    so the basic nav bar and the content div
-    then there should be different components that render
-    on different circumstances
--->
+<script setup lang="ts">
+import { ref } from "vue";
+import PongGame from "../components/pong/PongGame.vue";
+import SocketTest from "@/components/pong/SocketTest.vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+const id = route.params.id;
+
+// axios call http://localhost:3000/game/${id}/match
+
+const showStartButton = ref(true);
+const showWatchButton = ref(true);
+const inPlay = ref(false);
+const startGame = () => {
+  showStartButton.value = false;
+  showWatchButton.value = false;
+  inPlay.value = true;
+};
+function updateInPlay(value: boolean) {
+  inPlay.value = value;
+}
+</script>
 
 <template>
   <main>
     <div id="display-content">
-      <h1>PONG GAME</h1>
+      <p>Id: {{ id }}</p>
+      <!-- <PongGame @game-over="updateInPlay" /> -->
+      <!-- <div v-if="!inPlay" class="my-btn">
+        <button class="btn" @click="startGame">PLAY</button>
+        <button class="btn">WATCH</button>
+      </div>
+      <div v-else>
+        <PongGame @game-over="updateInPlay" />
+      </div> -->
     </div>
   </main>
 </template>
 
-<script setup lang="ts"></script>
-
 <style scoped>
-h1 {
-  font-size: 10rem;
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+button {
+  height: 50%;
+  width: 100%;
+  background: #1c1b1b;
+  color: white;
+  font-family: "ArcadeClassic", sans-serif;
+  font-size: 10vw;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+  border: 2px #302d2d solid;
+  display: block;
+}
+button:hover {
+  color: #39ff14;
+}
+.my-btn {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 </style>
