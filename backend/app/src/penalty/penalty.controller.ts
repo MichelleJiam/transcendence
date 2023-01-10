@@ -19,8 +19,13 @@ export class PenaltyController {
   }
 
   @Get("user/id/:id")
-  getMessageById(@Param("id", ParseIntPipe) id: number) {
+  getMessageByUserId(@Param("id", ParseIntPipe) id: number) {
     return this.penaltyService.getPenaltiesByUserId(id);
+  }
+
+  @Get("chat/id/:id")
+  getMessageByChatId(@Param("id", ParseIntPipe) id: number) {
+    return this.penaltyService.getPenaltiesByChatId(id);
   }
 
   @Post("create")

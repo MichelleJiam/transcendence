@@ -12,6 +12,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Penalty } from "src/penalty/penalty.entity";
+import { Role } from "src/role/role.entity";
 
 @Entity()
 export class User {
@@ -37,19 +38,23 @@ export class User {
   })
   public password!: string; // TODO: remove once 42Auth implemented
 
-  // add owner entity
-  @OneToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.owner)
+  // relationships for chat START
+  @OneToMany(() => Message, (message: Message) => message.userId)
   @JoinColumn()
-  public chatroomOwner!: Chatroom[];
-
-  //link message table to user
-  @OneToMany(() => Message, (messages: Message) => messages.userId)
-  @JoinColumn()
-  public messages!: Message[];
+  public message!: Message[];
 
   @ManyToMany(() => Penalty)
   @JoinColumn()
   public penalty!: Penalty[];
+
+  @ManyToMany(() => Role, (role: Role) => role.user)
+  @JoinColumn()
+  public role!: Role[];
+
+  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.user)
+  @JoinColumn()
+  public chatroom!: Chatroom[];
+  // relationships for chat END
 
   @Column({
     type: "boolean",
