@@ -16,12 +16,6 @@ export class Penalty {
   })
   id?: number;
 
-  // @ManyToMany(() => User)
-  // @Column({
-  //   nullable: false,
-  // })
-  // user!: User[];
-
   @CreateDateColumn()
   time?: Date;
 
@@ -30,7 +24,10 @@ export class Penalty {
   })
   penaltyType!: string;
 
-  // @ManyToMany(() => Chatroom)
-  // @JoinColumn()
-  // chatroom!: Chatroom[];
+  // relationships
+  @ManyToMany(() => User, (user: User) => user.penalty)
+  user!: User[];
+
+  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.penalty)
+  chatroom!: Chatroom[];
 }

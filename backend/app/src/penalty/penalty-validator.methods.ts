@@ -21,6 +21,6 @@ export function validateAdmin(
   newPenalty: Penalty,
   createPenaltyDto: CreatePenaltyDto,
 ): boolean {
- 
-  } return true;
+  for (let i = 0; i < newPenalty.chatroom.admin.length; i++) return true;
+  return false;
 }

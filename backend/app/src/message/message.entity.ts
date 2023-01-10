@@ -24,11 +24,12 @@ export class Message {
   @CreateDateColumn()
   createdAt!: Date;
 
-  @ManyToOne(() => User, (userId: User) => userId.messages)
+  // relationships
+  @ManyToOne(() => User, (userId: User) => userId.message)
   @JoinColumn()
   public userId!: User;
 
-  @ManyToOne(() => Chatroom, (chatroomId: Chatroom) => chatroomId.messages)
+  @ManyToOne(() => Chatroom, (chatroomId: Chatroom) => chatroomId.message)
   @JoinColumn()
   public chatroomId!: Chatroom;
 }

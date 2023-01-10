@@ -11,6 +11,7 @@ import {
 import { Message } from "src/message/message.entity";
 import { User } from "src/user/user.entity";
 import { Penalty } from "../penalty/penalty.entity";
+import { Role } from "src/role/role.entity";
 
 @Entity()
 export class Chatroom {
@@ -36,27 +37,19 @@ export class Chatroom {
   })
   public chatroomName!: string;
 
-  // shows owner of the chatroom
-  @ManyToOne(() => User, (userId: User) => userId.chatroomOwner)
-  @JoinColumn()
-  public owner!: User;
-
-  // shows admins of the chat
-  @ManyToMany(() => User)
-  @JoinColumn()
-  public admin!: User[];
-
-  // shows members in chat
-  @ManyToMany(() => User)
-  @JoinColumn()
-  public member!: User[];
-
   // shows messages belonging to this chatroom
-  @OneToMany(() => Message, (messages: Message) => messages.chatroomId)
+  @OneToMany(() => Message, (message: Message) => message.chatroomId)
   @JoinColumn()
-  public messages!: Message[];
+  public message!: Message[];
 
-  @ManyToMany(() => Penalty)
+  @ManyToMany(() => Penalty, (penalty: Penalty) => penalty.chatroom)
   @JoinColumn()
   public penalty!: Penalty[];
+
+  @ManyToMany(() => User, (user: User) => user.chatroom)
+  user!: User[];
+
+  @ManyToMany(() => Role, (role: Role) => role.chatroom)
+  @JoinColumn()
+  role!: Role[];
 }

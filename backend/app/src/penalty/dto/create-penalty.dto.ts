@@ -8,9 +8,6 @@ export class CreatePenaltyDto {
   user!: DeepPartial<User>;
 
   @IsNotEmpty()
-  bannedBy!: number;
-
-  @IsNotEmpty()
   penaltyType!: string;
 
   @IsNotEmpty()
