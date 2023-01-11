@@ -1,6 +1,7 @@
 @import url("https://fonts.cdnfonts.com/css/arcade-classic");
 
 * {
+  box-sizing: border-box;
   padding: 0;
   margin: 0;
   margin-bottom: 10px;
@@ -52,15 +53,13 @@ main {
 }
 
 button {
+  display: inline-block;
+
   font-family: "ArcadeClassic", sans-serif;
   color: black;
   font-size: 24px;
 
-  display: inline-block;
-
   padding: 10px 10px;
-  margin-bottom: 1em;
-
   background: #39ff14;
   transition: all 0.2s ease;
   border: none;
@@ -74,8 +73,14 @@ button:active {
 }
 
 input {
+  display: inline-block;
   font-size: 22px;
+
   padding: 5px 10px;
+}
+
+input:focus {
+  outline: none;
 }
 
 input[type="file"] {
