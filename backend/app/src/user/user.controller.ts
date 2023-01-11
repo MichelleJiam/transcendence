@@ -1,3 +1,4 @@
+import { JwtAuthGuard } from "./../auth/jwt-auth.guard";
 import {
   Controller,
   Post,
@@ -13,6 +14,7 @@ import {
   Res,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserSettingsDto } from "./dto/update-user-settings.dto";
@@ -26,6 +28,7 @@ import { Readable } from "typeorm/platform/PlatformTools";
 // user.service.ts
 
 @Controller("user")
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

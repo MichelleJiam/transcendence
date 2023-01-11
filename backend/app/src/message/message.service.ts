@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateMessageDto } from "./dto/create-message.dto";
@@ -47,7 +47,7 @@ export class MessageService {
       },
     });
     if (messages) return messages;
-    throw new HttpException("Posts not found", HttpStatus.NOT_FOUND);
+    throw new NotFoundException("Posts not found");
   }
 
   // finds username and retrieves all messages from this user
