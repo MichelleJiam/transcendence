@@ -43,46 +43,47 @@ function submitLogin(): void {
 </script>
 
 <style scoped>
-* {
-  box-sizing: border-box;
+h1 {
+  font-size: 50px;
 }
 
 form {
   text-align: center;
-  width: 25%;
-  margin: 1em auto;
-  padding: 20px 28px;
+  /*   width: 25%;
+  /* margin: 1em auto; */
+  /* padding: 20px 28px;
   border: 2px #302d2d solid;
   border-radius: 5px;
   background: #151414e4;
   animation: popup 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px; */
 }
 
 form h1 {
-  font-family: "ArcadeClassic", sans-serif;
-  text-align: center;
-  font-size: 8rem;
+  /* font-family: "ArcadeClassic", sans-serif; */
+  /* text-align: center; */
+  /* font-size: 8rem;
   margin: 1rem;
-  color: #e7e7e7;
+  color: #e7e7e7; */
 }
 
-label {
+/* label {
   font-size: 1em;
-  display: block;
+  display: inline-block;
   margin-bottom: 8px;
   font-size: 0.8rem;
   color: #a4a4a4;
-}
+} */
 
-.input-parent {
-  display: block;
+/* .input-parent {
+  width: 100%;
+  display: inline-block;
   margin-bottom: 1rem;
   color: white;
-}
-.input-parent input {
+} */
+/* .input-parent input {
   padding: 10px 18px;
-  width: 70%;
+  width: 100%;
   font-size: 1em;
   background: hsl(0, 1%, 19%);
   border: none;
@@ -90,37 +91,32 @@ label {
   outline: none;
   transition: all 0.2s ease;
   color: white;
-}
-.input-parent input:hover {
+} */
+/* .input-parent input:hover {
   background: #404040;
-}
-.input-parent input:focus {
+} */
+/* .input-parent input:focus {
   box-shadow: 0px 0px 0px 1px #0087ff;
-}
+} */
 
 button {
-  padding: 10px 18px;
-  font-size: 1em;
-  margin-top: 1em;
-  margin-bottom: 1em;
-  background: rgba(15, 15, 217, 0.847);
-  width: 70%;
+  width: 100%;
   border: none;
   border-radius: 4px;
   color: #f4f4f4;
   transition: all 0.2s ease;
 }
 
-button:hover {
+/* button:hover {
   background: #184a9b;
   cursor: pointer;
-}
+} */
 
-button:focus {
+/* button:focus {
   box-shadow: 0px 0px 0px 3px black;
-}
+} */
 
-button:active {
+/* button:active {
   background: #0f213e;
-}
+} */
 </style>
