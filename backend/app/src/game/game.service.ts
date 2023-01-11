@@ -1,78 +1,112 @@
-import {
-  HttpCode,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { CreateGameDto } from "./dto/create-game.dto";
 import { Game } from "./entities/game.entity";
-import { UpdateGameDto } from "./dto/update-game.dto";
 import { SocketEntity } from "./entities/socket.entity";
 import { CreateSocketDto } from "./dto/create-socket.dto";
+import { User } from "src/user/user.entity";
 
 @Injectable()
 export class GameService {
   constructor(
     @InjectRepository(Game)
     private readonly gameRepository: Repository<Game>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  getAllGames() {
-    return this.gameRepository.find();
-  }
-
-  async getGameById(id: number): Promise<Game[]> {
-    const games = await this.gameRepository.findBy({ id });
+  async getAllGames() {
+    const games = await this.gameRepository.find();
     return games;
   }
 
-  match(id: number) {
-    console.log(id);
-    // id you can use to retrieve user specific info from the database
+  async getGameById(id: number): Promise<Game[]> {
+    const game = await this.gameRepository.findBy({ id });
+    return game;
   }
 
-  async getUserWins(winnerId: number) {
-    const gamesWon = await this.gameRepository.find({
-      select: ["id", "winnerId", "winnerScore"],
-      where: {
-        winnerId: winnerId,
-      },
-      relations: {
-        users: true,
-      },
+  async deleteGame(gameId: number) {
+    const deleteGame = await this.gameRepository.delete(gameId);
+    if (!deleteGame.affected) {
+      throw new HttpException("Game not found", HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async createGame(userId: number) {
+    const newGame = await this.gameRepository.create({
+      users: [
+        {
+          id: userId,
+        },
+      ],
+      status: "waiting",
     });
-    if (gamesWon) return gamesWon;
-  }
-
-  async getUserLosses(loserId: number) {
-    const gamesLost = await this.gameRepository.find({
-      select: ["id", "loserId", "loserScore"],
-      where: {
-        loserId: loserId,
-      },
-      relations: {
-        users: true,
-      },
-    });
-    if (gamesLost) return gamesLost;
-  }
-
-  async createGame(createGameDto: CreateGameDto) {
-    const newGame = await this.gameRepository.create(createGameDto);
     await this.gameRepository.save(newGame);
+    console.log("createGame object" + newGame);
     return newGame;
   }
 
-  async updateGame(id: number, game: UpdateGameDto) {
-    await this.gameRepository.update(id, game);
-    const updatedGame = await this.getGameById(id);
-    if (updatedGame) {
-      return updatedGame;
-    }
-    throw new HttpException("Game not found", HttpStatus.NOT_FOUND);
+  async updateGame(gameId: number, userId: number) {
+    const game = await this.gameRepository.findOne({
+      where: {
+        id: gameId,
+      },
+    });
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    const updatedGame = await this.gameRepository
+      .createQueryBuilder()
+      .relation(Game, "users")
+      .of(game)
+      .add([user]);
+
+    console.log(updatedGame);
+    return updatedGame;
+
+    // const updatedGame = await this.gameRepository.update(gameId, {
+    //   users: [
+    //     {
+    //       id: userId,
+    //     },
+    //   ],
+    //   status: "playing",
+    // });
+    // if (updatedGame) {
+    //   return updatedGame;
+    // }
+    // throw new HttpException("Game not updated", HttpStatus.NOT_FOUND);
   }
+
+  // async getUserWins(winnerId: number) {
+  //   const gamesWon = await this.gameRepository.find({
+  //     select: ["id", "winnerId", "winnerScore"],
+  //     where: {
+  //       winnerId: winnerId,
+  //     },
+  //     relations: {
+  //       users: true,
+  //     },
+  //   });
+  //   if (gamesWon) return gamesWon;
+  // }
+
+  // async getUserLosses(loserId: number) {
+  //   const gamesLost = await this.gameRepository.find({
+  //     select: ["id", "loserId", "loserScore"],
+  //     where: {
+  //       loserId: loserId,
+  //     },
+  //     relations: {
+  //       users: true,
+  //     },
+  //   });
+  //   if (gamesLost) return gamesLost;
+  // }
 
   /****************************************************************/
   messages: SocketEntity[] = [{ name: "Swaan", text: "heyoo" }];

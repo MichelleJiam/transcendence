@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import PongGame from "../components/pong/PongGame.vue";
 import SocketTest from "@/components/pong/SocketTest.vue";
 import { useRoute } from "vue-router";
+import { apiRequest } from "@/utils/apiRequest";
 
 const route = useRoute();
 const id = route.params.id;
@@ -20,12 +21,23 @@ const startGame = () => {
 function updateInPlay(value: boolean) {
   inPlay.value = value;
 }
+
+async function testGame() {
+  const res = await apiRequest(`/game/${id}/match`, "get");
+  console.log(res.data);
+}
+
+// onMounted(async () => {
+//   const res = await apiRequest(`/game/${id}/match`, "get");
+//   console.log(res);
+// });
 </script>
 
 <template>
   <main>
     <div id="display-content">
       <p>Id: {{ id }}</p>
+      <!-- <SocketTest /> -->
       <!-- <PongGame @game-over="updateInPlay" /> -->
       <!-- <div v-if="!inPlay" class="my-btn">
         <button class="btn" @click="startGame">PLAY</button>
@@ -34,6 +46,7 @@ function updateInPlay(value: boolean) {
       <div v-else>
         <PongGame @game-over="updateInPlay" />
       </div> -->
+      <button class="btn" @click="testGame">Play game</button>
     </div>
   </main>
 </template>

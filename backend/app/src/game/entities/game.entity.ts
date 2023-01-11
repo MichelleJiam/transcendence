@@ -15,24 +15,29 @@ export class Game {
   public id!: number;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
   public winnerId!: number;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
   public loserId!: number;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
   public winnerScore!: number;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
   public loserScore!: number;
+
+  @Column({
+    nullable: false,
+  })
+  public status!: string;
 
   // one game to many users
   @JoinColumn()
