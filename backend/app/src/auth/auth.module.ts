@@ -9,11 +9,15 @@ import { IntraStrategy } from "./intra.strategy";
 // import { User } from "../user/user.entity";
 // import { UserController } from "../user/user.controller";
 import { UserModule } from "../user/user.module";
+import { HttpModule } from "@nestjs/axios";
+import { PassportModule } from "@nestjs/passport";
 
 @Module({
   imports: [
+    PassportModule,
     UserModule,
     ConfigModule,
+    HttpModule,
     // TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       useFactory: () => ({
