@@ -48,6 +48,15 @@ main {
   justify-content: center;
 }
 
+form {
+  background: #151414e4;
+  text-align: center;
+  padding: 20px 28px;
+  border: 2px #302d2d solid;
+  border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
 button {
   font-family: "ArcadeClassic", sans-serif;
   color: white;
@@ -72,8 +81,11 @@ input {
 
 }
 
+label {
+}
+
 /* Apply same border style */
-form, button, input {
+button, input {
   border: none;
   border-radius: 4px;
 }

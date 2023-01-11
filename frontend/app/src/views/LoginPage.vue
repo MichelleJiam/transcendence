@@ -44,11 +44,15 @@ function submitLogin(): void {
 
 <style scoped>
 h1 {
-  font-size: 50px;
+  font-size: 100px;
 }
 
 form {
-  text-align: center;
+  background: #151414e4;
+  padding: 20px 28px;
+  /* width: 25%; */
+  
+  /* all text within the form should be in the center */
   /*   width: 25%;
   /* margin: 1em auto; */
   /* padding: 20px 28px;
@@ -61,7 +65,6 @@ form {
 
 form h1 {
   /* font-family: "ArcadeClassic", sans-serif; */
-  /* text-align: center; */
   /* font-size: 8rem;
   margin: 1rem;
   color: #e7e7e7; */
