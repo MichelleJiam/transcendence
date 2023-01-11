@@ -14,8 +14,6 @@ import { User } from "../user/user.entity";
 import { IntraAuthGuard } from "./intra-auth.guard";
 import { Response } from "express";
 import { Request } from "express";
-import passport from "passport";
-import { Message } from "src/message/message.entity";
 
 @Controller("auth")
 export class AuthController {
@@ -23,7 +21,6 @@ export class AuthController {
 
   @Get("login")
   @UseGuards(IntraAuthGuard)
-  // @Redirect(process.env.HOME_REDIRECT, 302)
   async loginIntra() {
     // console.log("User logged in: ", user.id);
   }
@@ -73,14 +70,7 @@ export class AuthController {
   authenticate(@currentUser() user: User) {
     return user;
   }
-
-  // @Get("test2")
-  // @UseGuards(IntraAuthGuard) // reissues jwt token??
-  // // @UseGuards(AuthenticatedGuard)
-  // async test2(@currentUser() user: User) {
-  //   console.log("User can access intra-protected route");
-  //   return user;
-  // }
+  // end of debug methods
 
   // @Post("logout")
   @Get("logout") // temporary for testing in browser

@@ -2,7 +2,6 @@ import { CreateUserDto } from "./../user/dto/create-user.dto";
 import { ConflictException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
-import { User } from "../user/user.entity";
 import { UserService } from "../user/user.service";
 
 @Injectable()
@@ -20,7 +19,10 @@ export class AuthService {
   }
 
   // Compares plain text `receivedPassword` to hashed version and returns true if passwords match.
-  public async checkPassword(receivedPassword: string, hashedPassword: string) {
+  public async checkPassword(
+    receivedPassword: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
     return await bcrypt.compare(receivedPassword, hashedPassword);
   }
 
