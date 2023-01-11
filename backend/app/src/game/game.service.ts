@@ -1,10 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { MoreThan, Repository } from "typeorm";
 import { Game } from "./entities/game.entity";
 import { SocketEntity } from "./entities/socket.entity";
 import { CreateSocketDto } from "./dto/create-socket.dto";
 import { User } from "src/user/user.entity";
+import { CreateGameDto } from "./dto/create-game.dto";
+import { UpdateGameDto } from "./dto/update-game.dto";
 
 @Injectable()
 export class GameService {
@@ -16,25 +18,29 @@ export class GameService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async getAllGames() {
-    const games = await this.gameRepository.find();
+  /* respository methods return a promise so functions need to be async */
+  /* find method will iterate over array and return true or false */
+  async findAllGames() {
+    const games = await this.gameRepository.find({
+      // will get all with an id of more than 3
+      where: { id: MoreThan(3), status: "playing" },
+    });
+
     return games;
   }
 
-  async getGameById(id: number): Promise<Game[]> {
-    const game = await this.gameRepository.findBy({ id });
+  async findOneGame(gameId: number) {
+    const game = await this.gameRepository.findOne({
+      where: {
+        id: gameId,
+      },
+    });
     return game;
   }
 
-  async deleteGame(gameId: number) {
-    const deleteGame = await this.gameRepository.delete(gameId);
-    if (!deleteGame.affected) {
-      throw new HttpException("Game not found", HttpStatus.NOT_FOUND);
-    }
-  }
-
-  async createGame(userId: number) {
-    const newGame = await this.gameRepository.create({
+  async createGame(createGameDto: CreateGameDto, userId: number) {
+    const newGame = await this.gameRepository.save({
+      ...createGameDto,
       users: [
         {
           id: userId,
@@ -42,8 +48,6 @@ export class GameService {
       ],
       status: "waiting",
     });
-    await this.gameRepository.save(newGame);
-    console.log("createGame object" + newGame);
     return newGame;
   }
 
@@ -53,34 +57,38 @@ export class GameService {
         id: gameId,
       },
     });
+    await this.gameRepository.save({
+      ...game,
+      status: "playing",
+    });
     const user = await this.userRepository.findOne({
       where: {
         id: userId,
       },
     });
-
     const updatedGame = await this.gameRepository
       .createQueryBuilder()
       .relation(Game, "users")
       .of(game)
       .add([user]);
 
-    console.log(updatedGame);
     return updatedGame;
-
-    // const updatedGame = await this.gameRepository.update(gameId, {
-    //   users: [
-    //     {
-    //       id: userId,
-    //     },
-    //   ],
-    //   status: "playing",
-    // });
-    // if (updatedGame) {
-    //   return updatedGame;
-    // }
-    // throw new HttpException("Game not updated", HttpStatus.NOT_FOUND);
   }
+
+  // const updatedGame = await this.gameRepository.update(gameId, {
+  //   ...updateGameDto
+  //   users: [
+  //     {
+  //       id: userId,
+  //     },
+  //   ],
+  //   status: "playing",
+  // });
+  // if (updatedGame) {
+  //   return updatedGame;
+  // }
+  // throw new HttpException("Game not updated", HttpStatus.NOT_FOUND);
+  // }
 
   // async getUserWins(winnerId: number) {
   //   const gamesWon = await this.gameRepository.find({
@@ -108,6 +116,12 @@ export class GameService {
   //   if (gamesLost) return gamesLost;
   // }
 
+  // async removeGame(gameId: number) {
+  //   const game = await this.gameRepository.delete(gameId);
+  //   if (!game.affected) {
+  //     throw new HttpException("Game not found", HttpStatus.NOT_FOUND);
+  //   }
+  // }
   /****************************************************************/
   messages: SocketEntity[] = [{ name: "Swaan", text: "heyoo" }];
 
@@ -131,7 +145,7 @@ export class GameService {
     return message;
   }
 
-  findAll() {
+  findAllMessages() {
     return this.messages;
   }
 }

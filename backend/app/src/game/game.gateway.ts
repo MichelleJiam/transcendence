@@ -49,7 +49,7 @@ export class GameGateway {
 
   @SubscribeMessage("findAllMessages")
   findAll() {
-    return this.socketService.findAll();
+    return this.socketService.findAllMessages();
   }
 
   @SubscribeMessage("join")

@@ -6,57 +6,67 @@ import {
   ParseIntPipe,
   Delete,
   Patch,
+  Body,
+  HttpCode,
 } from "@nestjs/common";
 import { GameService } from "./game.service";
+import { CreateGameDto } from "./dto/create-game.dto";
+import { UpdateGameDto } from "./dto/update-game.dto";
 
 @Controller("game")
 export class GameController {
-  constructor(
-    private readonly gameService: GameService, // private readonly userService: UserService,
-  ) {}
+  constructor(private readonly gameService: GameService) {}
 
   @Get()
-  getAllGames() {
-    console.log(this.gameService.getAllGames());
-    return this.gameService.getAllGames();
+  async findAll() {
+    const games = await this.gameService.findAllGames();
+    console.log(games);
+    return games;
   }
 
   @Get(":id")
-  getGameById(@Param("id", ParseIntPipe) id: number) {
-    return this.gameService.getGameById(id);
+  async findOne(@Param("id") id: number) {
+    const game = await this.gameService.findOneGame(id);
+    console.log(game);
+    return game;
   }
 
-  @Delete(":id/delete")
-  delete(@Param("id", ParseIntPipe) gameId: number) {
-    return this.gameService.deleteGame(gameId);
+  @Post(":id/create")
+  async create(
+    @Param("id") userId: number,
+    @Body() createGameDto: CreateGameDto,
+  ) {
+    const game = await this.gameService.createGame(createGameDto, userId);
+    console.log(game);
+    return game;
   }
 
-  @Patch("update")
-  async update(gameId: number, userId: number) {
-    return await this.gameService.updateGame(gameId, userId);
+  @Patch(":userId/update/:gameId")
+  async update(
+    @Param("userId") userId: number,
+    @Param("gameId") gameId: number,
+  ) {
+    const game = await this.gameService.updateGame(gameId, userId);
+    console.log(game);
+    return game;
   }
 
-  @Post("create")
-  create(userId: number) {
-    return this.gameService.createGame(userId);
-  }
+  //   @Get(":id/match")
+  //   async match(@Param("id", ParseIntPipe) id: number) {
+  //     const games = await this.getAllGames();
 
-  @Get(":id/match")
-  async match(@Param("id", ParseIntPipe) id: number) {
-    const games = await this.getAllGames();
-
-    /* if there is a game in a waiting state then update */
-    for (let i = 0; i < games.length; i++) {
-      if (games[i].status == "waiting") {
-        this.update(games[i].id, id);
-        console.log("match updatedGame " + games[i]);
-        return games[i].id;
-      }
-    }
-    const game = await this.create(id);
-    return game.id;
-    // console.log("hello", id);
-  }
+  //     /* if there is a game in a waiting state then update */
+  //     for (let i = 0; i < games.length; i++) {
+  //       if (games[i].status == "waiting") {
+  //         this.update(games[i].id, id);
+  //         console.log("match updatedGame " + games[i]);
+  //         return games[i].id;
+  //       }
+  //     }
+  //     const game = await this.create(id);
+  //     return game.id;
+  //     // console.log("hello", id);
+  //   }
 }
 
 // @Get("wins/:winner_id")
@@ -69,7 +79,9 @@ export class GameController {
 //   return this.gameService.getUserLosses(loserId);
 // }
 
-// @Post("create")
-// create(@Body() createGameDto: CreateGameDto) {
-//   return this.gameService.createGame(createGameDto);
+/* with delete best practice is not to return deleted resource, only return status code */
+// @Delete("delete/:gameId")
+// @HttpCode(204) // code for no content used for removing a resource
+// async remove(@Param("gameId", ParseIntPipe) gameId: number) {
+//   await this.gameService.removeGame(gameId);
 // }

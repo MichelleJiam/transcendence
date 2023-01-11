@@ -6,3 +6,5 @@ export class CreateGameDto {
   status!: string;
   users!: number[];
 }
+
+/* list all properties we expect */
