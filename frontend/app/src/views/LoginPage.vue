@@ -57,59 +57,9 @@ form {
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 
-label {
-  display: block;
-}
-
 input,
 button {
   width: 100%;
   margin-bottom: 1em;
 }
-
-/* label {
-  font-size: 1em;
-  display: inline-block;
-  margin-bottom: 8px;
-  font-size: 0.8rem;
-  color: #a4a4a4;
-} */
-
-/* .input-parent {
-  width: 100%;
-  display: inline-block;
-  margin-bottom: 1rem;
-  color: white;
-} */
-/* .input-parent input {
-  padding: 10px 18px;
-  width: 100%;
-  font-size: 1em;
-  background: hsl(0, 1%, 19%);
-  border: none;
-  border-radius: 4px;
-  outline: none;
-  transition: all 0.2s ease;
-  color: white;
-} */
-/* .input-parent input:hover {
-  background: #404040;
-} */
-/* .input-parent input:focus {
-  box-shadow: 0px 0px 0px 1px #0087ff;
-} */
-
-button {
-  border: none;
-  border-radius: 4px;
-  /* transition: all 0.2s ease; */
-}
-
-/* button:focus {
-  box-shadow: 0px 0px 0px 3px black;
-} */
-
-/* button:active {
-  background: #0f213e;
-} */
 </style>
