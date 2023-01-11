@@ -14,11 +14,11 @@ export class AuthService {
 
   // returns Authentication cookie with JWT access token as value.
   // enabling httpOnly option makes cookie inaccessible to clientside JS and therefore XSS attacks.
-  public getCookieWithJwtToken(user: User) {
-    const payload = { sub: user.id, iid: user.intraId };
+  public getCookieWithJwtToken(id: number) {
+    const payload = { sub: id };
     const accessToken = this.jwtService.sign(payload);
 
-    console.log("Signed token for user: ", user.id);
+    console.log("Signed token for user: ", id);
     console.log("Token: ", accessToken);
     return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${process.env.JWT_EXPIRATION}`;
   }
@@ -48,7 +48,8 @@ export class AuthService {
 
   // twofactor methods
 
+	// 
   public async hashPassword(password: string): Promise<string> {
-    return await bcrypt.hash(password, 42);
+    return await bcrypt.hash(password, 10);
   }
 }
