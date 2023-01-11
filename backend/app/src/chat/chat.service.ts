@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Message } from "src/message/message.entity";
+import { MessageService } from "src/message/message.service";
 import { Role } from "src/role/role.entity";
 import { RoleService } from "src/role/role.service";
 import { User } from "src/user/user.entity";
@@ -19,6 +19,7 @@ export class ChatService {
   constructor(
     private readonly roleService: RoleService,
     private readonly userService: UserService,
+    private readonly messageService: MessageService,
 
     @InjectRepository(Chatroom)
     private readonly chatroomRepository: Repository<Chatroom>,
