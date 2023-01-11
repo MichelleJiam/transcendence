@@ -12,8 +12,22 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
 
-  // returns Authentication cookie with JWT access token as value.
-  // enabling httpOnly option makes cookie inaccessible to clientside JS and therefore XSS attacks.
+  // PASSWORD
+
+  // Hashes `password` for security, using 10 salt rounds for efficiency.
+  public async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 10);
+  }
+
+  // Compares plain text `receivedPassword` to hashed version and returns true if passwords match.
+  public async checkPassword(receivedPassword: string, hashedPassword: string) {
+    return await bcrypt.compare(receivedPassword, hashedPassword);
+  }
+
+  // AUTH
+
+  // Returns Authentication cookie with JWT access token as value.
+  // Enabling httpOnly option makes cookie inaccessible to clientside JS and therefore XSS attacks.
   public getCookieWithJwtToken(id: number) {
     const payload = { sub: id };
     const accessToken = this.jwtService.sign(payload);
@@ -23,6 +37,7 @@ export class AuthService {
     return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${process.env.JWT_EXPIRATION}`;
   }
 
+  // Checks if user has site account. If not, creates one.
   async validateUser(user: CreateUserDto) {
     let existingUser = await this.userService.findUserByIntraId(user.intraId);
 
@@ -35,6 +50,7 @@ export class AuthService {
     return existingUser;
   }
 
+  // Creates account for user in site database.
   async registerUser(user: CreateUserDto) {
     const existingUser = await this.userService.findUserByIntraId(user.intraId);
 
@@ -47,9 +63,4 @@ export class AuthService {
   }
 
   // twofactor methods
-
-	// 
-  public async hashPassword(password: string): Promise<string> {
-    return await bcrypt.hash(password, 10);
-  }
 }
