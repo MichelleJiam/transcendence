@@ -7,10 +7,11 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
-@Entity()
+@Entity() /* could name the table games */
 export class Game {
   @PrimaryGeneratedColumn({
     name: "gameId",
+    /* other options - type, length, nullable,unique, comment (visible in database) */
   })
   public id!: number;
 

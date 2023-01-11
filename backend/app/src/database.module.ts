@@ -19,7 +19,7 @@ import { Game } from "./game/entities/game.entity";
         password: configService.get("POSTGRES_PASSWORD"),
         database: configService.get("POSTGRES_DB"),
         entities: [User, Message, Avatar, Game],
-        synchronize: true,
+        synchronize: true /* automatically updates database schema */,
       }),
     }),
   ],
