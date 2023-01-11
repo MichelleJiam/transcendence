@@ -28,6 +28,7 @@ import { Readable } from "typeorm/platform/PlatformTools";
 // user.service.ts
 
 @Controller("user")
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -69,7 +70,6 @@ export class UserController {
    */
 
   @Put(":id/update-settings")
-  @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   async updateUser(
     @Param("id", ParseIntPipe) id: number,
@@ -81,7 +81,6 @@ export class UserController {
   /* avatar */
 
   @Post(":id/avatar")
-  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor("file"))
   async addAvatar(
     @Param("id", ParseIntPipe) id: number,
