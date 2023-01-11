@@ -8,10 +8,10 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
-  const navigationGuard = useNavigationStore();
-  if (!navigationGuard.loggedIn && to.name !== "login") {
-    return { name: "login" };
-  }
+  // const navigationGuard = useNavigationStore();
+  // if (!navigationGuard.loggedIn && to.name !== "login") {
+  //   return { name: "login" };
+  // }
 });
 
 export default router;

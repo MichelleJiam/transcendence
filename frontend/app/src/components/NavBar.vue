@@ -10,7 +10,9 @@
       <li><router-link to="/stream">Live</router-link></li>
       <!-- when this is click login should be set to false -->
       <li id="logout">
-        <router-link to="/login" @click="setNavigationGuard">Logout</router-link>
+        <router-link to="/login" @click="setNavigationGuard"
+          >Logout</router-link
+        >
       </li>
     </ul>
   </nav>
@@ -58,11 +60,11 @@ li#logout {
   right: 0;
 }
 
-nav li a:hover {
-  color: rgba(15, 15, 217, 0.847);
+a.router-link-exact-active {
+  color: #39ff14;
 }
-
-nav li a.router-link-exact-active {
-  color: rgba(15, 15, 217, 0.847);
+a:hover {
+  color: #88ff72;
+  transition: all 0.2s ease;
 }
 </style>

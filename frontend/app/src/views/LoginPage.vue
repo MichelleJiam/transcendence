@@ -5,12 +5,12 @@
 
       <div class="input-parent">
         <label for="username">Username</label>
-        <input id="username" v-model="username" type="text"/>
+        <input id="username" v-model="username" type="text" />
       </div>
 
       <div class="input-parent">
         <label for="password">Password</label>
-        <input id="password" v-model="password" type="password"/>
+        <input id="password" v-model="password" type="password" />
       </div>
 
       <button @click.prevent="submitLogin">Login</button>
@@ -44,30 +44,21 @@ function submitLogin(): void {
 
 <style scoped>
 h1 {
-  font-size: 100px;
+  font-size: 150px;
+  /* margin-bottom: 10px; */
 }
 
 form {
   background: #151414e4;
+  text-align: center;
   padding: 20px 28px;
-  /* width: 25%; */
-  
-  /* all text within the form should be in the center */
-  /*   width: 25%;
-  /* margin: 1em auto; */
-  /* padding: 20px 28px;
   border: 2px #302d2d solid;
-  border-radius: 5px;
-  background: #151414e4;
-  animation: popup 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px; */
+  border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 
-form h1 {
-  /* font-family: "ArcadeClassic", sans-serif; */
-  /* font-size: 8rem;
-  margin: 1rem;
-  color: #e7e7e7; */
+label {
+  display: block;
 }
 
 /* label {
@@ -106,14 +97,8 @@ button {
   width: 100%;
   border: none;
   border-radius: 4px;
-  color: #f4f4f4;
-  transition: all 0.2s ease;
+  /* transition: all 0.2s ease; */
 }
-
-/* button:hover {
-  background: #184a9b;
-  cursor: pointer;
-} */
 
 /* button:focus {
   box-shadow: 0px 0px 0px 3px black;
