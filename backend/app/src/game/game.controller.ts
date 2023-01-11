@@ -2,23 +2,22 @@ import {
   Controller,
   Post,
   Get,
-  Put,
-  Body,
   Param,
   ParseIntPipe,
-  UsePipes,
-  ValidationPipe,
+  Delete,
+  Patch,
 } from "@nestjs/common";
-import { CreateGameDto } from "./dto/create-game.dto";
 import { GameService } from "./game.service";
-import { UpdateGameDto } from "./dto/update-game.dto";
 
 @Controller("game")
 export class GameController {
-  constructor(private readonly gameService: GameService) {}
+  constructor(
+    private readonly gameService: GameService, // private readonly userService: UserService,
+  ) {}
 
   @Get()
   getAllGames() {
+    console.log(this.gameService.getAllGames());
     return this.gameService.getAllGames();
   }
 
@@ -27,32 +26,50 @@ export class GameController {
     return this.gameService.getGameById(id);
   }
 
-  @Get(":id/match")
-  match(@Param("id", ParseIntPipe) id: number) {
-    console.log("hello", id);
+  @Delete(":id/delete")
+  delete(@Param("id", ParseIntPipe) gameId: number) {
+    return this.gameService.deleteGame(gameId);
   }
 
-  @Get("wins/:winner_id")
-  getUserWins(@Param("winner_id") winnerId: number) {
-    return this.gameService.getUserWins(winnerId);
-  }
-
-  @Get("losses/:loser_id")
-  getUserLosses(@Param("loser_id") loserId: number) {
-    return this.gameService.getUserLosses(loserId);
+  @Patch("update")
+  async update(gameId: number, userId: number) {
+    return await this.gameService.updateGame(gameId, userId);
   }
 
   @Post("create")
-  create(@Body() createGameDto: CreateGameDto) {
-    return this.gameService.createGame(createGameDto);
+  create(userId: number) {
+    return this.gameService.createGame(userId);
   }
 
-  @Put("update/:id")
-  @UsePipes(ValidationPipe)
-  async updateGame(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() game: UpdateGameDto,
-  ) {
-    return await this.gameService.updateGame(id, game);
+  @Get(":id/match")
+  async match(@Param("id", ParseIntPipe) id: number) {
+    const games = await this.getAllGames();
+
+    /* if there is a game in a waiting state then update */
+    for (let i = 0; i < games.length; i++) {
+      if (games[i].status == "waiting") {
+        this.update(games[i].id, id);
+        console.log("match updatedGame " + games[i]);
+        return games[i].id;
+      }
+    }
+    const game = await this.create(id);
+    return game.id;
+    // console.log("hello", id);
   }
 }
+
+// @Get("wins/:winner_id")
+// getUserWins(@Param("winner_id") winnerId: number) {
+//   return this.gameService.getUserWins(winnerId);
+// }
+
+// @Get("losses/:loser_id")
+// getUserLosses(@Param("loser_id") loserId: number) {
+//   return this.gameService.getUserLosses(loserId);
+// }
+
+// @Post("create")
+// create(@Body() createGameDto: CreateGameDto) {
+//   return this.gameService.createGame(createGameDto);
+// }

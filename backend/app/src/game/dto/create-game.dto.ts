@@ -3,4 +3,6 @@ export class CreateGameDto {
   loserId!: number;
   winnerScore!: number;
   loserScore!: number;
+  status!: string;
+  users!: number[];
 }
