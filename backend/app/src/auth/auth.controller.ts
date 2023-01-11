@@ -1,19 +1,10 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Redirect,
-  Req,
-  Res,
-  UseGuards,
-} from "@nestjs/common";
-import { JwtAuthGuard } from "./jwt-auth.guard";
+import { Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { Response, Request } from "express";
 import { AuthService } from "./auth.service";
-import { currentUser } from "../user/current-user.decorator";
+import { currentUser } from "./decorators/current-user.decorator";
+import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { IntraAuthGuard } from "./guards/intra-auth.guard";
 import { User } from "../user/user.entity";
-import { IntraAuthGuard } from "./intra-auth.guard";
-import { Response } from "express";
-import { Request } from "express";
 
 @Controller("auth")
 export class AuthController {
