@@ -15,6 +15,7 @@ import { IntraAuthGuard } from "./intra-auth.guard";
 import { Response } from "express";
 import { Request } from "express";
 import passport from "passport";
+import { Message } from "src/message/message.entity";
 
 @Controller("auth")
 export class AuthController {
@@ -23,44 +24,45 @@ export class AuthController {
   @Get("login")
   @UseGuards(IntraAuthGuard)
   // @Redirect(process.env.HOME_REDIRECT, 302)
-  async loginIntra(
-    // enabling passthrough lets Nest handle response logic
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async loginIntra() {
     // console.log("User logged in: ", user.id);
   }
 
   @Get("callback")
   @UseGuards(IntraAuthGuard)
   async callback(
-    @Res({ passthrough: true }) response: Response,
+    @Res({ passthrough: true }) response: Response, // enabling passthrough lets Nest handle response logic
     @currentUser() user: User,
   ) {
     console.log("Callback");
-    const authCookie = this.authService.getCookieWithJwtToken(user);
+    const authCookie = this.authService.getCookieWithJwtToken(user.id);
     response.setHeader("Set-Cookie", authCookie);
     console.log("callback: Set access_token cookie");
     response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
-    // return { id: user.id, authCookie }; // debug
     // return { id: user.id };
   }
 
-  @Get("test")
+  // Debug routes. TODO: remove later
+  @Get("test_login")
+  async testLogin(@Res({ passthrough: true }) response: Response) {
+    const authCookie = this.authService.getCookieWithJwtToken(0);
+    response.setHeader("Set-Cookie", authCookie);
+    console.log("testLogin: Set access_token cookie");
+    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
+  }
+
+  @Get("test_access")
   @UseGuards(JwtAuthGuard)
-  async test(@currentUser() user: User) {
+  async testAccess(@currentUser() user: User) {
     console.log("User can access jwt-protected route");
     return user;
   }
 
   @Get("test_cookie")
   @UseGuards(JwtAuthGuard)
-  async getCookie(
-    @Req() request: Request,
-    @Res({ passthrough: true }) response: Response,
-    @currentUser() user: User,
-  ) {
+  async testCookie(@Req() request: Request, @currentUser() user: User) {
     console.log(
-      "getCookie (Authentication): ",
+      "testCookie (Authentication): ",
       request?.cookies?.Authentication,
     );
     return user;
@@ -72,17 +74,17 @@ export class AuthController {
     return user;
   }
 
-  @Get("test2")
-  @UseGuards(IntraAuthGuard) // reissues jwt token??
-  // @UseGuards(AuthenticatedGuard)
-  async test2(@currentUser() user: User) {
-    console.log("User can access intra-protected route");
-    return user;
-  }
+  // @Get("test2")
+  // @UseGuards(IntraAuthGuard) // reissues jwt token??
+  // // @UseGuards(AuthenticatedGuard)
+  // async test2(@currentUser() user: User) {
+  //   console.log("User can access intra-protected route");
+  //   return user;
+  // }
 
   // @Post("logout")
   @Get("logout") // temporary for testing in browser
-  // @UseGuards(IntraAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async logout(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
