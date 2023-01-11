@@ -12,14 +12,15 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
 
-  // returns JWT access token
-  public getJwtToken(user: User) {
+  // returns Authentication cookie with JWT access token as value.
+  // enabling httpOnly option makes cookie inaccessible to clientside JS and therefore XSS attacks.
+  public getCookieWithJwtToken(user: User) {
     const payload = { sub: user.id, iid: user.intraId };
     const accessToken = this.jwtService.sign(payload);
 
     console.log("Signed token for user: ", user.id);
     console.log("Token: ", accessToken);
-    return accessToken;
+    return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${process.env.JWT_EXPIRATION}`;
   }
 
   async validateUser(user: CreateUserDto) {
