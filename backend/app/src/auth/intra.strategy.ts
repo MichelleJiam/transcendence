@@ -2,16 +2,10 @@ import { AuthService } from "./auth.service";
 import { Strategy } from "passport-42";
 import { PassportStrategy } from "@nestjs/passport";
 import { Injectable } from "@nestjs/common";
-import { VerifyCallback } from "passport-jwt";
-import { HttpService } from "@nestjs/axios";
-import { firstValueFrom } from "rxjs";
 
 @Injectable()
 export class IntraStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    private readonly authService: AuthService,
-    private httpService: HttpService,
-  ) {
+  constructor(private readonly authService: AuthService) {
     super({
       authorizationURL: process.env.INTRA_AUTHORIZE,
       clientID: process.env.INTRA_CLIENT_ID,
@@ -26,7 +20,11 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(profile: { id: string }) {
+  async validate(
+    accessToken: string,
+    refreshToken: string,
+    profile: { id: string },
+  ) {
     console.log("Attempting to validate user according to IntraStrategy");
     const createUser = {
       intraId: profile.id,
