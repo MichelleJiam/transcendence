@@ -1,8 +1,9 @@
 import { IsNotEmpty } from "class-validator";
 
-export class AddAdminDto {
+export class SwapOwnerDto {
   @IsNotEmpty()
-  newAdmin!: number;
+  oldOwner!: number;
+
   @IsNotEmpty()
-  byAdmin!: number;
+  newOwner!: number;
 }

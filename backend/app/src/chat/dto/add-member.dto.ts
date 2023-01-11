@@ -1,6 +1,6 @@
-import { User } from "src/user/user.entity";
-import { DeepPartial } from "typeorm";
+import { IsNotEmpty } from "class-validator";
 
 export class AddMemberDto {
-  member!: DeepPartial<User[]>;
+  @IsNotEmpty()
+  member!: number;
 }

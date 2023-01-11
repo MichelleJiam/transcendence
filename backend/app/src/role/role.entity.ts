@@ -16,8 +16,8 @@ export class Role {
 
   // relationships
   @ManyToMany(() => User, (user: User) => user.role)
-  user!: User[];
+  public user!: User[];
 
   @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.role)
-  chatroom!: Chatroom[];
+  public chatroom!: Chatroom[];
 }
