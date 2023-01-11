@@ -61,6 +61,12 @@ label {
   display: block;
 }
 
+input,
+button {
+  width: 100%;
+  margin-bottom: 1em;
+}
+
 /* label {
   font-size: 1em;
   display: inline-block;
@@ -94,7 +100,6 @@ label {
 } */
 
 button {
-  width: 100%;
   border: none;
   border-radius: 4px;
   /* transition: all 0.2s ease; */
