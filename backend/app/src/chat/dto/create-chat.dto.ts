@@ -1,6 +1,4 @@
 import { IsNotEmpty } from "class-validator";
-import { DeepPartial } from "typeorm";
-import { User } from "src/user/user.entity";
 
 export class CreateChatroomDto {
   @IsNotEmpty()
@@ -12,11 +10,5 @@ export class CreateChatroomDto {
   password!: string;
 
   @IsNotEmpty()
-  owner!: DeepPartial<User>;
-
-  @IsNotEmpty()
-  admin!: DeepPartial<User[]>;
-
-  @IsNotEmpty()
-  member!: DeepPartial<User[]>;
+  user!: number;
 }

@@ -1,8 +1,9 @@
 import { IsNotEmpty } from "class-validator";
 
-export class AddAdminDto {
+export class RemoveAdminDto {
   @IsNotEmpty()
-  newAdmin!: number;
+  deleteAdmin!: number;
+
   @IsNotEmpty()
   byAdmin!: number;
 }
