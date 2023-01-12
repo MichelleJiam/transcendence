@@ -8,7 +8,6 @@ import {
   JoinColumn,
   OneToMany,
   OneToOne,
-  ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
@@ -60,8 +59,19 @@ export class User {
   // })
   // public email!: string; // email must be unique
 
-  // many users to one game
-  @JoinColumn()
-  @ManyToOne(() => Game, (gameId: Game) => gameId.users)
-  public gameId!: Game;
+  // lazy loading - lets you load the main entity and then load the relations on demand; field has to be wrapped in a promise
+  // eager loading - relations are always fetched along the parent entity
+  // use that when you know you will need all the data; performed by using an SQL join to the related table
+  @OneToMany(() => Game, (games: Game) => games.winnerId, {
+    eager: true,
+  })
+  public wins!: Game[];
+
+  @OneToMany(() => Game, (games: Game) => games.loserId)
+  public losses!: Game[];
 }
+// this is his attendee: Attendee[]
+// many users to one game
+// @JoinColumn()
+// @ManyToOne(() => Game, (gameId: Game) => gameId.users)
+// public gameId!: Game;
