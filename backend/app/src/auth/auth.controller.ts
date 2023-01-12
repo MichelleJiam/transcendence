@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from "@nestjs/common";
 import { Response, Request } from "express";
 import { AuthService } from "./auth.service";
 import { currentUser } from "./decorators/current-user.decorator";
@@ -31,9 +42,24 @@ export class AuthController {
   }
 
   // Debug routes. TODO: remove later
+  // gets cookie just to test routes, does not create user in db
   @Get("test_login")
   async testLogin(@Res({ passthrough: true }) response: Response) {
-    const authCookie = this.authService.getCookieWithJwtToken(0);
+    const authCookie = this.authService.getCookieWithJwtToken(0); // assigns special id 0
+    response.setHeader("Set-Cookie", authCookie);
+    console.log("testLogin: Set access_token cookie");
+    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
+  }
+
+  // gets cookie for user with specified id
+  // for testing routes as a specific user
+  @Get("test_login/:id")
+  @UsePipes(ValidationPipe)
+  async testLoginWithId(
+    @Param("id", ParseIntPipe) id: number,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const authCookie = this.authService.getCookieWithJwtToken(id);
     response.setHeader("Set-Cookie", authCookie);
     console.log("testLogin: Set access_token cookie");
     response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
