@@ -12,6 +12,7 @@ body {
   background: #1c1b1bfa;
   color: white;
   position: relative;
+  overflow: hidden;
 }
 
 nav {
