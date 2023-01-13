@@ -84,7 +84,8 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  authenticate(@currentUser() user: User) {
+  currentAuthenticatedUser(@currentUser() user: User) {
+    console.log("Current authenticated user: ", user);
     return user;
   }
   // end of debug methods
