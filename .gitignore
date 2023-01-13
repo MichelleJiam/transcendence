@@ -134,3 +134,4 @@ yarn-error.log
 .vscode
 pgpass
 notes
+.env
