@@ -71,6 +71,7 @@ typings/
 # dotenv environment variables file
 .env
 .env.test
+*.env
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -134,4 +135,3 @@ yarn-error.log
 .vscode
 pgpass
 notes
-.env
