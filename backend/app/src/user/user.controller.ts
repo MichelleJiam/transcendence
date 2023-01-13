@@ -24,6 +24,8 @@ import { join } from "path";
 import { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Readable } from "typeorm/platform/PlatformTools";
+import { currentUser } from "src/auth/decorators/current-user.decorator";
+import { User } from "./user.entity";
 // the code for each function can be found in:
 // user.service.ts
 
@@ -77,6 +79,16 @@ export class UserController {
   ) {
     return await this.userService.updateUser(id, userSettings);
   }
+
+  // @Put("/update-settings")
+  // @UsePipes(ValidationPipe)
+  // async updateUser(
+  //   @currentUser() user: User,
+  //   @Body() userSettings: UpdateUserSettingsDto,
+  // ) {
+  //   console.log("Current user id: ", user.id);
+  //   return await this.userService.updateUser(user.id, userSettings);
+  // }
 
   /* avatar */
 
