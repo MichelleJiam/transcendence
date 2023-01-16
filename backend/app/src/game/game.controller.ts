@@ -35,8 +35,8 @@ export class GameController {
   }
 
   @Patch()
-  async addPlayer(gameId: number, userId: number) {
-    return this.gameService.updateGame(gameId, userId);
+  async addPlayer(game: Game, userId: number) {
+    return this.gameService.updateGame(game, userId);
   }
 
   // @Get(":gameId/:userId")
@@ -51,11 +51,12 @@ export class GameController {
   async match(@Param("id", ParseIntPipe) userId: number) {
     const game = await this.gameService.inWaitingState();
     if (!game) {
+      // if no game in a waiting state create new game and add user to player one
       const newGame = await this.create(userId);
       console.log("new game: ", newGame);
       return newGame;
     }
-    const updatedGame = await this.addPlayer(game.id, userId);
+    const updatedGame = await this.addPlayer(game, userId);
     console.log("updated game: ", this.findOne(updatedGame.id));
     return updatedGame;
   }
