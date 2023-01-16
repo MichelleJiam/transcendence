@@ -29,11 +29,15 @@ export class ChatService {
     for (let i = 0; i < 3; i++) {
       const newRole = await this.roleService.createRole(
         user,
-        chatroom,
         this.roleService.roleTypes[i],
       );
-      if (newRole) chatroom.role.push(newRole);
-      else {
+      if (newRole) {
+        if (i == 0) {
+          chatroom.role = [newRole];
+        } else {
+          chatroom.role.push(newRole);
+        }
+      } else {
         throw new HttpException("User does not exist.", HttpStatus.BAD_REQUEST);
       }
     }
@@ -41,6 +45,7 @@ export class ChatService {
   }
 
   async getUser(userId: number) {
+    console.log(userId);
     const user = await this.userService.findUserById(userId);
     if (user) return user;
     else {
@@ -58,7 +63,7 @@ export class ChatService {
       if (chatroom.type === "password")
         chatroom.password = createChatroomDto.password;
       const user = await this.userService.findUserById(createChatroomDto.user);
-      if (user) chatroom.user.push(user);
+      if (user) chatroom.user = [user];
       else {
         throw new HttpException("User does not exist.", HttpStatus.BAD_REQUEST);
       }
@@ -79,6 +84,9 @@ export class ChatService {
     const foundChats = await this.chatroomRepository.find({
       relations: {
         message: true,
+        role: true,
+        penalty: true,
+        user: true,
       },
       select: {
         id: true,
@@ -86,6 +94,7 @@ export class ChatService {
         type: true,
         password: true,
         role: {
+          id: true,
           roleName: true,
           user: {
             id: true,
@@ -106,8 +115,16 @@ export class ChatService {
   }
 
   async getChatroomById(id: number): Promise<Chatroom> {
-    const chatroom = await this.chatroomRepository.findOneBy({
-      id: id,
+    const chatroom = await this.chatroomRepository.findOne({
+      relations: {
+        message: true,
+        role: true,
+        penalty: true,
+        user: true,
+      },
+      where: {
+        id: id,
+      },
     });
     if (!chatroom) {
       throw new HttpException("Chatroom not found", HttpStatus.NOT_FOUND);
@@ -116,38 +133,42 @@ export class ChatService {
   }
 
   async addMemberToChatroom(
-    id: number,
+    chatroomId: number,
     addMemberDto: AddMemberDto,
-  ): Promise<void> {
-    const chatroom = await this.getChatroomById(id);
+  ): Promise<Chatroom> {
+    const chatroom = await this.getChatroomById(chatroomId);
+    console.log("member id: %d", addMemberDto.member);
     const user = await this.getUser(addMemberDto.member);
+    console.log(user);
     // add ban check
     const role = await this.roleService.createRole(
       addMemberDto.member,
-      chatroom,
       "member",
     );
     chatroom.user.push(user);
     chatroom.role.push(role);
-    this.chatroomRepository.update(id, chatroom);
+    console.log(chatroom);
+    const newChatroom = this.chatroomRepository.create(chatroom);
+    return this.chatroomRepository.save(newChatroom);
   }
 
   async addAdminToChatroom(
     chatroomId: number,
     addAdminDto: AddAdminDto,
-  ): Promise<void> {
+  ): Promise<Chatroom> {
     const chatroom = await this.getChatroomById(chatroomId);
     if (
       await this.roleService.isAdminOfChatroom(addAdminDto.byAdmin, chatroomId)
     ) {
       const newRole = await this.roleService.createRole(
         addAdminDto.newAdmin,
-        chatroom,
         "admin",
       );
       chatroom.role.push(newRole);
-      this.chatroomRepository.update(chatroomId, chatroom);
+      const newChatroom = this.chatroomRepository.create(chatroom);
+      this.chatroomRepository.save(newChatroom);
     }
+    return chatroom;
   }
 
   async swapOwnerOfChatroom(
@@ -172,11 +193,11 @@ export class ChatService {
       );
       const newRole = await this.roleService.createRole(
         swapOwnerDto.newOwner,
-        chatroom,
         "owner",
       );
       chatroom.role.push(newRole);
-      this.chatroomRepository.update(chatroomId, chatroom);
+      const newChatroom = this.chatroomRepository.create(chatroom);
+      this.chatroomRepository.save(newChatroom);
     } else {
       throw new HttpException(
         "You don't have permission to reassign ownership, or the owner specified is not the owner",

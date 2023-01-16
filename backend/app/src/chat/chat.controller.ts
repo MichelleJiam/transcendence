@@ -70,6 +70,19 @@ export class ChatController {
 
   // ADMIN FUNCTIONALITIES //
 
+  @Post("room/:chatroomId/add/admin")
+  async addAdminToChatroomById(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Body() addAdminDto: AddAdminDto,
+  ) {
+    try {
+      // check if user is not banned from chat
+      return this.chatroomService.addAdminToChatroom(chatroomId, addAdminDto);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   // UPDATERS //
   // function to update password or change chatroom name
   // @Put("room/:id/admin/:adminId/update/info")
