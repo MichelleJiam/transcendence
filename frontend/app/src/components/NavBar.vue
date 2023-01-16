@@ -33,24 +33,28 @@ function setNavigationGuard(): void {
 
 <style scoped>
 ul {
-  /* display: flex; */
+  display: flex;
   justify-content: left;
   align-items: center;
   gap: 20px;
+  padding: 0;
 }
 
 li {
   font-size: 2.5em;
+  padding: 0;
   font-family: "ArcadeClassic", sans-serif;
   display: inline-block;
   text-decoration: none;
 }
 
+li:first-child {
+  margin-right: 20px;
+}
+
 li:last-child {
   margin-left: auto;
-  margin-right: 20px;
   justify-self: flex-end;
-  background-color: pink;
 }
 
 a {
