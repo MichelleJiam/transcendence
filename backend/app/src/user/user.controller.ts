@@ -1,3 +1,4 @@
+import { JwtAuthGuard } from "./../auth/guards/jwt-auth.guard";
 import {
   Controller,
   Post,
@@ -13,6 +14,7 @@ import {
   Res,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserSettingsDto } from "./dto/update-user-settings.dto";
@@ -22,10 +24,13 @@ import { join } from "path";
 import { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Readable } from "typeorm/platform/PlatformTools";
+import { currentUser } from "src/auth/decorators/current-user.decorator";
+import { User } from "./user.entity";
 // the code for each function can be found in:
 // user.service.ts
 
 @Controller("user")
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -74,6 +79,16 @@ export class UserController {
   ) {
     return await this.userService.updateUser(id, userSettings);
   }
+
+  // @Put("/update-settings")
+  // @UsePipes(ValidationPipe)
+  // async updateUser(
+  //   @currentUser() user: User,
+  //   @Body() userSettings: UpdateUserSettingsDto,
+  // ) {
+  //   console.log("Current user id: ", user.id);
+  //   return await this.userService.updateUser(user.id, userSettings);
+  // }
 
   /* avatar */
 

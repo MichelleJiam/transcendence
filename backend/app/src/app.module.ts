@@ -7,6 +7,7 @@ import { UserModule } from "./user/user.module";
 import { DatabaseModule } from "./database.module";
 import { GameModule } from "./game/game.module";
 import * as Joi from "joi";
+import { AuthModule } from "./auth/auth.module";
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import * as Joi from "joi";
       }),
     }),
     DatabaseModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
