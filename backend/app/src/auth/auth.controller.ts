@@ -37,7 +37,7 @@ export class AuthController {
     const authCookie = this.authService.getCookieWithJwtToken(user.id);
     response.setHeader("Set-Cookie", authCookie);
     console.log("callback: Set access_token cookie");
-    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
+    response.status(200).redirect(`localhost:5173/login`);
     // return { id: user.id };
   }
 
@@ -81,14 +81,15 @@ export class AuthController {
     );
     return user;
   }
+  // end of debug methods
 
+  // Returns user if current user is authenticated.
   @UseGuards(JwtAuthGuard)
-  @Get()
-  currentAuthenticatedUser(@currentUser() user: User) {
+  @Get("status")
+  checkAuthentication(@currentUser() user: User) {
     console.log("Current authenticated user: ", user);
     return user;
   }
-  // end of debug methods
 
   // @Post("logout")
   @Get("logout") // temporary for testing in browser
