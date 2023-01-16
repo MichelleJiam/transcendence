@@ -60,6 +60,11 @@ export class GameGateway {
     return this.socketService.identify(name, client.id);
   }
 
+  @SubscribeMessage("joinGame")
+  joinGame(@MessageBody("id") id: string, @ConnectedSocket() client: Socket) {
+    return this.socketService.announce(id, client.id);
+  }
+
   @SubscribeMessage("typing")
   async typing(
     @MessageBody("isTyping") isTyping: boolean,

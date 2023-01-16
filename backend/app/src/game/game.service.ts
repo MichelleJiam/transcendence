@@ -40,9 +40,10 @@ export class GameService {
     return game;
   }
 
-  async updateGame(gameId: number, userId: number) {
+  async updateGame(game: Game, userId: number) {
     return await this.gameRepository.save({
-      id: gameId,
+      id: game.id,
+      playerOne: game.playerOne,
       playerTwo: userId,
       status: "playing",
     });
@@ -152,6 +153,16 @@ export class GameService {
   identify(name: string, clientId: string) {
     this.clientToUser[clientId] = name;
     return Object.values(this.clientToUser); // find out who is currently online
+  }
+
+  announce(id: string, clientId: string) {
+    console.log(
+      "id: ",
+      id,
+      " with socket id ",
+      clientId,
+      " has entered the game ",
+    );
   }
 
   getClientName(clientId: string) {
