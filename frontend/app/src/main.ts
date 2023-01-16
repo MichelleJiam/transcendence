@@ -18,6 +18,6 @@ library.add(fas, faR);
 app.use(createPinia());
 app.use(router);
 app.component("FontAwesome", FontAwesomeIcon);
-// app.use(bootstrap);
 
+// app.use(bootstrap);
 app.mount("#app");

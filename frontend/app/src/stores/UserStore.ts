@@ -39,7 +39,12 @@ export const useUserStore = defineStore("user", {
             console.log("User could not be authorized");
           });
       }
+      console.log("push to home");
       router.push("/home");
+    },
+    async logOut() {
+      await apiRequest(`/auth/logout`, "get");
+      this.authenticated = false;
     },
   },
 });
