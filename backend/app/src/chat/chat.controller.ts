@@ -72,28 +72,28 @@ export class ChatController {
 
   // UPDATERS //
   // function to update password or change chatroom name
-  @Put("room/:id/admin/:adminId/update/info")
-  async updateChatroomById(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() updateChatroomDto: UpdateChatroomDto,
-  ) {
-    try {
-      return this.chatroomService.updateChatroom(id, updateChatroomDto);
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  // @Put("room/:id/admin/:adminId/update/info")
+  // async updateChatroomById(
+  //   @Param("id", ParseIntPipe) id: number,
+  //   @Body() updateChatroomDto: UpdateChatroomDto,
+  // ) {
+  //   try {
+  //     return this.chatroomService.updateChatroom(id, updateChatroomDto);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
 
   // DELETE FUNCTIONS
-  @Delete("room/:id/delete/:userId")
-  async leaveChatroom(
-    @Param("id", ParseIntPipe) id: number,
-    @Param("userId", ParseIntPipe) userId: number,
-  ) {
-    try {
-      return this.chatroomService.leaveChatroom(id, userId);
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  // @Delete("room/:id/delete/:userId")
+  // async leaveChatroom(
+  //   @Param("id", ParseIntPipe) id: number,
+  //   @Param("userId", ParseIntPipe) userId: number,
+  // ) {
+  //   try {
+  //     return this.chatroomService.leaveChatroom(id, userId);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
 }
