@@ -15,8 +15,4 @@
 
 <script setup lang="ts"></script>
 
-<style scoped>
-h1 {
-  font-size: 10rem;
-}
-</style>
+<style scoped></style>
