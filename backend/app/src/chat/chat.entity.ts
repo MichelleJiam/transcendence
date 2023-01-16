@@ -7,6 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   OneToOne,
+  JoinTable,
 } from "typeorm";
 import { Message } from "src/message/message.entity";
 import { User } from "src/user/user.entity";
@@ -42,14 +43,16 @@ export class Chatroom {
   @JoinColumn()
   public message!: Message[];
 
-  @ManyToMany(() => Penalty, (penalty: Penalty) => penalty.chatroom)
-  @JoinColumn()
+  @ManyToMany(() => Penalty, (penalty: Penalty) => penalty.chatroom, {
+    cascade: true,
+  })
+  @JoinTable()
   public penalty!: Penalty[];
 
   @ManyToMany(() => User, (user: User) => user.chatroom)
   user!: User[];
 
-  @ManyToMany(() => Role, (role: Role) => role.chatroom)
-  @JoinColumn()
+  @ManyToMany(() => Role, (role: Role) => role.chatroom, { cascade: true })
+  @JoinTable()
   role!: Role[];
 }

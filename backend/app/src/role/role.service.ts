@@ -11,19 +11,92 @@ export class RoleService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
 
+    @InjectRepository(Chatroom)
+    private readonly chatroomRepository: Repository<Chatroom>,
+
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
-  ) {}
+  ) {
+    this.initClass();
+  }
+
+  async initClass() {
+    const findAdmin = await this.roleRepository.find({
+      where: {
+        roleName: "admin",
+      },
+    });
+    const findMember = await this.roleRepository.find({
+      where: {
+        roleName: "member",
+      },
+    });
+    const findOwner = await this.roleRepository.find({
+      where: {
+        roleName: "owner",
+      },
+    });
+
+    if (Object.keys(findAdmin).length == 0) {
+      const admin = new Role();
+      admin.roleName = "admin";
+      await this.roleRepository.save(admin);
+    }
+
+    if (Object.keys(findMember).length == 0) {
+      const member = new Role();
+      member.roleName = "member";
+      await this.roleRepository.save(member);
+    }
+
+    if (Object.keys(findOwner).length == 0) {
+      const owner = new Role();
+      owner.roleName = "owner";
+      await this.roleRepository.save(owner);
+    }
+  }
 
   public roleTypes: string[] = ["owner", "admin", "member"];
 
-  public async createRole(
-    userId: number,
-    chatroom: Chatroom,
-    roleName: string,
-  ): Promise<Role> {
+  async getAllRoles(): Promise<Role[]> {
+    const foundRoles = await this.roleRepository.find({
+      relations: {
+        user: true,
+        chatroom: true,
+      },
+      select: {
+        id: true,
+        roleName: true,
+        user: true,
+      },
+    });
+    return foundRoles;
+  }
+
+  async getRolesByChatroomId(chatroomId: number): Promise<Role[]> {
+    const chatroom = await this.chatroomRepository.findOne({
+      relations: {
+        message: true,
+        role: true,
+        penalty: true,
+        user: true,
+      },
+      where: {
+        id: chatroomId,
+      },
+      select: {
+        role: true,
+      },
+    });
+    if (!chatroom) {
+      throw new HttpException("Chatroom not found", HttpStatus.NOT_FOUND);
+    }
+    return chatroom.role;
+  }
+
+  public async createRole(userId: number, roleName: string): Promise<Role> {
+    // get role from db and then add things to it and save it again
     const newRole = new Role();
-    newRole.chatroom.push(chatroom);
     newRole.roleName = roleName;
     const user = await this.userRepository.findOne({
       where: {
@@ -31,7 +104,7 @@ export class RoleService {
       },
     });
     if (user) {
-      newRole.user.push(user);
+      newRole.user = [user];
     } else {
       throw new HttpException("User does not exist.", HttpStatus.BAD_REQUEST);
     }
@@ -39,11 +112,11 @@ export class RoleService {
   }
 
   public async isAdminOfChatroom(userId: number, chatroomId: number) {
-    const admin = await this.roleRepository.findOne({
+    const admin = await this.userRepository.findOne({
       where: {
-        roleName: "admin",
-        user: {
-          id: userId,
+        id: userId,
+        role: {
+          roleName: "admin",
         },
         chatroom: {
           id: chatroomId,
@@ -54,11 +127,11 @@ export class RoleService {
     else return false;
   }
   public async isOwnerOfChatroom(userId: number, chatroomId: number) {
-    const admin = await this.roleRepository.findOne({
+    const admin = await this.userRepository.findOne({
       where: {
-        roleName: "owner",
-        user: {
-          id: userId,
+        id: userId,
+        role: {
+          roleName: "owner",
         },
         chatroom: {
           id: chatroomId,
@@ -78,9 +151,6 @@ export class RoleService {
         role.roleName !== roleType &&
         role.user.find((user: User) => {
           return user.id === userId;
-        }) &&
-        role.chatroom.find((chatroom: Chatroom) => {
-          return chatroom.id === currentChatroom.id;
         })
       );
     });

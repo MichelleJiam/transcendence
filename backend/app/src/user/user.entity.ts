@@ -44,15 +44,15 @@ export class User {
   public message!: Message[];
 
   @ManyToMany(() => Penalty)
-  @JoinColumn()
+  @JoinTable()
   public penalty!: Penalty[];
 
   @ManyToMany(() => Role, (role: Role) => role.user)
-  @JoinColumn()
+  @JoinTable()
   public role!: Role[];
 
   @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.user)
-  @JoinColumn()
+  @JoinTable()
   public chatroom!: Chatroom[];
   // relationships for chat END
 
