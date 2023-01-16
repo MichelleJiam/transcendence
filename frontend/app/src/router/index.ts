@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import routes from "./router";
-import { useNavigationStore } from "../stores/navigation";
+import { useUserStore } from "../stores/UserStore";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -12,6 +12,11 @@ router.beforeEach(async (to, from) => {
   // if (!navigationGuard.loggedIn && to.name !== "login") {
   //   return { name: "login" };
   // }
+  const userStore = useUserStore();
+  console.log("beforeEach: authenticated?  ", userStore.isAuthenticated);
+  if (!userStore.authenticated && to.name !== "login") {
+    return { name: "login" };
+  }
 });
 
 export default router;
