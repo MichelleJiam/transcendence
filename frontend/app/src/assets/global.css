@@ -4,7 +4,6 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-  margin-bottom: 10px;
 }
 
 body {
@@ -17,10 +16,9 @@ body {
 
 nav {
   /* position is relavtive to the body element */
-  position: absolute;
   height: 6vh;
   width: 100%;
-  top: 0;
+  padding: 5px 10px;
 }
 
 div #display-content {
@@ -31,13 +29,18 @@ div #display-content {
   border: 2px #302d2d solid;
   border-radius: 4px;
   padding: 20px;
+  overflow: scroll;
 }
 
 h1,
 h2,
 button {
   font-family: "ArcadeClassic", sans-serif;
-  word-spacing: 0.1em;
+  /* word-spacing: 0.1em; */
+}
+
+h1 {
+  font-size: 8em;
 }
 
 /* LOOK BACK AT THIS */
