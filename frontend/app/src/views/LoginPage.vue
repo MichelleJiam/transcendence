@@ -1,16 +1,16 @@
-<template>
+<!-- <template>
   <main>
     <form action="#!">
       <h1>Pong</h1>
 
       <div class="input-parent">
         <label for="username">Username</label>
-        <input id="username" v-model="username" type="text"/>
+        <input id="username" v-model="username" type="text" />
       </div>
 
       <div class="input-parent">
         <label for="password">Password</label>
-        <input id="password" v-model="password" type="password"/>
+        <input id="password" v-model="password" type="password" />
       </div>
 
       <button @click.prevent="submitLogin">Login</button>
@@ -43,84 +43,67 @@ function submitLogin(): void {
 </script>
 
 <style scoped>
-* {
-  box-sizing: border-box;
+h1 {
+  font-size: 150px;
+  /* margin-bottom: 10px; */
 }
 
 form {
+  background: #151414e4;
   text-align: center;
-  width: 25%;
-  margin: 1em auto;
   padding: 20px 28px;
   border: 2px #302d2d solid;
-  border-radius: 5px;
-  background: #151414e4;
-  animation: popup 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 
-form h1 {
-  font-family: "ArcadeClassic", sans-serif;
-  text-align: center;
-  font-size: 8rem;
-  margin: 1rem;
-  color: #e7e7e7;
-}
-
-label {
-  font-size: 1em;
-  display: block;
-  margin-bottom: 8px;
-  font-size: 0.8rem;
-  color: #a4a4a4;
-}
-
-.input-parent {
-  display: block;
-  margin-bottom: 1rem;
-  color: white;
-}
-.input-parent input {
-  padding: 10px 18px;
-  width: 70%;
-  font-size: 1em;
-  background: hsl(0, 1%, 19%);
-  border: none;
-  border-radius: 4px;
-  outline: none;
-  transition: all 0.2s ease;
-  color: white;
-}
-.input-parent input:hover {
-  background: #404040;
-}
-.input-parent input:focus {
-  box-shadow: 0px 0px 0px 1px #0087ff;
-}
-
+input,
 button {
-  padding: 10px 18px;
-  font-size: 1em;
-  margin-top: 1em;
+  width: 100%;
   margin-bottom: 1em;
-  background: rgba(15, 15, 217, 0.847);
-  width: 70%;
-  border: none;
+}
+</style> -->
+
+<template>
+  <main>
+    <form action="#!">
+      <h1>Pong</h1>
+      <div v-if="userStore.isAuthenticated"></div>
+      <div v-else>
+        <button @click.prevent="submitLogin">Login through 42</button>
+      </div>
+    </form>
+  </main>
+</template>
+
+<script setup lang="ts">
+import { useUserStore } from "@/stores/UserStore";
+const userStore = useUserStore();
+
+async function submitLogin(): Promise<void> {
+  location.href = `http://localhost:3000/auth/login`;
+  await userStore.logIn();
+}
+</script>
+
+<style scoped>
+h1 {
+  font-size: 150px;
+  /* margin-bottom: 10px; */
+}
+
+form {
+  background: #151414e4;
+  text-align: center;
+  padding: 20px 28px;
+  border: 2px #302d2d solid;
   border-radius: 4px;
-  color: #f4f4f4;
-  transition: all 0.2s ease;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 
-button:hover {
-  background: #184a9b;
-  cursor: pointer;
-}
-
-button:focus {
-  box-shadow: 0px 0px 0px 3px black;
-}
-
-button:active {
-  background: #0f213e;
+input,
+button {
+  width: 100%;
+  margin-bottom: 1em;
 }
 </style>
