@@ -13,7 +13,17 @@
   </main>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useUserStore } from "@/stores/UserStore";
+import { onMounted } from "vue";
+
+const userStore = useUserStore();
+
+onMounted(async () => {
+  await userStore.checkUserAuthStatus();
+  console.log("MainView.onMounted auth: ", userStore.isAuthenticated); // doesn't work, stays false
+});
+</script>
 
 <style scoped>
 h1 {

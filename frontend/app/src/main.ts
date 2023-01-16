@@ -15,7 +15,9 @@ const app = createApp(App);
 
 library.add(fas, faR);
 
-app.use(createPinia());
+export const pinia = createPinia();
+// app.use(createPinia());
+app.use(pinia);
 app.use(router);
 app.component("FontAwesome", FontAwesomeIcon);
 

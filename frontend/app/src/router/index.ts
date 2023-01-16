@@ -1,3 +1,4 @@
+import { pinia } from "./../main";
 import { createRouter, createWebHistory } from "vue-router";
 import routes from "./router";
 import { useUserStore } from "../stores/UserStore";
@@ -8,9 +9,11 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
-  const userStore = useUserStore();
+  const userStore = useUserStore(pinia);
   console.log("beforeEach: authenticated?  ", userStore.isAuthenticated);
-  if (!userStore.authenticated && to.name !== "login") {
+  const userAuthenticated = userStore.checkUserAuthStatus();
+  // if (!userStore.isAuthenticated && to.name !== "login") {
+  if (!userAuthenticated && to.name !== "login") {
     return { name: "login" };
   }
 });

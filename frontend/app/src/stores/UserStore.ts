@@ -22,29 +22,54 @@ export const useUserStore = defineStore("user", {
     },
   },
   actions: {
+    setAuthenticateToTrue() {
+      this.authenticated = true;
+    },
+
     async logIn() {
       console.log("userStore.logIn");
       if (!this.authenticated) {
         await apiRequest(`/auth/status`, "get")
-          .then(async (response) => {
-            this.authenticated = true;
-            this.user.id = response.data.id;
-            this.user.playerName = response.data.playerName;
-            this.user.messages = response.data.messages;
-            this.user.twoFA = response.data.twoFA;
-            this.user.avatarId = response.data.avatarID;
+          .then((response) => {
+            this.setAuthenticateToTrue();
+            // this.authenticated = true;
+            // self.setAuthenticateToTrue();
+            // this.user.id = response.data.id;
+            // this.user.playerName = response.data.playerName;
+            // this.user.messages = response.data.messages;
+            // this.user.twoFA = response.data.twoFA;
+            // this.user.avatarId = response.data.avatarID;
             console.log("Set authenticated to ", this.authenticated);
           })
-          .catch(() => {
+          .catch(async () => {
             console.log("User could not be authorized");
+            await router.push("http://localhost:3000/auth/login");
           });
       }
-      console.log("push to home");
-      router.push("/home");
+      // console.log("push to home");
+      // await router.push("/home");
     },
+
+    async checkUserAuthStatus() {
+      await apiRequest(`/auth/status`, "get")
+        .then((response) => {
+          this.authenticated = true;
+          return true;
+        })
+        .catch(() => {
+          router.push("/login");
+        });
+    },
+
     async logOut() {
+      // const header = {
+      //   "Access-Control-Allow-Origin": "http://localhost:5173",
+      // };
       await apiRequest(`/auth/logout`, "get");
       this.authenticated = false;
+      // console.log("logout: Auth cookie: ", cookies.get("Authentication"));
+      console.log("user logged out");
+      await router.push("/login");
     },
   },
 });

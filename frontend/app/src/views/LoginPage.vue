@@ -78,12 +78,22 @@ button {
 
 <script setup lang="ts">
 import { useUserStore } from "@/stores/UserStore";
+import { onMounted } from "vue";
+import { useCookies } from "vue3-cookies";
+const { cookies } = useCookies();
 const userStore = useUserStore();
 
 async function submitLogin(): Promise<void> {
+  console.log("LoginPage: submitLogin");
   location.href = `http://localhost:3000/auth/login`;
   await userStore.logIn();
 }
+
+onMounted(() => {
+  console.log(`onMounted: auth state: ${userStore.isAuthenticated}`);
+  const cookie_val = cookies.get("Authentication");
+  console.log("Auth cookie: ", cookie_val);
+});
 </script>
 
 <style scoped>
