@@ -1,6 +1,9 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { Avatar } from "src/avatar/avatar.entity";
+import { AvatarService } from "src/avatar/avatar.service";
 import { Message } from "src/message/message.entity";
+import { MessageService } from "src/message/message.service";
 import { Penalty } from "src/penalty/penalty.entity";
 import { PenaltyService } from "src/penalty/penalty.service";
 import { Role } from "src/role/role.entity";
@@ -12,8 +15,17 @@ import { Chatroom } from "./chat.entity";
 import { ChatService } from "./chat.service";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Message, User, Chatroom, Role, Penalty])],
+  imports: [
+    TypeOrmModule.forFeature([Message, User, Chatroom, Role, Penalty, Avatar]),
+  ],
   controllers: [ChatController],
-  providers: [ChatService, RoleService, UserService, PenaltyService],
+  providers: [
+    ChatService,
+    RoleService,
+    UserService,
+    MessageService,
+    AvatarService,
+    PenaltyService,
+  ],
 })
 export class ChatModule {}

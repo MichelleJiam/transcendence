@@ -7,12 +7,14 @@ import { UserModule } from "./user/user.module";
 import { DatabaseModule } from "./database.module";
 import { ChatModule } from "./chat/chat.module";
 import * as Joi from "joi";
+import { PenaltyModule } from "./penalty/penalty.module";
 
 @Module({
   imports: [
     UserModule,
     MessageModule,
     ChatModule,
+    PenaltyModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
