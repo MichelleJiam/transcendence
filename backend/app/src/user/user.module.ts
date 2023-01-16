@@ -10,6 +10,7 @@ import { AvatarService } from "src/avatar/avatar.service";
 @Module({
   imports: [TypeOrmModule.forFeature([User, Message, Avatar])],
   controllers: [UserController],
+  exports: [UserService],
   providers: [UserService, AvatarService],
 })
 export class UserModule {}

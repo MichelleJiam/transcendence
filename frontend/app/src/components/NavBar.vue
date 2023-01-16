@@ -2,20 +2,20 @@
   <nav>
     <ul>
       <li>
-        <router-link to="/account"
+        <router-link to="/1/account"
           ><font-awesome class="font-awesome" icon="user"
         /></router-link>
       </li>
       <li><router-link to="/">Home</router-link></li>
       <li><router-link to="/game">Game</router-link></li>
       <!-- do we want the user link to go to the user ID? -->
-      <!-- <li><router-link to="/account">Account</router-link></li> -->
       <li><router-link to="/leaderboard">Leaderboard</router-link></li>
       <li><router-link to="/chat">Chat</router-link></li>
       <li><router-link to="/stream">Live</router-link></li>
       <!-- when this is click login should be set to false -->
       <li id="logout">
-        <router-link to="/login" @click="setNavigationGuard">
+        <router-link to="/login" @click="userStore.logOut()">
+          <!-- @click="setNavigationGuard" -->
           <font-awesome class="font-awesome" icon="sign-out" />
         </router-link>
       </li>
@@ -24,11 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { useNavigationStore } from "../stores/navigation";
-const navigationGuard = useNavigationStore();
-function setNavigationGuard(): void {
-  navigationGuard.loggedIn = false;
-}
+import { useUserStore } from "../stores/UserStore";
+const userStore = useUserStore();
 </script>
 
 <style scoped>
