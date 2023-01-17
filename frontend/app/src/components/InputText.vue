@@ -32,6 +32,12 @@ const updateText = (e: Event) => {
 };
 </script>
 
+<style scoped>
+div {
+  display: flex;
+  flex-direction: column;
+}
+</style>
 <!--
   $emit
 

@@ -89,6 +89,8 @@ input:focus {
 }
 
 input[type="file"] {
+  /* display: block; */
+
   border: none;
 }
 
