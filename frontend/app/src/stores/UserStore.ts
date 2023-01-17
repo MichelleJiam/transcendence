@@ -47,4 +47,5 @@ export const useUserStore = defineStore("user", {
       this.authenticated = false;
     },
   },
+  persist: true,
 });
