@@ -116,3 +116,12 @@ input {
   border-radius: 4px;
   transition: all 0.2s ease;
 }
+
+form {
+  background: #151414e4;
+  text-align: center;
+  padding: 20px 28px;
+  border: 2px #302d2d solid;
+  border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}

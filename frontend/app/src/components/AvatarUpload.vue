@@ -1,15 +1,11 @@
 <template>
-  <div>
+  <form action="#!" class="avatar-upload-form">
     <label>Avatar: </label>
     <input type="file" @change="onFileSelected" />
-  </div>
-  <button
-    :disabled="isDisabledAvatar"
-    style="margin-bottom: 50px"
-    @click="submitAvatar"
-  >
-    Update avatar
-  </button>
+    <button :disabled="isDisabledAvatar" @click="submitAvatar">
+      Update avatar
+    </button>
+  </form>
 </template>
 
 <script setup lang="ts">
@@ -40,3 +36,10 @@ async function submitAvatar() {
   }
 }
 </script>
+
+<style>
+.avatar-upload-form {
+  display: flex;
+  flex-direction: column;
+}
+</style>
