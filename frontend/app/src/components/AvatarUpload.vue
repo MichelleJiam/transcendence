@@ -42,4 +42,6 @@ async function submitAvatar() {
   display: flex;
   flex-direction: column;
 }
+
+/* input[:] */
 </style>

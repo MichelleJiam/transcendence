@@ -25,29 +25,32 @@
           You can edit your account settings here.
         </h2>
         <!-- form is in avatar upload -->
-        <AvatarUpload />
+        <div class="usersetting-forms">
+          <AvatarUpload />
 
-        <!-- form is not in the component -->
-        <form action="#!">
-          <InputText
-            id="playerName"
-            v-model="playerName"
-            label="Player Name: "
-            :value="playerName"
-          />
-          <span class="validate">
-            <i>{{ message }}</i>
-          </span>
-          <InputCheckbox
-            id="twoFactorAuthentication"
-            v-model:checked="twoFactorAuthentication"
-            label="Two-factor authentication: "
-          />
+          <!-- form is not in the component -->
+          <form action="#!">
+            <InputText
+              id="playerName"
+              v-model="playerName"
+              label="Player Name: "
+              :value="playerName"
+            />
 
-          <button :disabled="isDisabled" @click="submitAccountSettings">
-            Update account settings
-          </button>
-        </form>
+            <span class="validate">
+              <i>{{ message }}</i>
+            </span>
+            <InputCheckbox
+              id="twoFactorAuthentication"
+              v-model:checked="twoFactorAuthentication"
+              label="Two-factor authentication: "
+            />
+
+            <button :disabled="isDisabled" @click="submitAccountSettings">
+              Update account settings
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </main>
@@ -119,6 +122,7 @@ function validPlayerName(playerName: string) {
   justify-content: space-between;
   gap: 20px;
   padding: 25px;
+  height: auto;
 }
 
 .user-info {
@@ -129,7 +133,7 @@ function validPlayerName(playerName: string) {
   flex-grow: 1;
 }
 .user-title {
-  margin-bottom: 10%;
+  margin-bottom: 20px;
   font-size: 6em;
 }
 
@@ -142,13 +146,20 @@ function validPlayerName(playerName: string) {
 .user-settings {
   display: flex;
   flex-direction: column;
-  align-items: center;
   flex-grow: 3;
-  justify-content: flex-start;
+  /* justify-content: space-evenly; */
+}
+
+.usersetting-forms {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  justify-content: space-evenly;
 }
 
 .user-setting-title {
-  margin-bottom: 10%;
+  margin-bottom: 20px;
   font-size: 3em;
 }
 </style>
