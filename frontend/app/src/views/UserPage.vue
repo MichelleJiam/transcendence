@@ -8,32 +8,47 @@
 <template>
   <main>
     <div id="display-content">
-      <h1>
-        Hi
-        <span class="playerName">{{ store.accountSettings.playerName }}</span>
-      </h1>
-      <h2>You can edit your account settings here.</h2>
-      <AvatarDisplay :src="store.avatar.url" />
-      <form>
+      <div class="user-info">
+        <div>
+          <h1 class="user-title">
+            Hi
+            <span class="playerName">{{
+              store.accountSettings.playerName
+            }}</span>
+          </h1>
+        </div>
+        <AvatarDisplay class="user-avatar" :src="store.avatar.url" />
+      </div>
+
+      <div class="user-settings">
+        <h2 class="user-setting-title">
+          You can edit your account settings here.
+        </h2>
+        <!-- form is in avatar upload -->
         <AvatarUpload />
-        <InputText
-          id="playerName"
-          v-model="playerName"
-          label="Player Name: "
-          :value="playerName"
-        />
-        <span class="validate">
-          <i>{{ message }}</i>
-        </span>
-        <InputCheckbox
-          id="twoFactorAuthentication"
-          v-model:checked="twoFactorAuthentication"
-          label="Two-factor authentication: "
-        />
-      </form>
-      <button :disabled="isDisabled" @click="submitAccountSettings">
-        Update account settings
-      </button>
+
+        <!-- form is not in the component -->
+        <form action="#!">
+          <InputText
+            id="playerName"
+            v-model="playerName"
+            label="Player Name: "
+            :value="playerName"
+          />
+          <span class="validate">
+            <i>{{ message }}</i>
+          </span>
+          <InputCheckbox
+            id="twoFactorAuthentication"
+            v-model:checked="twoFactorAuthentication"
+            label="Two-factor authentication: "
+          />
+
+          <button :disabled="isDisabled" @click="submitAccountSettings">
+            Update account settings
+          </button>
+        </form>
+      </div>
     </div>
   </main>
 </template>
@@ -91,15 +106,49 @@ function validPlayerName(playerName: string) {
 </script>
 
 <style scoped>
-h1 {
-  font-size: 8rem;
-}
-
 .validate {
-  color: red;
+  color: #da14ff;
 }
 
 .playerName {
   color: #39ff14;
+}
+
+#display-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 25px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  flex-grow: 1;
+}
+.user-title {
+  margin-bottom: 10%;
+  font-size: 6em;
+}
+
+.user-avatar {
+  border-radius: 50%;
+  border: 5px solid #39ff14;
+  align-self: center;
+}
+
+.user-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 3;
+  justify-content: flex-start;
+}
+
+.user-setting-title {
+  margin-bottom: 10%;
+  font-size: 3em;
 }
 </style>
