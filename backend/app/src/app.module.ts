@@ -7,11 +7,13 @@ import { UserModule } from "./user/user.module";
 import { DatabaseModule } from "./database.module";
 import * as Joi from "joi";
 import { AuthModule } from "./auth/auth.module";
+import { FriendModule } from "./friend/friend.module";
 
 @Module({
   imports: [
     UserModule,
     MessageModule,
+    FriendModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
