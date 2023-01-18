@@ -1,5 +1,6 @@
 <template>
-  <nav v-if="navigationGuard.loggedIn === true">
+  <!-- <nav v-if="userStore.authenticated === true"> -->
+  <nav v-if="useUserStore().authenticated">
     <NavBar />
   </nav>
   <RouterView />
@@ -7,7 +8,5 @@
 
 <script setup lang="ts">
 import NavBar from "./components/NavBar.vue";
-import { useNavigationStore } from "./stores/navigation";
-
-const navigationGuard = useNavigationStore();
+import { useUserStore } from "./stores/UserStore";
 </script>
