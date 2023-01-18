@@ -1,7 +1,11 @@
 <template>
-  <form action="#!" class="avatar-upload-form">
-    <label>Avatar: </label>
-    <input type="file" @change="onFileSelected" />
+  <form>
+    <label for="avatar">Avatar</label>
+    <input
+      type="file"
+      accept="image/x-png,image/gif,image/jpeg"
+      @change="onFileSelected"
+    />
     <button :disabled="isDisabledAvatar" @click="submitAvatar">
       Update avatar
     </button>
@@ -37,11 +41,32 @@ async function submitAvatar() {
 }
 </script>
 
-<style>
-.avatar-upload-form {
-  display: flex;
-  flex-direction: column;
+<style scoped>
+form {
+  display: grid;
+  /* grid-template-columns: 1fr 3fr 2fr; */
+  grid-template-columns: 3fr 2fr;
+  grid-template-areas:
+    "label input"
+    "button button";
+
+  column-gap: 10px;
+  text-align: left;
+  row-gap: 10px;
 }
 
-/* input[:] */
+label {
+  grid-area: label;
+  font-family: "ArcadeClassic", sans-serif;
+  font-size: 30px;
+}
+
+input {
+  grid-area: input;
+  font-size: 18px;
+}
+
+button {
+  grid-area: button;
+}
 </style>
