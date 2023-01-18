@@ -6,7 +6,6 @@ import { Message } from "./message/message.entity";
 import { Avatar } from "./avatar/avatar.entity";
 import { Chatroom } from "./chat/chat.entity";
 import { Penalty } from "./penalty/penalty.entity";
-import { Role } from "./role/role.entity";
 
 @Module({
   imports: [
@@ -20,7 +19,7 @@ import { Role } from "./role/role.entity";
         username: configService.get("POSTGRES_USER"),
         password: configService.get("POSTGRES_PASSWORD"),
         database: configService.get("POSTGRES_DB"),
-        entities: [User, Message, Avatar, Chatroom, Penalty, Role],
+        entities: [User, Message, Avatar, Chatroom, Penalty],
         synchronize: true,
       }),
     }),

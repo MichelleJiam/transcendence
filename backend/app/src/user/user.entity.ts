@@ -12,7 +12,6 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Penalty } from "src/penalty/penalty.entity";
-import { Role } from "src/role/role.entity";
 
 @Entity()
 export class User {
@@ -47,13 +46,18 @@ export class User {
   @JoinTable()
   public penalty!: Penalty[];
 
-  @ManyToMany(() => Role, (role: Role) => role.user)
-  @JoinTable()
-  public role!: Role[];
+  @OneToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.owner)
+  @JoinColumn()
+  public chatroomOwner!: Chatroom[];
 
-  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.user)
+  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.member)
   @JoinTable()
-  public chatroom!: Chatroom[];
+  public chatroomMember!: Chatroom[];
+
+  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.admin)
+  @JoinTable()
+  public chatroomAdmin!: Chatroom[];
+
   // relationships for chat END
 
   @Column({

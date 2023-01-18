@@ -38,15 +38,3 @@ export function validateChatroomDto(
   }
   return true;
 }
-
-export function hasMultipleAdmins(chatroomUserAdminAmount: number) {
-  if (chatroomUserAdminAmount < 2) {
-    console.log(
-      "You are the only admin! Please assign admin to another user or delete the chat.",
-    );
-    throw new HttpException(
-      "You are the only admin! Please assign admin to another user or delete the chat.",
-      HttpStatus.METHOD_NOT_ALLOWED,
-    );
-  }
-}

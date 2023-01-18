@@ -9,11 +9,11 @@ import {
   Body,
   ParseIntPipe,
 } from "@nestjs/common";
-import { RoleService } from "src/role/role.service";
 import { ChatService } from "./chat.service";
 import { AddAdminDto } from "./dto/add-admin.dto";
 import { AddMemberDto } from "./dto/add-member.dto";
 import { CreateChatroomDto } from "./dto/create-chat.dto";
+import { SwapOwnerDto } from "./dto/swap-owner.dto";
 import { UpdateChatroomDto } from "./dto/update-chat.dto";
 
 // TODO:
@@ -83,19 +83,39 @@ export class ChatController {
     }
   }
 
+  @Post("room/:chatroomId/change_owner")
+  async changeOwnerofChatroomById(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Body() swapOwnerDto: SwapOwnerDto,
+  ) {
+    try {
+      // check if user is not banned from chat
+      return this.chatroomService.changeOwnerofChatroomById(
+        chatroomId,
+        swapOwnerDto,
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
   // UPDATERS //
   // function to update password or change chatroom name
-  // @Put("room/:id/admin/:adminId/update/info")
-  // async updateChatroomById(
-  //   @Param("id", ParseIntPipe) id: number,
-  //   @Body() updateChatroomDto: UpdateChatroomDto,
-  // ) {
-  //   try {
-  //     return this.chatroomService.updateChatroom(id, updateChatroomDto);
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // }
+  @Put("room/:chatroomId/admin/:adminId/update/info")
+  async updateChatroomInfoById(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Param("adminId", ParseIntPipe) adminId: number,
+    @Body() updateChatroomDto: UpdateChatroomDto,
+  ) {
+    try {
+      return this.chatroomService.updateChatroomInfoById(
+        chatroomId,
+        adminId,
+        updateChatroomDto,
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   // DELETE FUNCTIONS
   // @Delete("room/:id/delete/:userId")

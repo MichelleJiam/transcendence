@@ -8,7 +8,6 @@ import { DatabaseModule } from "./database.module";
 import { ChatModule } from "./chat/chat.module";
 import * as Joi from "joi";
 import { PenaltyModule } from "./penalty/penalty.module";
-import { RoleModule } from "./role/role.module";
 
 @Module({
   imports: [
@@ -16,7 +15,6 @@ import { RoleModule } from "./role/role.module";
     MessageModule,
     ChatModule,
     PenaltyModule,
-    RoleModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
