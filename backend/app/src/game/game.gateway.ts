@@ -5,10 +5,11 @@ import {
   WebSocketServer,
   ConnectedSocket,
 } from "@nestjs/websockets";
+import { Game } from "./entities/game.entity";
 import { GameService } from "./game.service";
-import { CreateSocketDto } from "./dto/create-socket.dto";
-import { Server } from "socket.io";
-import { Socket } from "socket.io-client";
+import { Server, Socket } from "socket.io";
+import { Ball } from "./pong.types";
+import { Get, Param } from "@nestjs/common";
 
 // by default will listen to same port http is listening on
 @WebSocketGateway({
@@ -18,59 +19,67 @@ import { Socket } from "socket.io-client";
   // namespace: "pong", FIGURE OUT HOW THIS WORKS
 })
 export class GameGateway {
-  @WebSocketServer() // tell NestJS to inject the WebSocket server
-  server!: Server; // reference to socket.io server under the hood
-  constructor(private readonly socketService: GameService) {}
+  @WebSocketServer() /* tell NestJS to inject the WebSocket server */
+  server!: Server; /* reference to socket.io server under the hood */
+  constructor(private readonly gameService: GameService) {}
 
-  //  paddle1!: number;
-  //  paddle2!: number;
+  position = {
+    x: 0,
+    y: 0,
+  };
 
-  @SubscribeMessage("findAllMessages")
-  async hello(@ConnectedSocket() client: Socket) {
-    console.log("client id from backend: " + client.id);
-  }
+  ballPos: Ball = {};
 
   handleConnection(client: Socket) {
     console.log(client.id + " connected");
+    client.on("join", function (room: string) {
+      client.join(room);
+      console.log(client.id, " joined room: ", room);
+    });
+    this.server.emit("position", this.position);
   }
 
   handleDisconnect(client: Socket) {
     console.log(client.id + " disconnected");
   }
-  @SubscribeMessage("createMessage")
-  async create(
-    @MessageBody() createSocketDto: CreateSocketDto,
+
+  @Get(":id")
+  async findOne(@Param("id") id: number) {
+    const game = await this.gameService.findOneGame(id);
+    console.log(game);
+    return game;
+  }
+
+  @SubscribeMessage("ballPosition")
+  async ballPosition(
     @ConnectedSocket() client: Socket,
+    @MessageBody() ball: Ball,
   ) {
-    const message = await this.socketService.create(createSocketDto, client.id);
-    this.server.emit("message", message);
-    return message;
+    this.ballPos.x = ball.x;
+    this.ballPos.y = ball.y;
+    this.ballPos.moveX = ball.moveX;
+    this.ballPos.moveY = ball.moveY;
   }
 
-  @SubscribeMessage("findAllMessages")
-  findAll() {
-    return this.socketService.findAllMessages();
-  }
-
-  @SubscribeMessage("join")
-  joinRoom(
-    @MessageBody("name") name: string,
-    @ConnectedSocket() client: Socket,
-  ) {
-    return this.socketService.identify(name, client.id);
-  }
-
-  @SubscribeMessage("joinGame")
-  joinGame(@MessageBody("id") id: string, @ConnectedSocket() client: Socket) {
-    return this.socketService.announce(id, client.id);
-  }
-
-  @SubscribeMessage("typing")
-  async typing(
-    @MessageBody("isTyping") isTyping: boolean,
-    @ConnectedSocket() client: Socket,
-  ) {
-    const name = await this.socketService.getClientName(client.id);
-    (client as any).broadcast.emit("typing", { name, isTyping });
+  @SubscribeMessage("move")
+  async move(@MessageBody() direction: string) {
+    switch (direction) {
+      case "left":
+        this.position.x -= 5;
+        this.server.emit("position", this.position);
+        break;
+      case "right":
+        this.position.x += 5;
+        this.server.emit("position", this.position);
+        break;
+      case "up":
+        this.position.y -= 5;
+        this.server.emit("position", this.position);
+        break;
+      case "down":
+        this.position.y += 5;
+        this.server.emit("position", this.position);
+        break;
+    }
   }
 }
