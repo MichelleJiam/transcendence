@@ -1,6 +1,13 @@
 import { Chatroom } from "src/chat/chat.entity";
 import { User } from "src/user/user.entity";
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 
 @Entity()
 export class Role {
@@ -15,9 +22,11 @@ export class Role {
   public roleName!: string;
 
   // relationships
-  @ManyToMany(() => User, (user: User) => user.role, { cascade: true })
-  public user!: User[];
+  // @ManyToMany(() => User, (user: User) => user.role, { cascade: true })
+  // public user!: User[];
 
-  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.role)
-  chatroom!: Chatroom[];
+  // @ManyToOne(() => Chatroom, (chatroom: Chatroom) => chatroom.role, {
+  //   cascade: true,
+  // })
+  // chatroom!: Chatroom;
 }

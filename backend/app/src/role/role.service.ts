@@ -17,7 +17,7 @@ export class RoleService {
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
   ) {
-    this.initClass();
+    // this.initClass();
   }
 
   async initClass() {
@@ -58,102 +58,124 @@ export class RoleService {
 
   public roleTypes: string[] = ["owner", "admin", "member"];
 
-  async getAllRoles(): Promise<Role[]> {
-    const foundRoles = await this.roleRepository.find({
-      relations: {
-        user: true,
-        chatroom: true,
-      },
-      select: {
-        id: true,
-        roleName: true,
-        user: true,
-      },
-    });
-    return foundRoles;
-  }
+  // async getAllRoles(): Promise<Role[]> {
+  //   const foundRoles = await this.roleRepository.find({
+  //     order: {
+  //       id: "asc",
+  //     },
+  //     relations: {
+  //       user: true,
+  //       chatroom: true,
+  //     },
+  //     select: {
+  //       id: true,
+  //       roleName: true,
+  //       user: true,
+  //     },
+  //   });
+  //   return foundRoles;
+  // }
 
-  async getRolesByChatroomId(chatroomId: number): Promise<Role[]> {
-    const chatroom = await this.chatroomRepository.findOne({
-      relations: {
-        message: true,
-        role: true,
-        penalty: true,
-        user: true,
-      },
-      where: {
-        id: chatroomId,
-      },
-      select: {
-        role: true,
-      },
-    });
-    if (!chatroom) {
-      throw new HttpException("Chatroom not found", HttpStatus.NOT_FOUND);
-    }
-    return chatroom.role;
-  }
+  // async getRolesByChatroomId(chatroomId: number): Promise<Role[]> {
+  //   const chatroom = await this.chatroomRepository.findOne({
+  //     relations: {
+  //       message: true,
+  //       role: true,
+  //       penalty: true,
+  //       user: true,
+  //     },
+  //     where: {
+  //       id: chatroomId,
+  //     },
+  //     select: {
+  //       role: true,
+  //     },
+  //   });
+  //   if (!chatroom) {
+  //     throw new HttpException("Chatroom not found", HttpStatus.NOT_FOUND);
+  //   }
+  //   return chatroom.role;
+  // }
 
-  public async createRole(userId: number, roleName: string): Promise<Role> {
-    // get role from db and then add things to it and save it again
-    const newRole = new Role();
-    newRole.roleName = roleName;
-    const user = await this.userRepository.findOne({
-      where: {
-        id: userId,
-      },
-    });
-    if (user) {
-      newRole.user = [user];
-    } else {
-      throw new HttpException("User does not exist.", HttpStatus.BAD_REQUEST);
-    }
-    return newRole;
-  }
-
-  public async isAdminOfChatroom(userId: number, chatroomId: number) {
-    const admin = await this.userRepository.findOne({
-      where: {
-        id: userId,
-        role: {
-          roleName: "admin",
-        },
-        chatroom: {
-          id: chatroomId,
-        },
-      },
-    });
-    if (admin) return true;
-    else return false;
-  }
-  public async isOwnerOfChatroom(userId: number, chatroomId: number) {
-    const admin = await this.userRepository.findOne({
-      where: {
-        id: userId,
-        role: {
-          roleName: "owner",
-        },
-        chatroom: {
-          id: chatroomId,
-        },
-      },
-    });
-    if (admin) return true;
-    else return false;
-  }
-  public async removeRoleFromUserInChatroom(
+  public async createRole(
     userId: number,
-    currentChatroom: Chatroom,
-    roleType: string,
-  ): Promise<void> {
-    currentChatroom.role = currentChatroom.role.filter((role: Role) => {
-      return (
-        role.roleName !== roleType &&
-        role.user.find((user: User) => {
-          return user.id === userId;
-        })
-      );
-    });
-    await this.roleRepository.save(currentChatroom);
+    roleName: string,
+    chatroomId: number,
+  ): Promise<Role> {
+    // get role from db and then add things to it and save it again
+    // const newRole = new Role();
+    // newRole.roleName = roleName;
+    // await this.roleRepository.findOne({
+    //   where: {
+    //     roleName: roleName,
+    //   },
+    // });
+    // if (newRole) {
+    //   const user = await this.userRepository.findOne({
+    //     where: {
+    //       id: userId,
+    //     },
+    //   });
+    //   if (user) {
+    //     newRole.user = [user];
+    //   } else {
+    //     throw new HttpException("User does not exist.", HttpStatus.BAD_REQUEST);
+    //   }
+    //   const chatroom = await this.chatroomRepository.findOne({
+    //     where: {
+    //       id: chatroomId,
+    //     },
+    //   });
+    //   if (chatroom) newRole.chatroom = chatroom;
+    //   this.roleRepository.save(newRole);
+    //   return newRole;
+    // }
+    throw new HttpException("Role does not exist.", HttpStatus.BAD_REQUEST);
   }
+
+  // public async isAdminOfChatroom(userId: number, chatroomId: number) {
+  // const admin = await this.userRepository.findOne({
+  //   where: {
+  //     id: userId,
+  //     role: {
+  //       roleName: "admin",
+  //     },
+  //     chatroom: {
+  //       id: chatroomId,
+  //     },
+  //   },
+  // });
+  // if (admin) return true;
+  // else return false;
+  // }
+  // public async isOwnerOfChatroom(userId: number, chatroomId: number) {
+  // const admin = await this.userRepository.findOne({
+  //   where: {
+  //     id: userId,
+  //     role: {
+  //       roleName: "owner",
+  //     },
+  //     chatroom: {
+  //       id: chatroomId,
+  //     },
+  //   },
+  // });
+  // if (admin) return true;
+  // else return false;
+  // }
+  // public async removeRoleFromUserInChatroom(
+  //   userId: number,
+  //   currentChatroom: Chatroom,
+  //   roleType: string,
+  // ): Promise<void> {
+  //   currentChatroom.role = currentChatroom.role.filter((role: Role) => {
+  //     return (
+  //       role.roleName !== roleType &&
+  //       role.user.find((user: User) => {
+  //         return user.id === userId;
+  //       })
+  //     );
+  //   });
+  //   await this.roleRepository.save(currentChatroom);
+  // }
 }
