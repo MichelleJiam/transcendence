@@ -37,9 +37,9 @@ const startGame = async () => {
 <template>
   <main>
     <div id="display-content">
-      <!-- <PongSocketTest /> -->
+      <PongSocketTest />
       <!-- <p>Id: {{ id }}</p> -->
-      <div v-if="!inPlay" class="my-btn">
+      <!-- <div v-if="!inPlay" class="my-btn">
         <button class="btn" @click="startGame">PLAY</button>
         <button class="btn">WATCH</button>
       </div>
@@ -47,14 +47,13 @@ const startGame = async () => {
         <p>
           WAITING&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FOR<br /><br /><br /><br /><br /><br />OPPONENT
         </p>
-
         <div>
           <LoaderKnightRider />
         </div>
       </div>
       <div v-else>
         <PongGame @game-over="updateInPlay" />
-      </div>
+      </div> -->
     </div>
   </main>
 </template>

@@ -9,6 +9,16 @@ import type { Player, Keys, Paddle, Canvas, Ball } from "./PongTypes";
 
 const socket = io("http://localhost:3000");
 
+let paddle1: Paddle;
+let paddle2: Paddle;
+let view: Canvas;
+let canvas: HTMLCanvasElement;
+let ctx: CanvasRenderingContext2D;
+let ball: Ball;
+let key: Keys;
+let player1: Player;
+let player2: Player;
+
 onBeforeMount(() => {
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend"); // x8WIv7-mJelg7on_ALbx
@@ -23,15 +33,19 @@ onBeforeMount(() => {
   });
 });
 
-let paddle1: Paddle;
-let paddle2: Paddle;
-let view: Canvas;
-let canvas: HTMLCanvasElement;
-let ctx: CanvasRenderingContext2D;
-let ball: Ball;
-let key: Keys;
-let player1: Player;
-let player2: Player;
+onMounted(async () => {
+  initCanvas();
+  initGame();
+  drawBorderLines();
+  drawPaddleOne();
+  drawPaddleTwo();
+  drawCenterLine();
+  await countdown().then((data) => {
+    console.log(data);
+  });
+  // window.requestAnimationFrame(draw);
+  intervalId = setInterval(draw, 1);
+});
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -93,21 +107,8 @@ function initGame() {
     offset: view.width * 0.0026,
   };
   key = { up: false, down: false, w: false, s: false };
+  socket.emit("ballPosition", ball);
 }
-
-onMounted(async () => {
-  initCanvas();
-  initGame();
-  drawBorderLines();
-  drawPaddleOne();
-  drawPaddleTwo();
-  drawCenterLine();
-  await countdown().then((data) => {
-    console.log(data);
-  });
-  // window.requestAnimationFrame(draw);
-  intervalId = setInterval(draw, 1);
-});
 
 let intervalId = setInterval(draw, 1); // change interval to change speed; can be a feature?
 clearInterval(intervalId);
@@ -170,6 +171,7 @@ function calculateMoves() {
       ball.y > paddle2.y - ball.radius &&
       ball.y < paddle2.y + paddle2.height + ball.radius
     ) {
+      socket.emit("move('right')", ball);
       ball.moveX = -ball.moveX;
       console.log("RIGHT PADDLE HIT");
     } else {
@@ -401,14 +403,14 @@ const countdown = () => {
 
 <style scoped>
 canvas {
-  height: 50%;
+  height: 80%;
   width: 100%;
   display: block;
   /* background: #1c1b1b; */
   /* margin: auto auto; */
   /* width: 100%; */
   /* object-fit: cover; */
-  border: 1px rgb(111, 109, 109) solid;
+  /* border: 1px rgb(111, 109, 109) solid; */
 }
 </style>
 
