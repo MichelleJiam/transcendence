@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MessageService } from "src/message/message.service";
 import { User } from "src/user/user.entity";
-import { UserService } from "src/user/user.service";
 import { Repository } from "typeorm";
 import {
   validateChatroomDto,
@@ -17,19 +16,19 @@ import { CreateChatroomDto } from "./dto/create-chat.dto";
 import { SwapOwnerDto } from "./dto/swap-owner.dto";
 import { UpdateChatroomDto } from "./dto/update-chat.dto";
 import { Message } from "src/message/message.entity";
+import { PenaltyService } from "src/penalty/penalty.service";
+import { CreatePenaltyDto } from "src/penalty/dto/create-penalty.dto";
+import { Penalty } from "src/penalty/penalty.entity";
 
 @Injectable()
 export class ChatService {
   constructor(
-    private readonly userService: UserService,
-    private readonly messageService: MessageService,
-    private readonly chatMethod: ChatMethod,
-
     @InjectRepository(Chatroom)
     private readonly chatroomRepository: Repository<Chatroom>,
 
-    @InjectRepository(Message)
-    private readonly messageRepository: Repository<Message>,
+    private readonly messageService: MessageService,
+    private readonly chatMethod: ChatMethod,
+    private readonly penaltyService: PenaltyService,
   ) {}
 
   // GETTERS
@@ -75,7 +74,7 @@ export class ChatService {
     return foundChats;
   }
 
-  async getChatroomById(id: number): Promise<Chatroom> {
+  async getChatroomInfoById(id: number): Promise<Chatroom> {
     const chatroom = await this.chatroomRepository.findOne({
       relations: {
         message: true,
@@ -92,6 +91,14 @@ export class ChatService {
       throw new HttpException("Chatroom not found", HttpStatus.NOT_FOUND);
     }
     return chatroom;
+  }
+
+  async getMessagesFromChatroom(chatroomId: number): Promise<Message[]> {
+    return this.messageService.getMessagesFromChatroom(chatroomId);
+  }
+
+  async getPenaltiesByChatroom(chatroomId: number) {
+    return this.penaltyService.getPenaltiesByChatroom(chatroomId);
   }
 
   // POST
@@ -128,7 +135,7 @@ export class ChatService {
     chatroomId: number,
     createMessageDto: CreateMessageDto,
   ): Promise<Message> {
-    const chatroom = await this.getChatroomById(chatroomId);
+    const chatroom = await this.getChatroomInfoById(chatroomId);
     console.log(chatroom);
     const bool = await this.chatMethod.isMemberOfChatroom(
       createMessageDto.userId,
@@ -151,12 +158,34 @@ export class ChatService {
     );
   }
 
+  async createPenalty(
+    chatroomId: number,
+    adminId: number,
+    createPenaltyDto: CreatePenaltyDto,
+  ): Promise<Penalty> {
+    if (
+      (await this.chatMethod.isAdminOfChatroom(adminId, chatroomId)) == false
+    ) {
+      throw new HttpException(
+        "Not allowed to give penalties.",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const chatroom = await this.getChatroomInfoById(createPenaltyDto.chatroom);
+    const userPenalty = await this.chatMethod.getUser(createPenaltyDto.user);
+    return this.penaltyService.createPenalty(
+      chatroom,
+      userPenalty,
+      createPenaltyDto,
+    );
+  }
+
   // UPDATE - ADDING - PUT
   async addMemberToChatroom(
     chatroomId: number,
     addMemberDto: AddMemberDto,
   ): Promise<Chatroom> {
-    const chatroom = await this.getChatroomById(chatroomId);
+    const chatroom = await this.getChatroomInfoById(chatroomId);
     if (chatroom.type === "password") {
       if (chatroom.password !== addMemberDto.password)
         throw new HttpException("Incorrect password", HttpStatus.BAD_REQUEST);
@@ -173,7 +202,7 @@ export class ChatService {
     chatroomId: number,
     addAdminDto: AddAdminDto,
   ): Promise<Chatroom> {
-    const chatroom = await this.getChatroomById(chatroomId);
+    const chatroom = await this.getChatroomInfoById(chatroomId);
     if (
       (await this.chatMethod.isAdminOfChatroom(
         addAdminDto.byAdmin,
@@ -196,7 +225,7 @@ export class ChatService {
     chatroomId: number,
     swapOwnerDto: SwapOwnerDto,
   ): Promise<Chatroom> {
-    const chatroom = await this.getChatroomById(chatroomId);
+    const chatroom = await this.getChatroomInfoById(chatroomId);
     if (
       (await this.chatMethod.isAdminOfChatroom(
         swapOwnerDto.newOwner,
@@ -225,7 +254,7 @@ export class ChatService {
     adminId: number,
     updateChatroomDto: UpdateChatroomDto,
   ): Promise<Chatroom> {
-    const chatroom = await this.getChatroomById(chatroomId);
+    const chatroom = await this.getChatroomInfoById(chatroomId);
     if (await this.chatMethod.isAdminOfChatroom(adminId, chatroomId)) {
       if (updateChatroomDto.type !== undefined) {
         chatroom.type = updateChatroomDto.type;
@@ -259,7 +288,7 @@ export class ChatService {
     adminId: number,
     toDeleteId: number,
   ): Promise<void> {
-    const chatroom = await this.getChatroomById(chatroomId);
+    const chatroom = await this.getChatroomInfoById(chatroomId);
     if (
       (await this.chatMethod.isAdminOfChatroom(adminId, chatroomId)) &&
       (await this.chatMethod.hasMultipleAdminsInChatroom(chatroomId)) &&
@@ -280,7 +309,7 @@ export class ChatService {
     chatroomId: number,
     userId: number,
   ): Promise<Chatroom> {
-    const chatroom = await this.getChatroomById(chatroomId);
+    const chatroom = await this.getChatroomInfoById(chatroomId);
     if (await this.chatMethod.isOwnerOfChatroom(userId, chatroomId)) {
       throw new HttpException(
         "Cannot remove owner of chatroom",

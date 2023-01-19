@@ -27,6 +27,21 @@ export class MessageService {
     });
   }
 
+  async getMessagesFromChatroom(chatroomId: number): Promise<Message[]> {
+    const messages = await this.messageRepository.find({
+      relations: {
+        chatroomId: true,
+        userId: true,
+      },
+      where: {
+        chatroomId: {
+          id: chatroomId,
+        },
+      },
+    });
+    return messages;
+  }
+
   async create(
     createMessageDto: CreateMessageDto,
     chatroom: Chatroom,
@@ -36,7 +51,6 @@ export class MessageService {
     newMessage.body = createMessageDto.body;
     newMessage.chatroomId = chatroom;
     newMessage.userId = user;
-    newMessage.playerName = user.playerName;
     return this.messageRepository.save(newMessage);
   }
 

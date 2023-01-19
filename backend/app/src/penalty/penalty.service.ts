@@ -1,5 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Chatroom } from "src/chat/chat.entity";
+import { ChatMethod } from "src/chat/chat.methods";
+import { ChatService } from "src/chat/chat.service";
+import { User } from "src/user/user.entity";
 import { Repository } from "typeorm";
 import { CreatePenaltyDto } from "./dto/create-penalty.dto";
 import { validatePenaltyDto } from "./penalty-validator.methods";
@@ -11,6 +15,49 @@ export class PenaltyService {
     @InjectRepository(Penalty)
     private readonly penaltyRepository: Repository<Penalty>,
   ) {}
+
+  async getAllPenalties() {
+    const foundPenalties = await this.penaltyRepository.find({
+      order: {
+        id: "asc",
+      },
+      relations: {
+        user: true,
+        chatroom: true,
+      },
+    });
+    return foundPenalties;
+  }
+
+  async getPenaltiesByChatroom(chatroomId: number) {
+    const foundPenalties = await this.penaltyRepository.find({
+      relations: {
+        user: true,
+        chatroom: true,
+      },
+      where: {
+        chatroom: {
+          id: chatroomId,
+        },
+      },
+    });
+    return foundPenalties;
+  }
+
+  async createPenalty(
+    chatroom: Chatroom,
+    user: User,
+    createPenaltyDto: CreatePenaltyDto,
+  ): Promise<Penalty> {
+    if (validatePenaltyDto(createPenaltyDto) === true) {
+      const newPenalty = new Penalty();
+      newPenalty.chatroom = chatroom;
+      newPenalty.user = user;
+      newPenalty.penaltyType = createPenaltyDto.penaltyType;
+      return this.penaltyRepository.save(newPenalty);
+    }
+    throw new HttpException("Incorrect Penalty Type.", HttpStatus.BAD_REQUEST);
+  }
 
   // async createPenalty(createPenaltyDto: CreatePenaltyDto): Promise<Penalty> {
   //   if (validatePenaltyDto(createPenaltyDto) === true) {

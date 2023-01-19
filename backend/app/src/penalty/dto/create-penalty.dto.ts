@@ -5,11 +5,11 @@ import { Chatroom } from "../../chat/chat.entity";
 
 export class CreatePenaltyDto {
   @IsNotEmpty()
-  user!: DeepPartial<User>;
-
-  @IsNotEmpty()
   penaltyType!: string;
 
   @IsNotEmpty()
-  chatroom!: DeepPartial<Chatroom>;
+  user!: number;
+
+  @IsNotEmpty()
+  chatroom!: number;
 }

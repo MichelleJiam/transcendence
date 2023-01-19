@@ -15,16 +15,16 @@ import { ChatService } from "./chat.service";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Message, User, Chatroom, Penalty, Avatar]),
+    TypeOrmModule.forFeature([Message, User, Chatroom, Avatar, Penalty]),
   ],
   controllers: [ChatController],
   providers: [
+    PenaltyService,
     ChatService,
     ChatMethod,
     UserService,
     MessageService,
     AvatarService,
-    PenaltyService,
   ],
 })
 export class ChatModule {}

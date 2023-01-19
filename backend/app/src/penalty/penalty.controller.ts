@@ -13,10 +13,10 @@ import { PenaltyService } from "./penalty.service";
 export class PenaltyController {
   constructor(private readonly penaltyService: PenaltyService) {}
 
-  // @Get()
-  // getAllPenalties() {
-  //   return this.penaltyService.getAllPenalties();
-  // }
+  @Get()
+  getAllPenalties() {
+    return this.penaltyService.getAllPenalties();
+  }
 
   // @Get("user/id/:id")
   // getMessageByUserId(@Param("id", ParseIntPipe) id: number) {

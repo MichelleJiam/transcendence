@@ -24,11 +24,6 @@ export class Message {
   @CreateDateColumn()
   createdAt!: Date;
 
-  @Column({
-    nullable: false,
-  })
-  playerName!: string;
-
   // relationships
   @ManyToOne(() => User, (userId: User) => userId.message, {
     onDelete: "CASCADE",

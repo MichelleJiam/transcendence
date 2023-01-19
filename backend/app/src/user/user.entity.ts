@@ -42,8 +42,8 @@ export class User {
   @JoinColumn()
   public message!: Message[];
 
-  @ManyToMany(() => Penalty)
-  @JoinTable()
+  @OneToMany(() => Penalty, (penalty: Penalty) => penalty.user)
+  @JoinColumn()
   public penalty!: Penalty[];
 
   @OneToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.owner)

@@ -7,14 +7,12 @@ export function validatePenaltyDto(
   createPenaltyDto: CreatePenaltyDto,
 ): boolean {
   if (
-    (createPenaltyDto.penaltyType == "mute" ||
-      createPenaltyDto.penaltyType == "ban") &&
-    Object.keys(createPenaltyDto.chatroom).length !== 0 &&
-    Object.keys(createPenaltyDto.user).length !== 0
+    createPenaltyDto.penaltyType !== "mute" &&
+    createPenaltyDto.penaltyType !== "ban"
   ) {
-    return true;
+    return false;
   }
-  return false;
+  return true;
 }
 
 // export function validateAdmin(
