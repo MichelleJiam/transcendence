@@ -49,6 +49,7 @@ export class Chatroom {
 
   @ManyToOne(() => User, (owner: User) => owner.chatroomOwner, {
     onDelete: "CASCADE",
+    onUpdate: "CASCADE",
   })
   owner!: User;
 

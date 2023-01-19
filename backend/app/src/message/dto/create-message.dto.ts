@@ -18,6 +18,6 @@ export class CreateMessageDto {
   })
   body!: string;
 
-  userId!: DeepPartial<User>;
-  chatroomId!: DeepPartial<Chatroom>;
+  @IsNotEmpty()
+  userId!: number;
 }

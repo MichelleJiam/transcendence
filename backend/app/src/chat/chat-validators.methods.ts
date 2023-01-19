@@ -2,7 +2,12 @@ import { HttpException, HttpStatus } from "@nestjs/common";
 import { CreateChatroomDto } from "./dto/create-chat.dto";
 
 export function validateChatroomType(type: string): void {
-  if (type != "public" && type != "password" && type != "private") {
+  if (
+    type != "public" &&
+    type != "password" &&
+    type != "private" &&
+    type != "DM"
+  ) {
     console.log("From Backend: Invalid chatroom type");
     throw new HttpException("Invalid chatroom type", HttpStatus.BAD_REQUEST);
   }

@@ -8,7 +8,9 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  Header,
 } from "@nestjs/common";
+import { CreateMessageDto } from "src/message/dto/create-message.dto";
 import { ChatService } from "./chat.service";
 import { AddAdminDto } from "./dto/add-admin.dto";
 import { AddMemberDto } from "./dto/add-member.dto";
@@ -26,7 +28,8 @@ import { UpdateChatroomDto } from "./dto/update-chat.dto";
 export class ChatController {
   constructor(private readonly chatroomService: ChatService) {}
 
-  // DISPLAY AVAILABLE CHATROOMS
+  // GENERAL CHAT FUNCTIONS
+  // GET
   @Get()
   getAllChatRooms() {
     try {
@@ -36,7 +39,16 @@ export class ChatController {
     }
   }
 
-  // GENERAL CHAT FUNCTIONS
+  @Get(":id")
+  async getChatroomById(@Param("id", ParseIntPipe) id: number) {
+    try {
+      return this.chatroomService.getChatroomById(id);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  // POST
   @Post("create")
   async createChatroom(@Body() createChatroomDto: CreateChatroomDto) {
     try {
@@ -46,16 +58,19 @@ export class ChatController {
     }
   }
 
-  @Get("room/:id")
-  async getChatroomById(@Param("id", ParseIntPipe) id: number) {
-    try {
-      return this.chatroomService.getChatroomById(id);
-    } catch (err) {
-      console.log(err);
-    }
+  @Post(":chatroomId/post_message")
+  async postMessageToChatroom(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Body() createMessageDto: CreateMessageDto,
+  ) {
+    return this.chatroomService.postMessageToChatroom(
+      chatroomId,
+      createMessageDto,
+    );
   }
-  // function to add members
-  @Post("room/:chatroomId/add/member")
+
+  // PUT
+  @Put(":chatroomId/add/member")
   async addMemberToChatroomById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Body() addMemberDto: AddMemberDto,
@@ -70,7 +85,7 @@ export class ChatController {
 
   // ADMIN FUNCTIONALITIES //
 
-  @Post("room/:chatroomId/add/admin")
+  @Put(":chatroomId/add/admin")
   async addAdminToChatroomById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Body() addAdminDto: AddAdminDto,
@@ -83,7 +98,7 @@ export class ChatController {
     }
   }
 
-  @Post("room/:chatroomId/change_owner")
+  @Put(":chatroomId/change_owner")
   async changeOwnerofChatroomById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Body() swapOwnerDto: SwapOwnerDto,
@@ -98,9 +113,10 @@ export class ChatController {
       console.log(err);
     }
   }
+
   // UPDATERS //
   // function to update password or change chatroom name
-  @Put("room/:chatroomId/admin/:adminId/update/info")
+  @Put(":chatroomId/admin/:adminId/update/info")
   async updateChatroomInfoById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Param("adminId", ParseIntPipe) adminId: number,
@@ -118,15 +134,32 @@ export class ChatController {
   }
 
   // DELETE FUNCTIONS
-  // @Delete("room/:id/delete/:userId")
-  // async leaveChatroom(
-  //   @Param("id", ParseIntPipe) id: number,
-  //   @Param("userId", ParseIntPipe) userId: number,
-  // ) {
-  //   try {
-  //     return this.chatroomService.leaveChatroom(id, userId);
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // }
+  @Delete(":chatroomId/delete/:userId")
+  async deleteUserFromChatroom(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Param("userId", ParseIntPipe) userId: number,
+  ) {
+    try {
+      return this.chatroomService.deleteUserFromChatroom(chatroomId, userId);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @Delete(":chatroomId/admin/:adminId/delete/:toDeleteId")
+  async deleteAdminFromChatroom(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Param("adminId", ParseIntPipe) adminId: number,
+    @Param("toDeleteId", ParseIntPipe) toDeleteId: number,
+  ) {
+    try {
+      return this.chatroomService.deleteAdminFromChatroom(
+        chatroomId,
+        adminId,
+        toDeleteId,
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
 }
