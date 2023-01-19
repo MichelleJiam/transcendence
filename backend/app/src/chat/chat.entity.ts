@@ -6,7 +6,6 @@ import {
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
-  JoinTable,
 } from "typeorm";
 import { Message } from "src/message/message.entity";
 import { User } from "src/user/user.entity";
@@ -41,11 +40,9 @@ export class Chatroom {
   @JoinColumn()
   public message!: Message[];
 
-  @ManyToMany(() => Penalty, (penalty: Penalty) => penalty.chatroom, {
-    cascade: true,
-  })
-  @JoinTable()
-  public penalty!: Penalty[];
+  @OneToMany(() => Penalty, (penalty: Penalty) => penalty.chatroom)
+  @JoinColumn()
+  public penalty!: Penalty;
 
   @ManyToOne(() => User, (owner: User) => owner.chatroomOwner, {
     onDelete: "CASCADE",

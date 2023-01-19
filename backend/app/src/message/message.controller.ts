@@ -24,9 +24,4 @@ export class MessageController {
   getMessageById(@Param("id", ParseIntPipe) id: number) {
     return this.messageService.getMessageByUserId(id);
   }
-
-  // @Get("user/:username")
-  // getMessageByUsername(@Param("username") username: string) {
-  //   return this.messageService.getMessageByUsername(username);
-  // }
 }

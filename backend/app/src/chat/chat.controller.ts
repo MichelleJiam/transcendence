@@ -8,9 +8,10 @@ import {
   Param,
   Body,
   ParseIntPipe,
-  Header,
 } from "@nestjs/common";
 import { CreateMessageDto } from "src/message/dto/create-message.dto";
+import { CreatePenaltyDto } from "src/penalty/dto/create-penalty.dto";
+import { Penalty } from "src/penalty/penalty.entity";
 import { ChatService } from "./chat.service";
 import { AddAdminDto } from "./dto/add-admin.dto";
 import { AddMemberDto } from "./dto/add-member.dto";
@@ -19,10 +20,7 @@ import { SwapOwnerDto } from "./dto/swap-owner.dto";
 import { UpdateChatroomDto } from "./dto/update-chat.dto";
 
 // TODO:
-// 	- create function that updates password
-//	- add users to chat
-//	- delete users to chat
-// 	- give assign admin to chat
+//  VALIDATE USER BEFORE DOING ANYTHING is active user same as user in dto
 
 @Controller("chat")
 export class ChatController {
@@ -40,15 +38,30 @@ export class ChatController {
   }
 
   @Get(":id")
-  async getChatroomById(@Param("id", ParseIntPipe) id: number) {
+  async getChatroomInfoById(@Param("id", ParseIntPipe) id: number) {
     try {
-      return this.chatroomService.getChatroomById(id);
+      return this.chatroomService.getChatroomInfoById(id);
     } catch (err) {
       console.log(err);
     }
   }
 
+  @Get(":chatroomId/messages")
+  async getMessagesFromChatroom(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+  ) {
+    return this.chatroomService.getMessagesFromChatroom(chatroomId);
+  }
+
+  @Get(":chatroomId/penalties")
+  async getPenaltiesFromChatroom(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+  ) {
+    return this.chatroomService.getPenaltiesByChatroom(chatroomId);
+  }
+
   // POST
+  // is member the same Id as the logged in user?
   @Post("create")
   async createChatroom(@Body() createChatroomDto: CreateChatroomDto) {
     try {
@@ -58,6 +71,7 @@ export class ChatController {
     }
   }
 
+  // is member the same Id as the logged in user?
   @Post(":chatroomId/post_message")
   async postMessageToChatroom(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
@@ -69,7 +83,21 @@ export class ChatController {
     );
   }
 
+  @Post(":chatroomId/admin/:adminId/ban")
+  async createPenalty(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Param("adminId", ParseIntPipe) adminId: number,
+    @Body() createPenaltyDto: CreatePenaltyDto,
+  ): Promise<Penalty> {
+    return this.chatroomService.createPenalty(
+      chatroomId,
+      adminId,
+      createPenaltyDto,
+    );
+  }
+
   // PUT
+  // is member the same Id as the logged in user?
   @Put(":chatroomId/add/member")
   async addMemberToChatroomById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
@@ -85,6 +113,7 @@ export class ChatController {
 
   // ADMIN FUNCTIONALITIES //
 
+  // is adminId the same as the id of the user who called this?
   @Put(":chatroomId/add/admin")
   async addAdminToChatroomById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
@@ -98,6 +127,7 @@ export class ChatController {
     }
   }
 
+  // is adminId the same as the id of the user who called this?
   @Put(":chatroomId/change_owner")
   async changeOwnerofChatroomById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
@@ -116,6 +146,7 @@ export class ChatController {
 
   // UPDATERS //
   // function to update password or change chatroom name
+  // is adminId the same as the id of the user who called this?
   @Put(":chatroomId/admin/:adminId/update/info")
   async updateChatroomInfoById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
@@ -146,6 +177,7 @@ export class ChatController {
     }
   }
 
+  // is adminId the same as the id of the user who called this?
   @Delete(":chatroomId/admin/:adminId/delete/:toDeleteId")
   async deleteAdminFromChatroom(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,

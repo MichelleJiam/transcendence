@@ -3,9 +3,8 @@ import {
   Column,
   Entity,
   CreateDateColumn,
-  JoinColumn,
   PrimaryGeneratedColumn,
-  ManyToMany,
+  ManyToOne,
 } from "typeorm";
 import { Chatroom } from "../chat/chat.entity";
 
@@ -25,9 +24,12 @@ export class Penalty {
   penaltyType!: string;
 
   // relationships
-  @ManyToMany(() => User, (user: User) => user.penalty)
-  user!: User[];
+  @ManyToOne(() => User, (user: User) => user.penalty)
+  user!: User;
 
-  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.penalty)
-  chatroom!: Chatroom[];
+  @ManyToOne(() => Chatroom, (chatroom: Chatroom) => chatroom.penalty, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
+  chatroom!: Chatroom;
 }
