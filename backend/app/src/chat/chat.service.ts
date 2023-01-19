@@ -12,10 +12,11 @@ import { Chatroom } from "./chat.entity";
 import { ChatMethod } from "./chat.methods";
 import { AddAdminDto } from "./dto/add-admin.dto";
 import { AddMemberDto } from "./dto/add-member.dto";
+import { CreateMessageDto } from "src/message/dto/create-message.dto";
 import { CreateChatroomDto } from "./dto/create-chat.dto";
-import { RemoveAdminDto } from "./dto/remove-admin.dto";
 import { SwapOwnerDto } from "./dto/swap-owner.dto";
 import { UpdateChatroomDto } from "./dto/update-chat.dto";
+import { Message } from "src/message/message.entity";
 
 @Injectable()
 export class ChatService {
@@ -26,6 +27,9 @@ export class ChatService {
 
     @InjectRepository(Chatroom)
     private readonly chatroomRepository: Repository<Chatroom>,
+
+    @InjectRepository(Message)
+    private readonly messageRepository: Repository<Message>,
   ) {}
 
   // GETTERS
@@ -100,14 +104,16 @@ export class ChatService {
       chatroom.type = createChatroomDto.type;
       if (chatroom.type === "password")
         chatroom.password = createChatroomDto.password;
-
-      const user = await this.userService.findUserById(createChatroomDto.user);
-      if (user) {
-        chatroom.owner = user;
-        chatroom.member = [user];
-        chatroom.admin = [user];
-      } else {
-        throw new HttpException("User does not exist.", HttpStatus.BAD_REQUEST);
+      const user = await this.chatMethod.getUser(createChatroomDto.user);
+      chatroom.owner = user;
+      chatroom.member = [user];
+      chatroom.admin = [user];
+      if (chatroom.type === "DM" && createChatroomDto.otherUser !== undefined) {
+        const userTwo = await this.chatMethod.getUser(
+          createChatroomDto.otherUser,
+        );
+        chatroom.member.push(userTwo);
+        chatroom.admin.push(userTwo);
       }
       const newChatroom = this.chatroomRepository.create(chatroom);
       return this.chatroomRepository.save(newChatroom);
@@ -118,12 +124,44 @@ export class ChatService {
     );
   }
 
-  // UPDATE - ADDING
+  async postMessageToChatroom(
+    chatroomId: number,
+    createMessageDto: CreateMessageDto,
+  ): Promise<Message> {
+    const chatroom = await this.getChatroomById(chatroomId);
+    console.log(chatroom);
+    const bool = await this.chatMethod.isMemberOfChatroom(
+      createMessageDto.userId,
+      chatroomId,
+    );
+    console.log(bool);
+    const user = await this.chatMethod.getUser(createMessageDto.userId);
+    console.log(user);
+    if (
+      (await this.chatMethod.isMemberOfChatroom(
+        createMessageDto.userId,
+        chatroomId,
+      )) == true
+    ) {
+      return this.messageService.create(createMessageDto, chatroom, user);
+    }
+    throw new HttpException(
+      "You do not have permission to send messages here.",
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+
+  // UPDATE - ADDING - PUT
   async addMemberToChatroom(
     chatroomId: number,
     addMemberDto: AddMemberDto,
   ): Promise<Chatroom> {
     const chatroom = await this.getChatroomById(chatroomId);
+    if (chatroom.type === "password") {
+      if (chatroom.password !== addMemberDto.password)
+        throw new HttpException("Incorrect password", HttpStatus.BAD_REQUEST);
+    }
+    // if user already member, do nothing
     const user = await this.chatMethod.getUser(addMemberDto.member);
     // add ban check
     chatroom.member.push(user);
@@ -142,6 +180,7 @@ export class ChatService {
         chatroomId,
       )) == true
     ) {
+      // if admin already admin do nothing
       const newAdmin = await this.chatMethod.getUser(addAdminDto.newAdmin);
       chatroom.admin.push(newAdmin);
       this.chatroomRepository.save(chatroom);
@@ -217,22 +256,17 @@ export class ChatService {
   // UPDATE - REMOVING
   async deleteAdminFromChatroom(
     chatroomId: number,
-    removeUserDto: RemoveAdminDto,
+    adminId: number,
+    toDeleteId: number,
   ): Promise<void> {
     const chatroom = await this.getChatroomById(chatroomId);
     if (
-      (await this.chatMethod.isAdminOfChatroom(
-        removeUserDto.byAdmin,
-        chatroomId,
-      )) &&
+      (await this.chatMethod.isAdminOfChatroom(adminId, chatroomId)) &&
       (await this.chatMethod.hasMultipleAdminsInChatroom(chatroomId)) &&
-      (await this.chatMethod.isOwnerOfChatroom(
-        removeUserDto.deleteAdmin,
-        chatroomId,
-      )) == false
+      (await this.chatMethod.isOwnerOfChatroom(toDeleteId, chatroomId)) == false
     ) {
       chatroom.admin = chatroom.admin.filter((user: User) => {
-        return user.id !== removeUserDto.deleteAdmin;
+        return user.id !== toDeleteId;
       });
     } else {
       throw new HttpException(
@@ -242,10 +276,10 @@ export class ChatService {
     }
   }
 
-  async removeUserFromChatroom(
+  async deleteUserFromChatroom(
     chatroomId: number,
     userId: number,
-  ): Promise<void> {
+  ): Promise<Chatroom> {
     const chatroom = await this.getChatroomById(chatroomId);
     if (await this.chatMethod.isOwnerOfChatroom(userId, chatroomId)) {
       throw new HttpException(
@@ -259,6 +293,6 @@ export class ChatService {
     chatroom.admin = chatroom.admin.filter((user: User) => {
       return user.id !== userId;
     });
-    await this.chatroomRepository.save(chatroom);
+    return await this.chatroomRepository.save(chatroom);
   }
 }

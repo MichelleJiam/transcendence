@@ -6,7 +6,6 @@ import {
   ParseIntPipe,
   Param,
 } from "@nestjs/common";
-import { CreateMessageDto } from "./dto/create-message.dto";
 import { MessageService } from "./message.service";
 
 // @Param() converts what's inside the uri that starts with : into a variable
@@ -30,9 +29,4 @@ export class MessageController {
   // getMessageByUsername(@Param("username") username: string) {
   //   return this.messageService.getMessageByUsername(username);
   // }
-
-  @Post("create")
-  create(@Body() createMessageDto: CreateMessageDto) {
-    return this.messageService.create(createMessageDto);
-  }
 }

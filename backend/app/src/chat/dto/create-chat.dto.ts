@@ -11,4 +11,6 @@ export class CreateChatroomDto {
 
   @IsNotEmpty()
   user!: number;
+
+  otherUser?: number;
 }

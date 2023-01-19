@@ -1,5 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Chatroom } from "src/chat/chat.entity";
+import { User } from "src/user/user.entity";
 import { Repository } from "typeorm";
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { Message } from "./message.entity";
@@ -15,6 +17,7 @@ export class MessageService {
     return this.messageRepository.find({
       relations: {
         userId: true,
+        chatroomId: true,
       },
       order: {
         userId: {
@@ -24,20 +27,24 @@ export class MessageService {
     });
   }
 
-  async create(createMessageDto: CreateMessageDto) {
-    const newMessage = this.messageRepository.create(createMessageDto);
-    const existingUser = await this.messageRepository.findOneBy({
-      userId: {
-        id: createMessageDto.userId.id,
-      },
-    });
-    if (existingUser) return this.messageRepository.save(newMessage);
+  async create(
+    createMessageDto: CreateMessageDto,
+    chatroom: Chatroom,
+    user: User,
+  ) {
+    const newMessage = new Message();
+    newMessage.body = createMessageDto.body;
+    newMessage.chatroomId = chatroom;
+    newMessage.userId = user;
+    newMessage.playerName = user.playerName;
+    return this.messageRepository.save(newMessage);
   }
 
   async getMessageByUserId(id: number) {
     const messages = await this.messageRepository.find({
       relations: {
         userId: true,
+        chatroomId: true,
       },
       where: {
         userId: {
@@ -49,6 +56,11 @@ export class MessageService {
           id: true,
           playerName: true,
         },
+        chatroomId: {
+          id: true,
+          chatroomName: true,
+          type: true,
+        },
         body: true,
         createdAt: true,
       },
@@ -56,32 +68,4 @@ export class MessageService {
     if (messages) return messages;
     throw new HttpException("Posts not found", HttpStatus.NOT_FOUND);
   }
-
-  // finds username and retrieves all messages from this user
-  // relations links the userId column in the message entity with
-  // the id in the user entity
-  // where defines where username is the same as the given username
-  // select shows which columns should be returned
-  // https://typeorm.io/find-options#find-options
-  //   async getMessageByUsername(username: string) {
-  //     const messages = await this.messageRepository.find({
-  //       relations: {
-  //         userId: true,
-  //       },
-  //       where: {
-  //         userId: {
-  //           // username: username,
-  //         },
-  //       },
-  //       select: {
-  //         userId: {
-  //           id: true,
-  //         },
-  //         body: true,
-  //         createdAt: true,
-  //       },
-  //     });
-  //     if (messages) return messages;
-  //     throw new HttpException("Posts not found", HttpStatus.NOT_FOUND);
-  //   }
 }
