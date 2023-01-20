@@ -42,7 +42,7 @@ export class Chatroom {
 
   @OneToMany(() => Penalty, (penalty: Penalty) => penalty.chatroom)
   @JoinColumn()
-  public penalty!: Penalty;
+  public penalty!: Penalty[];
 
   @ManyToOne(() => User, (owner: User) => owner.chatroomOwner, {
     onDelete: "CASCADE",

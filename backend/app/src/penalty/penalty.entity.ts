@@ -27,9 +27,6 @@ export class Penalty {
   @ManyToOne(() => User, (user: User) => user.penalty)
   user!: User;
 
-  @ManyToOne(() => Chatroom, (chatroom: Chatroom) => chatroom.penalty, {
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
+  @ManyToOne(() => Chatroom, (chatroom: Chatroom) => chatroom.penalty)
   chatroom!: Chatroom;
 }

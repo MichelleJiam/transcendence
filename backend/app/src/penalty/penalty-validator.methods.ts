@@ -14,11 +14,3 @@ export function validatePenaltyDto(
   }
   return true;
 }
-
-// export function validateAdmin(
-//   newPenalty: Penalty,
-//   createPenaltyDto: CreatePenaltyDto,
-// ): boolean {
-//   for (let i = 0; i < newPenalty.chatroom.role.length; i++) return true;
-//   return false;
-// }
