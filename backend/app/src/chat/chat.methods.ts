@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { MessageService } from "src/message/message.service";
+import { CreatePenaltyDto } from "src/penalty/dto/create-penalty.dto";
 import { UserService } from "src/user/user.service";
 import { Repository } from "typeorm";
 import { Chatroom } from "./chat.entity";
@@ -9,7 +9,6 @@ import { Chatroom } from "./chat.entity";
 export class ChatMethod {
   constructor(
     private readonly userService: UserService,
-    private readonly messageService: MessageService,
 
     @InjectRepository(Chatroom)
     private readonly chatroomRepository: Repository<Chatroom>,
@@ -93,5 +92,26 @@ export class ChatMethod {
     });
     if (owner) return true;
     return false;
+  }
+
+  async canReceivePenalty(
+    chatroomId: number,
+    adminId: number,
+    createPenaltyDto: CreatePenaltyDto,
+  ): Promise<boolean> {
+    if ((await this.isAdminOfChatroom(adminId, chatroomId)) == false) {
+      throw new HttpException(
+        "Not allowed to give penalties.",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (
+      (await this.isOwnerOfChatroom(createPenaltyDto.user, chatroomId)) ==
+        true &&
+      createPenaltyDto.penaltyType === "ban"
+    ) {
+      throw new HttpException("Cannot ban the owner.", HttpStatus.BAD_REQUEST);
+    }
+    return true;
   }
 }

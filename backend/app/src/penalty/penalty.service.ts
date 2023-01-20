@@ -1,22 +1,23 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Chatroom } from "src/chat/chat.entity";
-import { ChatMethod } from "src/chat/chat.methods";
-import { ChatService } from "src/chat/chat.service";
 import { User } from "src/user/user.entity";
 import { Repository } from "typeorm";
 import { CreatePenaltyDto } from "./dto/create-penalty.dto";
 import { validatePenaltyDto } from "./penalty-validator.methods";
 import { Penalty } from "./penalty.entity";
+import { PenaltyMethod } from "./penalty.method";
 
 @Injectable()
 export class PenaltyService {
   constructor(
     @InjectRepository(Penalty)
     private readonly penaltyRepository: Repository<Penalty>,
+
+    private readonly penaltyMethod: PenaltyMethod,
   ) {}
 
-  async getAllPenalties() {
+  async getAllPenalties(): Promise<Penalty[]> {
     const foundPenalties = await this.penaltyRepository.find({
       order: {
         id: "asc",
@@ -29,7 +30,7 @@ export class PenaltyService {
     return foundPenalties;
   }
 
-  async getPenaltiesByChatroom(chatroomId: number) {
+  async getPenaltiesByChatroom(chatroomId: number): Promise<Penalty[]> {
     const foundPenalties = await this.penaltyRepository.find({
       relations: {
         user: true,
@@ -44,85 +45,89 @@ export class PenaltyService {
     return foundPenalties;
   }
 
+  async findBan(chatroomId: number, userId: number): Promise<Penalty | null> {
+    const foundBan = await this.penaltyRepository.findOne({
+      relations: {
+        user: true,
+        chatroom: true,
+      },
+      where: {
+        penaltyType: "ban",
+        user: {
+          id: userId,
+        },
+        chatroom: {
+          id: chatroomId,
+        },
+      },
+    });
+    return foundBan;
+  }
+
+  async isBannedFromChatroom(
+    chatroomId: number,
+    userId: number,
+  ): Promise<boolean> {
+    const foundBan = await this.findBan(chatroomId, userId);
+    if (foundBan) {
+      const banDate = foundBan.time;
+      if (banDate !== undefined) {
+        const currentTime = new Date();
+        if (this.penaltyMethod.getMinutesDiff(currentTime, banDate) < 2)
+          return true;
+      }
+    }
+    return false;
+  }
+
+  async findMute(chatroomId: number, userId: number): Promise<Penalty | null> {
+    const foundMute = await this.penaltyRepository.findOne({
+      relations: {
+        user: true,
+        chatroom: true,
+      },
+      where: {
+        penaltyType: "mute",
+        user: {
+          id: userId,
+        },
+        chatroom: {
+          id: chatroomId,
+        },
+      },
+    });
+    return foundMute;
+  }
+
+  async isMutedFromChatroom(
+    chatroomId: number,
+    userId: number,
+  ): Promise<boolean> {
+    const foundMute = await this.findMute(chatroomId, userId);
+    if (foundMute) {
+      const muteDate = foundMute.time;
+      if (muteDate !== undefined) {
+        const currentTime = new Date();
+        if (this.penaltyMethod.getMinutesDiff(currentTime, muteDate) < 2)
+          return true;
+      }
+    }
+    return false;
+  }
+
   async createPenalty(
     chatroom: Chatroom,
     user: User,
     createPenaltyDto: CreatePenaltyDto,
   ): Promise<Penalty> {
     if (validatePenaltyDto(createPenaltyDto) === true) {
-      const newPenalty = new Penalty();
-      newPenalty.chatroom = chatroom;
-      newPenalty.user = user;
-      newPenalty.penaltyType = createPenaltyDto.penaltyType;
+      const newPenalty = this.penaltyMethod.createPenaltyEntity(
+        chatroom,
+        user,
+        createPenaltyDto,
+      );
       return this.penaltyRepository.save(newPenalty);
     }
     throw new HttpException("Incorrect Penalty Type.", HttpStatus.BAD_REQUEST);
   }
-
-  // async createPenalty(createPenaltyDto: CreatePenaltyDto): Promise<Penalty> {
-  //   if (validatePenaltyDto(createPenaltyDto) === true) {
-  //     const newPenalty = this.penaltyRepository.create(createPenaltyDto);
-  //     if (validateAdmin(newPenalty, createPenaltyDto) == false) {
-  //       throw new HttpException(
-  //         "unauthorised penalty giving",
-  //         HttpStatus.BAD_REQUEST,
-  //       );
-  //     }
-  //     return this.penaltyRepository.save(newPenalty);
-  //   }
-  //   throw new HttpException("Unable to create penalty", HttpStatus.BAD_REQUEST);
-  // }
-
-  // async getAllPenalties(): Promise<Penalty[]> {
-  //   const foundPenalties = await this.penaltyRepository.find({
-  //     relations: {
-  //       user: true,
-  //       chatroom: true,
-  //     },
-  //     select: {
-  //       id: true,
-  //       penaltyType: true,
-  //       time: true,
-  //       user: {
-  //         id: true,
-  //         playerName: true,
-  //       },
-  //       chatroom: {
-  //         id: true,
-  //         chatroomName: true,
-  //         type: true,
-  //         admin: true,
-  //         member: true,
-  //       },
-  //     },
-  //   });
-  //   return foundPenalties;
-  // }
-
-  // async getPenaltiesByUserId(id: number): Promise<Penalty> {
-  //   const chatroom = await this.penaltyRepository.findOneBy({
-  //     user: {
-  //       id: id,
-  //     },
-  //   });
-  //   if (!chatroom) {
-  //     throw new HttpException("User has no penalties", HttpStatus.NOT_FOUND);
-  //   }
-  //   return chatroom;
-  // }
-
-  // async getPenaltiesByChatId(id: number): Promise<Penalty> {
-  //   const chatroom = await this.penaltyRepository.findOneBy({
-  //     chatroom: {
-  //       id: id,
-  //     },
-  //   });
-  //   if (!chatroom) {
-  //     throw new HttpException(
-  //       "Chatroom has no penalties",
-  //       HttpStatus.NOT_FOUND,
-  //     );
-  //   }
-  //   return chatroom;
-  // }
 }
