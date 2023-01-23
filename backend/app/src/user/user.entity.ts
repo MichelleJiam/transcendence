@@ -5,6 +5,7 @@ export enum UserStatus {
   ONLINE = "online",
   OFFLINE = "offline",
   GAME = "game",
+  MATCHMAKING = "matchmaking",
 }
 
 import {

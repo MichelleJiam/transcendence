@@ -17,6 +17,7 @@
         />
         <hr />
       </div>
+      <!-- class attribute can be added to style element -->
       <div v-for="player in searchedPlayers" :key="player.id">
         {{ player.playerName }}
         <div
@@ -29,10 +30,17 @@
               : { 'background-color': 'orange' },
           ]"
         ></div>
+        <!-- if status friend, display unfriend button, if status pending, display pendig button -->
         <button @click="sendFriendRequest(player)">Add friend</button>
-        <!--  -->
-        <!-- use computed property to disable button if user id is equal to player id?s -->
         <hr />
+      </div>
+
+      <div style="margin-top: 50px">
+        <h2>Friend list</h2>
+        <p v-if="friendList.length == 0"><i>No friends</i></p>
+        <p v-for="friend in friendList" v-else :key="friend.id">
+          {{ friend.playerName }}
+        </p>
       </div>
     </div>
   </main>
@@ -53,34 +61,56 @@ type User = {
 };
 
 const users = ref(Array<User>());
+const friendList = ref(Array<User>());
 const searchQuery = ref("");
 
 onMounted(async () => {
   const res = await apiRequest("/user/", "get");
   users.value = res.data;
+  updateFriendList();
 });
 
+/* LEFT OFF HERE, IMPLEMENT THIS FUNCTIONALITY, USED FOR BUTTON DISPLAY */
+async function checkFriendshipStatus(player: User) {
+  await apiRequest(`/friend/relation/${userId}/${player.id}`, "get");
+}
+
+async function updateFriendList() {
+  const res = await apiRequest(`/friend/${userId}`, "get");
+  friendList.value = res.data;
+}
+
+/* called twice, i think when the app is created, how to fix? */
 const searchedPlayers = computed(() => {
   return users.value.filter((player) => {
-    return (
-      player.playerName
-        .toUpperCase()
-        .toLowerCase()
-        .indexOf(searchQuery.value.toLowerCase()) != -1
-    );
+    if (player.playerName && player.id != Number(userId)) {
+      return (
+        player.playerName
+          .toUpperCase()
+          .toLowerCase()
+          .indexOf(searchQuery.value.toLowerCase()) != -1
+      );
+    }
   });
 });
 
 async function sendFriendRequest(player: User) {
-  console.log("source = ", userId, " target = ", player.id);
-  const res = await apiRequest("/friend/request", "post", {
-    data: {
-      source: userId,
-      target: player.id,
-      status: "PENDING",
-    },
-  });
-  console.log(res.data);
+  if (userId) {
+    try {
+      await apiRequest("/friend/request", "post", {
+        data: {
+          source: userId,
+          target: player.id,
+          status: "FRIEND",
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return;
+    }
+    await updateFriendList();
+    alert("Friend request send");
+  } else console.log("No userId provided in url");
 }
 </script>
 
