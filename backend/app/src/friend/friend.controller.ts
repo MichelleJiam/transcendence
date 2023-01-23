@@ -4,11 +4,12 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpException,
+  HttpStatus,
   Logger,
   Param,
   ParseIntPipe,
   Post,
-  ValidationPipe,
 } from "@nestjs/common";
 import { CreateRelationDto } from "./dto/create-relation.dto";
 import { FriendService } from "./friend.service";
@@ -28,15 +29,31 @@ export class FriendController {
     return await this.friendService.getAllRelations();
   }
 
+  /* LEFT OFF HERE, IMPLEMENT THIS FUNCTIONALITY */
+  @Get("/relation/:source/:target")
+  async getSingleRelation(
+    @Param("source", ParseIntPipe) source: number,
+    @Param("target", ParseIntPipe) target: number,
+  ) {
+    this.logger.log("Hit the getSingleRelation route");
+    console.log(source);
+    console.log(target);
+  }
+
   @Get(":id")
   async getFriendsForUser(@Param("id", ParseIntPipe) id: number) {
     this.logger.log("Hit the getFriendsForUser route");
     return await this.friendService.getFriendsForUser(id);
   }
 
-  @Post("/request") // request/:from/:to
+  @Post("/request")
   async friendRequest(@Body() input: CreateRelationDto) {
-    // check if request has already been send
+    this.logger.log("Hit the friendRequest route");
+    await this.friendService
+      .checkRequest(input.source, input.target)
+      .catch(function () {
+        throw new HttpException("Bad Request", HttpStatus.BAD_REQUEST);
+      });
     return await this.friendService.friendRequest(input);
   }
 
