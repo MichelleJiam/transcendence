@@ -7,11 +7,13 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Penalty } from "src/penalty/penalty.entity";
+import { Blocklist } from "src/blocklist/blocklist.entity";
 
 @Entity()
 export class User {
@@ -45,6 +47,14 @@ export class User {
   @OneToMany(() => Penalty, (penalty: Penalty) => penalty.user)
   @JoinColumn()
   public penalty!: Penalty[];
+
+  @OneToMany(() => Blocklist, (blocklist: Blocklist) => blocklist.user)
+  @JoinColumn()
+  public blocklist!: Blocklist[];
+
+  @ManyToOne(() => Blocklist, (blocklist: Blocklist) => blocklist.blockedUser)
+  @JoinColumn()
+  public blocked!: Blocklist;
 
   @OneToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.owner)
   @JoinColumn()
