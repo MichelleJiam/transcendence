@@ -27,8 +27,11 @@
     "@nestjs/core": "^9.0.0",
     "@nestjs/jwt": "^10.0.1",
     "@nestjs/passport": "^9.0.0",
+    "@nestjs/mapped-types": "^1.2.0",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/platform-socket.io": "^9.2.1",
     "@nestjs/typeorm": "^9.0.1",
+    "@nestjs/websockets": "^9.2.1",
     "@sideway/address": "^5.0.0",
     "@sideway/formula": "^3.0.0",
     "@sideway/pinpoint": "^2.0.0",
@@ -48,6 +51,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
+    "socket.io-client": "^4.5.4",
     "typeorm": "^0.3.10"
   },
   "devDependencies": {
@@ -61,6 +65,7 @@
     "@types/node": "^16.0.0",
     "@types/passport-jwt": "^3.0.8",
     "@types/supertest": "^2.0.11",
+    "@types/validator": "^13.7.10",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.1",
