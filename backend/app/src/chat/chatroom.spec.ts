@@ -10,13 +10,56 @@ import {
   swapOwner,
   addAdmin,
   addMember,
-} from "../../src/chat/chat-validators.methods";
+} from "./chat-validators.methods";
 import { CreateChatroomDto } from "src/chat/dto/create-chat.dto";
 import { UpdateChatroomDto } from "src/chat/dto/update-chat.dto";
 import { User } from "src/user/user.entity";
 import { Chatroom } from "src/chat/chat.entity";
+import { HttpException } from "@nestjs/common";
 
-describe("external validators of chatroom dtos (e2e)", () => {
+let globalUser: User = new User();
+globalUser.id = 1;
+globalUser.intraId = "0";
+globalUser.password = "password";
+globalUser.playerName = "testUser";
+globalUser.twoFA = false;
+
+let globalUserTwo: User = new User();
+globalUserTwo.id = 2;
+globalUserTwo.intraId = "1";
+globalUserTwo.password = "password";
+globalUserTwo.playerName = "testUserTwo";
+globalUserTwo.twoFA = false;
+
+let globalChatPublic = new Chatroom();
+globalChatPublic.owner = globalUser;
+globalChatPublic.member = [globalUser];
+globalChatPublic.admin = [globalUser];
+globalChatPublic.type = "public";
+globalChatPublic.chatroomName = "test";
+
+let globalChatPrivate = new Chatroom();
+globalChatPrivate.owner = globalUser;
+globalChatPrivate.member = [globalUser];
+globalChatPrivate.admin = [globalUser];
+globalChatPrivate.type = "private";
+globalChatPrivate.chatroomName = "test";
+
+let globalChatPassword = new Chatroom();
+globalChatPassword.owner = globalUser;
+globalChatPassword.member = [globalUser];
+globalChatPassword.admin = [globalUser];
+globalChatPassword.type = "password";
+globalChatPassword.chatroomName = "test";
+
+let globalChatDM = new Chatroom();
+globalChatDM.owner = globalUser;
+globalChatDM.member = [globalUser];
+globalChatDM.admin = [globalUser];
+globalChatDM.type = "DM";
+globalChatDM.chatroomName = "test";
+
+describe("validateChatroomType valid input", () => {
   // validateChatroomType
   it("validateChatroomType functionality (public), return true", () => {
     expect(validateChatroomType("public")).toEqual(true);
@@ -30,30 +73,37 @@ describe("external validators of chatroom dtos (e2e)", () => {
   it("validateChatroomType functionality (DM), return true", () => {
     expect(validateChatroomType("DM")).toEqual(true);
   });
-  it("validateChatroomType functionality (test), should throw", () => {
-    expect(validateChatroomType("test")).toThrow();
-  });
+});
 
+describe("validateChatroomType invalid input", () => {
+  it("validateChatroomType functionality (test), should throw", () => {
+    expect(() => validateChatroomType("test")).toThrow(HttpException);
+  });
+});
+
+describe("validateChatroomName dtos valid input", () => {
   // validateChatroomName
   it("validateChatroomName functionality (test), return true", () => {
     expect(validateChatroomName("test")).toEqual(true);
   });
   it('validateChatroomName functionality (""), should throw', () => {
-    expect(validateChatroomName("")).toThrow();
+    expect(() => validateChatroomName("")).toThrow();
   });
   it('validateChatroomName functionality ("      "), should throw', () => {
-    expect(validateChatroomName("      ")).toThrow();
+    expect(() => validateChatroomName("      ")).toThrow();
   });
+});
 
+describe("external validators of chatroom dtos valid input", () => {
   // validateChatroomPasswordSet
   it("validateChatroomPasswordSet functionality, return true", () => {
     expect(validateChatroomPasswordSet("test")).toEqual(true);
   });
   it('validateChatroomPasswordSet functionality (""), should throw', () => {
-    expect(validateChatroomPasswordSet("")).toThrow();
+    expect(() => validateChatroomPasswordSet("")).toThrow();
   });
   it('validateChatroomPasswordSet functionality ("       "), should throw', () => {
-    expect(validateChatroomPasswordSet("         ")).toThrow();
+    expect(() => validateChatroomPasswordSet("         ")).toThrow();
   });
 
   // validateChatroomDto
@@ -71,11 +121,11 @@ describe("external validators of chatroom dtos (e2e)", () => {
     createChatroomDto.chatroomName = "test";
     createChatroomDto.user = 2;
     createChatroomDto.password = "";
-    expect(validateChatroomDto(createChatroomDto)).toThrow();
+    expect(() => validateChatroomDto(createChatroomDto)).toThrow();
   });
 });
 
-describe("Creating chatroom entities", () => {
+describe("Creating chatroom entities, should work", () => {
   let createChatroomDtoPublic: CreateChatroomDto = new CreateChatroomDto();
   createChatroomDtoPublic.type = "public";
   createChatroomDtoPublic.chatroomName = "test";
@@ -83,11 +133,23 @@ describe("Creating chatroom entities", () => {
   createChatroomDtoPublic.password = "";
 
   let createChatroomDtoDM: CreateChatroomDto = new CreateChatroomDto();
-  createChatroomDtoDM.type = "public";
+  createChatroomDtoDM.type = "DM";
   createChatroomDtoDM.chatroomName = "test";
-  createChatroomDtoPublic.user = 1;
-  createChatroomDtoPublic.otherUser = 2;
+  createChatroomDtoDM.user = 1;
+  createChatroomDtoDM.otherUser = 2;
   createChatroomDtoDM.password = "";
+
+  let createChatroomDtoPassword: CreateChatroomDto = new CreateChatroomDto();
+  createChatroomDtoPassword.type = "password";
+  createChatroomDtoPassword.chatroomName = "test";
+  createChatroomDtoPassword.user = 1;
+  createChatroomDtoPassword.password = "testpw";
+
+  let createChatroomDtoPrivate: CreateChatroomDto = new CreateChatroomDto();
+  createChatroomDtoPrivate.type = "private";
+  createChatroomDtoPrivate.chatroomName = "test";
+  createChatroomDtoPrivate.user = 1;
+  createChatroomDtoPrivate.password = "";
 
   let updatechatroomDto: UpdateChatroomDto = new UpdateChatroomDto();
   updatechatroomDto.chatroomName = "test2";
@@ -107,18 +169,53 @@ describe("Creating chatroom entities", () => {
   userTwo.twoFA = false;
 
   let chatroomresult = new Chatroom();
-  chatroomresult.id = 1;
   chatroomresult.owner = user;
   chatroomresult.member = [user];
   chatroomresult.admin = [user];
-  chatroomresult.password = "";
   chatroomresult.type = "public";
   chatroomresult.chatroomName = "test";
 
+  let chatroomresultPassword = new Chatroom();
+  chatroomresultPassword.owner = user;
+  chatroomresultPassword.member = [user];
+  chatroomresultPassword.admin = [user];
+  chatroomresultPassword.type = "password";
+  chatroomresultPassword.password = "testpw";
+  chatroomresultPassword.chatroomName = "test";
+
+  let chatroomresultPrivate = new Chatroom();
+  chatroomresultPrivate.owner = user;
+  chatroomresultPrivate.member = [user];
+  chatroomresultPrivate.admin = [user];
+  chatroomresultPrivate.type = "private";
+  chatroomresultPrivate.chatroomName = "test";
+
+  let chatroomresultDM = new Chatroom();
+  chatroomresultDM.owner = user;
+  chatroomresultDM.member = [user, userTwo];
+  chatroomresultDM.admin = [user, userTwo];
+  chatroomresultDM.type = "DM";
+  chatroomresultDM.chatroomName = "test";
+
   // creating an entity
-  it("createChatroomEntity test, should work", () => {
+  it("createChatroomEntity test (public), should work", () => {
     expect(createChatroomEntity(createChatroomDtoPublic, user)).toEqual(
       chatroomresult,
+    );
+  });
+  it("createChatroomEntity test (password), should work", () => {
+    expect(createChatroomEntity(createChatroomDtoPassword, user)).toEqual(
+      chatroomresultPassword,
+    );
+  });
+  it("createChatroomEntity test (private), should work", () => {
+    expect(createChatroomEntity(createChatroomDtoPrivate, user)).toEqual(
+      chatroomresultPrivate,
+    );
+  });
+  it("createChatroomEntity test (DM), should work", () => {
+    expect(createChatroomEntity(createChatroomDtoDM, user, userTwo)).toEqual(
+      chatroomresultDM,
     );
   });
 });

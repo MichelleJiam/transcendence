@@ -56,6 +56,30 @@ export class ChatMethod {
     return false;
   }
 
+  async hasMultipleMembersInChatroom(chatroomId: number): Promise<boolean> {
+    const member = await this.chatroomRepository.findOne({
+      relations: {
+        member: true,
+      },
+      where: {
+        id: chatroomId,
+      },
+    });
+    if (member) {
+      if (member.member.length > 1) return true;
+    }
+    return false;
+  }
+
+  async onlyOnePersonInChatroom(chatroomId: number): Promise<boolean> {
+    if (
+      (await this.hasMultipleAdminsInChatroom(chatroomId)) == true ||
+      (await this.hasMultipleMembersInChatroom(chatroomId)) == true
+    )
+      return true;
+    return false;
+  }
+
   async isMemberOfChatroom(
     userId: number,
     chatroomId: number,
