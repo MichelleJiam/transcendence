@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { User } from "./user/user.entity";
 import { Message } from "./message/message.entity";
 import { Avatar } from "./avatar/avatar.entity";
+import { Game } from "./game/entities/game.entity";
 
 @Module({
   imports: [
@@ -17,8 +18,8 @@ import { Avatar } from "./avatar/avatar.entity";
         username: configService.get("POSTGRES_USER"),
         password: configService.get("POSTGRES_PASSWORD"),
         database: configService.get("POSTGRES_DB"),
-        entities: [User, Message, Avatar],
-        synchronize: true,
+        entities: [User, Message, Avatar, Game],
+        synchronize: true /* automatically updates database schema */,
       }),
     }),
   ],

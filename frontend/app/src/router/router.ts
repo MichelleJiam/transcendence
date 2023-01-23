@@ -20,6 +20,7 @@ const routes: {
     alias: ["/home", "/homepage"],
   },
   { path: "/login", component: LoginPage, name: "login" },
+  { path: "/:id/game", component: GamePage } /* temp workaround */,
   { path: "/game", component: GamePage },
   { path: "/:id/account", component: UserPage } /* temp workaround */,
   { path: "/account", component: UserPage, alias: ["/user"] },

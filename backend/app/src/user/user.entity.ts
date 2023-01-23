@@ -1,5 +1,7 @@
 import { Message } from "src/message/message.entity";
 import { Avatar } from "src/avatar/avatar.entity";
+import { Game } from "src/game/entities/game.entity";
+
 import {
   Column,
   Entity,
@@ -56,4 +58,18 @@ export class User {
   //   nullable: false, // column cannot be empty
   // })
   // public email!: string; // email must be unique
+
+  @OneToMany(() => Game, (games: Game) => games.winnerId, {
+    eager: true,
+    nullable: true,
+  })
+  @JoinColumn()
+  public wins!: Game[];
+
+  @OneToMany(() => Game, (games: Game) => games.loserId, {
+    eager: true,
+    nullable: true,
+  })
+  @JoinColumn()
+  public losses!: Game[];
 }
