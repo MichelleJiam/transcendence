@@ -28,7 +28,7 @@
             v-model="playerName"
             class="account-settings-input"
             label="Player Name: "
-            :value="playerName"
+            :placeholder="playerName"
           />
           <span class="validate"
             ><i>{{ message }}</i></span
