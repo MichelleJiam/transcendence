@@ -48,13 +48,16 @@ export class User {
   @JoinColumn()
   public penalty!: Penalty[];
 
-  @OneToMany(() => Blocklist, (blocklist: Blocklist) => blocklist.user)
+  @OneToMany(
+    () => Blocklist,
+    (blocklist: Blocklist) => blocklist.blocklistOwner,
+  )
   @JoinColumn()
-  public blocklist!: Blocklist[];
+  public blocklistOwner!: Blocklist[];
 
-  @ManyToOne(() => Blocklist, (blocklist: Blocklist) => blocklist.blockedUser)
+  @OneToMany(() => Blocklist, (blocklist: Blocklist) => blocklist.blockedUser)
   @JoinColumn()
-  public blocked!: Blocklist;
+  public blockedUser!: Chatroom[];
 
   @OneToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.owner)
   @JoinColumn()

@@ -25,6 +25,7 @@ import { Message } from "src/message/message.entity";
 import { PenaltyService } from "src/penalty/penalty.service";
 import { CreatePenaltyDto } from "src/penalty/dto/create-penalty.dto";
 import { Penalty } from "src/penalty/penalty.entity";
+import { BlocklistService } from "src/blocklist/blocklist.service";
 
 @Injectable()
 export class ChatService {
@@ -35,6 +36,7 @@ export class ChatService {
     private readonly messageService: MessageService,
     private readonly chatMethod: ChatMethod,
     private readonly penaltyService: PenaltyService,
+    private readonly blocklistService: BlocklistService,
   ) {}
 
   // GETTERS
@@ -101,6 +103,19 @@ export class ChatService {
 
   async getMessagesFromChatroom(chatroomId: number): Promise<Message[]> {
     return this.messageService.getMessagesFromChatroom(chatroomId);
+  }
+
+  async getMessagesFromChatroomForUser(
+    chatroomId: number,
+    userId: number,
+  ): Promise<Message[]> {
+    const messages = this.messageService.getMessagesFromChatroom(chatroomId);
+    const blocklist = await this.blocklistService.getBlockedUsersForUser(
+      userId,
+    );
+
+    // where userId is not equivalent to anyone on user's blocklist nor if that user is on someone ELSE's block list
+    return messages;
   }
 
   async getPenaltiesByChatroom(chatroomId: number) {

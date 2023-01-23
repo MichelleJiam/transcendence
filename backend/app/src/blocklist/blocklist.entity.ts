@@ -1,17 +1,17 @@
 import { User } from "src/user/user.entity";
-import { Entity, PrimaryGeneratedColumn, ManyToOne, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
 
 @Entity()
 export class Blocklist {
   @PrimaryGeneratedColumn({
     name: "BlockId",
   })
-  id?: number;
+  id!: number;
 
   // relationships
-  @ManyToOne(() => User, (user: User) => user.blocklist)
-  user!: User;
+  @ManyToOne(() => User, (user: User) => user.blocklistOwner)
+  blocklistOwner!: User;
 
-  @OneToMany(() => User, (user: User) => user.blocked)
-  blockedUser!: User[];
+  @ManyToOne(() => User, (user: User) => user.blockedUser)
+  blockedUser!: User;
 }
