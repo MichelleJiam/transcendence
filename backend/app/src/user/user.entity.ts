@@ -59,17 +59,17 @@ export class User {
   // })
   // public email!: string; // email must be unique
 
+  @JoinColumn()
   @OneToMany(() => Game, (games: Game) => games.winnerId, {
     eager: true,
     nullable: true,
   })
-  @JoinColumn()
   public wins!: Game[];
 
+  @JoinColumn()
   @OneToMany(() => Game, (games: Game) => games.loserId, {
     eager: true,
     nullable: true,
   })
-  @JoinColumn()
   public losses!: Game[];
 }
