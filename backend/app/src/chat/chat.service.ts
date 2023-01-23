@@ -256,7 +256,6 @@ export class ChatService {
         chatroomId,
       )) == true
     ) {
-      // if admin already admin do nothing
       if (
         (await this.chatMethod.isAdminOfChatroom(
           addAdminDto.newAdmin,
@@ -322,7 +321,7 @@ export class ChatService {
     );
   }
 
-  // UPDATE - REMOVING
+  // UPDATE - REMOVING/DELETING
   async deleteAdminFromChatroom(
     chatroomId: number,
     adminId: number,
@@ -383,6 +382,7 @@ export class ChatService {
     return await this.chatroomRepository.save(updatedChatroom);
   }
 
+  // DELETE CHAT
   async deleteChatroom(chatroomId: number): Promise<void> {
     await this.chatroomRepository
       .createQueryBuilder("chatroom")
