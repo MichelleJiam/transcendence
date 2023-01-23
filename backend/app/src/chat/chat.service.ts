@@ -107,6 +107,40 @@ export class ChatService {
     return this.penaltyService.getPenaltiesByChatroom(chatroomId);
   }
 
+  async getChatroomsOfUser(userId: number): Promise<Chatroom[]> {
+    const chatrooms = await this.chatroomRepository.find({
+      relations: {
+        message: true,
+        owner: true,
+        admin: true,
+        member: true,
+        penalty: true,
+      },
+      where: {
+        member: {
+          id: userId,
+        },
+      },
+    });
+    return chatrooms;
+  }
+
+  async getChatroomByType(type: string): Promise<Chatroom[]> {
+    const chatrooms = await this.chatroomRepository.find({
+      relations: {
+        message: true,
+        owner: true,
+        admin: true,
+        member: true,
+        penalty: true,
+      },
+      where: {
+        type: type,
+      },
+    });
+    return chatrooms;
+  }
+
   // POST
   async createChatroom(
     createChatroomDto: CreateChatroomDto,
@@ -321,7 +355,40 @@ export class ChatService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const updatedChatrom = deleteFromChatroom(chatroom, userId);
-    return await this.chatroomRepository.save(updatedChatrom);
+    const updatedChatroom = deleteFromChatroom(chatroom, userId);
+    return await this.chatroomRepository.save(updatedChatroom);
+  }
+
+  async leaveChatroom(
+    chatroomId: number,
+    toDeleteId: number,
+  ): Promise<Chatroom | string> {
+    const chatroom = await this.getChatroomInfoById(chatroomId);
+    if (await this.chatMethod.onlyOnePersonInChatroom(chatroomId)) {
+      this.deleteChatroom(chatroomId);
+      return "Chatroom has been deleted.";
+    }
+    if (
+      (await this.chatMethod.isOwnerOfChatroom(toDeleteId, chatroomId)) == true
+    ) {
+      if (
+        (await this.chatMethod.hasMultipleAdminsInChatroom(chatroomId)) == true
+      ) {
+        swapOwner(chatroom, chatroom.admin[1]);
+      } else {
+        swapOwner(chatroom, chatroom.member[1]);
+      }
+    }
+    const updatedChatroom = deleteFromChatroom(chatroom, toDeleteId);
+    return await this.chatroomRepository.save(updatedChatroom);
+  }
+
+  async deleteChatroom(chatroomId: number): Promise<void> {
+    await this.chatroomRepository
+      .createQueryBuilder("chatroom")
+      .delete()
+      .from(Chatroom)
+      .where("id = :id", { id: chatroomId })
+      .execute();
   }
 }

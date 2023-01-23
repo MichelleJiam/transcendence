@@ -46,6 +46,16 @@ export class ChatController {
     }
   }
 
+  @Get("user/:userId")
+  async getChatroomsOfUser(@Param("userId", ParseIntPipe) userId: number) {
+    return this.chatroomService.getChatroomsOfUser(userId);
+  }
+
+  @Get(":type")
+  async getChatroomByType(@Param("type") type: string) {
+    return this.chatroomService.getChatroomByType(type);
+  }
+
   @Get(":chatroomId/messages")
   async getMessagesFromChatroom(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,

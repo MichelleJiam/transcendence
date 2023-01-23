@@ -6,12 +6,11 @@ import { UpdateChatroomDto } from "./dto/update-chat.dto";
 
 export function validateChatroomType(type: string): boolean {
   if (
-    type != "public" &&
-    type != "password" &&
-    type != "private" &&
-    type != "DM"
+    type !== "public" &&
+    type !== "password" &&
+    type !== "private" &&
+    type !== "DM"
   ) {
-    console.log("From Backend: Invalid chatroom type");
     throw new HttpException("Invalid chatroom type", HttpStatus.BAD_REQUEST);
   }
   return true;
@@ -19,7 +18,6 @@ export function validateChatroomType(type: string): boolean {
 
 export function validateChatroomName(chatroomName: string): boolean {
   if (!chatroomName || !(chatroomName && chatroomName.trim())) {
-    console.log("From Backend: Chatroom name cannot be empty");
     throw new HttpException(
       "Chatroom name cannot be empty",
       HttpStatus.BAD_REQUEST,
@@ -30,7 +28,6 @@ export function validateChatroomName(chatroomName: string): boolean {
 
 export function validateChatroomPasswordSet(password: string): boolean {
   if (!(password && password.trim())) {
-    console.log("From Backend: Password type chatroom cannot have no password");
     throw new HttpException(
       "Password type chatroom cannot have no password",
       HttpStatus.BAD_REQUEST,
