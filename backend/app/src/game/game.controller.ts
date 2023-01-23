@@ -4,99 +4,50 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Delete,
   HttpCode,
+  Body,
+  Put,
 } from "@nestjs/common";
 import { GameService } from "./game.service";
-import { Game } from "./entities/game.entity";
+import { CreateGameDto } from "./dto/create-game.dto";
 
 @Controller("game")
 export class GameController {
   constructor(private readonly gameService: GameService) {}
 
+  /* curl http://localhost:3000/game/ */
   @Get()
   async findAll() {
-    const games = await this.gameService.findAllGames();
-    console.log(games);
+    const games = await this.gameService.findAll();
     return games;
   }
 
+  /* curl http://localhost:3000/game/48 */
   @Get(":id")
   async findOne(@Param("id") id: number) {
-    const game = await this.gameService.findOneGame(id);
-    console.log(game);
+    const game = await this.gameService.findOne(id);
     return game;
   }
 
+  /* curl -X POST -d "playerOne=5&playerTwo=6&status=playing" http://localhost:3000/game/ */
   @Post()
-  create(userId: number) {
-    return this.gameService.createGame(userId);
+  async create(@Body() createGameDto: CreateGameDto) {
+    const game = await this.gameService.create(createGameDto);
+    return game;
   }
 
-  @Patch()
-  async addPlayer(game: Game, userId: number) {
-    return this.gameService.updateGame(game, userId);
+  /* curl -X PUT -d "id=55&winnerId=1&loserId=2&status=done&winnerScore=78&loserScore=3" http://localhost:3000/game */
+  @Put()
+  async update(@Body() createGameDto: CreateGameDto) {
+    const game = await this.gameService.update(createGameDto);
+    return game;
   }
 
-  // @Get(":gameId/:userId")
-  // async updateWinner(
-  //   @Param("gameId") gameId: number,
-  //   @Param("userId") userId: number,
-  // ) {
-  //   return await this.gameService.updateWinner(gameId, userId);
-  // }
-
-  @Get(":id/match")
-  async match(@Param("id", ParseIntPipe) userId: number) {
-    const game = await this.gameService.inWaitingState();
-    if (!game) {
-      // if no game in a waiting state create new game and add user to player one
-      const newGame = await this.create(userId);
-      console.log("new game: ", newGame);
-      return newGame;
-    }
-    const updatedGame = await this.addPlayer(game, userId);
-    console.log("updated game: ", this.findOne(updatedGame.id));
-    return updatedGame;
-  }
-
-  /* with delete best practice is not to return deleted resource, only return status code */
-  @Delete(":gameId/delete")
+  /* curl -X DELETE http://localhost:3000/game/48 */
+  @Delete(":id")
   @HttpCode(204) /* code for no content used for removing a resource */
-  async remove(@Param("gameId", ParseIntPipe) gameId: number) {
-    await this.gameService.removeGame(gameId);
+  async remove(@Param("id", ParseIntPipe) id: number) {
+    await this.gameService.remove(id);
   }
 }
-
-/*********************** REVISIT ***************************/
-
-// @Get("wins/:winner_id")
-// getUserWins(@Param("winner_id") winnerId: number) {
-//   return this.gameService.getUserWins(winnerId);
-// }
-
-// @Get("losses/:loser_id")
-// getUserLosses(@Param("loser_id") loserId: number) {
-//   return this.gameService.getUserLosses(loserId);
-// }
-
-// @Post(":id/create")
-// async create(
-//   @Param("id") userId: number,
-//   @Body() createGameDto: CreateGameDto,
-// ) {
-//   const game = await this.gameService.createGame(createGameDto, userId);
-//   console.log(game);
-//   return game;
-// }
-
-// @Patch(":userId/update/:gameId")
-// async update(
-//   @Param("userId") userId: number,
-//   @Param("gameId") gameId: number,
-// ) {
-//   const game = await this.gameService.updateGame(gameId, userId);
-//   console.log(game);
-//   return game;
-// }

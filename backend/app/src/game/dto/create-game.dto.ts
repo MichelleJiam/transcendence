@@ -1,6 +1,7 @@
 import { User } from "src/user/user.entity";
 
 export class CreateGameDto {
+  id!: number;
   playerOne!: number;
   playerTwo!: number;
   winnerId!: User;
@@ -8,7 +9,4 @@ export class CreateGameDto {
   winnerScore!: number;
   loserScore!: number;
   status!: string;
-  // users!: number[];
 }
-
-/* list all properties we expect */
