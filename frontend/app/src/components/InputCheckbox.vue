@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label :for="id"> {{ label }} </label>
+    <!-- <label :for="id"> {{ label }} </label> -->
     <input
       :id="id"
       type="checkbox"
