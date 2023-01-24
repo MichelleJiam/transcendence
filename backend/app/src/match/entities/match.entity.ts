@@ -5,6 +5,10 @@ export class Match {
   @PrimaryGeneratedColumn({})
   public id!: number;
 
-  @Column("int", { array: true })
-  public players!: number[];
+  @Column({
+    nullable: true,
+  })
+  public playerId!: number;
+
+  /* maybe also store if they want to use special features, aka game type */
 }
