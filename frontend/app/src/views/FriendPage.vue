@@ -31,7 +31,17 @@
           ]"
         ></div>
         <!-- if status friend, display unfriend button, if status pending, display pendig button -->
-        <button @click="sendFriendRequest(player)">Add friend</button>
+        <!--
+          FRIEND status doesn't matter if your source / taget
+          PENDING also be for both sides
+        -->
+        <button
+          v-if="player.relation == 'NORELATION'"
+          @click="sendFriendRequest(player)"
+        >
+          Add friend
+        </button>
+        <button v-else style="background-color: red">Unfriend</button>
         <hr />
       </div>
 
@@ -46,6 +56,8 @@
   </main>
 </template>
 
+<!-- MOVE ON WITH IMPLEMENTING FRIEND REQUESTS -->
+
 <script setup lang="ts">
 import apiRequest from "@/utils/apiRequest";
 import { onMounted, ref, computed } from "vue";
@@ -58,6 +70,8 @@ type User = {
   id: number;
   playerName: string;
   status: string;
+  /* in relation to the current user */
+  relation: string;
 };
 
 const users = ref(Array<User>());
@@ -67,12 +81,22 @@ const searchQuery = ref("");
 onMounted(async () => {
   const res = await apiRequest("/user/", "get");
   users.value = res.data;
+  updateStatus();
   updateFriendList();
 });
 
-/* LEFT OFF HERE, IMPLEMENT THIS FUNCTIONALITY, USED FOR BUTTON DISPLAY */
 async function checkFriendshipStatus(player: User) {
-  await apiRequest(`/friend/relation/${userId}/${player.id}`, "get");
+  const res = await apiRequest(
+    `/friend/relation/${userId}/${player.id}`,
+    "get"
+  );
+  player.relation = res.data;
+}
+
+async function updateStatus() {
+  for (let i = 0; i < users.value.length; i++) {
+    checkFriendshipStatus(users.value[i]);
+  }
 }
 
 async function updateFriendList() {
@@ -109,6 +133,7 @@ async function sendFriendRequest(player: User) {
       return;
     }
     await updateFriendList();
+    await updateStatus();
     alert("Friend request send");
   } else console.log("No userId provided in url");
 }

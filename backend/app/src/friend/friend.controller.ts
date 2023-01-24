@@ -29,15 +29,20 @@ export class FriendController {
     return await this.friendService.getAllRelations();
   }
 
-  /* LEFT OFF HERE, IMPLEMENT THIS FUNCTIONALITY */
   @Get("/relation/:source/:target")
-  async getSingleRelation(
+  async getRelationStatus(
     @Param("source", ParseIntPipe) source: number,
     @Param("target", ParseIntPipe) target: number,
-  ) {
+  ): Promise<string> {
     this.logger.log("Hit the getSingleRelation route");
-    console.log(source);
-    console.log(target);
+    const res = await this.friendService.getSingleRelation(source, target);
+    if (res.length > 1) {
+      this.logger.error(
+        "Single relation expected but multiple relations returned",
+      );
+      throw new HttpException("Bad Request", HttpStatus.BAD_REQUEST);
+    } else if (res.length === 0) return "NORELATION";
+    else return res[0].status;
   }
 
   @Get(":id")
