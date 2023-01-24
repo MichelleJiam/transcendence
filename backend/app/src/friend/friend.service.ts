@@ -17,6 +17,17 @@ export class FriendService {
     return this.friendRepository.find();
   }
 
+  async getSingleRelation(source: number, target: number) {
+    const relation = await this.friendRepository.find({
+      where: [
+        { source: source, target: target },
+        { source: target, target: source },
+      ],
+      relations: ["source", "target"],
+    });
+    return relation;
+  }
+
   async getFriendsForUser(id: number) {
     const relations = await this.friendRepository.find({
       where: [
@@ -32,23 +43,11 @@ export class FriendService {
     return friends;
   }
 
-  async existingRelation(source: number, target: number) {
-    const relation = await this.friendRepository.find({
-      where: [
-        { source: source, target: target },
-        { source: target, target: source },
-      ],
-      relations: ["source", "target"],
-    });
-    if (relation.length > 0) return true;
-    return false;
-  }
-
   async checkRequest(source: number, target: number) {
     if (source == target) {
       this.logger.debug("Source is equal to target");
       throw new BadRequestException();
-    } else if (await this.existingRelation(source, target)) {
+    } else if ((await this.getSingleRelation(source, target)).length > 0) {
       this.logger.debug("Existing relation");
       throw new BadRequestException();
     }
@@ -58,10 +57,3 @@ export class FriendService {
     return this.friendRepository.save(input);
   }
 }
-
-// const relations = await this.friendRepository
-// .createQueryBuilder("f")
-// .leftJoinAndSelect("f.source", "s")
-// .leftJoinAndSelect("f.target", "t")
-// .where("s.id = :id OR t.id = :id", { id })
-// .getMany();
