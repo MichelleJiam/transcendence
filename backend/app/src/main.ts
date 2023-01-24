@@ -13,4 +13,4 @@ async function bootstrap() {
 }
 bootstrap();
 
-// export const viteNodeApp = NestFactory.create(AppModule); 
+// export const viteNodeApp = NestFactory.create(AppModule);

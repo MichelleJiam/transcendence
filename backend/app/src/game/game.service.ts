@@ -1,13 +1,7 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Game } from "./entities/game.entity";
-import { User } from "src/user/user.entity";
 import { UserService } from "src/user/user.service";
 import { CreateGameDto } from "./dto/create-game.dto";
 import { UpdateGameDto } from "./dto/update-game.dto";
@@ -72,7 +66,7 @@ export class GameService {
         .of(updateGameDto.id)
         .set(updateGameDto.loserId);
 
-      const game = await this.gameRepository
+      await this.gameRepository
         .createQueryBuilder()
         .relation(Game, "winnerId")
         .of(updateGameDto.id)
