@@ -4,6 +4,8 @@ import { Repository } from "typeorm";
 import { Match } from "./entities/match.entity";
 import { User } from "src/user/user.entity";
 import { UserService } from "src/user/user.service";
+import { Game } from "src/game/entities/game.entity";
+import { CreateMatchDto } from "./dto/create-match.dto";
 
 @Injectable()
 export class MatchService {
@@ -20,6 +22,32 @@ export class MatchService {
     return await this.matchRepository.find({});
   }
 
+  async findOne(id: number) {
+    const match = await this.matchRepository.findOne({
+      where: {
+        playerId: id,
+      },
+    });
+    return match;
+  }
+
+  async create(createMatchDto: CreateMatchDto) {
+    if (
+      (await this.userService.findUserById(createMatchDto.playerId)) == null
+    ) {
+      this.logger.debug("unable to add user to match, user does not exist");
+      throw new NotFoundException();
+    }
+    const newPlayer = await this.matchRepository.save(createMatchDto);
+    return newPlayer;
+  }
+
+  /* logic
+        search array for user
+        if user - create game, remove other user from array and return that game
+        if none - create game, add user to array and return null
+    */
+
   //   async findOne(gameId: number) {
   //     const game = await this.gameRepository.findOne({
   //       where: {
@@ -28,25 +56,6 @@ export class MatchService {
   //       relations: ["winnerId", "loserId"],
   //     });
   //     return game;
-  //   }
-
-  //   /* need to also add check to ensure they are not in playing status */
-  //   async create(createGameDto: CreateGameDto) {
-  //     const playerOne = await this.userService.findUserById(
-  //       createGameDto.playerOne,
-  //     );
-  //     if (playerOne === null) {
-  //       this.logger.debug("playerOne does not exist in database");
-  //       throw new NotFoundException();
-  //     }
-  //     const playerTwo = await this.userService.findUserById(
-  //       createGameDto.playerTwo,
-  //     );
-  //     if (playerTwo === null) {
-  //       this.logger.debug("playerTwo does not exist in database");
-  //       throw new NotFoundException();
-  //     }
-  //     return await this.gameRepository.save(createGameDto);
   //   }
 
   //   async update(updateGameDto: UpdateGameDto) {
@@ -84,5 +93,4 @@ export class MatchService {
   //       throw new NotFoundException("game does not exist, unable to delete");
   //     }
   //     await this.gameRepository.delete(gameId);
-  //   }
 }

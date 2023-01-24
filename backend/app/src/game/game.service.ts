@@ -31,19 +31,16 @@ export class GameService {
     return game;
   }
 
-  /* need to also add check to ensure they are not in playing status */
   async create(createGameDto: CreateGameDto) {
-    const playerOne = await this.userService.findUserById(
-      createGameDto.playerOne,
-    );
-    if (playerOne === null) {
+    if (
+      (await this.userService.findUserById(createGameDto.playerOne)) == null
+    ) {
       this.logger.debug("playerOne does not exist in database");
       throw new NotFoundException();
     }
-    const playerTwo = await this.userService.findUserById(
-      createGameDto.playerTwo,
-    );
-    if (playerTwo === null) {
+    if (
+      (await this.userService.findUserById(createGameDto.playerTwo)) == null
+    ) {
       this.logger.debug("playerTwo does not exist in database");
       throw new NotFoundException();
     }
