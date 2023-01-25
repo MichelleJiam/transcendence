@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  ParseIntPipe,
-  Param,
-} from "@nestjs/common";
+import { Controller, Get, ParseIntPipe, Param } from "@nestjs/common";
 import { MessageService } from "./message.service";
 
 // @Param() converts what's inside the uri that starts with : into a variable

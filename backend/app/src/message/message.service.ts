@@ -5,6 +5,7 @@ import { User } from "src/user/user.entity";
 import { Repository } from "typeorm";
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { Message } from "./message.entity";
+import { createNewMessage } from "./message.method";
 
 @Injectable()
 export class MessageService {
@@ -42,18 +43,6 @@ export class MessageService {
     return messages;
   }
 
-  async create(
-    createMessageDto: CreateMessageDto,
-    chatroom: Chatroom,
-    user: User,
-  ) {
-    const newMessage = new Message();
-    newMessage.body = createMessageDto.body;
-    newMessage.chatroomId = chatroom;
-    newMessage.userId = user;
-    return this.messageRepository.save(newMessage);
-  }
-
   async getMessageByUserId(id: number) {
     const messages = await this.messageRepository.find({
       relations: {
@@ -81,5 +70,14 @@ export class MessageService {
     });
     if (messages) return messages;
     throw new HttpException("Posts not found", HttpStatus.NOT_FOUND);
+  }
+
+  async create(
+    createMessageDto: CreateMessageDto,
+    chatroom: Chatroom,
+    user: User,
+  ) {
+    const newMessage = createNewMessage(createMessageDto.body, chatroom, user);
+    return this.messageRepository.save(newMessage);
   }
 }

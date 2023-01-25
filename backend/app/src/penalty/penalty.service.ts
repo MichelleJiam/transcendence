@@ -4,17 +4,18 @@ import { Chatroom } from "src/chat/chat.entity";
 import { User } from "src/user/user.entity";
 import { Repository } from "typeorm";
 import { CreatePenaltyDto } from "./dto/create-penalty.dto";
-import { validatePenaltyDto } from "./penalty-validator.methods";
 import { Penalty } from "./penalty.entity";
-import { PenaltyMethod } from "./penalty.method";
+import {
+  createPenaltyEntity,
+  getMinutesDiff,
+  validatePenaltyDto,
+} from "./penalty.method";
 
 @Injectable()
 export class PenaltyService {
   constructor(
     @InjectRepository(Penalty)
     private readonly penaltyRepository: Repository<Penalty>,
-
-    private readonly penaltyMethod: PenaltyMethod,
   ) {}
 
   async getAllPenalties(): Promise<Penalty[]> {
@@ -73,8 +74,7 @@ export class PenaltyService {
       const banDate = foundBan.time;
       if (banDate !== undefined) {
         const currentTime = new Date();
-        if (this.penaltyMethod.getMinutesDiff(currentTime, banDate) < 2)
-          return true;
+        if (getMinutesDiff(currentTime, banDate) < 2) return true;
       }
     }
     return false;
@@ -108,8 +108,7 @@ export class PenaltyService {
       const muteDate = foundMute.time;
       if (muteDate !== undefined) {
         const currentTime = new Date();
-        if (this.penaltyMethod.getMinutesDiff(currentTime, muteDate) < 2)
-          return true;
+        if (getMinutesDiff(currentTime, muteDate) < 2) return true;
       }
     }
     return false;
@@ -121,11 +120,7 @@ export class PenaltyService {
     createPenaltyDto: CreatePenaltyDto,
   ): Promise<Penalty> {
     if (validatePenaltyDto(createPenaltyDto) === true) {
-      const newPenalty = this.penaltyMethod.createPenaltyEntity(
-        chatroom,
-        user,
-        createPenaltyDto,
-      );
+      const newPenalty = createPenaltyEntity(chatroom, user, createPenaltyDto);
       return this.penaltyRepository.save(newPenalty);
     }
     throw new HttpException("Incorrect Penalty Type.", HttpStatus.BAD_REQUEST);
