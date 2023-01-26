@@ -50,12 +50,13 @@ globalChatPassword.owner = globalUser;
 globalChatPassword.member = [globalUser];
 globalChatPassword.admin = [globalUser];
 globalChatPassword.type = "password";
+globalChatPassword.password = "testpw";
 globalChatPassword.chatroomName = "test";
 
 let globalChatDM = new Chatroom();
 globalChatDM.owner = globalUser;
-globalChatDM.member = [globalUser];
-globalChatDM.admin = [globalUser];
+globalChatDM.member = [globalUser, globalUserTwo];
+globalChatDM.admin = [globalUser, globalUserTwo];
 globalChatDM.type = "DM";
 globalChatDM.chatroomName = "test";
 
@@ -89,6 +90,7 @@ describe("validateChatroomName dtos valid input", () => {
   it('validateChatroomName functionality (""), should throw', () => {
     expect(() => validateChatroomName("")).toThrow();
   });
+
   it('validateChatroomName functionality ("      "), should throw', () => {
     expect(() => validateChatroomName("      ")).toThrow();
   });
@@ -113,6 +115,7 @@ describe("external validators of chatroom dtos valid input", () => {
     createChatroomDto.chatroomName = "test";
     createChatroomDto.user = 2;
     createChatroomDto.password = "";
+
     expect(validateChatroomDto(createChatroomDto)).toEqual(true);
   });
   it("validateChatroomDto functionality, should throw", () => {
@@ -121,11 +124,12 @@ describe("external validators of chatroom dtos valid input", () => {
     createChatroomDto.chatroomName = "test";
     createChatroomDto.user = 2;
     createChatroomDto.password = "";
+
     expect(() => validateChatroomDto(createChatroomDto)).toThrow();
   });
 });
 
-describe("Creating chatroom entities, should work", () => {
+describe("Creating chatroom entities, should work, gave one dud to s", () => {
   let createChatroomDtoPublic: CreateChatroomDto = new CreateChatroomDto();
   createChatroomDtoPublic.type = "public";
   createChatroomDtoPublic.chatroomName = "test";
@@ -151,72 +155,44 @@ describe("Creating chatroom entities, should work", () => {
   createChatroomDtoPrivate.user = 1;
   createChatroomDtoPrivate.password = "";
 
+  let createChatroomDtoBad: CreateChatroomDto = new CreateChatroomDto();
+  createChatroomDtoBad.type = "team blu";
+  createChatroomDtoBad.chatroomName = "test";
+  createChatroomDtoBad.user = 1;
+  createChatroomDtoBad.password = "";
+
   let updatechatroomDto: UpdateChatroomDto = new UpdateChatroomDto();
   updatechatroomDto.chatroomName = "test2";
 
-  let user: User = new User();
-  user.id = 1;
-  user.intraId = "0";
-  user.password = "password";
-  user.playerName = "testUser";
-  user.twoFA = false;
-
-  let userTwo: User = new User();
-  userTwo.id = 2;
-  userTwo.intraId = "1";
-  userTwo.password = "password";
-  userTwo.playerName = "testUser2";
-  userTwo.twoFA = false;
-
-  let chatroomresult = new Chatroom();
-  chatroomresult.owner = user;
-  chatroomresult.member = [user];
-  chatroomresult.admin = [user];
-  chatroomresult.type = "public";
-  chatroomresult.chatroomName = "test";
-
-  let chatroomresultPassword = new Chatroom();
-  chatroomresultPassword.owner = user;
-  chatroomresultPassword.member = [user];
-  chatroomresultPassword.admin = [user];
-  chatroomresultPassword.type = "password";
-  chatroomresultPassword.password = "testpw";
-  chatroomresultPassword.chatroomName = "test";
-
-  let chatroomresultPrivate = new Chatroom();
-  chatroomresultPrivate.owner = user;
-  chatroomresultPrivate.member = [user];
-  chatroomresultPrivate.admin = [user];
-  chatroomresultPrivate.type = "private";
-  chatroomresultPrivate.chatroomName = "test";
-
-  let chatroomresultDM = new Chatroom();
-  chatroomresultDM.owner = user;
-  chatroomresultDM.member = [user, userTwo];
-  chatroomresultDM.admin = [user, userTwo];
-  chatroomresultDM.type = "DM";
-  chatroomresultDM.chatroomName = "test";
-
   // creating an entity
   it("createChatroomEntity test (public), should work", () => {
-    expect(createChatroomEntity(createChatroomDtoPublic, user)).toEqual(
-      chatroomresult,
+    expect(createChatroomEntity(createChatroomDtoPublic, globalUser)).toEqual(
+      globalChatPublic,
     );
   });
+
   it("createChatroomEntity test (password), should work", () => {
-    expect(createChatroomEntity(createChatroomDtoPassword, user)).toEqual(
-      chatroomresultPassword,
+    expect(createChatroomEntity(createChatroomDtoPassword, globalUser)).toEqual(
+      globalChatPassword,
     );
   });
+
   it("createChatroomEntity test (private), should work", () => {
-    expect(createChatroomEntity(createChatroomDtoPrivate, user)).toEqual(
-      chatroomresultPrivate,
+    expect(createChatroomEntity(createChatroomDtoPrivate, globalUser)).toEqual(
+      globalChatPrivate,
     );
   });
+
   it("createChatroomEntity test (DM), should work", () => {
-    expect(createChatroomEntity(createChatroomDtoDM, user, userTwo)).toEqual(
-      chatroomresultDM,
-    );
+    expect(
+      createChatroomEntity(createChatroomDtoDM, globalUser, globalUserTwo),
+    ).toEqual(globalChatDM);
+  });
+
+  it("createChatroomEntity test (Bad), should fail", () => {
+    expect(() =>
+      createChatroomEntity(createChatroomDtoBad, globalUser),
+    ).toThrow();
   });
 });
 
@@ -237,25 +213,11 @@ describe("Updating an existing chatroom", () => {
   let updatechatroomDto: UpdateChatroomDto = new UpdateChatroomDto();
   updatechatroomDto.chatroomName = "test2";
 
-  let user: User = new User();
-  user.id = 1;
-  user.intraId = "0";
-  user.password = "password";
-  user.playerName = "testUser";
-  user.twoFA = false;
-
-  let userTwo: User = new User();
-  userTwo.id = 2;
-  userTwo.intraId = "1";
-  userTwo.password = "password";
-  userTwo.playerName = "testUser2";
-  userTwo.twoFA = false;
-
   let chatroomresult = new Chatroom();
   chatroomresult.id = 1;
-  chatroomresult.owner = user;
-  chatroomresult.member = [user];
-  chatroomresult.admin = [user];
+  chatroomresult.owner = globalUser;
+  chatroomresult.member = [globalUser];
+  chatroomresult.admin = [globalUser];
   chatroomresult.password = "";
   chatroomresult.type = "public";
   chatroomresult.chatroomName = "test";
@@ -264,9 +226,9 @@ describe("Updating an existing chatroom", () => {
   it("createUpdatedChatroomEntity test, should work", () => {
     let chatroomUpdated = new Chatroom();
     chatroomUpdated.id = 1;
-    chatroomUpdated.owner = user;
-    chatroomUpdated.member = [user];
-    chatroomUpdated.admin = [user];
+    chatroomUpdated.owner = globalUser;
+    chatroomUpdated.member = [globalUser];
+    chatroomUpdated.admin = [globalUser];
     chatroomUpdated.password = "";
     chatroomUpdated.type = "public";
     chatroomUpdated.chatroomName = "test2";
@@ -277,34 +239,20 @@ describe("Updating an existing chatroom", () => {
 });
 
 describe("deleting admin from chatroom", () => {
-  let user: User = new User();
-  user.id = 1;
-  user.intraId = "0";
-  user.password = "password";
-  user.playerName = "testUser";
-  user.twoFA = false;
-
-  let userTwo: User = new User();
-  userTwo.id = 2;
-  userTwo.intraId = "1";
-  userTwo.password = "password";
-  userTwo.playerName = "testUser2";
-  userTwo.twoFA = false;
-
   let chatroomresult = new Chatroom();
   chatroomresult.id = 1;
-  chatroomresult.owner = user;
-  chatroomresult.member = [user, userTwo];
-  chatroomresult.admin = [user, userTwo];
+  chatroomresult.owner = globalUser;
+  chatroomresult.member = [globalUser, globalUserTwo];
+  chatroomresult.admin = [globalUser, globalUserTwo];
   chatroomresult.password = "";
   chatroomresult.type = "public";
   chatroomresult.chatroomName = "test";
 
   let chatroomEnd = new Chatroom();
   chatroomEnd.id = 1;
-  chatroomEnd.owner = user;
-  chatroomEnd.member = [user, userTwo];
-  chatroomEnd.admin = [user];
+  chatroomEnd.owner = globalUser;
+  chatroomEnd.member = [globalUser, globalUserTwo];
+  chatroomEnd.admin = [globalUser];
   chatroomEnd.password = "";
   chatroomEnd.type = "public";
   chatroomEnd.chatroomName = "test";
@@ -314,34 +262,20 @@ describe("deleting admin from chatroom", () => {
 });
 
 describe("deleting completely from chatroom", () => {
-  let user: User = new User();
-  user.id = 1;
-  user.intraId = "0";
-  user.password = "password";
-  user.playerName = "testUser";
-  user.twoFA = false;
-
-  let userTwo: User = new User();
-  userTwo.id = 2;
-  userTwo.intraId = "1";
-  userTwo.password = "password";
-  userTwo.playerName = "testUser2";
-  userTwo.twoFA = false;
-
   let chatroomresult = new Chatroom();
   chatroomresult.id = 1;
-  chatroomresult.owner = user;
-  chatroomresult.member = [user, userTwo];
-  chatroomresult.admin = [user, userTwo];
+  chatroomresult.owner = globalUser;
+  chatroomresult.member = [globalUser, globalUserTwo];
+  chatroomresult.admin = [globalUser, globalUserTwo];
   chatroomresult.password = "";
   chatroomresult.type = "public";
   chatroomresult.chatroomName = "test";
 
   let chatroomEnd = new Chatroom();
   chatroomEnd.id = 1;
-  chatroomEnd.owner = user;
-  chatroomEnd.member = [user];
-  chatroomEnd.admin = [user];
+  chatroomEnd.owner = globalUser;
+  chatroomEnd.member = [globalUser];
+  chatroomEnd.admin = [globalUser];
   chatroomEnd.password = "";
   chatroomEnd.type = "public";
   chatroomEnd.chatroomName = "test";
@@ -351,112 +285,70 @@ describe("deleting completely from chatroom", () => {
 });
 
 describe("add member to chatroom", () => {
-  let user: User = new User();
-  user.id = 1;
-  user.intraId = "0";
-  user.password = "password";
-  user.playerName = "testUser";
-  user.twoFA = false;
-
-  let userTwo: User = new User();
-  userTwo.id = 2;
-  userTwo.intraId = "1";
-  userTwo.password = "password";
-  userTwo.playerName = "testUser2";
-  userTwo.twoFA = false;
-
   let chatroomresult = new Chatroom();
   chatroomresult.id = 1;
-  chatroomresult.owner = user;
-  chatroomresult.member = [user];
-  chatroomresult.admin = [user];
+  chatroomresult.owner = globalUser;
+  chatroomresult.member = [globalUser];
+  chatroomresult.admin = [globalUser];
   chatroomresult.password = "";
   chatroomresult.type = "public";
   chatroomresult.chatroomName = "test";
 
   let chatroomEnd = new Chatroom();
   chatroomEnd.id = 1;
-  chatroomEnd.owner = user;
-  chatroomEnd.member = [user, userTwo];
-  chatroomEnd.admin = [user];
+  chatroomEnd.owner = globalUser;
+  chatroomEnd.member = [globalUser, globalUserTwo];
+  chatroomEnd.admin = [globalUser];
   chatroomEnd.password = "";
   chatroomEnd.type = "public";
   chatroomEnd.chatroomName = "test";
   it("addMember test, should work", () => {
-    expect(addMember(chatroomresult, userTwo)).toEqual(chatroomEnd);
+    expect(addMember(chatroomresult, globalUserTwo)).toEqual(chatroomEnd);
   });
 });
 
 describe("add admin to chatroom", () => {
-  let user: User = new User();
-  user.id = 1;
-  user.intraId = "0";
-  user.password = "password";
-  user.playerName = "testUser";
-  user.twoFA = false;
-
-  let userTwo: User = new User();
-  userTwo.id = 2;
-  userTwo.intraId = "1";
-  userTwo.password = "password";
-  userTwo.playerName = "testUser2";
-  userTwo.twoFA = false;
-
   let chatroomresult = new Chatroom();
   chatroomresult.id = 1;
-  chatroomresult.owner = user;
-  chatroomresult.member = [user];
-  chatroomresult.admin = [user];
+  chatroomresult.owner = globalUser;
+  chatroomresult.member = [globalUser];
+  chatroomresult.admin = [globalUser];
   chatroomresult.password = "";
   chatroomresult.type = "public";
   chatroomresult.chatroomName = "test";
 
   let chatroomEnd = new Chatroom();
   chatroomEnd.id = 1;
-  chatroomEnd.owner = user;
-  chatroomEnd.member = [user];
-  chatroomEnd.admin = [user, userTwo];
+  chatroomEnd.owner = globalUser;
+  chatroomEnd.member = [globalUser];
+  chatroomEnd.admin = [globalUser, globalUserTwo];
   chatroomEnd.password = "";
   chatroomEnd.type = "public";
   chatroomEnd.chatroomName = "test";
   it("addAdmin test, should work", () => {
-    expect(addAdmin(chatroomresult, userTwo)).toEqual(chatroomEnd);
+    expect(addAdmin(chatroomresult, globalUserTwo)).toEqual(chatroomEnd);
   });
 });
 
-// describe("add admin to chatroom", () => {
-//   let user: User = new User();
-//   user.id = 1;
-//   user.intraId = "0";
-//   user.password = "password";
-//   user.playerName = "testUser";
-//   user.twoFA = false;
+describe("swap owners to chatroom", () => {
+  let chatroomresult = new Chatroom();
+  chatroomresult.id = 1;
+  chatroomresult.owner = globalUser;
+  chatroomresult.member = [globalUser, globalUserTwo];
+  chatroomresult.admin = [globalUser, globalUserTwo];
+  chatroomresult.password = "";
+  chatroomresult.type = "public";
+  chatroomresult.chatroomName = "test";
 
-//   let userTwo: User = new User();
-//   userTwo.id = 2;
-//   userTwo.intraId = "1";
-//   userTwo.password = "password";
-//   userTwo.playerName = "testUser2";
-//   userTwo.twoFA = false;
-
-//   let chatroomresult = new Chatroom();
-//   chatroomresult.id = 1;
-//   chatroomresult.owner = user;
-//   chatroomresult.member = [user];
-//   chatroomresult.admin = [user];
-//   chatroomresult.password = "";
-//   chatroomresult.type = "public";
-//   chatroomresult.chatroomName = "test";
-
-//   let chatroomEnd = new Chatroom();
-//   chatroomEnd.id = 1;
-//   chatroomEnd.owner = user;
-//   chatroomEnd.member = [user];
-//   chatroomEnd.admin = [user, userTwo];
-//   chatroomEnd.password = "";
-//   chatroomEnd.type = "public";
-//   chatroomEnd.chatroomName = "test";
-//   it("addAdmin test, should work", () => {
-//     expect(addAdmin(chatroomresult, userTwo)).toEqual(chatroomEnd);
-//   });
-// });
+  let chatroomEnd = new Chatroom();
+  chatroomEnd.id = 1;
+  chatroomEnd.owner = globalUserTwo;
+  chatroomEnd.member = [globalUser, globalUserTwo];
+  chatroomEnd.admin = [globalUser, globalUserTwo];
+  chatroomEnd.password = "";
+  chatroomEnd.type = "public";
+  chatroomEnd.chatroomName = "test";
+  it("swapOwners test, should work", () => {
+    expect(swapOwner(chatroomresult, globalUserTwo)).toEqual(chatroomEnd);
+  });
+});

@@ -13,10 +13,10 @@ export class Penalty {
   @PrimaryGeneratedColumn({
     name: "penaltyId",
   })
-  id?: number;
+  id!: number;
 
   @CreateDateColumn()
-  time?: Date;
+  time!: Date;
 
   @Column({
     nullable: false,
