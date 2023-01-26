@@ -6,7 +6,7 @@ export function occursInBlocklist(
   userId: number,
 ): boolean {
   for (const i of blocklist) {
-    if (i.id === userId) return true;
+    if (i.blockedUser.id === userId) return true;
   }
   return false;
 }
