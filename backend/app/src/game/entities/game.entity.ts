@@ -10,7 +10,6 @@ export class Game {
 
   @Column({
     nullable: true,
-    type: "int",
   })
   public playerOne!: number;
 

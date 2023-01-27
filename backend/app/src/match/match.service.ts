@@ -37,6 +37,10 @@ export class MatchService {
   }
 
   async getMatch(id: number) {
+    if ((await this.userService.findUserById(id)) == null) {
+      this.logger.debug("unable to match, user does not exist");
+      throw new NotFoundException();
+    }
     const match = await this.matchRepository.find({
       take: 1,
     });
@@ -61,7 +65,7 @@ export class MatchService {
         this.logger.debug("error in getMatch while trying to create new game");
         throw new BadRequestException();
       });
-      this.remove(createGameDto.playerOne);
+      this.remove(match[0].id);
       return game;
     }
   }
