@@ -1,13 +1,7 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Game } from "./entities/game.entity";
-import { User } from "src/user/user.entity";
 import { UserService } from "src/user/user.service";
 import { CreateGameDto } from "./dto/create-game.dto";
 import { UpdateGameDto } from "./dto/update-game.dto";
@@ -37,22 +31,20 @@ export class GameService {
     return game;
   }
 
-  /* need to also add check to ensure they are not in playing status */
   async create(createGameDto: CreateGameDto) {
-    const playerOne = await this.userService.findUserById(
-      createGameDto.playerOne,
-    );
-    if (playerOne === null) {
+    if (
+      (await this.userService.findUserById(createGameDto.playerOne)) == null
+    ) {
       this.logger.debug("playerOne does not exist in database");
       throw new NotFoundException();
     }
-    const playerTwo = await this.userService.findUserById(
-      createGameDto.playerTwo,
-    );
-    if (playerTwo === null) {
+    if (
+      (await this.userService.findUserById(createGameDto.playerTwo)) == null
+    ) {
       this.logger.debug("playerTwo does not exist in database");
       throw new NotFoundException();
     }
+    /* check to make sure they are not already playing - if that would even be possible */
     return await this.gameRepository.save(createGameDto);
   }
 
@@ -72,7 +64,7 @@ export class GameService {
         .of(updateGameDto.id)
         .set(updateGameDto.loserId);
 
-      const game = await this.gameRepository
+      await this.gameRepository
         .createQueryBuilder()
         .relation(Game, "winnerId")
         .of(updateGameDto.id)
