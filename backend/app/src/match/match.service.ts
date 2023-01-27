@@ -1,11 +1,16 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Match } from "./entities/match.entity";
-import { User } from "src/user/user.entity";
 import { UserService } from "src/user/user.service";
-import { Game } from "src/game/entities/game.entity";
+import { GameService } from "src/game/game.service";
 import { CreateMatchDto } from "./dto/create-match.dto";
+import { CreateGameDto } from "src/game/dto/create-game.dto";
 
 @Injectable()
 export class MatchService {
@@ -14,8 +19,8 @@ export class MatchService {
   constructor(
     @InjectRepository(Match)
     private readonly matchRepository: Repository<Match>,
-
     private readonly userService: UserService,
+    private readonly gameService: GameService,
   ) {}
 
   async findAll() {
@@ -25,10 +30,40 @@ export class MatchService {
   async findOne(id: number) {
     const match = await this.matchRepository.findOne({
       where: {
-        playerId: id,
+        id: id,
       },
     });
     return match;
+  }
+
+  async getMatch(id: number) {
+    const match = await this.matchRepository.find({
+      take: 1,
+    });
+    if (match.length === 0) {
+      const createMatchDto = new CreateMatchDto();
+      createMatchDto.playerId = id;
+      this.create(createMatchDto).catch(() => {
+        this.logger.debug("error while creating match in create()");
+        throw new BadRequestException();
+      });
+      return null;
+    } else {
+      if (match[0].playerId == id) {
+        this.logger.debug("cannot match player with themself");
+        throw new BadRequestException();
+      }
+      const createGameDto = new CreateGameDto();
+      createGameDto.playerOne = match[0].playerId;
+      createGameDto.playerTwo = id;
+      createGameDto.status = "playing";
+      const game = await this.gameService.create(createGameDto).catch(() => {
+        this.logger.debug("error in getMatch while trying to create new game");
+        throw new BadRequestException();
+      });
+      this.remove(createGameDto.playerOne);
+      return game;
+    }
   }
 
   async create(createMatchDto: CreateMatchDto) {
@@ -38,59 +73,26 @@ export class MatchService {
       this.logger.debug("unable to add user to match, user does not exist");
       throw new NotFoundException();
     }
+    if (
+      (await this.matchRepository.findOne({
+        where: {
+          playerId: createMatchDto.playerId,
+        },
+      })) != null
+    ) {
+      this.logger.debug(
+        "unable to add user to queue, user already exists in queue",
+      );
+      throw new BadRequestException();
+    }
     const newPlayer = await this.matchRepository.save(createMatchDto);
     return newPlayer;
   }
 
-  /* logic
-        search array for user
-        if user - create game, remove other user from array and return that game
-        if none - create game, add user to array and return null
-    */
-
-  //   async findOne(gameId: number) {
-  //     const game = await this.gameRepository.findOne({
-  //       where: {
-  //         id: gameId,
-  //       },
-  //       relations: ["winnerId", "loserId"],
-  //     });
-  //     return game;
-  //   }
-
-  //   async update(updateGameDto: UpdateGameDto) {
-  //     if (updateGameDto.id !== undefined) {
-  //       if ((await this.findOne(updateGameDto.id)) == null) {
-  //         this.logger.debug("game does not exist, unable to update");
-  //         throw new NotFoundException(
-  //           "Unable to update game because game does not exist",
-  //         );
-  //       }
-  //       await this.gameRepository.update(updateGameDto.id, updateGameDto);
-
-  //       await this.gameRepository
-  //         .createQueryBuilder()
-  //         .relation(Game, "loserId")
-  //         .of(updateGameDto.id)
-  //         .set(updateGameDto.loserId);
-
-  //       const game = await this.gameRepository
-  //         .createQueryBuilder()
-  //         .relation(Game, "winnerId")
-  //         .of(updateGameDto.id)
-  //         .set(updateGameDto.winnerId);
-
-  //       return this.findOne(updateGameDto.id);
-  //     }
-  //     throw new NotFoundException(
-  //       "Unable to update game because no data received from dto",
-  //     );
-  //   }
-
-  //   async remove(gameId: number) {
-  //     if (this.findOne(gameId) == null) {
-  //       this.logger.debug("game does not exist, unable to delete");
-  //       throw new NotFoundException("game does not exist, unable to delete");
-  //     }
-  //     await this.gameRepository.delete(gameId);
+  async remove(id: number) {
+    if (this.findOne(id) == null) {
+      throw new NotFoundException();
+    }
+    await this.matchRepository.delete(id);
+  }
 }

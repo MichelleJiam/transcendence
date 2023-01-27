@@ -44,6 +44,7 @@ export class GameService {
       this.logger.debug("playerTwo does not exist in database");
       throw new NotFoundException();
     }
+    /* check to make sure they are not already playing - if that would even be possible */
     return await this.gameRepository.save(createGameDto);
   }
 
