@@ -43,9 +43,7 @@ export class GameController {
   @Post()
   async create(@Body() createGameDto: CreateGameDto) {
     const game = await this.gameService.create(createGameDto).catch(() => {
-      throw new NotFoundException(
-        "Unable to create game because one or both users do not exist",
-      );
+      throw new NotFoundException("Unable to create game");
     });
     return game;
   }

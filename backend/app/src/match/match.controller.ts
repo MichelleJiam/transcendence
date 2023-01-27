@@ -28,7 +28,7 @@ export class MatchController {
 
   /* curl http://localhost:3000/match/getmatch */
   @Get(":id")
-  async getMatch(@Param("id") id: number) {
+  async getMatch(@Param("id", ParseIntPipe) id: number) {
     const match = await this.matchService.getMatch(id).catch(() => {
       throw new BadRequestException("error while trying to create match");
     });
