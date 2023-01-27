@@ -7,10 +7,19 @@ import { Avatar } from "src/avatar/avatar.entity";
 import { Match } from "./entities/match.entity";
 import { MatchController } from "./match.controller";
 import { MatchService } from "./match.service";
+import { GameService } from "src/game/game.service";
+import { Game } from "src/game/entities/game.entity";
+import { CreateGameDto } from "src/game/dto/create-game.dto";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Match, User, Avatar])],
+  imports: [TypeOrmModule.forFeature([Match, Game, User, Avatar])],
   controllers: [MatchController],
-  providers: [MatchService, UserService, AvatarService],
+  providers: [
+    MatchService,
+    GameService,
+    UserService,
+    AvatarService,
+    CreateGameDto,
+  ],
 })
 export class MatchModule {}

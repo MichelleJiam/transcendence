@@ -29,7 +29,7 @@ export class GameController {
 
   /* curl http://localhost:3000/game/48 */
   @Get(":id")
-  async findOne(@Param("id") id: number) {
+  async findOne(@Param("id", ParseIntPipe) id: number) {
     const game = await this.gameService.findOne(id);
     if (game === null) {
       this.logger.debug("game does not exist in database");

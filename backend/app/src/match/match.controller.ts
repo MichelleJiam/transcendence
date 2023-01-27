@@ -7,12 +7,11 @@ import {
   Delete,
   HttpCode,
   Body,
-  Put,
   Logger,
   NotFoundException,
+  BadRequestException,
 } from "@nestjs/common";
 import { MatchService } from "./match.service";
-import { Match } from "./entities/match.entity";
 import { CreateMatchDto } from "./dto/create-match.dto";
 
 @Controller("match")
@@ -21,38 +20,41 @@ export class MatchController {
   constructor(private readonly matchService: MatchService) {}
 
   /* curl http://localhost:3000/match/ */
-
   @Get()
   async findAll() {
     const matches = await this.matchService.findAll();
     return matches;
   }
 
-  /* curl http://localhost:3000/game/1 */
+  /* curl http://localhost:3000/match/getmatch */
   @Get(":id")
-  async findOne(@Param("id") id: number) {
-    const player = await this.matchService.findOne(id);
-    if (player === null) {
-      this.logger.debug("game does not exist in database");
-      throw new NotFoundException("Unable to find game");
-    } else {
-      return player;
-    }
+  async getMatch(@Param("id") id: number) {
+    const match = await this.matchService.getMatch(id).catch(() => {
+      throw new BadRequestException("error while trying to create match");
+    });
+    /* 
+        check on frontend; if it's null then that means the player needs to wait
+        otherwise we can put them in a room and begin the game play
+    */
+    return match;
   }
 
   /* curl -X POST -d "playerId=5" http://localhost:3000/match/ */
   @Post()
   async create(@Body() createMatchDto: CreateMatchDto) {
     const match = await this.matchService.create(createMatchDto).catch(() => {
-      throw new NotFoundException("unable to add player to match queue");
+      throw new BadRequestException("unable to add player to match queue");
     });
     return match;
   }
 
-  //   /* curl -X DELETE http://localhost:3000/game/48 */
-  //   @Delete(":id")
-  //   @HttpCode(204) /* code for no content used for removing a resource */
-  //   async remove(@Param("id", ParseIntPipe) id: number) {
-  //     await this.gameService.remove(id);
-  //   }
+  /* curl -X DELETE http://localhost:3000/match/1 */
+  @Delete(":id")
+  @HttpCode(204)
+  async remove(@Param("id", ParseIntPipe) id: number) {
+    await this.matchService.remove(id).catch(() => {
+      this.logger.debug("match does not exist, unable to delete");
+      throw new NotFoundException("match does not exist, unable to delete");
+    });
+  }
 }
