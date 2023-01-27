@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Game } from "./entities/game.entity";
@@ -21,10 +21,10 @@ export class GameService {
     return await this.gameRepository.find({});
   }
 
-  async findOne(gameId: number) {
+  async findOne(id: number) {
     const game = await this.gameRepository.findOne({
       where: {
-        id: gameId,
+        id: id,
       },
       relations: ["winnerId", "loserId"],
     });
@@ -32,6 +32,10 @@ export class GameService {
   }
 
   async create(createGameDto: CreateGameDto) {
+    if (createGameDto.playerOne === createGameDto.playerTwo) {
+      this.logger.debug("cannot create game, players are not unique");
+      throw new BadRequestException();
+    }
     if (
       (await this.userService.findUserById(createGameDto.playerOne)) == null
     ) {
