@@ -26,7 +26,7 @@ export class MatchController {
     return matches;
   }
 
-  /* curl http://localhost:3000/match/getmatch */
+  /* curl http://localhost:3000/match/:id */
   @Get(":id")
   async getMatch(@Param("id", ParseIntPipe) id: number) {
     const match = await this.matchService.getMatch(id).catch(() => {
