@@ -9,17 +9,10 @@ import { MatchController } from "./match.controller";
 import { MatchService } from "./match.service";
 import { GameService } from "src/game/game.service";
 import { Game } from "src/game/entities/game.entity";
-import { CreateGameDto } from "src/game/dto/create-game.dto";
 
 @Module({
   imports: [TypeOrmModule.forFeature([Match, Game, User, Avatar])],
   controllers: [MatchController],
-  providers: [
-    MatchService,
-    GameService,
-    UserService,
-    AvatarService,
-    CreateGameDto,
-  ],
+  providers: [MatchService, GameService, UserService, AvatarService],
 })
 export class MatchModule {}
