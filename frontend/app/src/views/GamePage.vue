@@ -8,42 +8,66 @@
 <template>
   <main>
     <div id="display-content">
-      <div v-if="!inPlay" class="my-btn">
+      <div v-if="gameState == State.READY" class="my-btn">
         <button class="btn" @click="startGame">PLAY</button>
         <button class="btn">WATCH</button>
       </div>
+      <div v-else-if="gameState == State.WAITING">waiting</div>
+      <div v-else>playing</div>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
 import apiRequest from "@/utils/apiRequest";
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
+import { io } from "socket.io-client";
+import { onMounted } from "vue";
 
 const State = {
   READY: 0,
-  PLAYING: 1,
-  WAITING: 2,
+  WAITING: 1,
+  PLAYING: 2,
   DONE: 3,
 };
 
 const route = useRoute();
 const id = route.params.id;
+const socket = io("http://localhost:3000");
 const showStartButton = ref(true);
 const showWatchButton = ref(true);
 const gameState = ref(State.READY);
+const joined = ref(false);
+
+onBeforeMount(() => {
+  socket.on("disconnect", () => {
+    console.log(socket.id + " disconnected from frontend");
+  });
+});
+
+onMounted(() => {
+  socket.on("connect", () => {
+    console.log(socket.id + " connected from frontend");
+  });
+});
+
+socket.on("addPlayerOne", (data) => {
+  if (joined.value == false) {
+    socket.emit("joinRoom", data);
+    joined.value = true;
+    gameState.value = State.PLAYING;
+  }
+});
 
 const startGame = async () => {
   const res = await apiRequest(`/match/${id}`, "get");
   if (res.data.id == undefined) {
     gameState.value = State.WAITING;
-    console.log("put user in waiting state - show loader!");
   } else {
+    socket.emit("joinRoom", res.data.id);
     gameState.value = State.PLAYING;
-    console.log(
-      "put this player in a room with the id of the returned game res.data.id"
-    );
+    joined.value = true;
     showStartButton.value = false;
     showWatchButton.value = false;
   }
