@@ -15,15 +15,17 @@
       <div v-else-if="gameState == State.WAITING" class="loader">
         <LoaderKnightRider />
       </div>
-      <div v-else>playing</div>
+      <div v-else>
+        <PongGame />
+      </div>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
-import LoaderKnightRider from "@/components/game/loaders/LoaderKnightRider.vue";
-import LoaderLookingGlass from "@/components/game/loaders/LoaderLookingGlass.vue";
-import apiRequest from "@/utils/apiRequest";
+import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
+import PongGame from "../components/game/PongGame.vue";
+import apiRequest from "../utils/apiRequest";
 import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
@@ -59,6 +61,7 @@ onMounted(() => {
 socket.on("addPlayerOne", (data) => {
   if (joined.value == false) {
     socket.emit("joinRoom", data);
+    console.log(id, "has joined room ", data);
     joined.value = true;
     gameState.value = State.PLAYING;
   }
@@ -70,6 +73,7 @@ const startGame = async () => {
     gameState.value = State.WAITING;
   } else {
     socket.emit("joinRoom", res.data.id);
+    console.log(id, " has joined room ", res.data.id);
     gameState.value = State.PLAYING;
     joined.value = true;
     showStartButton.value = false;
