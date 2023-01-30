@@ -29,7 +29,6 @@ div #display-content {
   border: 2px #302d2d solid;
   border-radius: 4px;
   padding: 20px;
-  overflow: scroll;
 }
 
 h1,

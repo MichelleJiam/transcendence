@@ -26,17 +26,18 @@ export class MatchController {
     return matches;
   }
 
-  /* curl http://localhost:3000/match/getmatch */
+  /* curl http://localhost:3000/match/:id */
   @Get(":id")
   async getMatch(@Param("id", ParseIntPipe) id: number) {
-    const match = await this.matchService.getMatch(id).catch(() => {
+    console.log("in match controller");
+    const game = await this.matchService.getMatch(id).catch(() => {
       throw new BadRequestException("error while trying to create match");
     });
     /* 
         check on frontend; if it's null then that means the player needs to wait
         otherwise we can put them in a room and begin the game play
     */
-    return match;
+    return game;
   }
 
   /* curl -X POST -d "playerId=5" http://localhost:3000/match/ */
