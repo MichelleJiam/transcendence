@@ -5,7 +5,6 @@
       :id="id"
       type="text"
       autocomplete="off"
-      :value="value"
       :placeholder="placeholder"
       :disabled="disabled"
       @input="updateText"
