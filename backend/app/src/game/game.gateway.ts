@@ -13,12 +13,16 @@ import { GameService } from "./game.service";
   cors: {
     origin: "*",
   },
-  // namespace: "pong", FIGURE OUT HOW THIS WORKS
+  namespace: "pong",
 })
 export class GameGateway {
   @WebSocketServer() /* tell NestJS to inject the WebSocket server */
   server!: Server; /* reference to socket.io server under the hood */
   constructor(private readonly gameService: GameService) {}
+
+  handleConnection(client: Socket) {
+    console.log(client.id + " connected");
+  }
 
   @SubscribeMessage("joinRoom")
   async joinRoom(
@@ -28,9 +32,5 @@ export class GameGateway {
     client.join(room);
     console.log(client.id, " joined room: ", room);
     this.server.emit("addPlayerOne", room);
-  }
-
-  handleConnection(client: Socket) {
-    console.log(client.id + " connected");
   }
 }

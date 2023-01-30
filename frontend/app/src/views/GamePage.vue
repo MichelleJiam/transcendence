@@ -12,13 +12,17 @@
         <button class="btn" @click="startGame">PLAY</button>
         <button class="btn">WATCH</button>
       </div>
-      <div v-else-if="gameState == State.WAITING">waiting</div>
+      <div v-else-if="gameState == State.WAITING" class="loader">
+        <LoaderKnightRider />
+      </div>
       <div v-else>playing</div>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
+import LoaderKnightRider from "@/components/game/loaders/LoaderKnightRider.vue";
+import LoaderLookingGlass from "@/components/game/loaders/LoaderLookingGlass.vue";
 import apiRequest from "@/utils/apiRequest";
 import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -34,7 +38,7 @@ const State = {
 
 const route = useRoute();
 const id = route.params.id;
-const socket = io("http://localhost:3000");
+const socket = io("http://localhost:3000/pong");
 const showStartButton = ref(true);
 const showWatchButton = ref(true);
 const gameState = ref(State.READY);
@@ -108,5 +112,10 @@ button:hover {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+.loader {
+  height: 50%;
+  width: 100%;
+  display: block;
 }
 </style>
