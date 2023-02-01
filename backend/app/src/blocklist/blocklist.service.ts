@@ -11,7 +11,7 @@ export class BlocklistService {
     private readonly blocklistRepository: Repository<Blocklist>,
   ) {}
 
-  async getGlobalBlocklist() {
+  async getGlobalBlocklist(): Promise<Blocklist[]> {
     return await this.blocklistRepository.find({
       relations: {
         blockedUser: true,

@@ -2,7 +2,7 @@ import { Chatroom } from "src/chat/chat.entity";
 import { Message } from "src/message/message.entity";
 import { User } from "src/user/user.entity";
 import { Blocklist } from "./blocklist.entity";
-import { occursInBlocklist } from "./blocklist.method";
+import { filterMessages, occursInBlocklist } from "./blocklist.method";
 
 let globalUser: User = new User();
 globalUser.id = 1;
@@ -32,48 +32,51 @@ globalChatPublic.admin = [globalUser];
 globalChatPublic.type = "public";
 globalChatPublic.chatroomName = "test";
 
-let messageOne = new Message();
-messageOne.id = 1;
-messageOne.body = "this is message one";
-messageOne.createdAt = new Date();
-messageOne.chatroomId = globalChatPublic;
-messageOne.userId = globalUser;
+let messageOneByOne = new Message();
+messageOneByOne.id = 1;
+messageOneByOne.body = "this is message one";
+messageOneByOne.createdAt = new Date();
+messageOneByOne.chatroomId = globalChatPublic;
+messageOneByOne.userId = globalUser;
 
-let messageTwo = new Message();
-messageTwo.id = 2;
-messageTwo.body = "this is message two";
-messageTwo.createdAt = new Date();
-messageTwo.chatroomId = globalChatPublic;
-messageTwo.userId = globalUserTwo;
+let messageTwoByTwo = new Message();
+messageTwoByTwo.id = 2;
+messageTwoByTwo.body = "this is message two";
+messageTwoByTwo.createdAt = new Date();
+messageTwoByTwo.chatroomId = globalChatPublic;
+messageTwoByTwo.userId = globalUserTwo;
 
-let messageThree = new Message();
-messageThree.id = 3;
-messageThree.body = "this is message three";
-messageThree.createdAt = new Date();
-messageThree.chatroomId = globalChatPublic;
-messageThree.userId = globalUserThree;
+let messageThreeByThree = new Message();
+messageThreeByThree.id = 3;
+messageThreeByThree.body = "this is message three";
+messageThreeByThree.createdAt = new Date();
+messageThreeByThree.chatroomId = globalChatPublic;
+messageThreeByThree.userId = globalUserThree;
 
-let messageFour = new Message();
-messageFour.id = 4;
-messageFour.body = "this is message four";
-messageFour.createdAt = new Date();
-messageFour.chatroomId = globalChatPublic;
-messageFour.userId = globalUserTwo;
+let messageFourByTwo = new Message();
+messageFourByTwo.id = 4;
+messageFourByTwo.body = "this is message four";
+messageFourByTwo.createdAt = new Date();
+messageFourByTwo.chatroomId = globalChatPublic;
+messageFourByTwo.userId = globalUserTwo;
 
-let messageFive = new Message();
-messageFive.id = 5;
-messageFive.body = "this is message five";
-messageFive.createdAt = new Date();
-messageFive.chatroomId = globalChatPublic;
-messageFive.userId = globalUserTwo;
+let messageFiveByTwo = new Message();
+messageFiveByTwo.id = 5;
+messageFiveByTwo.body = "this is message five";
+messageFiveByTwo.createdAt = new Date();
+messageFiveByTwo.chatroomId = globalChatPublic;
+messageFiveByTwo.userId = globalUserTwo;
+messageFiveByTwo;
 
 let globalMessages = [
-  messageOne,
-  messageTwo,
-  messageThree,
-  messageFour,
-  messageFive,
+  messageOneByOne,
+  messageTwoByTwo,
+  messageThreeByThree,
+  messageFourByTwo,
+  messageFiveByTwo,
 ];
+
+let resultMessages = [messageOneByOne];
 
 let blockedUserOne = new Blocklist();
 blockedUserOne.id = 1;
@@ -101,6 +104,10 @@ describe("occursInBlocklist function testing", () => {
   });
 });
 
-// describe("filterMessages test", () => {
-//   it();
-// });
+describe("filterMessages test", () => {
+  it("Message filtered by blocklist", () => {
+    expect(filterMessages(globalMessages, globalBlocklist)).toEqual(
+      resultMessages,
+    );
+  });
+});
