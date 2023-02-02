@@ -1,10 +1,3 @@
-<!--
-    this should be the main page layout
-    so the basic nav bar and the content div
-    then there should be different components that render
-    on different circumstances
--->
-
 <template>
   <main>
     <div id="display-content">
@@ -16,7 +9,7 @@
         <LoaderKnightRider />
       </div>
       <div v-else>
-        <PongGame />
+        <PongGame :id="id" :gameid="gameId" :player="player" :socket="socket" />
       </div>
     </div>
   </main>
@@ -39,12 +32,14 @@ const State = {
 };
 
 const route = useRoute();
-const id = route.params.id;
+const id = route.params.id as string;
 const socket = io("http://localhost:3000/pong");
 const showStartButton = ref(true);
 const showWatchButton = ref(true);
 const gameState = ref(State.READY);
 const joined = ref(false);
+const gameId = ref(0);
+const player = ref("");
 
 onBeforeMount(() => {
   socket.on("disconnect", () => {
@@ -60,8 +55,10 @@ onMounted(() => {
 
 socket.on("addPlayerOne", (data) => {
   if (joined.value == false) {
-    socket.emit("joinRoom", data);
-    console.log(id, "has joined room ", data);
+    gameId.value = data;
+    socket.emit("joinRoom", gameId.value);
+    player.value = "1";
+    console.log(id, "has joined room ", gameId.value);
     joined.value = true;
     gameState.value = State.PLAYING;
   }
@@ -72,8 +69,10 @@ const startGame = async () => {
   if (res.data.id == undefined) {
     gameState.value = State.WAITING;
   } else {
-    socket.emit("joinRoom", res.data.id);
-    console.log(id, " has joined room ", res.data.id);
+    gameId.value = res.data.id;
+    socket.emit("joinRoom", gameId.value);
+    player.value = "2";
+    console.log(id, " has joined room ", gameId.value);
     gameState.value = State.PLAYING;
     joined.value = true;
     showStartButton.value = false;
