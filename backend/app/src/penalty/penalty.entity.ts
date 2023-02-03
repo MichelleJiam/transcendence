@@ -24,9 +24,15 @@ export class Penalty {
   penaltyType!: string;
 
   // relationships
-  @ManyToOne(() => User, (user: User) => user.penalty)
+  @ManyToOne(() => User, (user: User) => user.penalty, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   user!: User;
 
-  @ManyToOne(() => Chatroom, (chatroom: Chatroom) => chatroom.penalty)
+  @ManyToOne(() => Chatroom, (chatroom: Chatroom) => chatroom.penalty, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   chatroom!: Chatroom;
 }

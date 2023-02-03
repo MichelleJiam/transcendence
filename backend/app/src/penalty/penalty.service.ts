@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Chatroom } from "src/chat/chat.entity";
 import { User } from "src/user/user.entity";
-import { Repository } from "typeorm";
+import { LessThanOrEqual, Repository } from "typeorm";
 import { CreatePenaltyDto } from "./dto/create-penalty.dto";
 import { Penalty } from "./penalty.entity";
 import {
@@ -31,6 +31,20 @@ export class PenaltyService {
     return foundPenalties;
   }
 
+  async getPenaltiesOlderThanFiveMinutes(): Promise<Penalty[]> {
+    const fiveMinutesAgo = new Date(Date.now() - 1000 * (60 * 5));
+
+    const foundPenalties = await this.penaltyRepository.find({
+      order: {
+        time: "ASC",
+      },
+      where: {
+        time: LessThanOrEqual(fiveMinutesAgo),
+      },
+    });
+    return foundPenalties;
+  }
+
   async getPenaltiesByChatroom(chatroomId: number): Promise<Penalty[]> {
     const foundPenalties = await this.penaltyRepository.find({
       relations: {
@@ -46,8 +60,8 @@ export class PenaltyService {
     return foundPenalties;
   }
 
-  async findBan(chatroomId: number, userId: number): Promise<Penalty | null> {
-    const foundBan = await this.penaltyRepository.findOne({
+  async findBan(chatroomId: number, userId: number): Promise<Penalty[] | null> {
+    const foundBan = await this.penaltyRepository.find({
       relations: {
         user: true,
         chatroom: true,
@@ -71,17 +85,25 @@ export class PenaltyService {
   ): Promise<boolean> {
     const foundBan = await this.findBan(chatroomId, userId);
     if (foundBan) {
-      const banDate = foundBan.time;
-      if (banDate !== undefined) {
-        const currentTime = new Date();
-        if (getMinutesDiff(currentTime, banDate) < 2) return true;
+      for (const i of foundBan) {
+        const foundBan = i.time;
+        if (foundBan !== undefined) {
+          const currentTime = new Date();
+          console.log(getMinutesDiff(currentTime, foundBan));
+          if (getMinutesDiff(currentTime, foundBan) < 2) {
+            return true;
+          }
+        }
       }
     }
     return false;
   }
 
-  async findMute(chatroomId: number, userId: number): Promise<Penalty | null> {
-    const foundMute = await this.penaltyRepository.findOne({
+  async findMute(
+    chatroomId: number,
+    userId: number,
+  ): Promise<Penalty[] | null> {
+    const foundMute = await this.penaltyRepository.find({
       relations: {
         user: true,
         chatroom: true,
@@ -105,10 +127,15 @@ export class PenaltyService {
   ): Promise<boolean> {
     const foundMute = await this.findMute(chatroomId, userId);
     if (foundMute) {
-      const muteDate = foundMute.time;
-      if (muteDate !== undefined) {
-        const currentTime = new Date();
-        if (getMinutesDiff(currentTime, muteDate) < 2) return true;
+      for (const i of foundMute) {
+        const muteDate = i.time;
+        if (muteDate !== undefined) {
+          const currentTime = new Date();
+          console.log(getMinutesDiff(currentTime, muteDate));
+          if (getMinutesDiff(currentTime, muteDate) < 2) {
+            return true;
+          }
+        }
       }
     }
     return false;
@@ -124,5 +151,14 @@ export class PenaltyService {
       return this.penaltyRepository.save(newPenalty);
     }
     throw new HttpException("Incorrect Penalty Type.", HttpStatus.BAD_REQUEST);
+  }
+
+  async deletePenalty(penaltyId: number): Promise<void> {
+    await this.penaltyRepository
+      .createQueryBuilder("penalty")
+      .delete()
+      .from(Penalty)
+      .where("id = :id", { id: penaltyId })
+      .execute();
   }
 }

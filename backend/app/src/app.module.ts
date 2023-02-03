@@ -9,6 +9,7 @@ import { ChatModule } from "./chat/chat.module";
 import * as Joi from "joi";
 import { PenaltyModule } from "./penalty/penalty.module";
 import { BlocklistModule } from "./blocklist/blocklist.module";
+import { PenaltyDelete } from "./penalty/penalty.scheduler";
 
 @Module({
   imports: [
@@ -29,6 +30,6 @@ import { BlocklistModule } from "./blocklist/blocklist.module";
     DatabaseModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PenaltyDelete],
 })
 export class AppModule {}
