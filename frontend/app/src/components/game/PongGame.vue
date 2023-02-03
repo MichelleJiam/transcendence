@@ -8,6 +8,7 @@
 import { onMounted } from "vue";
 import type { Ball, Canvas, Keys, Paddle, Player } from "./pong.types";
 import { Socket } from "socket.io-client";
+import { createConditionalExpression } from "@vue/compiler-core";
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -35,7 +36,19 @@ onMounted(() => {
   drawCenterLine();
   drawPaddles();
   drawBall();
+  intervalId = setInterval(draw, 1);
 });
+
+/*************
+ * GAME LOOP *
+ *************/
+
+let intervalId = setInterval(draw, 1); // change interval to change speed; can be a feature?
+clearInterval(intervalId);
+
+/******************
+ * INIT FUNCTIONS *
+ *****************/
 
 function initCanvas() {
   const canvas: HTMLCanvasElement = document.getElementById(
@@ -105,6 +118,15 @@ function initGame() {
  * DRAWING FUNCTIONS *
  *********************/
 
+function draw() {
+  ctx.clearRect(0, 0, view.width, view.height);
+  drawCenterLine();
+  drawBorderLines();
+  drawBall();
+  drawPaddles();
+  determinePaddleMoves();
+}
+
 function drawBorderLines() {
   ctx.beginPath();
   ctx.setLineDash([0]);
@@ -162,6 +184,49 @@ function drawBall() {
   ctx.fill();
   ctx.closePath();
 }
+
+/************
+ * MOVEMENT *
+ ************/
+
+//  io.to("some room").emit("some event");
+function determinePaddleMoves() {
+  if (key.up) {
+    props.socket.emit("movePaddleUp", props.player);
+  }
+  if (key.down) {
+    props.socket.emit("movePaddleDown", props.player);
+  }
+}
+
+props.socket.on("moveUp", (paddle: number) => {
+  if (paddle == 1) {
+    paddleOne.y = Math.max(
+      paddleOne.y - view.height * 0.01,
+      view.offset + view.borderLines
+    );
+  } else if (paddle == 2) {
+    paddleTwo.y = Math.max(
+      paddleTwo.y - view.height * 0.01,
+      view.offset + view.borderLines
+    );
+  }
+});
+
+/* view.height - view.offset - view.borderLines - paddle.y = lowest paddle can go */
+props.socket.on("moveDown", (paddle: number) => {
+  if (paddle == 1) {
+    paddleOne.y = Math.min(
+      paddleOne.y + view.height * 0.01,
+      view.height - paddleOne.height - view.offset - view.borderLines
+    );
+  } else if (paddle == 2) {
+    paddleTwo.y = Math.min(
+      paddleTwo.y + view.height * 0.01,
+      view.height - paddleTwo.height - view.offset - view.borderLines
+    );
+  }
+});
 
 /****************
  * KEY HANDLERS *
