@@ -46,9 +46,34 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() ball: Ball,
   ) {
+    console.log("ballPosition backend");
     this.ballPos.x = ball.x;
     this.ballPos.y = ball.y;
     this.ballPos.moveX = ball.moveX;
     this.ballPos.moveY = ball.moveY;
+  }
+
+  @SubscribeMessage("movePaddleUp")
+  async movePaddleUp(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() paddle: number,
+  ) {
+    if (paddle == 1) {
+      this.server.emit("moveUp", 1);
+    } else {
+      this.server.emit("moveUp", 2);
+    }
+  }
+
+  @SubscribeMessage("movePaddleDown")
+  async movePaddleDown(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() paddle: number,
+  ) {
+    if (paddle == 1) {
+      this.server.emit("moveDown", 1);
+    } else {
+      this.server.emit("moveDown", 2);
+    }
   }
 }
