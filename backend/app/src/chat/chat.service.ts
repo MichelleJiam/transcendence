@@ -200,7 +200,7 @@ export class ChatService {
     }
     throw new HttpException(
       "You do not have permission to send messages here.",
-      HttpStatus.BAD_REQUEST,
+      HttpStatus.FORBIDDEN,
     );
   }
 
@@ -334,7 +334,7 @@ export class ChatService {
     }
     throw new HttpException(
       "You do not have permission to change chat details",
-      HttpStatus.BAD_REQUEST,
+      HttpStatus.FORBIDDEN,
     );
   }
 

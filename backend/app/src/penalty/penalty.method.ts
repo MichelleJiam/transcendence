@@ -5,7 +5,12 @@ import { Penalty } from "./penalty.entity";
 
 export function getMinutesDiff(startDate: Date, endDate: Date): number {
   const msInMinute = 60 * 1000;
-
+  console.log("endDate: %d", Number(endDate));
+  console.log("StartDate: %d", Number(startDate));
+  console.log(
+    "abs of math: %d",
+    Math.abs(Number(endDate) - Number(startDate)) / msInMinute,
+  );
   return Math.round(Math.abs(Number(endDate) - Number(startDate)) / msInMinute);
 }
 

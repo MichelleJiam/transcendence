@@ -16,6 +16,10 @@ import { UpdateChatroomDto } from "src/chat/dto/update-chat.dto";
 import { User } from "src/user/user.entity";
 import { Chatroom } from "src/chat/chat.entity";
 import { HttpException } from "@nestjs/common";
+import { INestApplication } from "@nestjs/common";
+import { Test, TestingModule } from "@nestjs/testing";
+import * as request from "supertest";
+import { AppModule } from "src/app.module";
 
 let globalUser: User = new User();
 globalUser.id = 1;
@@ -350,5 +354,29 @@ describe("swap owners to chatroom", () => {
   chatroomEnd.chatroomName = "test";
   it("swapOwners test, should work", () => {
     expect(swapOwner(chatroomresult, globalUserTwo)).toEqual(chatroomEnd);
+  });
+});
+
+describe("AppController (e2e)", () => {
+  let app: INestApplication;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.init();
+  });
+
+  it("/ (GET)", () => {
+    return request(app.getHttpServer())
+      .get("/")
+      .expect(200)
+      .expect("Hello World!");
+  });
+
+  it("localhost/chatroom (GET)", () => {
+    return request(app.getHttpServer()).get("/chatroom").expect(200);
   });
 });
