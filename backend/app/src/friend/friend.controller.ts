@@ -41,15 +41,15 @@ export class FriendController {
         "Single relation expected but multiple relations returned",
       );
       throw new HttpException("Bad Request", HttpStatus.BAD_REQUEST);
-    } else if (res.length === 0) return "NORELATION";
+    } else if (res.length === 0) return "NONE";
     else return res[0].status;
   }
 
-  @Get(":id")
-  async getFriendsForUser(@Param("id", ParseIntPipe) id: number) {
-    this.logger.log("Hit the getFriendsForUser route");
-    return await this.friendService.getFriendsForUser(id);
-  }
+  // @Get(":id")
+  // async getFriendsForUser(@Param("id", ParseIntPipe) id: number) {
+  //   this.logger.log("Hit the getFriendsForUser route");
+  //   return await this.friendService.getFriendsForUser(id);
+  // }
 
   @Post("/request")
   async friendRequest(@Body() input: CreateRelationDto) {
@@ -59,7 +59,7 @@ export class FriendController {
       .catch(function () {
         throw new HttpException("Bad Request", HttpStatus.BAD_REQUEST);
       });
-    return await this.friendService.friendRequest(input);
+    return this.friendService.friendRequest(input);
   }
 
   @Delete(":id/unfriend")

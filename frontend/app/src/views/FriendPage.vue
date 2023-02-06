@@ -30,41 +30,70 @@
               : { 'background-color': 'orange' },
           ]"
         ></div>
-        <!-- if status friend, display unfriend button, if status pending, display pendig button -->
-        <!--
-          FRIEND status doesn't matter if your source / taget
-          PENDING also be for both sides
-        -->
+        <!-- start conditional rendering button -->
         <button
-          v-if="player.relation == 'NORELATION'"
+          v-if="player.relation == 'NONE' || player.relation == undefined"
           @click="sendFriendRequest(player)"
         >
           Add friend
         </button>
+        <button
+          v-else-if="player.relation == 'PENDING'"
+          class="pending"
+          disabled
+        >
+          Pending request
+        </button>
         <button v-else style="background-color: red">Unfriend</button>
+        <!-- end conditional rendering button -->
         <hr />
       </div>
 
       <div style="margin-top: 50px">
         <h2>Friend list</h2>
+
+        <!-- LEFT OFF HERE!! maybe make one function to check for friend and pending? -->
+
+        <div v-if="hasFriends()">
+          <div v-for="friend in friendList" :key="friend.id">
+            {{ friend.playerName }}
+            <button>Unfriend</button>
+          </div>
+        </div>
+        <div v-else>No friends</div>
+      </div>
+
+      <div style="margin-top: 50px">
+        <h2>Pending</h2>
+        <div v-for="pending in pendingList" :key="pending.id">
+          {{ pending.playerName }}
+          <button>Accept</button>
+          <button>Deny</button>
+        </div>
+      </div>
+
+      <!-- <div style="margin-top: 50px">
+        <h2>Friend list</h2>
         <p v-if="friendList.length == 0"><i>No friends</i></p>
         <p v-for="friend in friendList" v-else :key="friend.id">
           {{ friend.playerName }}
         </p>
-      </div>
+      </div> -->
     </div>
   </main>
 </template>
-
-<!-- MOVE ON WITH IMPLEMENTING FRIEND REQUESTS -->
 
 <script setup lang="ts">
 import apiRequest from "@/utils/apiRequest";
 import { onMounted, ref, computed } from "vue";
 import { useRoute } from "vue-router";
+import { io } from "socket.io-client";
 
+/* temporary workaround: remove when user authentication is fixed */
 const route = useRoute();
-const userId = route.params.id; // temporary workaround: remove when user authentication is fixed
+const userId = route.params.id;
+
+const socket = io("http://localhost:3000/friend");
 
 type User = {
   id: number;
@@ -75,15 +104,33 @@ type User = {
 };
 
 const users = ref(Array<User>());
-const friendList = ref(Array<User>());
 const searchQuery = ref("");
 
 onMounted(async () => {
+  socket.on("connect", () => {
+    console.log(
+      socket.id + " user",
+      userId,
+      "connected to socket on FriendPage"
+    );
+  });
+
+  await updateUserList();
+});
+
+socket.on("friendRequest", async (data) => {
+  if (data.target == userId) {
+    await updateUserList();
+    alert("You have a new friend request!");
+  }
+});
+
+/* fetch all users from the database */
+async function updateUserList() {
   const res = await apiRequest("/user/", "get");
   users.value = res.data;
-  updateStatus();
-  updateFriendList();
-});
+  await updateStatus();
+}
 
 async function checkFriendshipStatus(player: User) {
   const res = await apiRequest(
@@ -95,16 +142,46 @@ async function checkFriendshipStatus(player: User) {
 
 async function updateStatus() {
   for (let i = 0; i < users.value.length; i++) {
-    checkFriendshipStatus(users.value[i]);
+    await checkFriendshipStatus(users.value[i]);
   }
 }
 
-async function updateFriendList() {
-  const res = await apiRequest(`/friend/${userId}`, "get");
-  friendList.value = res.data;
+// async function updateFriendList() {
+//   const res = await apiRequest(`/friend/${userId}`, "get");
+//   friendList.value = res.data;
+// }
+
+function hasFriends() {
+  const friends = users.value.filter((player) => {
+    if (player.relation == "FRIEND") {
+      return player.playerName;
+    }
+  });
+  if (friends.length == 0) return false;
+  return true;
 }
 
-/* called twice, i think when the app is created, how to fix? */
+const friendList = computed(() => {
+  return users.value.filter((player) => {
+    if (player.relation == "FRIEND") {
+      return player.playerName;
+    }
+  });
+});
+
+const pendingList = computed(() => {
+  return users.value.filter((player) => {
+    if (player.relation == "PENDING") {
+      return player.playerName;
+    }
+  });
+});
+
+/* called twice, i think when the app is created, how to fix?
+it's also the reason i check for undefined when rendering the button,
+the first time around it's undefined and you see a glimpse of the
+red "unfriend" button. Now the button "pending" is added you also
+see a glimpse of the "add friend" button on the first time around */
 const searchedPlayers = computed(() => {
   return users.value.filter((player) => {
     if (player.playerName && player.id != Number(userId)) {
@@ -125,31 +202,30 @@ async function sendFriendRequest(player: User) {
         data: {
           source: userId,
           target: player.id,
-          status: "FRIEND",
+          status: "PENDING",
         },
       });
     } catch (error) {
       console.log(error);
       return;
     }
-    await updateFriendList();
+    // await updateFriendList();
     await updateStatus();
     alert("Friend request send");
-  } else console.log("No userId provided in url");
+  } else console.log("No user id provided in url");
 }
 </script>
 
 <style scoped>
-h1 {
-  font-size: 10rem;
-}
-
 .dot {
   height: 25px;
   width: 25px;
   border-radius: 50%;
 }
+
+.pending {
+  background-color: orange;
+}
 </style>
 
 <!-- https://softauthor.com/vuejs-composition-api-search-bar-using-computed-properties/ -->
-<!-- display button text based on friendship status? "send friend request" => "pending" -->
