@@ -89,7 +89,6 @@ export class PenaltyService {
         const foundBan = i.time;
         if (foundBan !== undefined) {
           const currentTime = new Date();
-          console.log(getMinutesDiff(currentTime, foundBan));
           if (getMinutesDiff(currentTime, foundBan) < 2) {
             return true;
           }
@@ -131,7 +130,6 @@ export class PenaltyService {
         const muteDate = i.time;
         if (muteDate !== undefined) {
           const currentTime = new Date();
-          console.log(getMinutesDiff(currentTime, muteDate));
           if (getMinutesDiff(currentTime, muteDate) < 2) {
             return true;
           }
@@ -160,5 +158,14 @@ export class PenaltyService {
       .from(Penalty)
       .where("id = :id", { id: penaltyId })
       .execute();
+  }
+
+  async clearOldPenalties() {
+    const penalties = await this.getPenaltiesOlderThanFiveMinutes();
+    if (Object.keys(penalties).length !== 0) {
+      for (const penalty of penalties) {
+        this.deletePenalty(penalty.id);
+      }
+    }
   }
 }

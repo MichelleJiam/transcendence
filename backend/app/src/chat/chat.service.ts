@@ -184,6 +184,7 @@ export class ChatService {
     chatroomId: number,
     createMessageDto: CreateMessageDto,
   ): Promise<Message> {
+    this.penaltyService.clearOldPenalties();
     if (
       (await this.chatMethod.isMemberOfChatroom(
         createMessageDto.userId,
