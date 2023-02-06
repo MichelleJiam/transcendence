@@ -34,8 +34,8 @@ export interface Keys {
 export interface GameRoom {
   room: string;
   player: string;
-  paddleOne: Paddle,
-  paddleTwo: Paddle,
+  paddleOne: Paddle;
+  paddleTwo: Paddle;
   ball: Ball;
   view: Canvas;
 }
