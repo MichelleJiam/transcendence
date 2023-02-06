@@ -7,6 +7,9 @@ import { IsNotEmpty, MaxLength, MinLength } from "class-validator";
 
 export class CreateMessageDto {
   @IsNotEmpty()
+  chatroomId!: number;
+
+  @IsNotEmpty()
   @MinLength(1, {
     message: "Cannot be empty",
   })

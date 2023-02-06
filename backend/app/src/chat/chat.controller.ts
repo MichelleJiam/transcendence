@@ -8,6 +8,7 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  Res,
 } from "@nestjs/common";
 import { CreateMessageDto } from "src/message/dto/create-message.dto";
 import { CreatePenaltyDto } from "src/penalty/dto/create-penalty.dto";
@@ -82,15 +83,9 @@ export class ChatController {
   }
 
   // is member the same Id as the logged in user?
-  @Post(":chatroomId/post_message")
-  async postMessageToChatroom(
-    @Param("chatroomId", ParseIntPipe) chatroomId: number,
-    @Body() createMessageDto: CreateMessageDto,
-  ) {
-    return this.chatroomService.postMessageToChatroom(
-      chatroomId,
-      createMessageDto,
-    );
+  @Post("post_message")
+  async postMessageToChatroom(@Body() createMessageDto: CreateMessageDto) {
+    return this.chatroomService.postMessageToChatroom(createMessageDto);
   }
 
   @Post(":chatroomId/admin/:adminId/ban")
