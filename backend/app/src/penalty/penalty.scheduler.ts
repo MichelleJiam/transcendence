@@ -8,13 +8,8 @@ export class PenaltyDelete {
 
   async clearOldPenalties(): Promise<void> {
     cron.schedule("15 * * * * *", async () => {
-      const penalties =
-        await this.penaltyService.getPenaltiesOlderThanFiveMinutes();
-      if (Object.keys(penalties).length !== 0) {
-        for (const penalty of penalties) {
-          this.penaltyService.deletePenalty(penalty.id);
-        }
-      }
+      this.penaltyService.clearOldPenalties();
+      console.log("cleared penalties");
     });
   }
 }
