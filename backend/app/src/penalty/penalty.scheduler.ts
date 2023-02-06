@@ -2,9 +2,7 @@ import * as cron from "node-cron";
 import { PenaltyService } from "./penalty.service";
 
 export class PenaltyDelete {
-  constructor(private readonly penaltyService: PenaltyService) {
-    this.clearOldPenalties();
-  }
+  constructor(private readonly penaltyService: PenaltyService) {}
 
   async clearOldPenalties(): Promise<void> {
     cron.schedule("15 * * * * *", async () => {

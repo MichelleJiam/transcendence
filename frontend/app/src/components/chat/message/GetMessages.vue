@@ -1,3 +1,18 @@
+<template>
+  <section></section>
+</template>
+
+<script lang="ts">
+import axios from "axios";
+import { ref, onMounted } from "vue";
+
+const messages = ref([]);
+onMounted(() =>
+  axios.get("http://localhost:3000/message").then((response) => {
+    messages.value = response.data; // returns the response data into the users variable which can then be used in the template
+  })
+);
+</script>
 <!-- <template>
 	<div v-for="message in messages" :key="message.id">
 	<p><pre><b>{{ message.userId.username }}</b>	<i style="font-size: 12px;">Posted at: {{ message.createdAt }}</i></pre></p>

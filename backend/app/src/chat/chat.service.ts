@@ -181,21 +181,22 @@ export class ChatService {
   }
 
   async postMessageToChatroom(
-    chatroomId: number,
     createMessageDto: CreateMessageDto,
   ): Promise<Message> {
     this.penaltyService.clearOldPenalties();
     if (
       (await this.chatMethod.isMemberOfChatroom(
         createMessageDto.userId,
-        chatroomId,
+        createMessageDto.chatroomId,
       )) == true &&
       (await this.penaltyService.isMutedFromChatroom(
-        chatroomId,
+        createMessageDto.chatroomId,
         createMessageDto.userId,
       )) == false
     ) {
-      const chatroom = await this.getChatroomInfoById(chatroomId);
+      const chatroom = await this.getChatroomInfoById(
+        createMessageDto.chatroomId,
+      );
       const user = await this.chatMethod.getUser(createMessageDto.userId);
       return this.messageService.create(createMessageDto, chatroom, user);
     }
