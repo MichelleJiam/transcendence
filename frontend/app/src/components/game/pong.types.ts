@@ -30,3 +30,12 @@ export interface Keys {
   up: boolean;
   down: boolean;
 }
+
+export interface GameRoom {
+  room: string;
+  player: string;
+  paddleOne: Paddle,
+  paddleTwo: Paddle,
+  ball: Ball;
+  view: Canvas;
+}

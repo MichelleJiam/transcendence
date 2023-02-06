@@ -38,7 +38,7 @@ const showStartButton = ref(true);
 const showWatchButton = ref(true);
 const gameState = ref(State.READY);
 const joined = ref(false);
-const gameId = ref(0);
+const gameId = ref("");
 const player = ref("");
 
 onBeforeMount(() => {
@@ -54,8 +54,8 @@ onMounted(() => {
 });
 
 socket.on("addPlayerOne", (data) => {
-  if (joined.value == false) {
-    gameId.value = data;
+  if (joined.value == false && gameState.value == State.WAITING) {
+    gameId.value = data.toString();
     socket.emit("joinRoom", gameId.value);
     player.value = "1";
     console.log(id, "has joined room ", gameId.value);
@@ -69,7 +69,7 @@ const startGame = async () => {
   if (res.data.id == undefined) {
     gameState.value = State.WAITING;
   } else {
-    gameId.value = res.data.id;
+    gameId.value = res.data.id.toString();
     socket.emit("joinRoom", gameId.value);
     player.value = "2";
     console.log(id, " has joined room ", gameId.value);

@@ -6,13 +6,12 @@
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import type { Ball, Canvas, Keys, Paddle, Player } from "./pong.types";
+import type { Ball, Canvas, Keys, Paddle, Player, GameRoom } from "./pong.types";
 import { Socket } from "socket.io-client";
-import { createConditionalExpression } from "@vue/compiler-core";
 
 const props = defineProps({
   id: { type: String, required: true },
-  gameid: { type: Number, required: true },
+  gameid: { type: String, required: true },
   player: { type: String, required: true },
   socket: { type: Socket, required: true },
 });
@@ -111,7 +110,6 @@ function initGame() {
     moveY: -((view.width * 0.014) / 5),
   };
   key = { up: false, down: false };
-  props.socket.emit("ballPosition", ball);
 }
 
 /*********************
@@ -124,7 +122,8 @@ function draw() {
   drawBorderLines();
   drawBall();
   drawPaddles();
-  determinePaddleMoves();
+  ballMovement();
+  determineKeyStrokes();
 }
 
 function drawBorderLines() {
@@ -189,51 +188,64 @@ function drawBall() {
  * MOVEMENT *
  ************/
 
-//  io.to("some room").emit("some event");
-function determinePaddleMoves() {
-  if (key.up) {
-    props.socket.emit("movePaddleUp", props.player);
-  }
-  if (key.down) {
-    props.socket.emit("movePaddleDown", props.player);
-  }
+function determineKeyStrokes() {
+
+let gameRoom: GameRoom = {
+  room: props.gameid,
+  player: props.player,
+  paddleOne: paddleOne,
+  paddleTwo: paddleTwo,
+  ball: ball,
+  view: view,
+};
+if (key.up) {
+  props.socket.emit("movePaddleUp", gameRoom);
+}
+if (key.down) {
+  props.socket.emit("movePaddleDown", gameRoom);
+}
 }
 
-props.socket.on("moveUp", (paddle: number) => {
-  if (paddle == 1) {
-    paddleOne.y = Math.max(
-      paddleOne.y - view.height * 0.01,
-      view.offset + view.borderLines
-    );
-  } else if (paddle == 2) {
-    paddleTwo.y = Math.max(
-      paddleTwo.y - view.height * 0.01,
-      view.offset + view.borderLines
-    );
-  }
+props.socket.on("movePaddleUp", (gameRoom: GameRoom) => {
+if (gameRoom.player == "1") {
+  paddleOne.y = gameRoom.paddleOne.y;
+} else {
+  paddleTwo.y = gameRoom.paddleTwo.y;
+}
 });
 
-/* view.height - view.offset - view.borderLines - paddle.y = lowest paddle can go */
-props.socket.on("moveDown", (paddle: number) => {
-  if (paddle == 1) {
-    paddleOne.y = Math.min(
-      paddleOne.y + view.height * 0.01,
-      view.height - paddleOne.height - view.offset - view.borderLines
-    );
-  } else if (paddle == 2) {
-    paddleTwo.y = Math.min(
-      paddleTwo.y + view.height * 0.01,
-      view.height - paddleTwo.height - view.offset - view.borderLines
-    );
-  }
+props.socket.on("movePaddleDown", (gameRoom: GameRoom) => {
+if (gameRoom.player == "1") {
+  paddleOne.y = gameRoom.paddleOne.y;
+} else {
+  paddleTwo.y = gameRoom.paddleTwo.y;
+}
 });
+
+function ballMovement() {
+  let gameRoom: GameRoom = {
+    room: props.gameid,
+    player: props.player,
+    paddleOne: paddleOne,
+    paddleTwo: paddleTwo,
+    ball: ball,
+    view: view,
+  }
+  props.socket.emit("moveBall", gameRoom);
+}
+
+props.socket.on("moveBall", (gameRoom: GameRoom) => {
+  ball.x = gameRoom.ball.x;
+  ball.y = gameRoom.ball.y;
+  console.log("ball.x = ", ball.x);
+  console.log("ball.y = ", ball.y);
+})
 
 /****************
  * KEY HANDLERS *
  ****************/
 
 function keyDownHandler(e: KeyboardEvent) {
-  console.log(e);
   if (e.key === "Up" || e.key === "ArrowUp") {
     key.up = true;
   } else if (e.key === "Down" || e.key === "ArrowDown") {
@@ -242,7 +254,6 @@ function keyDownHandler(e: KeyboardEvent) {
 }
 
 function keyUpHandler(e: KeyboardEvent) {
-  console.log(e);
   if (e.key === "Up" || e.key === "ArrowUp") {
     key.up = false;
   } else if (e.key === "Down" || e.key === "ArrowDown") {
