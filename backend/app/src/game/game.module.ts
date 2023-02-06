@@ -12,6 +12,6 @@ import { GameGateway } from "./game.gateway";
 @Module({
   imports: [TypeOrmModule.forFeature([Game, User, Avatar])],
   controllers: [GameController],
-  providers: [GameService, UserService, AvatarService, GameGateway]
+  providers: [GameService, UserService, AvatarService, GameGateway],
 })
 export class GameModule {}

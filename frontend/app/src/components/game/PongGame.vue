@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import type { Ball, Canvas, Keys, Paddle, Player, GameRoom } from "./pong.types";
+import type { Ball, Canvas, Keys, Paddle, GameRoom, Player } from "./pong.types";
 import { Socket } from "socket.io-client";
 
 const props = defineProps({
@@ -112,18 +112,62 @@ function initGame() {
   key = { up: false, down: false };
 }
 
+/************
+ * END GAME *
+ ************/
+
+// async function endGame(winner: Player) {
+//   winner.score++;
+//   if (winner.score === 3) {
+//     clearInterval(intervalId);
+//     ctx.clearRect(0, 0, view.width, view.height);
+//     drawCenterLine();
+//     drawBorderLines();
+//     drawScoreboard();
+//     drawBall();
+//     drawPaddles();
+//     drawGameOver(winner);
+//     await sleep(2000);
+//     updateInPlay();
+//     return;
+//   }
+//   clearInterval(intervalId);
+//   initGame();
+//   await countdown().then((data) => {
+//     console.log(data);
+//   });
+//   intervalId = setInterval(draw, 1);
+// }
+
 /*********************
  * DRAWING FUNCTIONS *
  *********************/
 
-function draw() {
+async function draw() {
   ctx.clearRect(0, 0, view.width, view.height);
   drawCenterLine();
   drawBorderLines();
-  drawBall();
-  drawPaddles();
-  ballMovement();
   determineKeyStrokes();
+  drawPaddles();
+  drawBall();
+  moveBall();
+}
+
+function drawScoreboard() {
+  ctx.beginPath();
+  ctx.font = view.width * 0.07 + "px ArcadeClassic";
+  ctx.fillStyle = "#39ff14";
+  ctx.fillText(
+    playerOne.score.toString(),
+    view.width / 2 - view.width / 16,
+    view.height / 6
+  );
+  ctx.fillText(
+    playerTwo.score.toString(),
+    view.width / 2 + view.width / 16,
+    view.height / 6
+  );
+  ctx.closePath();
 }
 
 function drawBorderLines() {
@@ -184,62 +228,122 @@ function drawBall() {
   ctx.closePath();
 }
 
+function drawGameOver(winner: Player) {
+  ctx.beginPath();
+  ctx.font = view.width * 0.07 + "px ArcadeClassic";
+  ctx.textAlign = "center";
+  ctx.fillText(
+    "PLAYER " + winner.id,
+    view.width / 2 - view.width / 6,
+    view.height - view.height / 3
+  );
+  ctx.fillText(
+    "WINS",
+    view.width / 2 + view.width / 8,
+    view.height - view.height / 3
+  );
+
+  ctx.font = view.width * 0.07 + "px ArcadeClassic";
+  ctx.textAlign = "center";
+  ctx.fillText("GAME", view.width / 2 - view.width / 8, view.height / 3);
+  ctx.fillText("OVER", view.width / 2 + view.width / 8, view.height / 3);
+  ctx.closePath();
+}
+
 /************
  * MOVEMENT *
  ************/
 
-function determineKeyStrokes() {
-
-let gameRoom: GameRoom = {
-  room: props.gameid,
-  player: props.player,
-  paddleOne: paddleOne,
-  paddleTwo: paddleTwo,
-  ball: ball,
-  view: view,
-};
-if (key.up) {
-  props.socket.emit("movePaddleUp", gameRoom);
-}
-if (key.down) {
-  props.socket.emit("movePaddleDown", gameRoom);
-}
-}
-
-props.socket.on("movePaddleUp", (gameRoom: GameRoom) => {
-if (gameRoom.player == "1") {
-  paddleOne.y = gameRoom.paddleOne.y;
-} else {
-  paddleTwo.y = gameRoom.paddleTwo.y;
-}
-});
-
-props.socket.on("movePaddleDown", (gameRoom: GameRoom) => {
-if (gameRoom.player == "1") {
-  paddleOne.y = gameRoom.paddleOne.y;
-} else {
-  paddleTwo.y = gameRoom.paddleTwo.y;
-}
-});
-
-function ballMovement() {
-  let gameRoom: GameRoom = {
+async function determineKeyStrokes() {
+  const gameRoom: GameRoom = {
     room: props.gameid,
     player: props.player,
     paddleOne: paddleOne,
     paddleTwo: paddleTwo,
     ball: ball,
     view: view,
+  };
+  if (key.up) {
+    props.socket.emit("movePaddleUp", gameRoom);
   }
-  props.socket.emit("moveBall", gameRoom);
+  if (key.down) {
+    props.socket.emit("movePaddleDown", gameRoom);
+  }
 }
 
-props.socket.on("moveBall", (gameRoom: GameRoom) => {
-  ball.x = gameRoom.ball.x;
-  ball.y = gameRoom.ball.y;
-  console.log("ball.x = ", ball.x);
-  console.log("ball.y = ", ball.y);
-})
+props.socket.on("movePaddleUp", (player: string) => {
+  if (player == "1") {
+    paddleOne.y = Math.max(
+      paddleOne.y - view.height * 0.01,
+      view.offset + view.borderLines
+    );
+  } else {
+    paddleTwo.y = Math.max(
+      paddleTwo.y - view.height * 0.01,
+      view.offset + view.borderLines
+    );
+  }
+});
+
+props.socket.on("movePaddleDown", (player: string) => {
+  if (player == "1") {
+    paddleOne.y = Math.min(
+      paddleOne.y + view.height * 0.01,
+      view.height - paddleOne.height - view.offset - view.borderLines
+    );
+  } else {
+    paddleTwo.y = Math.min(
+      paddleTwo.y + view.height * 0.01,
+      view.height - paddleTwo.height - view.offset - view.borderLines
+    );
+  }
+});
+
+function moveBall() {
+  props.socket.emit("moveBall", props.gameid);
+}
+
+props.socket.on("calculateBallMovement", () => {
+  if (
+    ball.x + ball.moveX >
+    view.width - ball.radius - paddleTwo.width * 2 - paddleTwo.offset
+  ) {
+    if (
+      ball.y > paddleTwo.y - ball.radius &&
+      ball.y < paddleTwo.y + paddleTwo.height + ball.radius
+    ) {
+      console.log("RIGHT PADDLE HIT");
+      ball.moveX = -ball.moveX;
+    } else {
+      console.log("RIGHT PADDLE MISSED - END GAME");
+      ball.moveX = -ball.moveX;
+      // endGame(player1); // figure out how to handle this (likely emit it)
+    }
+  } else if (
+    ball.x + ball.moveX <
+    ball.radius + paddleTwo.width + paddleTwo.offset
+  ) {
+    if (
+      ball.y > paddleOne.y - ball.radius &&
+      ball.y < paddleOne.y + paddleOne.height + ball.radius
+    ) {
+      ball.moveX = -ball.moveX;
+      console.log("LEFT PADDLE HIT");
+    } else {
+      ball.moveX = -ball.moveX;
+      // endGame(player2); // figure out how to handle this (likely emit it)
+    }
+  }
+  if (ball.y + ball.moveY < ball.radius + view.offset - view.borderLines) {
+    ball.moveY = -ball.moveY;
+    console.log("TOP WALL HIT");
+  } else if (ball.y + ball.moveY > view.height - ball.radius - view.offset) {
+    ball.moveY = -ball.moveY;
+    console.log("BOTTOM WALL HIT");
+  }
+  ball.x += ball.moveX;
+  ball.y += ball.moveY;
+});
 
 /****************
  * KEY HANDLERS *
