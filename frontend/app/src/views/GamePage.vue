@@ -1,15 +1,15 @@
 <template>
   <main>
     <div id="display-content">
-      <div v-if="gameState == State.READY" class="my-btn">
+      <div v-if="game.state == State.READY" class="my-btn">
         <button class="btn" @click="startGame">PLAY</button>
         <button class="btn">WATCH</button>
       </div>
-      <div v-else-if="gameState == State.WAITING" class="loader">
+      <div v-else-if="game.state == State.WAITING" class="loader">
         <LoaderKnightRider />
       </div>
       <div v-else>
-        <PongGame :id="id" :gameid="gameId" :player="player" :socket="socket" />
+        <PongGame :id="id" :game="game" :socket="socket" />
       </div>
     </div>
   </main>
@@ -23,6 +23,7 @@ import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import { onMounted } from "vue";
+import type { Game } from "../components/game/pong.types";
 
 const State = {
   READY: 0,
@@ -36,10 +37,9 @@ const id = route.params.id as string;
 const socket = io("http://localhost:3000/pong");
 const showStartButton = ref(true);
 const showWatchButton = ref(true);
-const gameState = ref(State.READY);
 const joined = ref(false);
-const gameId = ref("");
-const player = ref("");
+const game = ref({} as Game);
+game.value.state = State.READY;
 
 onBeforeMount(() => {
   socket.on("disconnect", () => {
@@ -53,27 +53,36 @@ onMounted(() => {
   });
 });
 
-socket.on("addPlayerOne", (data) => {
-  if (joined.value == false && gameState.value == State.WAITING) {
-    gameId.value = data.toString();
-    socket.emit("joinRoom", gameId.value);
-    player.value = "1";
-    console.log(id, "has joined room ", gameId.value);
+socket.on("addPlayerOne", (gameData: Game) => {
+  if (joined.value == false && game.value.state == State.WAITING) {
+    console.log(gameData.id.toString());
+    game.value = {
+      id: gameData.id,
+      player: 1,
+      playerOne: gameData.playerOne,
+      playerTwo: gameData.playerTwo,
+      state: State.PLAYING,
+    };
+    socket.emit("joinRoom", gameData);
     joined.value = true;
-    gameState.value = State.PLAYING;
+    console.log(id, "has joined room ", gameData.id);
   }
 });
 
 const startGame = async () => {
   const res = await apiRequest(`/match/${id}`, "get");
   if (res.data.id == undefined) {
-    gameState.value = State.WAITING;
+    game.value.state = State.WAITING;
   } else {
-    gameId.value = res.data.id.toString();
-    socket.emit("joinRoom", gameId.value);
-    player.value = "2";
-    console.log(id, " has joined room ", gameId.value);
-    gameState.value = State.PLAYING;
+    game.value = {
+      id: res.data.id.toString(),
+      player: 2,
+      playerOne: res.data.playerOne,
+      playerTwo: res.data.playerTwo,
+      state: State.PLAYING,
+    };
+    socket.emit("joinRoom", res.data);
+    console.log(id, " has joined room ", game.value.id);
     joined.value = true;
     showStartButton.value = false;
     showWatchButton.value = false;
