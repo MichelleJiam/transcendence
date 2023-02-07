@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const baseUrl = "http://localhost:3000";
+export const frontendUrl = "http://localhost:5173";
 
 interface ConfigOptions {
   headers?: object;
