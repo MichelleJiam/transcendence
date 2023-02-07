@@ -5,12 +5,12 @@
 
       <div class="input-parent">
         <label for="username">Username</label>
-        <input id="username" v-model="username" type="text"/>
+        <input id="username" v-model="username" type="text" />
       </div>
 
       <div class="input-parent">
         <label for="password">Password</label>
-        <input id="password" v-model="password" type="password"/>
+        <input id="password" v-model="password" type="password" />
       </div>
 
       <button @click.prevent="submitLogin">Login</button>

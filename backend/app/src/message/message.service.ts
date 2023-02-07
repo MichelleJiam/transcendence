@@ -21,15 +21,16 @@ export class MessageService {
         chatroomId: true,
       },
       order: {
-        userId: {
-          id: "asc",
-        },
+        id: "asc",
       },
     });
   }
 
   async getMessagesFromChatroom(chatroomId: number): Promise<Message[]> {
     const messages = await this.messageRepository.find({
+      order: {
+        id: "asc",
+      },
       relations: {
         chatroomId: true,
         userId: true,
@@ -45,6 +46,9 @@ export class MessageService {
 
   async getMessageByUserId(id: number) {
     const messages = await this.messageRepository.find({
+      order: {
+        id: "asc",
+      },
       relations: {
         userId: true,
         chatroomId: true,

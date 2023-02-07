@@ -8,7 +8,6 @@ import {
   Param,
   Body,
   ParseIntPipe,
-  Res,
 } from "@nestjs/common";
 import { CreateMessageDto } from "src/message/dto/create-message.dto";
 import { CreatePenaltyDto } from "src/penalty/dto/create-penalty.dto";
@@ -52,7 +51,7 @@ export class ChatController {
     return this.chatroomService.getChatroomsOfUser(userId);
   }
 
-  @Get(":type")
+  @Get("type/:type")
   async getChatroomByType(@Param("type") type: string) {
     return this.chatroomService.getChatroomByType(type);
   }
@@ -75,6 +74,7 @@ export class ChatController {
   // is member the same Id as the logged in user?
   @Post("create")
   async createChatroom(@Body() createChatroomDto: CreateChatroomDto) {
+    console.log(createChatroomDto);
     try {
       return this.chatroomService.createChatroom(createChatroomDto);
     } catch (err) {
