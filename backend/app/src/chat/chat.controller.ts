@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
 } from "@nestjs/common";
 import { CreateMessageDto } from "src/message/dto/create-message.dto";
+import { Message } from "src/message/message.entity";
 import { CreatePenaltyDto } from "src/penalty/dto/create-penalty.dto";
 import { Penalty } from "src/penalty/penalty.entity";
 import { ChatService } from "./chat.service";
@@ -63,6 +64,21 @@ export class ChatController {
     return this.chatroomService.getMessagesFromChatroom(chatroomId);
   }
 
+  @Get(":chatroomId/user/:userId/messages/")
+  async getMessagesFromChatroomForUser(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Param("userId", ParseIntPipe) userId: number,
+  ) {
+    try {
+      return this.chatroomService.getMessagesFromChatroomForUser(
+        chatroomId,
+        userId,
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   @Get(":chatroomId/penalties")
   async getPenaltiesFromChatroom(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
@@ -82,7 +98,7 @@ export class ChatController {
     }
   }
 
-  // is member the same Id as the logged in user?
+  // is member the same Id as the logged in user? also this is just for testing, remove for deployment
   @Post("post_message")
   async postMessageToChatroom(@Body() createMessageDto: CreateMessageDto) {
     return this.chatroomService.postMessageToChatroom(createMessageDto);
