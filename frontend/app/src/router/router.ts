@@ -4,7 +4,8 @@ import GamePage from "../views/GamePage.vue";
 import UserPage from "../views/UserPage.vue";
 import LeaderBoard from "../views/LeaderBoard.vue";
 import LiveStream from "../views/LiveStream.vue";
-import ChatRoom from "../views/ChatRoom.vue";
+import Chatroom from "../views/Chatroom.vue";
+import SingleChatroom from "../views/SingleChatroom.vue";
 import NotFound from "../views/NotFound.vue";
 import type { Component } from "vue";
 
@@ -25,7 +26,8 @@ const routes: {
   { path: "/account", component: UserPage, alias: ["/user"] },
   { path: "/leaderboard", component: LeaderBoard },
   { path: "/stream", component: LiveStream },
-  { path: "/chat", component: ChatRoom },
+  { path: "/chat", component: Chatroom },
+  { path: "/chat/:id", component: SingleChatroom } /* temp workaround */,
   { path: "/:pathMatch(.*)*", component: NotFound },
 ];
 

@@ -126,6 +126,9 @@ export class ChatService {
 
   async getChatroomsOfUser(userId: number): Promise<Chatroom[]> {
     const chatrooms = await this.chatroomRepository.find({
+      order: {
+        id: "asc",
+      },
       relations: {
         message: true,
         owner: true,
@@ -144,6 +147,9 @@ export class ChatService {
 
   async getChatroomByType(type: string): Promise<Chatroom[]> {
     const chatrooms = await this.chatroomRepository.find({
+      order: {
+        id: "asc",
+      },
       relations: {
         message: true,
         owner: true,
