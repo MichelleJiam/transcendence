@@ -6,7 +6,7 @@ export interface Canvas {
 }
 
 export interface Player {
-  id: string;
+  id?: string;
   score: number;
   paddle: Paddle;
 }
@@ -31,11 +31,32 @@ export interface Keys {
   down: boolean;
 }
 
+// combine Game elements into GameRoom or vice versa
 export interface GameRoom {
   room: string;
-  player: string;
+  player: number;
   paddleOne: Paddle;
   paddleTwo: Paddle;
   ball: Ball;
   view: Canvas;
+}
+
+// export interface Game {
+//   id: string;
+//   player: number;
+//   playerOne: number;
+//   playerTwo: number;
+//   state: number;
+// }
+
+export interface Game {
+  id: number;
+  player: number;
+  playerOne: number;
+  playerTwo: number;
+  winnerId?: number;
+  loserId?: number;
+  winnerScore?: number;
+  loserScore?: number;
+  state: number;
 }

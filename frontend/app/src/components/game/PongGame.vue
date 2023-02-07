@@ -6,13 +6,21 @@
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import type { Ball, Canvas, Keys, Paddle, GameRoom, Player } from "./pong.types";
+import type { PropType } from "vue";
+import type {
+  Ball,
+  Canvas,
+  Keys,
+  Paddle,
+  GameRoom,
+  Player,
+  Game,
+} from "./pong.types";
 import { Socket } from "socket.io-client";
 
 const props = defineProps({
   id: { type: String, required: true },
-  gameid: { type: String, required: true },
-  player: { type: String, required: true },
+  game: { type: Object as PropType<Game>, required: true },
   socket: { type: Socket, required: true },
 });
 
@@ -24,6 +32,7 @@ let paddleOne: Paddle;
 let paddleTwo: Paddle;
 let ball: Ball;
 let key: Keys;
+let gameRoom: GameRoom;
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -88,26 +97,30 @@ function initGame() {
     y: (view.height - view.height * 0.24) / 2,
     offset: view.width * 0.0026,
   };
-  if (props.player == "1") {
-    playerOne = {
-      id: props.id,
-      score: 0,
-      paddle: paddleOne,
-    };
-  }
-  if (props.player == "2") {
-    playerTwo = {
-      id: props.id,
-      score: 0,
-      paddle: paddleTwo,
-    };
-  }
+  playerOne = {
+    id: props.game.playerOne.toString(),
+    score: 0,
+    paddle: paddleOne,
+  };
+  playerTwo = {
+    id: props.game.playerTwo.toString(),
+    score: 0,
+    paddle: paddleTwo,
+  };
   ball = {
     radius: view.width * 0.014,
     x: view.width / 8,
     y: view.height / 2,
     moveX: (view.width * 0.014) / 5,
     moveY: -((view.width * 0.014) / 5),
+  };
+  gameRoom = {
+    room: props.game.id.toString(),
+    player: props.game.player,
+    paddleOne: paddleOne,
+    paddleTwo: paddleTwo,
+    ball: ball,
+    view: view,
   };
   key = { up: false, down: false };
 }
@@ -116,28 +129,28 @@ function initGame() {
  * END GAME *
  ************/
 
-// async function endGame(winner: Player) {
-//   winner.score++;
-//   if (winner.score === 3) {
-//     clearInterval(intervalId);
-//     ctx.clearRect(0, 0, view.width, view.height);
-//     drawCenterLine();
-//     drawBorderLines();
-//     drawScoreboard();
-//     drawBall();
-//     drawPaddles();
-//     drawGameOver(winner);
-//     await sleep(2000);
-//     updateInPlay();
-//     return;
-//   }
-//   clearInterval(intervalId);
-//   initGame();
-//   await countdown().then((data) => {
-//     console.log(data);
-//   });
-//   intervalId = setInterval(draw, 1);
-// }
+async function endGame(winner: Player) {
+  winner.score++;
+  if (winner.score === 3) {
+    clearInterval(intervalId);
+    ctx.clearRect(0, 0, view.width, view.height);
+    drawCenterLine();
+    drawBorderLines();
+    drawScoreboard();
+    drawBall();
+    drawPaddles();
+    // drawGameOver(winner);
+    // await sleep(2000);
+    // updateInPlay();
+    return;
+  }
+  clearInterval(intervalId);
+  initGame();
+  // await countdown().then((data) => {
+  //   console.log(data);
+  // });
+  intervalId = setInterval(draw, 1);
+}
 
 /*********************
  * DRAWING FUNCTIONS *
@@ -147,10 +160,11 @@ async function draw() {
   ctx.clearRect(0, 0, view.width, view.height);
   drawCenterLine();
   drawBorderLines();
-  determineKeyStrokes();
-  drawPaddles();
+  drawScoreboard();
   drawBall();
   moveBall();
+  drawPaddles();
+  determineKeyStrokes();
 }
 
 function drawScoreboard() {
@@ -159,7 +173,7 @@ function drawScoreboard() {
   ctx.fillStyle = "#39ff14";
   ctx.fillText(
     playerOne.score.toString(),
-    view.width / 2 - view.width / 16,
+    view.width / 2 - view.width / 16 - (view.width * 0.07) / 2,
     view.height / 6
   );
   ctx.fillText(
@@ -167,6 +181,17 @@ function drawScoreboard() {
     view.width / 2 + view.width / 16,
     view.height / 6
   );
+  ctx.closePath();
+}
+
+function drawCenterLine() {
+  ctx.beginPath();
+  ctx.lineWidth = view.width * 0.015;
+  ctx.setLineDash([view.width * 0.014, 27]);
+  ctx.moveTo(view.width / 2, view.height * 0.05);
+  ctx.lineTo(view.width / 2, view.height - view.height * 0.05);
+  ctx.strokeStyle = "#FFFFFF";
+  ctx.stroke();
   ctx.closePath();
 }
 
@@ -182,17 +207,6 @@ function drawBorderLines() {
     view.height - view.height * 0.018
   );
   ctx.strokeStyle = "white";
-  ctx.stroke();
-  ctx.closePath();
-}
-
-function drawCenterLine() {
-  ctx.beginPath();
-  ctx.lineWidth = view.width * 0.015;
-  ctx.setLineDash([view.width * 0.014, 27]);
-  ctx.moveTo(view.width / 2, view.height * 0.05);
-  ctx.lineTo(view.width / 2, view.height - view.height * 0.05);
-  ctx.strokeStyle = "#FFFFFF";
   ctx.stroke();
   ctx.closePath();
 }
@@ -228,41 +242,41 @@ function drawBall() {
   ctx.closePath();
 }
 
-function drawGameOver(winner: Player) {
-  ctx.beginPath();
-  ctx.font = view.width * 0.07 + "px ArcadeClassic";
-  ctx.textAlign = "center";
-  ctx.fillText(
-    "PLAYER " + winner.id,
-    view.width / 2 - view.width / 6,
-    view.height - view.height / 3
-  );
-  ctx.fillText(
-    "WINS",
-    view.width / 2 + view.width / 8,
-    view.height - view.height / 3
-  );
+// function drawGameOver(winner: Player) {
+//   ctx.beginPath();
+//   ctx.font = view.width * 0.07 + "px ArcadeClassic";
+//   ctx.textAlign = "center";
+//   ctx.fillText(
+//     "PLAYER " + winner.id,
+//     view.width / 2 - view.width / 6,
+//     view.height - view.height / 3
+//   );
+//   ctx.fillText(
+//     "WINS",
+//     view.width / 2 + view.width / 8,
+//     view.height - view.height / 3
+//   );
 
-  ctx.font = view.width * 0.07 + "px ArcadeClassic";
-  ctx.textAlign = "center";
-  ctx.fillText("GAME", view.width / 2 - view.width / 8, view.height / 3);
-  ctx.fillText("OVER", view.width / 2 + view.width / 8, view.height / 3);
-  ctx.closePath();
-}
+//   ctx.font = view.width * 0.07 + "px ArcadeClassic";
+//   ctx.textAlign = "center";
+//   ctx.fillText("GAME", view.width / 2 - view.width / 8, view.height / 3);
+//   ctx.fillText("OVER", view.width / 2 + view.width / 8, view.height / 3);
+//   ctx.closePath();
+// }
 
 /************
  * MOVEMENT *
  ************/
 
 async function determineKeyStrokes() {
-  const gameRoom: GameRoom = {
-    room: props.gameid,
-    player: props.player,
-    paddleOne: paddleOne,
-    paddleTwo: paddleTwo,
-    ball: ball,
-    view: view,
-  };
+  // const gameRoom: GameRoom = {
+  //   room: props.game.id.toString(),
+  //   player: props.game.player,
+  //   paddleOne: paddleOne,
+  //   paddleTwo: paddleTwo,
+  //   ball: ball,
+  //   view: view,
+  // };
   if (key.up) {
     props.socket.emit("movePaddleUp", gameRoom);
   }
@@ -300,7 +314,7 @@ props.socket.on("movePaddleDown", (player: string) => {
 });
 
 function moveBall() {
-  props.socket.emit("moveBall", props.gameid);
+  props.socket.emit("moveBall", props.game.id);
 }
 
 props.socket.on("calculateBallMovement", () => {
@@ -317,7 +331,9 @@ props.socket.on("calculateBallMovement", () => {
     } else {
       console.log("RIGHT PADDLE MISSED - END GAME");
       ball.moveX = -ball.moveX;
-      // endGame(player1); // figure out how to handle this (likely emit it)
+      props.socket.emit("endGame", 1);
+      // endGame(props.game.player); // figure out how to handle this (likely emit it)
+      console.log("p1 score ", playerOne.score);
     }
   } else if (
     ball.x + ball.moveX <
@@ -331,7 +347,8 @@ props.socket.on("calculateBallMovement", () => {
       console.log("LEFT PADDLE HIT");
     } else {
       ball.moveX = -ball.moveX;
-      // endGame(player2); // figure out how to handle this (likely emit it)
+      props.socket.emit("endGame", );
+      // endGame(playerTwo); // figure out how to handle this (likely emit it)
     }
   }
   if (ball.y + ball.moveY < ball.radius + view.offset - view.borderLines) {

@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from "socket.io";
 import { GameService } from "./game.service";
 import { GameRoom } from "./pong.types";
+import { CreateGameDto } from "./dto/create-game.dto";
 
 // by default will listen to same port http is listening on
 @WebSocketGateway({
@@ -32,11 +33,11 @@ export class GameGateway {
   @SubscribeMessage("joinRoom")
   async joinRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() room: string,
+    @MessageBody() game: CreateGameDto,
   ) {
-    client.join(room);
-    console.log(client.id, " joined room: ", room);
-    this.server.emit("addPlayerOne", room);
+    client.join(game.id.toString());
+    console.log(client.id, " joined room: ", game.id.toString());
+    this.server.emit("addPlayerOne", game);
   }
 
   @SubscribeMessage("movePaddleUp")
@@ -51,6 +52,11 @@ export class GameGateway {
 
   @SubscribeMessage("moveBall")
   moveBall(@MessageBody() room: string) {
+    this.server.to(room).emit("calculateBallMovement");
+  }
+
+  @SubscribeMessage("endGame")
+  endGame(@MessageBody() room: string) {
     this.server.to(room).emit("calculateBallMovement");
   }
 }
