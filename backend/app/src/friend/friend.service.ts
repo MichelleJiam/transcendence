@@ -6,10 +6,15 @@ import {
   Logger,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "src/user/user.entity";
 import { Repository } from "typeorm";
 import { Friend } from "./friend.entity";
 import { FriendGateway } from "./friend.gateway";
+
+type Relation = {
+  source: number;
+  target: number;
+  status: string /* FRIEND | PENDING | NONE */;
+};
 
 @Injectable()
 export class FriendService {
@@ -37,21 +42,6 @@ export class FriendService {
     return relation;
   }
 
-  // async getFriendsForUser(id: number) {
-  //   const relations = await this.friendRepository.find({
-  //     where: [
-  //       { source: id, status: "FRIEND" },
-  //       { target: id, status: "FRIEND" },
-  //     ],
-  //     relations: ["source", "target"],
-  //   });
-  //   const friends = relations.map((relation: Friend) => {
-  //     if ((relation.source as unknown as User).id == id) return relation.target;
-  //     else return relation.source;
-  //   });
-  //   return friends;
-  // }
-
   async checkRequest(source: number, target: number) {
     if (source == target) {
       this.logger.debug("Source is equal to target");
@@ -63,8 +53,18 @@ export class FriendService {
   }
 
   async friendRequest(input: object) {
-    console.log("input: ", input);
     this.friendRepository.save(input);
     return this.friendGateway.server.emit("friendRequest", input);
+  }
+
+  async acceptRequest(input: Relation) {
+    await this.friendRepository.update(
+      {
+        source: input.source,
+        target: input.target,
+      },
+      { status: "FRIEND" },
+    );
+    return this.friendGateway.server.emit("requestAccepted", input);
   }
 }
