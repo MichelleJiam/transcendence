@@ -32,10 +32,6 @@ export class MatchController {
     const game = await this.matchService.getMatch(id).catch(() => {
       throw new BadRequestException("error while trying to create match");
     });
-    /* 
-        check on frontend; if it's null then that means the player needs to wait
-        otherwise we can put them in a room and begin the game play
-    */
     return game;
   }
 

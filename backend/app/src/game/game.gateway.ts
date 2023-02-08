@@ -40,6 +40,15 @@ export class GameGateway {
     this.server.emit("addPlayerOne", game);
   }
 
+  @SubscribeMessage("leaveRoom")
+  leaveRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() game: CreateGameDto,
+  ) {
+    client.leave(game.id.toString());
+    console.log(client.id, " left room: ", game.id.toString());
+  }
+
   @SubscribeMessage("movePaddleUp")
   movePaddleUp(@MessageBody() gameRoom: GameRoom) {
     this.server.to(gameRoom.room).emit("movePaddleUp", gameRoom.player);
@@ -56,7 +65,7 @@ export class GameGateway {
   }
 
   @SubscribeMessage("endGame")
-  endGame(@MessageBody() room: string) {
-    this.server.to(room).emit("calculateBallMovement");
+  endGame(@MessageBody() gameRoom: GameRoom) {
+    this.server.to(gameRoom.room).emit("endGame", gameRoom);
   }
 }

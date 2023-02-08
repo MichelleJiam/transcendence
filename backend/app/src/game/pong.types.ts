@@ -20,11 +20,18 @@ export interface Paddle {
   offset: number;
 }
 
+export interface Player {
+  id?: number;
+  score: number;
+  paddle: Paddle;
+}
+
 export interface GameRoom {
   room: string;
-  player: string;
-  paddleOne: Paddle;
-  paddleTwo: Paddle;
+  player: number;
+  winner?: number;
+  playerOne: Player;
+  playerTwo: Player;
   ball: Ball;
   view: Canvas;
 }
