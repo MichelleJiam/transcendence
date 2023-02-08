@@ -1,110 +1,95 @@
-<!--
-    this should be the main page layout
-    so the basic nav bar and the content div
-    then there should be different components that render
-    on different circumstances
--->
-
 <template>
   <main>
     <div id="display-content">
-      <h1>Players</h1>
-      <div>
+      <div v-if="users.length > 0">
+        <h1>Players</h1>
         <input
           v-model="searchQuery"
           type="text"
           placeholder="Search player..."
         />
         <hr />
-      </div>
-      <!-- class attribute can be added to style element -->
-      <div v-for="player in searchedPlayers" :key="player.id">
-        {{ player.playerName }}
-        <div
-          class="dot"
-          :style="[
-            player.status === 'offline'
-              ? { 'background-color': 'red' }
-              : player.status === 'online'
-              ? { 'background-color': 'green' }
-              : { 'background-color': 'orange' },
-          ]"
-        ></div>
-        <!-- start conditional rendering button -->
-        <button
-          v-if="player.relation == 'NONE' || player.relation == undefined"
-          @click="sendFriendRequest(player)"
-        >
-          Add friend
-        </button>
-        <button
-          v-else-if="player.relation == 'PENDING'"
-          class="pending"
-          disabled
-        >
-          Pending request
-        </button>
-        <button v-else style="background-color: red">Unfriend</button>
-        <!-- end conditional rendering button -->
-        <hr />
-      </div>
-
-      <div style="margin-top: 50px">
-        <h2>Friend list</h2>
-
-        <!-- LEFT OFF HERE!! maybe make one function to check for friend and pending? -->
-
-        <div v-if="hasFriends()">
+        <div v-for="player in searchedPlayers" :key="player.id">
+          <div
+            class="dot"
+            :style="[
+              player.status === 'offline'
+                ? { 'background-color': 'red' }
+                : player.status === 'online'
+                ? { 'background-color': 'green' }
+                : { 'background-color': 'orange' },
+            ]"
+          ></div>
+          {{ player.playerName }}
+          <button
+            v-if="player.relation?.status == 'NONE'"
+            @click="sendFriendRequest(player)"
+          >
+            Add friend
+          </button>
+          <button v-else-if="player.relation?.status == 'PENDING'" disabled>
+            Pending request
+          </button>
+          <input
+            v-else-if="player.relation?.status == 'FRIEND'"
+            type="image"
+            :src="unfriendBtn"
+            @click="unfriend()"
+          />
+          <hr />
+        </div>
+        <div style="margin-top: 50px">
+          <h2>Friend list</h2>
           <div v-for="friend in friendList" :key="friend.id">
             {{ friend.playerName }}
-            <button>Unfriend</button>
           </div>
         </div>
-        <div v-else>No friends</div>
-      </div>
-
-      <div style="margin-top: 50px">
-        <h2>Pending</h2>
+        <div style="margin-top: 50px">
+          <h2>Pending</h2>
+        </div>
         <div v-for="pending in pendingList" :key="pending.id">
           {{ pending.playerName }}
-          <button>Accept</button>
-          <button>Deny</button>
+          <button @click="acceptRequest(pending)">Accept</button>
         </div>
+        <!-- end users.length -->
       </div>
-
-      <!-- <div style="margin-top: 50px">
-        <h2>Friend list</h2>
-        <p v-if="friendList.length == 0"><i>No friends</i></p>
-        <p v-for="friend in friendList" v-else :key="friend.id">
-          {{ friend.playerName }}
-        </p>
-      </div> -->
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
 import apiRequest from "@/utils/apiRequest";
-import { onMounted, ref, computed } from "vue";
+import { computed, onBeforeMount, onMounted } from "vue";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 
-/* temporary workaround: remove when user authentication is fixed */
+const socket = io("http://localhost:3000/friend");
+
 const route = useRoute();
 const userId = route.params.id;
 
-const socket = io("http://localhost:3000/friend");
+const unfriendBtn = new URL("../assets/unfriend.png", import.meta.url).href;
+
+const users = ref(Array<User>());
+const searchQuery = ref("");
+
+type Relation = {
+  source: number;
+  target: number;
+  status: string /* FRIEND | PENDING | NONE */;
+};
 
 type User = {
   id: number;
   playerName: string;
-  status: string;
-  /* in relation to the current user */
-  relation: string;
+  status: string /* ONLINE | OFFLINE | GAME */;
+  relation: Relation /* in relation to the current user */;
 };
 
-const users = ref(Array<User>());
-const searchQuery = ref("");
+onBeforeMount(async () => {
+  await updateUserList();
+});
 
 onMounted(async () => {
   socket.on("connect", () => {
@@ -114,8 +99,6 @@ onMounted(async () => {
       "connected to socket on FriendPage"
     );
   });
-
-  await updateUserList();
 });
 
 socket.on("friendRequest", async (data) => {
@@ -125,63 +108,30 @@ socket.on("friendRequest", async (data) => {
   }
 });
 
-/* fetch all users from the database */
-async function updateUserList() {
-  const res = await apiRequest("/user/", "get");
-  users.value = res.data;
-  await updateStatus();
-}
-
-async function checkFriendshipStatus(player: User) {
-  const res = await apiRequest(
-    `/friend/relation/${userId}/${player.id}`,
-    "get"
-  );
-  player.relation = res.data;
-}
-
-async function updateStatus() {
-  for (let i = 0; i < users.value.length; i++) {
-    await checkFriendshipStatus(users.value[i]);
+socket.on("requestAccepted", async (data) => {
+  if (data.source == userId) {
+    await updateUserList();
+    alert("Someone accepted your friend request");
   }
-}
-
-// async function updateFriendList() {
-//   const res = await apiRequest(`/friend/${userId}`, "get");
-//   friendList.value = res.data;
-// }
-
-function hasFriends() {
-  const friends = users.value.filter((player) => {
-    if (player.relation == "FRIEND") {
-      return player.playerName;
-    }
-  });
-  if (friends.length == 0) return false;
-  return true;
-}
-
-const friendList = computed(() => {
-  return users.value.filter((player) => {
-    if (player.relation == "FRIEND") {
-      return player.playerName;
-    }
-  });
 });
 
-const pendingList = computed(() => {
-  return users.value.filter((player) => {
-    if (player.relation == "PENDING") {
-      return player.playerName;
-    }
+/* fetch all users from the database and their relation with the current user */
+async function updateUserList() {
+  const res = await apiRequest("/friend/relation/users", "get");
+  users.value = res.data;
+  users.value.forEach(async (user) => {
+    const res = await apiRequest(
+      `/friend/relation/${userId}/${user.id}`,
+      "get"
+    );
+    user.relation = res.data;
   });
-});
+}
 
-/* called twice, i think when the app is created, how to fix?
-it's also the reason i check for undefined when rendering the button,
-the first time around it's undefined and you see a glimpse of the
-red "unfriend" button. Now the button "pending" is added you also
-see a glimpse of the "add friend" button on the first time around */
+/**********************
+ * computed properties *
+ **********************/
+
 const searchedPlayers = computed(() => {
   return users.value.filter((player) => {
     if (player.playerName && player.id != Number(userId)) {
@@ -194,6 +144,29 @@ const searchedPlayers = computed(() => {
     }
   });
 });
+
+const pendingList = computed(() => {
+  return users.value.filter((player) => {
+    if (
+      Number(userId) == player.relation?.target &&
+      player.relation?.status == "PENDING"
+    ) {
+      return player.playerName;
+    }
+  });
+});
+
+const friendList = computed(() => {
+  return users.value.filter((player) => {
+    if (player.relation?.status == "FRIEND") {
+      return player.playerName;
+    }
+  });
+});
+
+/***********
+ * at click *
+ ***********/
 
 async function sendFriendRequest(player: User) {
   if (userId) {
@@ -209,12 +182,24 @@ async function sendFriendRequest(player: User) {
       console.log(error);
       return;
     }
-    // await updateFriendList();
-    await updateStatus();
+    await updateUserList();
     alert("Friend request send");
   } else console.log("No user id provided in url");
 }
+
+async function acceptRequest(player: User) {
+  await apiRequest("/friend/accept", "put", {
+    data: player.relation,
+  });
+  await updateUserList();
+}
+
+async function unfriend() {
+  console.log("unfriend");
+}
 </script>
+
+<!-- css -->
 
 <style scoped>
 .dot {
@@ -223,8 +208,10 @@ async function sendFriendRequest(player: User) {
   border-radius: 50%;
 }
 
-.pending {
+button:disabled,
+button[disabled] {
   background-color: orange;
+  cursor: not-allowed;
 }
 </style>
 

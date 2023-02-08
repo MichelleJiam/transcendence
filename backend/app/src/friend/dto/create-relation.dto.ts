@@ -14,3 +14,5 @@ export class CreateRelationDto {
   @IsIn(relationStatus)
   status!: RelationStatus;
 }
+
+export class Relation extends CreateRelationDto {}

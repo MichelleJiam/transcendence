@@ -10,15 +10,28 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
 } from "@nestjs/common";
-import { CreateRelationDto } from "./dto/create-relation.dto";
+import { User } from "src/user/user.entity";
+import { CreateRelationDto, Relation } from "./dto/create-relation.dto";
 import { FriendService } from "./friend.service";
+import { UserService } from "src/user/user.service";
+
+type PartialUser = {
+  // partial user with relation
+  id: number;
+  playerName: string;
+  status: string;
+};
 
 @Controller("/friend")
 export class FriendController {
   private readonly logger = new Logger(FriendController.name);
 
-  constructor(private readonly friendService: FriendService) {}
+  constructor(
+    private readonly friendService: FriendService,
+    private readonly userService: UserService,
+  ) {}
 
   @Get()
   async getAllRelations() {
@@ -29,11 +42,17 @@ export class FriendController {
     return await this.friendService.getAllRelations();
   }
 
+  @Get("/relation/users")
+  async getUserData(): Promise<Array<PartialUser>> {
+    this.logger.log("Hit the getUserData route");
+    return await this.userService.getAllUsersPartial();
+  }
+
   @Get("/relation/:source/:target")
   async getRelationStatus(
     @Param("source", ParseIntPipe) source: number,
     @Param("target", ParseIntPipe) target: number,
-  ): Promise<string> {
+  ): Promise<object> {
     this.logger.log("Hit the getSingleRelation route");
     const res = await this.friendService.getSingleRelation(source, target);
     if (res.length > 1) {
@@ -41,15 +60,15 @@ export class FriendController {
         "Single relation expected but multiple relations returned",
       );
       throw new HttpException("Bad Request", HttpStatus.BAD_REQUEST);
-    } else if (res.length === 0) return "NONE";
-    else return res[0].status;
+    } else if (res.length === 0)
+      return { source: 0, target: 0, status: "NONE" };
+    else
+      return {
+        source: (res[0].source as unknown as User).id,
+        target: (res[0].target as unknown as User).id,
+        status: res[0].status,
+      };
   }
-
-  // @Get(":id")
-  // async getFriendsForUser(@Param("id", ParseIntPipe) id: number) {
-  //   this.logger.log("Hit the getFriendsForUser route");
-  //   return await this.friendService.getFriendsForUser(id);
-  // }
 
   @Post("/request")
   async friendRequest(@Body() input: CreateRelationDto) {
@@ -59,7 +78,13 @@ export class FriendController {
       .catch(function () {
         throw new HttpException("Bad Request", HttpStatus.BAD_REQUEST);
       });
-    return this.friendService.friendRequest(input);
+    return await this.friendService.friendRequest(input);
+  }
+
+  @Put("/accept")
+  async acceptRequest(@Body() input: Relation) {
+    this.logger.log("Hit the acceptRequest route");
+    return await this.friendService.acceptRequest(input);
   }
 
   @Delete(":id/unfriend")

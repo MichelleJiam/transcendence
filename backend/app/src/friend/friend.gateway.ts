@@ -7,7 +7,7 @@ import {
 } from "@nestjs/websockets";
 
 import { Server, Socket } from "socket.io";
-import { CreateRelationDto } from "./dto/create-relation.dto";
+import { CreateRelationDto, Relation } from "./dto/create-relation.dto";
 import { FriendService } from "./friend.service";
 
 @WebSocketGateway({
@@ -35,6 +35,12 @@ export class FriendGateway {
   @SubscribeMessage("friendRequest")
   async friendRequest(@MessageBody() input: CreateRelationDto) {
     console.log("friendRequest function with input: ", input);
+    this.server.emit("FriendRequestPending", input);
+  }
+
+  @SubscribeMessage("requestAccepted")
+  async requestAccepted(@MessageBody() input: Relation) {
+    console.log("requestAccepted function with input: ", input);
     this.server.emit("FriendRequestPending", input);
   }
 }
