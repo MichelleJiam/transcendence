@@ -3,13 +3,18 @@
     <div id="display-content">
       <div v-if="game.state == State.READY" class="my-btn">
         <button class="btn" @click="startGame">PLAY</button>
-        <button class="btn">WATCH</button>
+        <button class="btn" @click="watchGame">WATCH</button>
       </div>
       <div v-else-if="game.state == State.WAITING" class="loader">
         <LoaderKnightRider />
       </div>
       <div v-else>
-        <PongGame :id="id" :game="game" :socket="socket" />
+        <PongGame
+          :id="id"
+          :game="game"
+          :socket="socket"
+          @game-over="gameOver"
+        />
       </div>
     </div>
   </main>
@@ -29,7 +34,6 @@ const State = {
   READY: 0,
   WAITING: 1,
   PLAYING: 2,
-  DONE: 3,
 };
 
 const route = useRoute();
@@ -40,6 +44,14 @@ const showWatchButton = ref(true);
 const joined = ref(false);
 const game = ref({} as Game);
 game.value.state = State.READY;
+
+function gameOver() {
+  game.value.state = State.READY;
+  socket.emit("leaveRoom", game);
+  joined.value = false;
+  console.log(id, "has left room ", game.value.id);
+  // implement api call to update game stats
+}
 
 onBeforeMount(() => {
   socket.on("disconnect", () => {
@@ -87,6 +99,11 @@ const startGame = async () => {
     showStartButton.value = false;
     showWatchButton.value = false;
   }
+};
+
+const watchGame = async () => {
+  // make backend call to see if there are any games in a playing state
+  // return first one and then let player join the room
 };
 </script>
 
