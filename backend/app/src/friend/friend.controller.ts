@@ -87,9 +87,10 @@ export class FriendController {
     return await this.friendService.acceptRequest(input);
   }
 
-  @Delete(":id/unfriend")
+  @Delete("/unfriend")
   @HttpCode(204)
-  unfriendUser(@Param("id") id: number) {
-    return `unfriend ${id}`;
+  async unfriend(@Body() input: Relation) {
+    this.logger.log("Hit the unfriend route");
+    return await this.friendService.unfriend(input);
   }
 }
