@@ -1,10 +1,16 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Game } from "./entities/game.entity";
 import { UserService } from "src/user/user.service";
 import { CreateGameDto } from "./dto/create-game.dto";
 import { UpdateGameDto } from "./dto/update-game.dto";
+import { GameRoom } from "./pong.types";
 
 @Injectable()
 export class GameService {
@@ -79,6 +85,13 @@ export class GameService {
     throw new NotFoundException(
       "Unable to update game because no data received from dto",
     );
+  }
+
+  async updateFinishedGame(gameRoom: GameRoom) {
+    if (this.findOne(Number(gameRoom.room)) == null) {
+      this.logger.debug("game does not exist, unable to delete");
+      throw new NotFoundException("game does not exist, unable to delete");
+    }
   }
 
   async remove(gameId: number) {

@@ -24,11 +24,11 @@
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
 import apiRequest from "../utils/apiRequest";
-import { onBeforeMount, onUnmounted, onUpdated, ref } from "vue";
+import { onBeforeMount, onUnmounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import { onMounted } from "vue";
-import type { Game } from "../components/game/pong.types";
+import type { Game, GameRoom } from "../components/game/pong.types";
 
 const State = {
   READY: 0,
@@ -45,12 +45,13 @@ const joined = ref(false);
 const game = ref({} as Game);
 game.value.state = State.READY;
 
-function gameOver() {
+function gameOver(gameRoom: GameRoom) {
+  socket.emit("updateGameStats", gameRoom);
   game.value.state = State.READY;
   socket.emit("leaveRoom", game);
   joined.value = false;
   console.log(id, "has left room ", game.value.id);
-  // implement api call to update game stats
+  // implement api call to update game stats - need child to send this data here?
 }
 
 onBeforeMount(async () => {
@@ -59,7 +60,11 @@ onBeforeMount(async () => {
   });
 });
 
-onMounted(() => {
+onMounted(async () => {
+  await apiRequest(
+    `/match/${id}`,
+    "delete"
+  ); /* protection if user refreshes; removes them from queue */
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
@@ -68,7 +73,6 @@ onMounted(() => {
 onUnmounted(async () => {
   console.log("unmounted");
   await apiRequest(`/match/${id}`, "delete");
-  // how to remove player from queue if they refresh the page
 });
 
 socket.on("addPlayerOne", (gameData: Game) => {
