@@ -151,8 +151,8 @@ const emit = defineEmits(["game-over"]);
 
 async function gameOver() {
   await sleep(2000);
-  document.location.reload();
-  emit("game-over");
+  emit("game-over", gameRoom);
+  // document.location.reload();
 }
 
 props.socket.on("endGame", (winnerGameRoom: GameRoom) => {

@@ -10,9 +10,11 @@ import {
   Put,
   Logger,
   NotFoundException,
+  BadRequestException,
 } from "@nestjs/common";
 import { GameService } from "./game.service";
 import { CreateGameDto } from "./dto/create-game.dto";
+import { GameRoom } from "./pong.types";
 
 @Controller("game")
 export class GameController {
@@ -55,6 +57,21 @@ export class GameController {
       this.logger.debug("updating game failed");
       throw new NotFoundException("Unable to update game");
     });
+    return game;
+  }
+
+  @Put(":id")
+  async updateGameStats(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() gameRoom: GameRoom,
+  ) {
+    console.log("gameRoom: ", gameRoom);
+    const game = await this.gameService
+      .updateFinishedGame(gameRoom)
+      .catch(() => {
+        this.logger.debug("updating game stats failed");
+        throw new BadRequestException("unable to update finished game");
+      });
     return game;
   }
 

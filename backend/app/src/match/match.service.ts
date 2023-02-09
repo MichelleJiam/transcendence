@@ -27,15 +27,6 @@ export class MatchService {
     return await this.matchRepository.find({});
   }
 
-  async findOne(id: number) {
-    const match = await this.matchRepository.findOne({
-      where: {
-        id: id,
-      },
-    });
-    return match;
-  }
-
   async getMatch(id: number) {
     if ((await this.userService.findUserById(id)) == null) {
       this.logger.debug("unable to match, user does not exist");
@@ -100,7 +91,8 @@ export class MatchService {
       },
     });
     if (match == null) {
-      throw new NotFoundException();
+      this.logger.debug("unable to delete player from queue, does not exist");
+      return;
     }
     await this.matchRepository.delete(match.id);
   }
