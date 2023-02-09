@@ -1,13 +1,6 @@
 import { forwardRef, Inject } from "@nestjs/common";
-import {
-  MessageBody,
-  SubscribeMessage,
-  WebSocketGateway,
-  WebSocketServer,
-} from "@nestjs/websockets";
-
+import { WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { CreateRelationDto, Relation } from "./dto/create-relation.dto";
 import { FriendService } from "./friend.service";
 
 @WebSocketGateway({
@@ -30,17 +23,5 @@ export class FriendGateway {
 
   handleDisconnect(client: Socket) {
     console.log(client.id + " disconnected friend socket");
-  }
-
-  @SubscribeMessage("friendRequest")
-  async friendRequest(@MessageBody() input: CreateRelationDto) {
-    console.log("friendRequest function with input: ", input);
-    this.server.emit("FriendRequestPending", input);
-  }
-
-  @SubscribeMessage("requestAccepted")
-  async requestAccepted(@MessageBody() input: Relation) {
-    console.log("requestAccepted function with input: ", input);
-    this.server.emit("FriendRequestPending", input);
   }
 }

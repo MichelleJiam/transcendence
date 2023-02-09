@@ -53,7 +53,7 @@ export class FriendService {
   }
 
   async friendRequest(input: object) {
-    this.friendRepository.save(input);
+    await this.friendRepository.save(input);
     return this.friendGateway.server.emit("friendRequest", input);
   }
 
@@ -66,5 +66,13 @@ export class FriendService {
       { status: "FRIEND" },
     );
     return this.friendGateway.server.emit("requestAccepted", input);
+  }
+
+  async unfriend(input: Relation) {
+    await this.friendRepository.delete({
+      source: input.source,
+      target: input.target,
+    });
+    return this.friendGateway.server.emit("unfriend");
   }
 }
