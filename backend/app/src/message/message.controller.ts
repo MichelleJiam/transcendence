@@ -14,7 +14,7 @@ export class MessageController {
     return this.messageService.getAllMessages();
   }
 
-  @Get("user/id/:id")
+  @Get("user/:id")
   getMessageById(@Param("id", ParseIntPipe) id: number): Promise<Message[]> {
     return this.messageService.getMessageByUserId(id);
   }
