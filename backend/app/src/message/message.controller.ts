@@ -1,4 +1,5 @@
 import { Controller, Get, ParseIntPipe, Param } from "@nestjs/common";
+import { Message } from "./message.entity";
 import { MessageService } from "./message.service";
 
 // @Param() converts what's inside the uri that starts with : into a variable
@@ -9,12 +10,12 @@ export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
   @Get()
-  getAllMessages() {
+  getAllMessages(): Promise<Message[]> {
     return this.messageService.getAllMessages();
   }
 
   @Get("user/id/:id")
-  getMessageById(@Param("id", ParseIntPipe) id: number) {
+  getMessageById(@Param("id", ParseIntPipe) id: number): Promise<Message[]> {
     return this.messageService.getMessageByUserId(id);
   }
 }

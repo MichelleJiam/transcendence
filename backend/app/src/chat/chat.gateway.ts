@@ -9,8 +9,6 @@ import {
 
 import { Socket, Server } from "socket.io";
 import { CreateMessageDto } from "src/message/dto/create-message.dto";
-import { Message } from "src/message/message.entity";
-import { MessageService } from "src/message/message.service";
 import { ChatService } from "./chat.service";
 
 @WebSocketGateway({
@@ -18,7 +16,7 @@ import { ChatService } from "./chat.service";
     origin: "*",
   },
 })
-export class AppGateway
+export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   constructor(private chatService: ChatService) {}

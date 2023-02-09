@@ -1,14 +1,18 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/user/user.entity";
+import { UserService } from "src/user/user.service";
 import { Repository } from "typeorm";
 import { Blocklist } from "./blocklist.entity";
+import { CreateBlockDto } from "./dto/create-block.dto";
+import { DeleteBlockDto } from "./dto/delete-block.dto";
 
 @Injectable()
 export class BlocklistService {
   constructor(
     @InjectRepository(Blocklist)
     private readonly blocklistRepository: Repository<Blocklist>,
+    private readonly userService: UserService,
   ) {}
 
   async getGlobalBlocklist(): Promise<Blocklist[]> {
@@ -41,20 +45,24 @@ export class BlocklistService {
   }
 
   async createBlockEntryForUser(
-    blocklistOwner: User,
-    blockedUser: User,
-  ): Promise<Blocklist> {
-    const blockEntry = new Blocklist();
-    blockEntry.blocklistOwner = blocklistOwner;
-    blockEntry.blockedUser = blockedUser;
+    createBlockDto: CreateBlockDto,
+  ): Promise<Blocklist | undefined> {
+    const owner = await this.userService.findUserById(
+      createBlockDto.blocklistOwner,
+    );
+    const blocked = await this.userService.findUserById(
+      createBlockDto.blockedUser,
+    );
+    if (owner !== null && blocked !== null) {
+      const blockEntry = new Blocklist();
+      blockEntry.blocklistOwner = owner;
+      blockEntry.blockedUser = blocked;
 
-    return await this.blocklistRepository.save(blockEntry);
+      return await this.blocklistRepository.save(blockEntry);
+    }
   }
 
-  async deleteBlockEntry(
-    blocklistOwner: number,
-    blockedUser: number,
-  ): Promise<void> {
+  async deleteBlockEntry(deleteBlockDto: DeleteBlockDto): Promise<void> {
     const user = await this.blocklistRepository.findOne({
       relations: {
         blocklistOwner: true,
@@ -62,10 +70,10 @@ export class BlocklistService {
       },
       where: {
         blocklistOwner: {
-          id: blocklistOwner,
+          id: deleteBlockDto.blocklistOwner,
         },
         blockedUser: {
-          id: blockedUser,
+          id: deleteBlockDto.blockedUser,
         },
       },
     });

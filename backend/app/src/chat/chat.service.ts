@@ -267,7 +267,7 @@ export class ChatService {
       const newChatroom = addMember(chatroom, user);
       return this.chatroomRepository.save(newChatroom);
     }
-    throw new HttpException("You are Banned", HttpStatus.BAD_REQUEST);
+    throw new HttpException("You are Banned", HttpStatus.FORBIDDEN);
   }
 
   async addAdminToChatroom(
@@ -294,7 +294,7 @@ export class ChatService {
     }
     throw new HttpException(
       "You don't have permission to assign new admins.",
-      HttpStatus.BAD_REQUEST,
+      HttpStatus.FORBIDDEN,
     );
   }
 
@@ -321,7 +321,7 @@ export class ChatService {
     } else {
       throw new HttpException(
         "You don't have permission to reassign ownership, or the owner specified is not the owner",
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.FORBIDDEN,
       );
     }
   }

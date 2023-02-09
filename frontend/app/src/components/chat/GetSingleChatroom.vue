@@ -28,7 +28,7 @@ onMounted(() => {
     chatRoom.value = response.data; // returns the response data into the users variable which can then be used in the template
     for (const date of chatRoom.value) {
       const dateTime = Date(date.createdAt);
-      const text = dateTime.toLocaleString("en-GB");
+      const text = dateTime.toLocaleString();
       createdAtDates.push(text);
       console.log(text);
     }
