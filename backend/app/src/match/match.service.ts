@@ -65,7 +65,7 @@ export class MatchService {
         this.logger.debug("error in getMatch while trying to create new game");
         throw new BadRequestException();
       });
-      this.remove(match[0].id);
+      this.remove(match[0].playerId);
       return game;
     }
   }
@@ -94,9 +94,14 @@ export class MatchService {
   }
 
   async remove(id: number) {
-    if (this.findOne(id) == null) {
+    const match = await this.matchRepository.findOne({
+      where: {
+        playerId: id,
+      },
+    });
+    if (match == null) {
       throw new NotFoundException();
     }
-    await this.matchRepository.delete(id);
+    await this.matchRepository.delete(match.id);
   }
 }

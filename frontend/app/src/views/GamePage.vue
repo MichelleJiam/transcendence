@@ -24,7 +24,7 @@
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
 import apiRequest from "../utils/apiRequest";
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, onUnmounted, onUpdated, ref } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import { onMounted } from "vue";
@@ -53,7 +53,7 @@ function gameOver() {
   // implement api call to update game stats
 }
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   socket.on("disconnect", () => {
     console.log(socket.id + " disconnected from frontend");
   });
@@ -63,6 +63,12 @@ onMounted(() => {
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
+});
+
+onUnmounted(async () => {
+  console.log("unmounted");
+  await apiRequest(`/match/${id}`, "delete");
+  // how to remove player from queue if they refresh the page
 });
 
 socket.on("addPlayerOne", (gameData: Game) => {
