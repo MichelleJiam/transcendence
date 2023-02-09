@@ -10,14 +10,11 @@ const penalty = {
 };
 
 function createPenalty() {
-  if (!penalty.penaltyType) {
-    throw new TypeError("faulty ban type");
-  }
   const url =
     "http://localhost:3000/chatroom/" + penalty.chatroom + "/admin/" + adminId;
 
   axios.post(url, penalty).catch((error) => {
     console.log(error);
   });
-}
+} // this should work for both mute and ban
 </script>
