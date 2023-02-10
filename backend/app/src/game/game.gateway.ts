@@ -23,11 +23,11 @@ export class GameGateway {
   constructor(private readonly gameService: GameService) {}
 
   handleConnection(client: Socket) {
-    console.log(client.id + " connected");
+    console.log(client.id, " connected");
   }
 
   handleDisconnect(client: Socket) {
-    console.log(client.id + " disconnected");
+    console.log(client.id, " disconnected");
   }
 
   @SubscribeMessage("joinRoom")
@@ -36,17 +36,14 @@ export class GameGateway {
     @MessageBody() game: CreateGameDto,
   ) {
     client.join(game.id.toString());
-    console.log(client.id, " joined room: ", game.id.toString());
+    console.log(client.id, " joined room: ", client.rooms);
     this.server.emit("addPlayerOne", game);
   }
 
   @SubscribeMessage("leaveRoom")
-  leaveRoom(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() game: CreateGameDto,
-  ) {
-    client.leave(game.id.toString());
-    console.log(client.id, " left room: ", game.id.toString());
+  leaveRoom(@ConnectedSocket() client: Socket, @MessageBody() gameId: string) {
+    client.leave(gameId);
+    console.log(client.id, " left room: ", gameId);
   }
 
   @SubscribeMessage("movePaddleUp")

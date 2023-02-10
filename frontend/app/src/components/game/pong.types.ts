@@ -13,7 +13,7 @@ export interface Paddle {
 }
 
 export interface Player {
-  id?: number;
+  id: number;
   score: number;
   paddle: Paddle;
 }
@@ -30,6 +30,7 @@ export interface GameRoom {
   room: string;
   player: number;
   winner: number;
+  loser: number;
   playerOne: Player;
   playerTwo: Player;
   ball: Ball;

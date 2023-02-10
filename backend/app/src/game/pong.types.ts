@@ -29,7 +29,8 @@ export interface Player {
 export interface GameRoom {
   room: string;
   player: number;
-  winner?: number;
+  winner: number;
+  loser: number;
   playerOne: Player;
   playerTwo: Player;
   ball: Ball;
