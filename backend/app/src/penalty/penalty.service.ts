@@ -27,6 +27,19 @@ export class PenaltyService {
         user: true,
         chatroom: true,
       },
+      select: {
+        user: {
+          id: true,
+          playerName: true,
+        },
+        chatroom: {
+          id: true,
+          chatroomName: true,
+        },
+        penaltyType: true,
+        time: true,
+        id: true,
+      },
     });
     return foundPenalties;
   }
@@ -56,6 +69,19 @@ export class PenaltyService {
           id: chatroomId,
         },
       },
+      select: {
+        user: {
+          id: true,
+          playerName: true,
+        },
+        chatroom: {
+          id: true,
+          chatroomName: true,
+        },
+        penaltyType: true,
+        time: true,
+        id: true,
+      },
     });
     return foundPenalties;
   }
@@ -74,6 +100,19 @@ export class PenaltyService {
         chatroom: {
           id: chatroomId,
         },
+      },
+      select: {
+        user: {
+          id: true,
+          playerName: true,
+        },
+        chatroom: {
+          id: true,
+          chatroomName: true,
+        },
+        penaltyType: true,
+        time: true,
+        id: true,
       },
     });
     return foundBan;

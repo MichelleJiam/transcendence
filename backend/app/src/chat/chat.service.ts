@@ -57,7 +57,6 @@ export class ChatService {
         id: true,
         chatroomName: true,
         type: true,
-        password: true,
         owner: {
           id: true,
           playerName: true,
@@ -94,6 +93,31 @@ export class ChatService {
       },
       where: {
         id: id,
+      },
+      select: {
+        id: true,
+        chatroomName: true,
+        type: true,
+        owner: {
+          id: true,
+          playerName: true,
+        },
+        admin: {
+          id: true,
+          playerName: true,
+        },
+        member: {
+          id: true,
+          playerName: true,
+        },
+        penalty: {
+          penaltyType: true,
+          user: {
+            id: true,
+            playerName: true,
+          },
+        },
+        message: true,
       },
     });
     if (!chatroom) {
@@ -141,6 +165,31 @@ export class ChatService {
           id: userId,
         },
       },
+      select: {
+        id: true,
+        chatroomName: true,
+        type: true,
+        owner: {
+          id: true,
+          playerName: true,
+        },
+        admin: {
+          id: true,
+          playerName: true,
+        },
+        member: {
+          id: true,
+          playerName: true,
+        },
+        penalty: {
+          penaltyType: true,
+          user: {
+            id: true,
+            playerName: true,
+          },
+        },
+        message: true,
+      },
     });
     return chatrooms;
   }
@@ -159,6 +208,31 @@ export class ChatService {
       },
       where: {
         type: type,
+      },
+      select: {
+        id: true,
+        chatroomName: true,
+        type: true,
+        owner: {
+          id: true,
+          playerName: true,
+        },
+        admin: {
+          id: true,
+          playerName: true,
+        },
+        member: {
+          id: true,
+          playerName: true,
+        },
+        penalty: {
+          penaltyType: true,
+          user: {
+            id: true,
+            playerName: true,
+          },
+        },
+        message: true,
       },
     });
     return chatrooms;

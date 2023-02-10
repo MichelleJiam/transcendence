@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import axios from "axios";
+import apiRequest from "@/utils/apiRequest";
 
 const postChatData = {
   type: String("public"),
@@ -47,13 +47,21 @@ function createChat() {
     console.log("Chat must be named");
     throw new TypeError("Chat must be named");
   }
-  axios
-    .post("http://localhost:3000/chat/create", postChatData)
+  apiRequest("/chat/create", "post", { data: postChatData })
     .then((response) => {
       console.log(response);
     }) // axios throws errors for non 2xx responses by default!
     .catch((error) => {
       console.log(error);
     });
+
+  // axios
+  //   .post("http://localhost:3000/chat/create", postChatData)
+  //   .then((response) => {
+  //     console.log(response);
+  //   }) // axios throws errors for non 2xx responses by default!
+  //   .catch((error) => {
+  //     console.log(error);
+  //   });
 }
 </script>

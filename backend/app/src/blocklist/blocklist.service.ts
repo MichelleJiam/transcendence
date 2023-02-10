@@ -26,6 +26,16 @@ export class BlocklistService {
           id: "asc",
         },
       },
+      select: {
+        blocklistOwner: {
+          id: true,
+          playerName: true,
+        },
+        blockedUser: {
+          id: true,
+          playerName: true,
+        },
+      },
     });
   }
 
@@ -38,6 +48,16 @@ export class BlocklistService {
       where: {
         blocklistOwner: {
           id: userId,
+        },
+      },
+      select: {
+        blocklistOwner: {
+          id: true,
+          playerName: true,
+        },
+        blockedUser: {
+          id: true,
+          playerName: true,
         },
       },
     });
@@ -74,6 +94,16 @@ export class BlocklistService {
         },
         blockedUser: {
           id: deleteBlockDto.blockedUser,
+        },
+      },
+      select: {
+        blocklistOwner: {
+          id: true,
+          playerName: true,
+        },
+        blockedUser: {
+          id: true,
+          playerName: true,
         },
       },
     });

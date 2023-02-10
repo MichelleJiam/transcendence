@@ -40,6 +40,19 @@ export class MessageService {
           id: chatroomId,
         },
       },
+      select: {
+        userId: {
+          id: true,
+          playerName: true,
+        },
+        chatroomId: {
+          id: true,
+          chatroomName: true,
+          type: true,
+        },
+        body: true,
+        createdAt: true,
+      },
     });
     return messages;
   }

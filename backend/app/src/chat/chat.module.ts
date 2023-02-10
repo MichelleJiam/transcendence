@@ -12,6 +12,7 @@ import { User } from "src/user/user.entity";
 import { UserService } from "src/user/user.service";
 import { ChatController } from "./chat.controller";
 import { Chatroom } from "./chat.entity";
+import { ChatGateway } from "./chat.gateway";
 import { ChatMethod } from "./chat.methods";
 import { ChatService } from "./chat.service";
 
