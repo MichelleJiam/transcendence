@@ -1,10 +1,11 @@
 <template>
   <section>
-    <form @submit.prevent="createChat">
+    <form @submit.prevent="editChat(2)">
+      <!-- change this to cookie user id-->
       <div>
         select type of chat:<br />
         <label for="type">Choose a chat type:</label>
-        <select id="type" v-model="postChatData.type" name="type">
+        <select id="type" v-model="updateChatroomDto.type" name="type">
           <option value="public" selected>public</option>
           <option value="private">private</option>
           <option value="password">password</option>
@@ -14,45 +15,32 @@
         <label for="chatroomName">Name the chat:</label>
         <input
           id="chatroomName"
-          v-model="postChatData.chatroomName"
+          v-model="updateChatroomDto.chatroomName"
           type="text"
           required
         />
       </div>
       <div>
-        <label for="password">Password for password chats:</label>
-        <input id="password" v-model="postChatData.password" type="text" />
+        <label for="password">Update password:</label>
+        <input id="password" v-model="updateChatroomDto.password" type="text" />
       </div>
-      <div>
-        <label for="user">userId:</label>
-        <input id="user" v-model="postChatData.user" type="number" required />
-      </div>
-      <div>
-        <label for="otherUser">otherUser:</label>
-        <input id="otherUser" v-model="postChatData.otherUser" type="number" />
-      </div>
-      <button>Create chat</button>
+      <button>Update chat</button>
     </form>
   </section>
 </template>
 
 <script setup lang="ts">
 import apiRequest from "@/utils/apiRequest";
+import { UpdateChatroomDto } from "@/components/chat/penalty/createPenalty";
+import { useRoute } from "vue-router";
 
-const postChatData = {
-  type: String("public"),
-  chatroomName: String("test name here"),
-  password: String("password here"),
-  user: Number,
-  otherUser: Number,
-};
+const updateChatroomDto = new UpdateChatroomDto();
+const route = useRoute();
+const chatroomId = route.params.id;
 
-function createChat() {
-  if (!postChatData.chatroomName) {
-    console.log("Chat must be named");
-    throw new TypeError("Chat must be named");
-  }
-  apiRequest("/chat/create", "post", { data: postChatData })
+function editChat(adminId: number) {
+  const url = "/chat/" + chatroomId + "/admin/" + adminId + "/update/info";
+  apiRequest(url, "put", { data: updateChatroomDto })
     .then((response) => {
       console.log(response);
     }) // axios throws errors for non 2xx responses by default!
