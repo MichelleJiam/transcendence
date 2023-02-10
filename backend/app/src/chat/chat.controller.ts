@@ -113,7 +113,7 @@ export class ChatController {
     return this.chatroomService.postMessageToChatroom(createMessageDto);
   }
 
-  @Post(":chatroomId/admin/:adminId/ban")
+  @Post(":chatroomId/admin/:adminId/penalty")
   async createPenalty(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Param("adminId", ParseIntPipe) adminId: number,

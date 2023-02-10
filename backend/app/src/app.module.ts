@@ -10,7 +10,6 @@ import * as Joi from "joi";
 import { PenaltyModule } from "./penalty/penalty.module";
 import { BlocklistModule } from "./blocklist/blocklist.module";
 import { PenaltyDelete } from "./penalty/penalty.scheduler";
-import { ChatGateway } from "./chat/chat.gateway";
 
 @Module({
   imports: [
@@ -31,6 +30,6 @@ import { ChatGateway } from "./chat/chat.gateway";
     DatabaseModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PenaltyDelete, ChatGateway],
+  providers: [AppService, PenaltyDelete],
 })
 export class AppModule {}
