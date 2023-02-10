@@ -70,7 +70,7 @@ button {
       <h1>Pong</h1>
       <div v-if="userStore.isAuthenticated"></div>
       <div v-else>
-        <button @click.prevent="submitLogin">Login through 42</button>
+        <button @click="submitLogin">Login through 42</button>
       </div>
     </form>
   </main>
@@ -78,9 +78,9 @@ button {
 
 <script setup lang="ts">
 import { useUserStore } from "@/stores/UserStore";
-import { onMounted } from "vue";
-import { useCookies } from "vue3-cookies";
-const { cookies } = useCookies();
+// import { onMounted } from "vue";
+// import { useCookies } from "vue3-cookies";
+// const { cookies } = useCookies();
 const userStore = useUserStore();
 
 async function submitLogin(): Promise<void> {
@@ -89,11 +89,11 @@ async function submitLogin(): Promise<void> {
   await userStore.logIn();
 }
 
-onMounted(() => {
-  console.log(`onMounted: auth state: ${userStore.isAuthenticated}`);
-  const cookie_val = cookies.get("Authentication");
-  console.log("Auth cookie: ", cookie_val);
-});
+// onMounted(() => {
+//   console.log(`onMounted: auth state: ${userStore.isAuthenticated}`);
+//   const cookie_val = cookies.get("Authentication");
+//   console.log("Auth cookie: ", cookie_val);
+// });
 </script>
 
 <style scoped>

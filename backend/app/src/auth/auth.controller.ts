@@ -37,7 +37,7 @@ export class AuthController {
     const authCookie = this.authService.getCookieWithJwtToken(user.id);
     response.setHeader("Set-Cookie", authCookie);
     console.log("callback: Set access_token cookie");
-    response.status(200).redirect(`localhost:5173/login`);
+    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
     // return { id: user.id };
   }
 
@@ -88,7 +88,7 @@ export class AuthController {
   @Get("status")
   checkAuthentication(@currentUser() user: User) {
     console.log("Current authenticated user: ", user);
-    return user;
+    return { user: user, authenticated: true };
   }
 
   // @Post("logout")
@@ -105,6 +105,7 @@ export class AuthController {
     //   `Authentication=; HttpOnly; Path=/; Max-Age=0`,
     // );
     response.clearCookie("Authentication");
-    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
+    // response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+    response.status(200).redirect(`${process.env.HOME_REDIRECT}`); // causes CORS error
   }
 }

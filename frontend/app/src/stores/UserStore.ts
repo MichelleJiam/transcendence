@@ -22,32 +22,26 @@ export const useUserStore = defineStore("user", {
     },
   },
   actions: {
-    setAuthenticateToTrue() {
-      this.authenticated = true;
-    },
-
     async logIn() {
       console.log("userStore.logIn");
       if (!this.authenticated) {
         await apiRequest(`/auth/status`, "get")
           .then((response) => {
-            this.setAuthenticateToTrue();
-            // this.authenticated = true;
-            // self.setAuthenticateToTrue();
-            // this.user.id = response.data.id;
-            // this.user.playerName = response.data.playerName;
-            // this.user.messages = response.data.messages;
-            // this.user.twoFA = response.data.twoFA;
-            // this.user.avatarId = response.data.avatarID;
-            console.log("Set authenticated to ", this.authenticated);
+            this.authenticated = true;
+            this.user.id = response.data.id;
+            this.user.playerName = response.data.playerName;
+            this.user.messages = response.data.messages;
+            this.user.twoFA = response.data.twoFA;
+            this.user.avatarId = response.data.avatarID;
+            console.log("User authenticated: ", this.authenticated);
           })
           .catch(async () => {
             console.log("User could not be authorized");
-            await router.push("http://localhost:3000/auth/login");
+            // await router.push("http://localhost:3000/auth/login");
           });
       }
-      // console.log("push to home");
-      // await router.push("/home");
+      console.log("push to home");
+      await router.push("/home");
     },
 
     async checkUserAuthStatus() {
@@ -65,7 +59,7 @@ export const useUserStore = defineStore("user", {
       // const header = {
       //   "Access-Control-Allow-Origin": "http://localhost:5173",
       // };
-      await apiRequest(`/auth/logout`, "get");
+      await apiRequest(`/auth/logout`, "get"); // TODO: change method to POST later
       this.authenticated = false;
       // console.log("logout: Auth cookie: ", cookies.get("Authentication"));
       console.log("user logged out");
