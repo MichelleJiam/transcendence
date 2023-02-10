@@ -40,11 +40,21 @@ export const useUserStore = defineStore("user", {
           });
       }
       console.log("push to home");
-      router.push("/home");
+      await router.push("/home");
     },
     async logOut() {
-      await apiRequest(`/auth/logout`, "get");
-      this.authenticated = false;
+      // const header = {
+      //   "Access-Control-Allow-Origin": "http://localhost:5173",
+      // };
+      if (this.authenticated) {
+        await apiRequest(`/auth/logout`, "get") // TODO: change method to POST later
+          .catch(() => {
+            console.log("User already logged out");
+          });
+        this.authenticated = false;
+        console.log("user logged out");
+      }
+      await router.push("/login");
     },
   },
   persist: true,

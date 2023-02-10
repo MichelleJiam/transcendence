@@ -37,7 +37,8 @@ export class AuthController {
     const authCookie = this.authService.getCookieWithJwtToken(user.id);
     response.setHeader("Set-Cookie", authCookie);
     console.log("callback: Set access_token cookie");
-    response.status(200).redirect(`localhost:5173/login`);
+    console.log("redirecting to ", process.env.HOME_REDIRECT);
+    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
     // return { id: user.id };
   }
 
@@ -92,7 +93,7 @@ export class AuthController {
   }
 
   // @Post("logout")
-  @Get("logout") // temporary for testing in browser
+  @Get("logout") // temporary for testing in browser, TODO: change later
   @UseGuards(JwtAuthGuard)
   async logout(
     @Req() request: Request,

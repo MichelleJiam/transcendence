@@ -13,9 +13,13 @@
       <li><router-link to="/stream">Live</router-link></li>
       <!-- when this is click login should be set to false -->
       <li id="logout">
+        <!-- <div>
+          <span @mouseover="hover = true" @mouseleave="hover = false"></span>
+          <span v-if="hover">Logout</span> -->
         <router-link to="/login" @click="userStore.logOut()">
           <font-awesome class="font-awesome" icon="sign-out" />
         </router-link>
+        <!-- </div> -->
       </li>
     </ul>
   </nav>
@@ -24,6 +28,7 @@
 <script setup lang="ts">
 import { useUserStore } from "../stores/UserStore";
 const userStore = useUserStore();
+// const hover = false;
 </script>
 
 <style scoped>
