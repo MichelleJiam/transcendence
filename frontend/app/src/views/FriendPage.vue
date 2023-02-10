@@ -1,19 +1,18 @@
 <template>
   <main>
     <div id="display-content">
-      <!-- <Suspense>
+      <h1>Friends</h1>
+      <Suspense>
         <template #default> <AllUserFriends /> </template>
-        <template #fallback> Loading friends... </template>
-      </Suspense> -->
+        <template #fallback> loading... </template>
+      </Suspense>
+      <Suspense>
+        <template #default> <DisplayPending /> </template>
+        <template #fallback> loading... </template>
+      </Suspense>
 
-      <div v-if="users.length > 0">
-        <h1>Players</h1>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search player..."
-        />
-        <hr />
+      <!-- <div v-if="users.length > 0"> -->
+      <!--
         <div v-for="player in searchedPlayers" :key="player.id">
           <div
             class="dot"
@@ -31,11 +30,11 @@
             type="image"
             :src="addFriendBtn"
             @click="sendFriendRequest(player)"
-          />
-          <!-- <button v-else-if="player.relation?.status == 'PENDING'" disabled>
+          /> -->
+      <!-- <button v-else-if="player.relation?.status == 'PENDING'" disabled>
             Pending request
           </button> -->
-          <input
+      <!-- <input
             v-else-if="player.relation?.status == 'PENDING'"
             disabled
             type="image"
@@ -74,9 +73,9 @@
             <input type="image" :src="pendingBtn" />
             <input type="image" :src="denyBtn" @click="unfriend(pending)" />
           </span>
-        </div>
-        <!-- end users.length -->
-      </div>
+        </div> -->
+      <!-- end users.length -->
+      <!-- </div> -->
     </div>
   </main>
 </template>
@@ -87,7 +86,8 @@ import { computed, onMounted } from "vue";
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
-import AllUserFriends from "@/components/AllUserFriends.vue";
+import AllUserFriends from "@/components/FindUser.vue";
+import DisplayPending from "@/components/DisplayPending.vue";
 
 const socket = io("http://localhost:3000/friend");
 
@@ -166,19 +166,6 @@ async function updateUserList() {
  * computed properties *
  **********************/
 
-const searchedPlayers = computed(() => {
-  return users.value.filter((player) => {
-    if (player.playerName && player.id != Number(userId)) {
-      return (
-        player.playerName
-          .toUpperCase()
-          .toLowerCase()
-          .indexOf(searchQuery.value.toLowerCase()) != -1
-      );
-    }
-  });
-});
-
 const pendingList = computed(() => {
   return users.value.filter((player) => {
     if (player.relation?.status == "PENDING") {
@@ -234,6 +221,9 @@ async function unfriend(player: User) {
 <!-- css -->
 
 <style scoped>
+h1 {
+  margin-bottom: 50px;
+}
 .dot {
   height: 25px;
   width: 25px;
