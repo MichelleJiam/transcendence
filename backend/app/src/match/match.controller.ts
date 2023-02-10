@@ -27,15 +27,17 @@ export class MatchController {
   }
 
   /* curl http://localhost:3000/match/:id */
+  /* returns null if no one in queue */
   @Get(":id")
-  async getMatch(@Param("id", ParseIntPipe) id: number) {
-    const game = await this.matchService.getMatch(id).catch(() => {
+  async findMatch(@Param("id", ParseIntPipe) id: number) {
+    const game = await this.matchService.findMatch(id).catch(() => {
       throw new BadRequestException("error while trying to create match");
     });
     return game;
   }
 
   /* curl -X POST -d "playerId=5" http://localhost:3000/match/ */
+  /* method not currently used */
   @Post()
   async create(@Body() createMatchDto: CreateMatchDto) {
     const match = await this.matchService.create(createMatchDto).catch(() => {

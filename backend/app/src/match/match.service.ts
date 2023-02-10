@@ -27,7 +27,7 @@ export class MatchService {
     return await this.matchRepository.find({});
   }
 
-  async getMatch(id: number) {
+  async findMatch(id: number) {
     if ((await this.userService.findUserById(id)) == null) {
       this.logger.debug("unable to match, user does not exist");
       throw new NotFoundException();

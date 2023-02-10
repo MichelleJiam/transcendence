@@ -33,7 +33,7 @@ onMounted(async () => {
   await countdown().then((data) => {
     console.log(data);
   });
-  intervalId = setInterval(draw, 1);
+  intervalId = setInterval(draw, 5);
 });
 
 /******************
@@ -79,6 +79,7 @@ function initGame() {
     room: props.game.id.toString(),
     player: props.game.player,
     winner: 0,
+    loser: 0,
     playerOne: {
       id: props.game.playerOne,
       score: 0,
@@ -139,7 +140,7 @@ const countdown = () => {
  * GAME LOOP *
  *************/
 
-let intervalId = setInterval(draw, 1); // change interval to change speed; can be a feature?
+let intervalId = setInterval(draw, 5); // change interval to change speed; can be a feature?
 clearInterval(intervalId);
 
 /************
@@ -150,6 +151,13 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const emit = defineEmits(["game-over"]);
 
 async function gameOver() {
+  if (gameRoom.winner == 1) {
+    gameRoom.winner = gameRoom.playerOne.id;
+    gameRoom.loser = gameRoom.playerTwo.id;
+  } else {
+    gameRoom.winner = gameRoom.playerTwo.id;
+    gameRoom.loser = gameRoom.playerOne.id;
+  }
   await sleep(2000);
   emit("game-over", gameRoom);
   // document.location.reload();
@@ -186,7 +194,7 @@ async function endMatch() {
   await countdown().then((data) => {
     console.log(data);
   });
-  intervalId = setInterval(draw, 1);
+  intervalId = setInterval(draw, 5);
 }
 
 /************
@@ -255,10 +263,8 @@ props.socket.on("calculateBallMovement", () => {
           gameRoom.playerTwo.paddle.height +
           gameRoom.ball.radius
     ) {
-      console.log("RIGHT PADDLE HIT");
       gameRoom.ball.moveX = -gameRoom.ball.moveX;
     } else {
-      console.log("RIGHT PADDLE MISSED - END GAME");
       gameRoom.ball.moveX = -gameRoom.ball.moveX;
       gameRoom.winner = 1;
       endMatch();
@@ -277,7 +283,6 @@ props.socket.on("calculateBallMovement", () => {
           gameRoom.ball.radius
     ) {
       gameRoom.ball.moveX = -gameRoom.ball.moveX;
-      console.log("LEFT PADDLE HIT");
     } else {
       gameRoom.ball.moveX = -gameRoom.ball.moveX;
       gameRoom.winner = 2;
@@ -289,13 +294,11 @@ props.socket.on("calculateBallMovement", () => {
     gameRoom.ball.radius + gameRoom.view.offset - gameRoom.view.borderLines
   ) {
     gameRoom.ball.moveY = -gameRoom.ball.moveY;
-    console.log("TOP WALL HIT");
   } else if (
     gameRoom.ball.y + gameRoom.ball.moveY >
     gameRoom.view.height - gameRoom.ball.radius - gameRoom.view.offset
   ) {
     gameRoom.ball.moveY = -gameRoom.ball.moveY;
-    console.log("BOTTOM WALL HIT");
   }
   gameRoom.ball.x += gameRoom.ball.moveX;
   gameRoom.ball.y += gameRoom.ball.moveY;

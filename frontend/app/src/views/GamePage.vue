@@ -45,17 +45,21 @@ const joined = ref(false);
 const game = ref({} as Game);
 game.value.state = State.READY;
 
-function gameOver(gameRoom: GameRoom) {
-  socket.emit("updateGameStats", gameRoom);
+async function gameOver(gameRoom: GameRoom) {
   game.value.state = State.READY;
-  socket.emit("leaveRoom", game);
+  socket.emit("leaveRoom", game.value.id);
   joined.value = false;
   console.log(id, "has left room ", game.value.id);
-  // implement api call to update game stats - need child to send this data here?
+  await apiRequest(`/game`, "put", { data: gameRoom });
 }
+
+socket.on("disconnecting", (socket) => {
+  socket.emit("socketRooms", socket.rooms);
+});
 
 onBeforeMount(async () => {
   socket.on("disconnect", () => {
+    socket.emit("talkToMe");
     console.log(socket.id + " disconnected from frontend");
   });
 });
@@ -77,7 +81,6 @@ onUnmounted(async () => {
 
 socket.on("addPlayerOne", (gameData: Game) => {
   if (joined.value == false && game.value.state == State.WAITING) {
-    console.log(gameData.id.toString());
     game.value = {
       id: gameData.id,
       player: 1,
@@ -85,13 +88,15 @@ socket.on("addPlayerOne", (gameData: Game) => {
       playerTwo: gameData.playerTwo,
       state: State.PLAYING,
     };
-    socket.emit("joinRoom", gameData);
+    socket.emit("joinRoom", game.value);
     joined.value = true;
-    console.log(id, "has joined room ", gameData.id);
+    console.log(id, "has joined room ", game.value.id);
   }
 });
 
 const startGame = async () => {
+  // ADD api call to see if they are in a game; if so add them back into the room
+  // figure out how to manage the gameRoom objects so you still have access to it if someone disconnects
   const res = await apiRequest(`/match/${id}`, "get");
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
@@ -103,7 +108,7 @@ const startGame = async () => {
       playerTwo: res.data.playerTwo,
       state: State.PLAYING,
     };
-    socket.emit("joinRoom", res.data);
+    socket.emit("joinRoom", game.value);
     console.log(id, " has joined room ", game.value.id);
     joined.value = true;
     showStartButton.value = false;

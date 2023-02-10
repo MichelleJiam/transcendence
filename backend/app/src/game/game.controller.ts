@@ -41,6 +41,15 @@ export class GameController {
     }
   }
 
+  @Get("findInPlay/:id")
+  async findInPlay(@Param("id", ParseIntPipe) id: number) {
+    const game = await this.gameService.findInPlay(id);
+    if (game === null) {
+      this.logger.debug("player is not currently in a game");
+    }
+    return game;
+  }
+
   /* curl -X POST -d "playerOne=5&playerTwo=6&status=playing" http://localhost:3000/game/ */
   @Post()
   async create(@Body() createGameDto: CreateGameDto) {
@@ -50,28 +59,12 @@ export class GameController {
     return game;
   }
 
-  /* curl -X PUT -d "id=55&winnerId=1&loserId=2&status=done&winnerScore=78&loserScore=3" http://localhost:3000/game */
   @Put()
-  async update(@Body() createGameDto: CreateGameDto) {
-    const game = await this.gameService.update(createGameDto).catch(() => {
-      this.logger.debug("updating game failed");
-      throw new NotFoundException("Unable to update game");
+  async update(@Body() gameRoom: GameRoom) {
+    const game = await this.gameService.update(gameRoom).catch(() => {
+      this.logger.debug("updating game stats failed");
+      throw new BadRequestException("unable to update finished game");
     });
-    return game;
-  }
-
-  @Put(":id")
-  async updateGameStats(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() gameRoom: GameRoom,
-  ) {
-    console.log("gameRoom: ", gameRoom);
-    const game = await this.gameService
-      .updateFinishedGame(gameRoom)
-      .catch(() => {
-        this.logger.debug("updating game stats failed");
-        throw new BadRequestException("unable to update finished game");
-      });
     return game;
   }
 
