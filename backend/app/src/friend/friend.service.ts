@@ -73,6 +73,6 @@ export class FriendService {
       source: input.source,
       target: input.target,
     });
-    return this.friendGateway.server.emit("unfriend");
+    return this.friendGateway.server.emit("unfriend", input);
   }
 }

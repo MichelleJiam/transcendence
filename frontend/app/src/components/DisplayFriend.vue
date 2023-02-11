@@ -1,26 +1,25 @@
 <template>
   <div class="container">
-    <h3>Pending requests</h3>
+    <h3>Friends</h3>
     <ul class="list-group">
-      <div v-if="listNotEmpty('pending')">
-        <li v-for="pending in pendingList" :key="pending.id">
+      <div v-if="listNotEmpty('friend')">
+        <li v-for="friend in friendList" :key="friend.id">
           <span><img :src="avatar" alt="Avatar" class="avatar" /></span>
-          <span>{{ pending.playerName }}</span>
-          <div v-if="Number(userid) == pending.relation?.target">
-            <button style="margin-right: 20px" @click="acceptRequest(pending)">
-              Accept
-            </button>
-            <button @click="denyRequest(pending)">Deny</button>
-          </div>
-          <button
-            v-else-if="Number(userid) == pending.relation?.source"
-            @click="cancelRequest(pending)"
-          >
-            Cancel
-          </button>
+          <span
+            class="dot"
+            :style="[
+              friend.status === 'offline'
+                ? { 'background-color': 'red' }
+                : friend.status === 'online'
+                ? { 'background-color': 'green' }
+                : { 'background-color': 'orange' },
+            ]"
+          ></span>
+          <span>{{ friend.playerName }}</span>
+          <button class="unfriend" @click="unfriend(friend)">Unfriend</button>
         </li>
       </div>
-      <div v-else><i>No pending requests...</i></div>
+      <div v-else><i>No friends...</i></div>
     </ul>
   </div>
 </template>
@@ -29,10 +28,6 @@
 import { computed } from "vue";
 import { useFriendStore, type User } from "@/stores/FriendStore";
 
-const props = defineProps({
-  userid: { type: String, required: true },
-});
-
 const store = useFriendStore();
 const avatar = new URL("../assets/default-avatar.svg", import.meta.url).href;
 
@@ -40,31 +35,20 @@ const avatar = new URL("../assets/default-avatar.svg", import.meta.url).href;
  * computed properties *
  **********************/
 
-const pendingList = computed(() => {
+const friendList = computed(() => {
   return store.users.filter((player) => {
-    if (player.relation?.status == "PENDING") {
+    if (player.relation?.status == "FRIEND") {
       return player.playerName;
     }
   });
 });
 
-/***********
- * at click *
- ***********/
+/********
+ * store *
+ *********/
 
-async function cancelRequest(player: User) {
+async function unfriend(player: User) {
   await store.removeRelation(player);
-  await store.updateUserList(props.userid);
-}
-
-async function acceptRequest(player: User) {
-  await store.acceptRequest(player);
-  await store.updateUserList(props.userid);
-}
-
-async function denyRequest(player: User) {
-  await store.removeRelation(player);
-  await store.updateUserList(props.userid);
 }
 
 /***********
@@ -124,6 +108,29 @@ function listNotEmpty(type: string) {
   width: 50px;
   height: 50px;
   border-radius: 50%;
+}
+.unfriend {
+  background: #ff1818;
+}
+
+.pending {
+  background: orange;
+}
+
+.pending button:hover,
+button:active {
+  background: #ff1818;
+}
+.dot {
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+}
+
+:disabled {
+  /* opacity: 0.3; */
+  cursor: progress;
+  /* cursor: url("../assets/accept.svg"), auto; */
 }
 
 ::-webkit-scrollbar {
