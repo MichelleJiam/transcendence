@@ -27,16 +27,7 @@ export class MatchService {
     return await this.matchRepository.find({});
   }
 
-  async findOne(id: number) {
-    const match = await this.matchRepository.findOne({
-      where: {
-        id: id,
-      },
-    });
-    return match;
-  }
-
-  async getMatch(id: number) {
+  async findMatch(id: number) {
     if ((await this.userService.findUserById(id)) == null) {
       this.logger.debug("unable to match, user does not exist");
       throw new NotFoundException();
@@ -65,7 +56,7 @@ export class MatchService {
         this.logger.debug("error in getMatch while trying to create new game");
         throw new BadRequestException();
       });
-      this.remove(match[0].id);
+      this.remove(match[0].playerId);
       return game;
     }
   }
@@ -94,9 +85,15 @@ export class MatchService {
   }
 
   async remove(id: number) {
-    if (this.findOne(id) == null) {
-      throw new NotFoundException();
+    const match = await this.matchRepository.findOne({
+      where: {
+        playerId: id,
+      },
+    });
+    if (match == null) {
+      this.logger.debug("unable to delete player from queue, does not exist");
+      return;
     }
-    await this.matchRepository.delete(id);
+    await this.matchRepository.delete(match.id);
   }
 }

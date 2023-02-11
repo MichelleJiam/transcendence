@@ -1,80 +1,124 @@
-<!--
-    this should be the main page layout
-    so the basic nav bar and the content div
-    then there should be different components that render
-    on different circumstances
--->
-
 <template>
   <main>
     <div id="display-content">
-      <div v-if="gameState == State.READY" class="my-btn">
+      <div v-if="game.state == State.READY" class="my-btn">
         <button class="btn" @click="startGame">PLAY</button>
-        <button class="btn">WATCH</button>
+        <button class="btn" @click="watchGame">WATCH</button>
       </div>
-      <div v-else-if="gameState == State.WAITING" class="loader">
+      <div v-else-if="game.state == State.WAITING" class="loader">
         <LoaderKnightRider />
       </div>
-      <div v-else>playing</div>
+      <div v-else>
+        <PongGame
+          :id="id"
+          :game="game"
+          :socket="socket"
+          @game-over="gameOver"
+        />
+      </div>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
-import LoaderKnightRider from "@/components/game/loaders/LoaderKnightRider.vue";
-import LoaderLookingGlass from "@/components/game/loaders/LoaderLookingGlass.vue";
-import apiRequest from "@/utils/apiRequest";
-import { onBeforeMount, ref } from "vue";
+import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
+import PongGame from "../components/game/PongGame.vue";
+import apiRequest from "../utils/apiRequest";
+import { onBeforeMount, onUnmounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import { onMounted } from "vue";
+import type { Game, GameRoom } from "../components/game/pong.types";
 
 const State = {
   READY: 0,
   WAITING: 1,
   PLAYING: 2,
-  DONE: 3,
 };
 
 const route = useRoute();
-const id = route.params.id;
+const id = route.params.id as string;
 const socket = io("http://localhost:3000/pong");
 const showStartButton = ref(true);
 const showWatchButton = ref(true);
-const gameState = ref(State.READY);
 const joined = ref(false);
+const game = ref({} as Game);
+game.value.state = State.READY;
 
-onBeforeMount(() => {
+async function gameOver(gameRoom: GameRoom) {
+  game.value.state = State.READY;
+  socket.emit("leaveRoom", game.value.id);
+  joined.value = false;
+  console.log(id, "has left room ", game.value.id);
+  await apiRequest(`/game`, "put", { data: gameRoom });
+}
+
+socket.on("disconnecting", (socket) => {
+  socket.emit("socketRooms", socket.rooms);
+});
+
+onBeforeMount(async () => {
   socket.on("disconnect", () => {
+    socket.emit("talkToMe");
     console.log(socket.id + " disconnected from frontend");
   });
 });
 
-onMounted(() => {
+onMounted(async () => {
+  await apiRequest(
+    `/match/${id}`,
+    "delete"
+  ); /* protection if user refreshes; removes them from queue */
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
 });
 
-socket.on("addPlayerOne", (data) => {
-  if (joined.value == false) {
-    socket.emit("joinRoom", data);
+onUnmounted(async () => {
+  console.log("unmounted");
+  await apiRequest(`/match/${id}`, "delete");
+});
+
+socket.on("addPlayerOne", (gameData: Game) => {
+  if (joined.value == false && game.value.state == State.WAITING) {
+    game.value = {
+      id: gameData.id,
+      player: 1,
+      playerOne: gameData.playerOne,
+      playerTwo: gameData.playerTwo,
+      state: State.PLAYING,
+    };
+    socket.emit("joinRoom", game.value);
     joined.value = true;
-    gameState.value = State.PLAYING;
+    console.log(id, "has joined room ", game.value.id);
   }
 });
 
 const startGame = async () => {
+  // ADD api call to see if they are in a game; if so add them back into the room
+  // figure out how to manage the gameRoom objects so you still have access to it if someone disconnects
   const res = await apiRequest(`/match/${id}`, "get");
   if (res.data.id == undefined) {
-    gameState.value = State.WAITING;
+    game.value.state = State.WAITING;
   } else {
-    socket.emit("joinRoom", res.data.id);
-    gameState.value = State.PLAYING;
+    game.value = {
+      id: res.data.id.toString(),
+      player: 2,
+      playerOne: res.data.playerOne,
+      playerTwo: res.data.playerTwo,
+      state: State.PLAYING,
+    };
+    socket.emit("joinRoom", game.value);
+    console.log(id, " has joined room ", game.value.id);
     joined.value = true;
     showStartButton.value = false;
     showWatchButton.value = false;
   }
+};
+
+const watchGame = async () => {
+  // make backend call to see if there are any games in a playing state
+  // return first one and then let player join the room
 };
 </script>
 

@@ -34,10 +34,10 @@ export class Game {
   public status!: string;
 
   @ManyToOne(() => User, (user: User) => user.wins)
-  public winnerId!: User;
+  public winnerId!: number;
 
   @ManyToOne(() => User, (user: User) => user.losses)
-  public loserId!: User;
+  public loserId!: number;
 }
 
 /* 
