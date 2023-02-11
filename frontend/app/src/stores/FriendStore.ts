@@ -18,7 +18,10 @@ export type User = {
 export const useFriendStore = defineStore("friend", () => {
   const users = ref(Array<User>());
 
-  async function updateUserList(userId: string | string[]) {
+  /* fetch all users from the database and their relation to the current user */
+
+  async function updateUserList(userId: string) {
+    // await new Promise((resolve) => setTimeout(resolve, 2000));
     const res = await apiRequest("/friend/relation/users", "get");
     users.value = res.data;
     users.value.forEach(async (user) => {
@@ -29,8 +32,20 @@ export const useFriendStore = defineStore("friend", () => {
       user.relation = res.data;
     });
   }
+
+  async function removeRelation(player: User) {
+    await apiRequest("/friend/unfriend", "delete", { data: player.relation });
+  }
+
+  async function acceptRequest(player: User) {
+    await apiRequest("/friend/accept", "put", {
+      data: player.relation,
+    });
+  }
   return {
     users,
     updateUserList,
+    removeRelation,
+    acceptRequest,
   };
 });

@@ -18,6 +18,13 @@
         >
           Pending
         </button>
+        <button
+          v-else-if="player.relation?.status == 'FRIEND'"
+          class="unfriend"
+          @click="unfriend(player)"
+        >
+          Unfriend
+        </button>
       </li>
     </ul>
   </div>
@@ -25,22 +32,21 @@
 
 <script setup lang="ts">
 import apiRequest from "@/utils/apiRequest";
-import { onMounted, ref, computed } from "vue";
-import { useRoute } from "vue-router";
+import { ref, computed } from "vue";
 import { useFriendStore, type User } from "@/stores/FriendStore";
+import { useAccountSettings } from "@/stores/AccountSettings";
+
+const props = defineProps({
+  userid: { type: String, required: true },
+});
 
 const store = useFriendStore();
-
-const route = useRoute();
-const userId = route.params.id;
+const storeAccount = useAccountSettings();
 
 const avatar = new URL("../assets/default-avatar.svg", import.meta.url).href;
-
 const searchQuery = ref("");
 
-onMounted(async () => {
-  await store.updateUserList(userId);
-});
+await store.updateUserList(props.userid);
 
 /**********************
  * computed properties *
@@ -48,7 +54,7 @@ onMounted(async () => {
 
 const searchedPlayers = computed(() => {
   return store.users.filter((player) => {
-    if (player.playerName && player.id != Number(userId)) {
+    if (player.playerName && player.id != Number(props.userid)) {
       return (
         player.playerName
           .toUpperCase()
@@ -64,11 +70,11 @@ const searchedPlayers = computed(() => {
  ***********/
 
 async function sendFriendRequest(player: User) {
-  if (userId) {
+  if (props.userid) {
     try {
       await apiRequest("/friend/request", "post", {
         data: {
-          source: userId,
+          source: props.userid,
           target: player.id,
           status: "PENDING",
         },
@@ -77,17 +83,24 @@ async function sendFriendRequest(player: User) {
       console.log(error);
       return;
     }
-    await store.updateUserList(userId);
+    await store.updateUserList(props.userid);
   } else console.log("No user id provided in url");
+}
+
+async function unfriend(player: User) {
+  await store.removeRelation(player);
+  await store.updateUserList(props.userid);
 }
 </script>
 
 <style scoped>
 .container {
-  width: 35%;
+  width: 50%;
   max-height: 505px;
+  min-height: 505px;
   overflow-y: scroll;
   box-shadow: rgba(0, 0, 0, 10) 0px 1px 4px;
+  margin-bottom: 40px;
 }
 
 .container input {
@@ -116,11 +129,15 @@ async function sendFriendRequest(player: User) {
 }
 
 .pending {
-  background: orange;
+  background: #ff7200;
 }
 .pending button:hover,
 button:active {
-  background: orange;
+  background: #ff7200;
+}
+
+.unfriend {
+  background: #ff1818;
 }
 
 :disabled {
