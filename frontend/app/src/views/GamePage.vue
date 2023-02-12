@@ -28,7 +28,7 @@ import { onBeforeMount, onUnmounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import { onMounted } from "vue";
-import type { Game, GameRoom } from "../components/game/pong.types";
+import type { GameRoom } from "../components/game/pong.types";
 
 const State = {
   READY: 0,
@@ -39,17 +39,16 @@ const State = {
 const route = useRoute();
 const id = route.params.id as string;
 const socket = io("http://localhost:3000/pong");
-const showStartButton = ref(true);
-const showWatchButton = ref(true);
 const joined = ref(false);
-const game = ref({} as Game);
+const game = ref({} as GameRoom);
 game.value.state = State.READY;
 
 async function gameOver(gameRoom: GameRoom) {
+  game.value = gameRoom;
   game.value.state = State.READY;
-  socket.emit("leaveRoom", game.value.id);
+  socket.emit("leaveRoom", gameRoom.id);
   joined.value = false;
-  console.log(id, "has left room ", game.value.id);
+  console.log(id, "has left room ", gameRoom.id);
   await apiRequest(`/game`, "put", { data: gameRoom });
 }
 
@@ -59,7 +58,6 @@ socket.on("disconnecting", (socket) => {
 
 onBeforeMount(async () => {
   socket.on("disconnect", () => {
-    socket.emit("talkToMe");
     console.log(socket.id + " disconnected from frontend");
   });
 });
@@ -79,15 +77,10 @@ onUnmounted(async () => {
   await apiRequest(`/match/${id}`, "delete");
 });
 
-socket.on("addPlayerOne", (gameData: Game) => {
+socket.on("addPlayerOne", (gameRoom: GameRoom) => {
   if (joined.value == false && game.value.state == State.WAITING) {
-    game.value = {
-      id: gameData.id,
-      player: 1,
-      playerOne: gameData.playerOne,
-      playerTwo: gameData.playerTwo,
-      state: State.PLAYING,
-    };
+    game.value = gameRoom;
+    game.value.player = 1;
     socket.emit("joinRoom", game.value);
     joined.value = true;
     console.log(id, "has joined room ", game.value.id);
@@ -95,24 +88,38 @@ socket.on("addPlayerOne", (gameData: Game) => {
 });
 
 const startGame = async () => {
-  // ADD api call to see if they are in a game; if so add them back into the room
-  // figure out how to manage the gameRoom objects so you still have access to it if someone disconnects
   const res = await apiRequest(`/match/${id}`, "get");
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
   } else {
-    game.value = {
-      id: res.data.id.toString(),
-      player: 2,
-      playerOne: res.data.playerOne,
-      playerTwo: res.data.playerTwo,
-      state: State.PLAYING,
+    game.value.id = res.data.id;
+    game.value.player = 2;
+    game.value.playerOne = {
+      id: res.data.playerOne,
+      socket: "",
+      score: 0,
+      paddle: {
+        height: 0,
+        width: 0,
+        y: 0,
+        offset: 0,
+      },
     };
+    game.value.playerTwo = {
+      id: res.data.playerTwo,
+      socket: "",
+      score: 0,
+      paddle: {
+        height: 0,
+        width: 0,
+        y: 0,
+        offset: 0,
+      },
+    };
+    game.value.state = State.PLAYING;
     socket.emit("joinRoom", game.value);
     console.log(id, " has joined room ", game.value.id);
     joined.value = true;
-    showStartButton.value = false;
-    showWatchButton.value = false;
   }
 };
 
