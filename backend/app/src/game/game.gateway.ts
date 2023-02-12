@@ -41,7 +41,6 @@ export class GameGateway {
       gameRoom.playerTwo.socket = client.id;
       await this.gameService.updateSocket(gameRoom);
     }
-    console.log("game received in joinRoom: ", gameRoom);
     client.join(gameRoom.id);
     console.log(client.id, " joined room: ", client.rooms);
     if (gameRoom.player == 2) {

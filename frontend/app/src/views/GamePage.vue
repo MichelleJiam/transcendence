@@ -2,8 +2,11 @@
   <main>
     <div id="display-content">
       <div v-if="game.state == State.READY" class="my-btn">
-        <button class="btn" @click="startGame">PLAY</button>
-        <button class="btn" @click="watchGame">WATCH</button>
+        <button @click="startGame">PLAY GAME</button>
+        <button>SELECT MODE</button>
+        <PongMain />
+        <!-- <button class="btn" @click="startGame">PLAY</button>
+        <button class="btn" @click="watchGame">WATCH</button> -->
       </div>
       <div v-else-if="game.state == State.WAITING" class="loader">
         <LoaderKnightRider />
@@ -23,6 +26,7 @@
 <script setup lang="ts">
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
+import PongMain from "../components/game/PongMain.vue";
 import apiRequest from "../utils/apiRequest";
 import { onBeforeMount, onUnmounted, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -122,11 +126,6 @@ const startGame = async () => {
     joined.value = true;
   }
 };
-
-const watchGame = async () => {
-  // make backend call to see if there are any games in a playing state
-  // return first one and then let player join the room
-};
 </script>
 
 <style scoped>
@@ -142,12 +141,14 @@ p {
 }
 
 button {
-  height: 50%;
-  width: 100%;
+  /* height: 50%;
+  width: 100%; */
+  height: 10%;
+  width: 20%;
   background: #1c1b1b;
   color: white;
   font-family: "ArcadeClassic", sans-serif;
-  font-size: 10vw;
+  font-size: 2vw;
   cursor: pointer;
   border-radius: 5px;
   text-align: center;
@@ -158,12 +159,12 @@ button:hover {
   color: #39ff14;
   background-color: #1c1b1b;
 }
-.my-btn {
+/* .my-btn {
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-}
+} */
 .loader {
   height: 50%;
   width: 100%;
