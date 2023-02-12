@@ -14,6 +14,7 @@ export interface Paddle {
 
 export interface Player {
   id: number;
+  socket: string;
   score: number;
   paddle: Paddle;
 }
@@ -27,7 +28,7 @@ export interface Ball {
 }
 
 export interface GameRoom {
-  room: string;
+  id: string;
   player: number;
   winner: number;
   loser: number;
@@ -35,13 +36,6 @@ export interface GameRoom {
   playerTwo: Player;
   ball: Ball;
   view: Canvas;
-}
-
-export interface Game {
-  id: number;
-  player: number;
-  playerOne: number;
-  playerTwo: number;
   state: number;
 }
 

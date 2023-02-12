@@ -7,12 +7,12 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import type { PropType } from "vue";
-import type { Keys, GameRoom, Game, Canvas } from "./pong.types";
+import type { Keys, GameRoom, Canvas } from "./pong.types";
 import { Socket } from "socket.io-client";
 
 const props = defineProps({
   id: { type: String, required: true },
-  game: { type: Object as PropType<Game>, required: true },
+  game: { type: Object as PropType<GameRoom>, required: true },
   socket: { type: Socket, required: true },
 });
 
@@ -76,12 +76,13 @@ function resetBall() {
 
 function initGame() {
   gameRoom = {
-    room: props.game.id.toString(),
+    id: props.game.id,
     player: props.game.player,
-    winner: 0,
-    loser: 0,
+    winner: props.game.winner,
+    loser: props.game.loser,
     playerOne: {
-      id: props.game.playerOne,
+      id: props.game.playerOne.id,
+      socket: props.game.playerOne.socket,
       score: 0,
       paddle: {
         height: view.height * 0.24,
@@ -91,7 +92,8 @@ function initGame() {
       },
     },
     playerTwo: {
-      id: props.game.playerTwo,
+      id: props.game.playerTwo.id,
+      socket: props.game.playerTwo.socket,
       score: 0,
       paddle: {
         height: view.height * 0.24,
@@ -108,6 +110,7 @@ function initGame() {
       moveY: -((view.width * 0.014) / 5),
     },
     view: view,
+    state: props.game.state,
   };
   key = { up: false, down: false };
 }

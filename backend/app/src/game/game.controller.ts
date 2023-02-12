@@ -22,14 +22,12 @@ export class GameController {
 
   constructor(private readonly gameService: GameService) {}
 
-  /* curl http://localhost:3000/game/ */
   @Get()
   async findAll() {
     const games = await this.gameService.findAll();
     return games;
   }
 
-  /* curl http://localhost:3000/game/48 */
   @Get(":id")
   async findOne(@Param("id", ParseIntPipe) id: number) {
     const game = await this.gameService.findOne(id);
@@ -39,15 +37,6 @@ export class GameController {
     } else {
       return game;
     }
-  }
-
-  @Get("findInPlay/:id")
-  async findInPlay(@Param("id", ParseIntPipe) id: number) {
-    const game = await this.gameService.findInPlay(id);
-    if (game === null) {
-      this.logger.debug("player is not currently in a game");
-    }
-    return game;
   }
 
   /* curl -X POST -d "playerOne=5&playerTwo=6&status=playing" http://localhost:3000/game/ */
@@ -68,7 +57,6 @@ export class GameController {
     return game;
   }
 
-  /* curl -X DELETE http://localhost:3000/game/48 */
   @Delete(":id")
   @HttpCode(204) /* code for no content used for removing a resource */
   async remove(@Param("id", ParseIntPipe) id: number) {

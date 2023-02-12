@@ -8,7 +8,6 @@ import {
 import { Server, Socket } from "socket.io";
 import { GameService } from "./game.service";
 import { GameRoom } from "./pong.types";
-import { CreateGameDto } from "./dto/create-game.dto";
 
 // by default will listen to same port http is listening on
 @WebSocketGateway({
@@ -33,11 +32,21 @@ export class GameGateway {
   @SubscribeMessage("joinRoom")
   async joinRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() game: CreateGameDto,
+    @MessageBody() gameRoom: GameRoom,
   ) {
-    client.join(game.id.toString());
+    if (gameRoom.player == 1) {
+      gameRoom.playerOne.socket = client.id;
+      await this.gameService.updateSocket(gameRoom);
+    } else {
+      gameRoom.playerTwo.socket = client.id;
+      await this.gameService.updateSocket(gameRoom);
+    }
+    console.log("game received in joinRoom: ", gameRoom);
+    client.join(gameRoom.id);
     console.log(client.id, " joined room: ", client.rooms);
-    this.server.emit("addPlayerOne", game);
+    if (gameRoom.player == 2) {
+      this.server.emit("addPlayerOne", gameRoom);
+    }
   }
 
   @SubscribeMessage("leaveRoom")
@@ -48,12 +57,12 @@ export class GameGateway {
 
   @SubscribeMessage("movePaddleUp")
   movePaddleUp(@MessageBody() gameRoom: GameRoom) {
-    this.server.to(gameRoom.room).emit("movePaddleUp", gameRoom.player);
+    this.server.to(gameRoom.id).emit("movePaddleUp", gameRoom.player);
   }
 
   @SubscribeMessage("movePaddleDown")
   movePaddleDown(@MessageBody() gameRoom: GameRoom) {
-    this.server.to(gameRoom.room).emit("movePaddleDown", gameRoom.player);
+    this.server.to(gameRoom.id).emit("movePaddleDown", gameRoom.player);
   }
 
   @SubscribeMessage("moveBall")
@@ -63,6 +72,6 @@ export class GameGateway {
 
   @SubscribeMessage("endGame")
   endGame(@MessageBody() gameRoom: GameRoom) {
-    this.server.to(gameRoom.room).emit("endGame", gameRoom);
+    this.server.to(gameRoom.id).emit("endGame", gameRoom);
   }
 }

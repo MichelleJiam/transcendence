@@ -35,16 +35,6 @@ export class GameService {
     return game;
   }
 
-  async findInPlay(id: number) {
-    const game = await this.gameRepository.find({
-      where: [{ playerOne: id }, { playerTwo: id }],
-      // status: "playing",,
-      // status: "playing",
-    });
-    console.log("game = ", game);
-    return game;
-  }
-
   async create(createGameDto: CreateGameDto) {
     if (createGameDto.playerOne === createGameDto.playerTwo) {
       this.logger.debug("cannot create game, players are not unique");
@@ -66,8 +56,27 @@ export class GameService {
     return await this.gameRepository.save(createGameDto);
   }
 
+  async updateSocket(gameRoom: GameRoom) {
+    if ((await this.findOne(Number(gameRoom.id))) == null) {
+      this.logger.debug("game does not exist, unable to update");
+      throw new NotFoundException(
+        "Unable to update game because game does not exist",
+      );
+    }
+    const game = await this.gameRepository
+      .createQueryBuilder()
+      .update(Game)
+      .set({
+        playerOneSocket: gameRoom.playerOne.socket,
+        playerTwoSocket: gameRoom.playerTwo.socket,
+      })
+      .where("id = :id", { id: gameRoom.id })
+      .execute();
+    return game;
+  }
+
   async update(gameRoom: GameRoom) {
-    if (this.findOne(Number(gameRoom.room)) == null) {
+    if ((await this.findOne(Number(gameRoom.id))) == null) {
       this.logger.debug("game does not exist, unable to update");
       throw new NotFoundException(
         "Unable to update game because game does not exist",
@@ -89,8 +98,9 @@ export class GameService {
         loserId: gameRoom.loser,
         winnerScore: highScore,
         loserScore: lowScore,
+        state: "done",
       })
-      .where("id = :id", { id: gameRoom.room })
+      .where("id = :id", { id: gameRoom.id })
       .execute();
     return game;
   }

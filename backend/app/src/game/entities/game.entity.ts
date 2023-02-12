@@ -21,6 +21,16 @@ export class Game {
   @Column({
     nullable: true,
   })
+  public playerOneSocket!: string;
+
+  @Column({
+    nullable: true,
+  })
+  public playerTwoSocket!: string;
+
+  @Column({
+    nullable: true,
+  })
   public winnerScore!: number;
 
   @Column({
@@ -31,7 +41,7 @@ export class Game {
   @Column({
     nullable: true,
   })
-  public status!: string;
+  public state!: string;
 
   @ManyToOne(() => User, (user: User) => user.wins)
   public winnerId!: number;
