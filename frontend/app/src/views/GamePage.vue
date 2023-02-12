@@ -5,6 +5,7 @@
         <button @click="startGame">PLAY GAME</button>
         <button>SELECT MODE</button>
         <PongMain />
+        <PongWatch />
         <!-- <button class="btn" @click="startGame">PLAY</button>
         <button class="btn" @click="watchGame">WATCH</button> -->
       </div>
@@ -27,6 +28,7 @@
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
 import PongMain from "../components/game/PongMain.vue";
+import PongWatch from "../components/game/PongWatch.vue";
 import apiRequest from "../utils/apiRequest";
 import { onBeforeMount, onUnmounted, ref } from "vue";
 import { useRoute } from "vue-router";

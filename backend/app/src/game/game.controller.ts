@@ -39,6 +39,8 @@ export class GameController {
     }
   }
 
+  // get active games
+
   /* curl -X POST -d "playerOne=5&playerTwo=6&status=playing" http://localhost:3000/game/ */
   @Post()
   async create(@Body() createGameDto: CreateGameDto) {
