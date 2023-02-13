@@ -6,6 +6,7 @@ import LeaderBoard from "../views/LeaderBoard.vue";
 import LiveStream from "../views/LiveStream.vue";
 import ChatRoom from "../views/ChatRoom.vue";
 import NotFound from "../views/NotFound.vue";
+import FriendPage from "../views/FriendPage.vue";
 import type { Component } from "vue";
 
 const routes: {
@@ -26,6 +27,8 @@ const routes: {
   { path: "/leaderboard", component: LeaderBoard },
   { path: "/stream", component: LiveStream },
   { path: "/chat", component: ChatRoom },
+  { path: "/:id/friends", component: FriendPage },
+  { path: "/friends", component: FriendPage },
   { path: "/:pathMatch(.*)*", component: NotFound },
 ];
 
