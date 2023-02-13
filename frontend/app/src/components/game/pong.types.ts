@@ -45,6 +45,8 @@ export interface Game {
   playerTwo: number;
   playerOneSocket: string;
   playerTwoSocket: string;
+  playerOneUsername: string;
+  playerTwoUsername: string;
   winnerId: number;
   loserId: number;
   winnerScore: number;
