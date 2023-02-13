@@ -26,6 +26,15 @@ export class GameService {
     return await this.gameRepository.find({});
   }
 
+  async findActive() {
+    const games = await this.gameRepository.find({
+      where: {
+        state: "playing",
+      },
+    });
+    return games;
+  }
+
   async findOne(id: number) {
     const game = await this.gameRepository.findOne({
       where: {

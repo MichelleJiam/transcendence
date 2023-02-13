@@ -21,18 +21,16 @@ let ctx: CanvasRenderingContext2D;
 let key: Keys;
 let gameRoom: GameRoom;
 
-document.addEventListener("keydown", keyDownHandler, false);
-document.addEventListener("keyup", keyUpHandler, false);
-
 onMounted(async () => {
   initCanvas();
   initGame();
   drawBorderLines();
   drawCenterLine();
   drawPaddles();
-  await countdown().then((data) => {
-    console.log(data);
-  });
+  await countdown();
+  // await countdown().then((data) => {
+  //   console.log(data);
+  // });
   intervalId = setInterval(draw, 5);
 });
 
@@ -64,10 +62,10 @@ function initCanvas() {
   };
 }
 
-function resetBall() {
+function resetBall(ballX: number) {
   gameRoom.ball = {
     radius: gameRoom.view.width * 0.014,
-    x: gameRoom.view.width / 8,
+    x: ballX,
     y: gameRoom.view.height / 2,
     moveX: (gameRoom.view.width * 0.014) / 5,
     moveY: -((gameRoom.view.width * 0.014) / 5),
@@ -104,7 +102,7 @@ function initGame() {
     },
     ball: {
       radius: view.width * 0.014,
-      x: view.width / 8,
+      x: view.width / 2,
       y: view.height / 2,
       moveX: (view.width * 0.014) / 5,
       moveY: -((view.width * 0.014) / 5),
@@ -113,6 +111,10 @@ function initGame() {
     state: props.game.state,
   };
   key = { up: false, down: false };
+  if (gameRoom.player != 0) {
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+  }
 }
 
 /*************
@@ -132,12 +134,18 @@ const countdown = () => {
         clearInterval(timeout);
         resolve("start game!");
       }
-      drawCountdown(count);
-      drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
+      props.socket.emit("countdown", count);
+      // drawCountdown(count);
+      // drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
       count--;
     }, 750);
   });
 };
+
+props.socket.on("drawCount", (count: number) => {
+  drawCountdown(count);
+  drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
+});
 
 /*************
  * GAME LOOP *
@@ -171,21 +179,33 @@ props.socket.on("endGame", (winnerGameRoom: GameRoom) => {
   ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();
   drawBorderLines();
-  drawBall();
   drawPaddles();
-  drawScoreboard(
-    winnerGameRoom.playerOne.score,
-    winnerGameRoom.playerTwo.score
-  );
-  drawGameOver(winnerGameRoom.winner);
+  props.socket.emit("drawScoreboard", winnerGameRoom);
+  // drawScoreboard(
+  //   winnerGameRoom.playerOne.score,
+  //   winnerGameRoom.playerTwo.score
+  // );
+  // drawGameOver(winnerGameRoom.winner);
   gameOver();
 });
+
+props.socket.on(
+  "drawScoreboard",
+  (playerOneScore: number, playerTwoScore: number, winner: number) => {
+    drawScoreboard(playerOneScore, playerTwoScore);
+    drawGameOver(winner);
+    gameOver();
+  }
+);
 
 async function endMatch() {
   if (gameRoom.winner == 1) {
     gameRoom.playerOne.score++;
+    resetBall(gameRoom.view.width / 4);
   } else {
     gameRoom.playerTwo.score++;
+    resetBall(gameRoom.view.width - gameRoom.view.width / 4);
+    gameRoom.ball.moveX = -gameRoom.ball.moveX;
   }
 
   if (gameRoom.playerOne.score == 3 || gameRoom.playerTwo.score == 3) {
@@ -193,7 +213,6 @@ async function endMatch() {
     return;
   }
   clearInterval(intervalId);
-  resetBall();
   await countdown().then((data) => {
     console.log(data);
   });
@@ -213,54 +232,39 @@ async function determineKeyStrokes() {
   }
 }
 
-props.socket.on("movePaddleUp", (player: string) => {
-  if (player == "1") {
-    gameRoom.playerOne.paddle.y = Math.max(
-      gameRoom.playerOne.paddle.y - gameRoom.view.height * 0.01,
-      gameRoom.view.offset + gameRoom.view.borderLines
-    );
-  } else {
-    gameRoom.playerTwo.paddle.y = Math.max(
-      gameRoom.playerTwo.paddle.y - gameRoom.view.height * 0.01,
-      gameRoom.view.offset + gameRoom.view.borderLines
-    );
-  }
-});
-
-props.socket.on("movePaddleDown", (player: string) => {
-  if (player == "1") {
-    gameRoom.playerOne.paddle.y = Math.min(
-      gameRoom.playerOne.paddle.y + gameRoom.view.height * 0.01,
-      gameRoom.view.height -
-        gameRoom.playerOne.paddle.height -
-        gameRoom.view.offset -
-        gameRoom.view.borderLines
-    );
-  } else {
-    gameRoom.playerTwo.paddle.y = Math.min(
-      gameRoom.playerTwo.paddle.y + gameRoom.view.height * 0.01,
-      gameRoom.view.height -
-        gameRoom.playerTwo.paddle.height -
-        gameRoom.view.offset -
-        gameRoom.view.borderLines
-    );
-  }
-});
-
 async function moveBall() {
-  props.socket.emit("moveBall", props.game.id);
+  if (gameRoom.player == 1) {
+    props.socket.emit("moveBall", gameRoom);
+  }
 }
 
-props.socket.on("calculateBallMovement", () => {
+props.socket.on("movePaddleOneUp", (MoveY: number) => {
+  gameRoom.playerOne.paddle.y = MoveY * gameRoom.view.height;
+});
+
+props.socket.on("movePaddleTwoUp", (MoveY: number) => {
+  gameRoom.playerTwo.paddle.y = MoveY * gameRoom.view.height;
+});
+
+props.socket.on("movePaddleOneDown", (MoveY: number) => {
+  gameRoom.playerOne.paddle.y = MoveY * gameRoom.view.height;
+});
+
+props.socket.on("movePaddleTwoDown", (MoveY: number) => {
+  gameRoom.playerTwo.paddle.y = MoveY * gameRoom.view.height;
+});
+
+props.socket.on("calculateBallMovement", (x: number, y: number) => {
   if (
-    gameRoom.ball.x + gameRoom.ball.moveX >
+    x * gameRoom.view.width + gameRoom.ball.moveX >
     gameRoom.view.width -
       gameRoom.ball.radius -
       gameRoom.playerTwo.paddle.width * 2 -
       gameRoom.playerTwo.paddle.offset
   ) {
     if (
-      gameRoom.ball.y > gameRoom.playerTwo.paddle.y - gameRoom.ball.radius &&
+      y * gameRoom.view.height >
+        gameRoom.playerTwo.paddle.y - gameRoom.ball.radius &&
       gameRoom.ball.y <
         gameRoom.playerTwo.paddle.y +
           gameRoom.playerTwo.paddle.height +
@@ -273,14 +277,15 @@ props.socket.on("calculateBallMovement", () => {
       endMatch();
     }
   } else if (
-    gameRoom.ball.x + gameRoom.ball.moveX <
+    x * gameRoom.view.width + gameRoom.ball.moveX <
     gameRoom.ball.radius +
       gameRoom.playerTwo.paddle.width +
       gameRoom.playerTwo.paddle.offset
   ) {
     if (
-      gameRoom.ball.y > gameRoom.playerOne.paddle.y - gameRoom.ball.radius &&
-      gameRoom.ball.y <
+      y * gameRoom.view.height >
+        gameRoom.playerOne.paddle.y - gameRoom.ball.radius &&
+      y * gameRoom.view.height <
         gameRoom.playerOne.paddle.y +
           gameRoom.playerOne.paddle.height +
           gameRoom.ball.radius
@@ -293,12 +298,12 @@ props.socket.on("calculateBallMovement", () => {
     }
   }
   if (
-    gameRoom.ball.y + gameRoom.ball.moveY <
+    y * gameRoom.view.height + gameRoom.ball.moveY <
     gameRoom.ball.radius + gameRoom.view.offset - gameRoom.view.borderLines
   ) {
     gameRoom.ball.moveY = -gameRoom.ball.moveY;
   } else if (
-    gameRoom.ball.y + gameRoom.ball.moveY >
+    y * gameRoom.view.height + gameRoom.ball.moveY >
     gameRoom.view.height - gameRoom.ball.radius - gameRoom.view.offset
   ) {
     gameRoom.ball.moveY = -gameRoom.ball.moveY;
@@ -335,11 +340,11 @@ async function draw() {
   ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();
   drawBorderLines();
-  drawBall();
-  await moveBall();
-  drawPaddles();
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
+  await moveBall();
+  drawBall();
   await determineKeyStrokes();
+  drawPaddles();
 }
 
 function drawScoreboard(playerOneScore: number, playerTwoScore: number) {

@@ -5,7 +5,13 @@
         <button @click="startGame">PLAY GAME</button>
         <button>SELECT MODE</button>
         <PongMain />
-        <PongWatch />
+        <p>Watch</p>
+        <div v-for="activeGame in activeGames" :key="activeGame.id">
+          <button @click="watchGame(activeGame.id)">
+            {{ activeGame.playerOne }} vs. {{ activeGame.playerTwo }}
+          </button>
+        </div>
+        <!-- <PongWatch :socket="socket" /> -->
         <!-- <button class="btn" @click="startGame">PLAY</button>
         <button class="btn" @click="watchGame">WATCH</button> -->
       </div>
@@ -34,7 +40,7 @@ import { onBeforeMount, onUnmounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import { onMounted } from "vue";
-import type { GameRoom } from "../components/game/pong.types";
+import type { Game, GameRoom } from "../components/game/pong.types";
 
 const State = {
   READY: 0,
@@ -47,6 +53,7 @@ const id = route.params.id as string;
 const socket = io("http://localhost:3000/pong");
 const joined = ref(false);
 const game = ref({} as GameRoom);
+const activeGames = ref(Array<Game>());
 game.value.state = State.READY;
 
 async function gameOver(gameRoom: GameRoom) {
@@ -56,6 +63,7 @@ async function gameOver(gameRoom: GameRoom) {
   joined.value = false;
   console.log(id, "has left room ", gameRoom.id);
   await apiRequest(`/game`, "put", { data: gameRoom });
+  socket.emit("updateActiveGames");
 }
 
 socket.on("disconnecting", (socket) => {
@@ -66,6 +74,7 @@ onBeforeMount(async () => {
   socket.on("disconnect", () => {
     console.log(socket.id + " disconnected from frontend");
   });
+  await getActiveGames();
 });
 
 onMounted(async () => {
@@ -83,6 +92,50 @@ onUnmounted(async () => {
   await apiRequest(`/match/${id}`, "delete");
 });
 
+socket.on("updateActiveGames", () => {
+  getActiveGames();
+});
+
+async function getActiveGames() {
+  const res = await apiRequest(`/game/active`, "get");
+  activeGames.value = res.data;
+}
+
+async function watchGame(gameId: number) {
+  const res = await apiRequest(`/game/${gameId}`, "get");
+  console.log("GAME: ", res.data);
+
+  // now need to build view for watcher
+  game.value.id = res.data.id;
+  game.value.player = 0;
+  game.value.playerOne = {
+    id: res.data.playerOne,
+    socket: res.data.playerOne.socket,
+    score: res.data.playerOne.score,
+    paddle: {
+      height: 0,
+      width: 0,
+      y: 0,
+      offset: 0,
+    },
+  };
+  game.value.playerTwo = {
+    id: res.data.playerTwo,
+    socket: res.data.playerTwo.socket,
+    score: res.data.playerTwo.score,
+    paddle: {
+      height: 0,
+      width: 0,
+      y: 0,
+      offset: 0,
+    },
+  };
+  game.value.state = State.PLAYING;
+  socket.emit("watchGame", gameId); // adds them to gameRoom
+  console.log(id, " has joined room ", game.value.id, " as a WATCHER");
+  joined.value = true;
+}
+
 socket.on("addPlayerOne", (gameRoom: GameRoom) => {
   if (joined.value == false && game.value.state == State.WAITING) {
     game.value = gameRoom;
@@ -90,6 +143,7 @@ socket.on("addPlayerOne", (gameRoom: GameRoom) => {
     socket.emit("joinRoom", game.value);
     joined.value = true;
     console.log(id, "has joined room ", game.value.id);
+    socket.emit("updateActiveGames");
   }
 });
 
@@ -155,7 +209,7 @@ button {
   border-radius: 5px;
   text-align: center;
   border: 2px #302d2d solid;
-  display: block;
+  display: block, center;
 }
 button:hover {
   color: #39ff14;
