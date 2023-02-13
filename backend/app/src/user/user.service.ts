@@ -17,6 +17,16 @@ export class UserService {
     return this.userRepository.find();
   }
 
+  getAllUsersPartial() {
+    return this.userRepository.find({
+      select: {
+        id: true,
+        playerName: true,
+        status: true,
+      },
+    });
+  }
+
   async create(createUserDto: CreateUserDto) {
     const newUser = this.userRepository.create(createUserDto);
     return this.userRepository.save(newUser);
