@@ -102,9 +102,7 @@ button:active {
 }
 
 :disabled {
-  /* opacity: 0.3; */
   cursor: progress;
-  /* cursor: url("../assets/accept.svg"), auto; */
 }
 
 ::-webkit-scrollbar {

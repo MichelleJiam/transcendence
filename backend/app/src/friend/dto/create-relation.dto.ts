@@ -1,8 +1,8 @@
 import { IsIn, IsInt } from "class-validator";
 
-export type RelationStatus = "FRIEND" | "PENDING" | "BLOCKED";
+export type RelationStatus = "FRIEND" | "PENDING";
 
-const relationStatus = ["FRIEND", "PENDING", "BLOCKED"];
+const relationStatus = ["FRIEND", "PENDING"];
 
 export class CreateRelationDto {
   @IsInt()
