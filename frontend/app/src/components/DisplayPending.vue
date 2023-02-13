@@ -2,9 +2,12 @@
   <div class="container">
     <h3>Pending requests</h3>
     <ul class="list-group">
-      <div v-if="listNotEmpty('pending')">
+      <div>
+        <p v-if="store.isLoading">Loading...</p>
         <li v-for="pending in pendingList" :key="pending.id">
-          <span><img :src="avatar" alt="Avatar" class="avatar" /></span>
+          <span
+            ><img :src="pending.avatarUrl" alt="Avatar" class="avatar"
+          /></span>
           <span>{{ pending.playerName }}</span>
           <div v-if="Number(userid) == pending.relation?.target">
             <button style="margin-right: 20px" @click="acceptRequest(pending)">
@@ -20,7 +23,6 @@
           </button>
         </li>
       </div>
-      <div v-else><i>No pending requests...</i></div>
     </ul>
   </div>
 </template>
@@ -34,7 +36,6 @@ const props = defineProps({
 });
 
 const store = useFriendStore();
-const avatar = new URL("../assets/default-avatar.svg", import.meta.url).href;
 
 /**********************
  * computed properties *
@@ -54,7 +55,7 @@ const pendingList = computed(() => {
 
 async function cancelRequest(player: User) {
   await store.removeRelation(player);
-  await store.updateUserList(props.userid);
+  // await store.updateUserList(props.userid);
 }
 
 async function acceptRequest(player: User) {
@@ -64,30 +65,6 @@ async function acceptRequest(player: User) {
 
 async function denyRequest(player: User) {
   await store.removeRelation(player);
-  await store.updateUserList(props.userid);
-}
-
-/***********
- * function *
- ***********/
-
-function listNotEmpty(type: string) {
-  let list = [];
-  if (type == "friend") {
-    list = store.users.filter((player) => {
-      if (player?.relation?.status == "FRIEND") {
-        return player?.playerName;
-      }
-    });
-  } else if (type == "pending") {
-    list = store.users.filter((player) => {
-      if (player?.relation?.status == "PENDING") {
-        return player?.playerName;
-      }
-    });
-  }
-  if (list.length == 0) return false;
-  return true;
 }
 </script>
 

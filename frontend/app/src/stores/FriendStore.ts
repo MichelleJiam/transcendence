@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
 import { apiRequest } from "@/utils/apiRequest";
 
 export type Relation = {
@@ -12,40 +11,51 @@ export type User = {
   id: number;
   playerName: string;
   status: string /* ONLINE | OFFLINE | GAME */;
+  avatarUrl: string | undefined;
   relation: Relation /* in relation to the current user */;
 };
 
-export const useFriendStore = defineStore("friend", () => {
-  const users = ref(Array<User>());
+export const useFriendStore = defineStore("friend", {
+  state: () => {
+    return {
+      users: Array<User>(),
+      isLoading: true,
+    };
+  },
+  actions: {
+    async updateUserList(userId: string) {
+      console.log("updateUserList called");
+      const res = await apiRequest("/friend/relation/users", "get");
+      this.users = res.data;
+      this.users.forEach(async (user) => {
+        const res = await apiRequest(`/user/${user.id}/avatar`, "get");
+        user.avatarUrl = res.config.url;
+        const rel = await apiRequest(
+          `/friend/relation/${userId}/${user.id}`,
+          "get"
+        );
+        user.relation = rel.data;
+      });
+      this.isLoading = false;
+    },
 
-  /* fetch all users from the database and their relation to the current user */
+    async removeRelation(player: User) {
+      console.log("removeRelation called");
+      await apiRequest("/friend/unfriend", "delete", { data: player.relation });
+    },
 
-  async function updateUserList(userId: string) {
-    // await new Promise((resolve) => setTimeout(resolve, 2000));
-    const res = await apiRequest("/friend/relation/users", "get");
-    users.value = res.data;
-    users.value.forEach(async (user) => {
-      const res = await apiRequest(
-        `/friend/relation/${userId}/${user.id}`,
-        "get"
-      );
-      user.relation = res.data;
-    });
-  }
-
-  async function removeRelation(player: User) {
-    await apiRequest("/friend/unfriend", "delete", { data: player.relation });
-  }
-
-  async function acceptRequest(player: User) {
-    await apiRequest("/friend/accept", "put", {
-      data: player.relation,
-    });
-  }
-  return {
-    users,
-    updateUserList,
-    removeRelation,
-    acceptRequest,
-  };
+    async acceptRequest(player: User) {
+      await apiRequest("/friend/accept", "put", {
+        data: player.relation,
+      });
+    },
+  },
+  // getters: {
+  //   pending(state) {
+  //     return state.users.forEach((element) => {
+  //       if (toRaw(element.relation?.status != undefined))
+  //         console.log(toRaw(element.relation.status));
+  //     });
+  //   },
+  // },
 });

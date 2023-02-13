@@ -3,8 +3,10 @@
     <input v-model="searchQuery" type="text" placeholder="Search player..." />
     <ul class="list-group">
       <li v-for="player in searchedPlayers" :key="player.id">
-        <span><img :src="avatar" alt="Avatar" class="avatar" /></span>
-        <span>{{ player.playerName }}</span>
+        <span v-if="player.avatarUrl != undefined"
+          ><img :src="player.avatarUrl" alt="Avatar" class="avatar"
+        /></span>
+        <span v-if="player.relation != undefined">{{ player.playerName }}</span>
         <button
           v-if="player.relation?.status == 'NONE'"
           @click="sendFriendRequest(player)"
@@ -32,21 +34,19 @@
 
 <script setup lang="ts">
 import apiRequest from "@/utils/apiRequest";
-import { ref, computed } from "vue";
+import { ref, computed, onBeforeMount } from "vue";
 import { useFriendStore, type User } from "@/stores/FriendStore";
-import { useAccountSettings } from "@/stores/AccountSettings";
 
 const props = defineProps({
   userid: { type: String, required: true },
 });
 
 const store = useFriendStore();
-const storeAccount = useAccountSettings();
-
-const avatar = new URL("../assets/default-avatar.svg", import.meta.url).href;
 const searchQuery = ref("");
 
-await store.updateUserList(props.userid);
+onBeforeMount(async () => {
+  await store.updateUserList(props.userid);
+});
 
 /**********************
  * computed properties *
@@ -89,7 +89,6 @@ async function sendFriendRequest(player: User) {
 
 async function unfriend(player: User) {
   await store.removeRelation(player);
-  await store.updateUserList(props.userid);
 }
 </script>
 
@@ -154,3 +153,5 @@ button:active {
   background: #39ff14;
 }
 </style>
+
+<!-- https://softauthor.com/vuejs-composition-api-search-bar-using-computed-properties/ -->
