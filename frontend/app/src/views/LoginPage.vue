@@ -78,7 +78,9 @@ import { useUserStore } from "@/stores/UserStore";
 const userStore = useUserStore();
 
 async function submitLogin(): Promise<void> {
-  location.href = `http://localhost:3000/auth/login`;
+  console.log("Clicked on login button");
+  window.location.href = `http://localhost:3000/auth/login`;
+  // window.location.href = `http://localhost:5173/api/auth/login`; // causes ECONNREFUSED error
   await userStore.logIn();
 }
 </script>
