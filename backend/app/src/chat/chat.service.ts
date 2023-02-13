@@ -238,6 +238,27 @@ export class ChatService {
     return chatrooms;
   }
 
+  async isAdminOfChatroom(
+    chatroomId: number,
+    adminId: number,
+  ): Promise<boolean> {
+    return this.chatMethod.isAdminOfChatroom(adminId, chatroomId);
+  }
+
+  async isMemberOfChatroom(
+    chatroomId: number,
+    memberId: number,
+  ): Promise<boolean> {
+    return this.chatMethod.isMemberOfChatroom(memberId, chatroomId);
+  }
+
+  async isOwnerOfChatroom(
+    chatroomId: number,
+    ownerId: number,
+  ): Promise<boolean> {
+    return this.chatMethod.isOwnerOfChatroom(ownerId, chatroomId);
+  }
+
   // POST
   async createChatroom(
     createChatroomDto: CreateChatroomDto,

@@ -91,13 +91,36 @@ export class ChatController {
     return this.chatroomService.getPenaltiesByChatroom(chatroomId);
   }
 
+  @Get(":chatroomId/is_admin/:adminId")
+  async isAdmin(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Param("adminId", ParseIntPipe) adminId: number,
+  ): Promise<boolean> {
+    return this.chatroomService.isAdminOfChatroom(chatroomId, adminId);
+  }
+
+  @Get(":chatroomId/is_member/:memberId")
+  async isMember(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Param("memberId", ParseIntPipe) memberId: number,
+  ): Promise<boolean> {
+    return this.chatroomService.isMemberOfChatroom(chatroomId, memberId);
+  }
+
+  @Get(":chatroomId/is_owner/:ownerId")
+  async isOwner(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Param("ownerId", ParseIntPipe) ownerId: number,
+  ): Promise<boolean> {
+    return this.chatroomService.isOwnerOfChatroom(chatroomId, ownerId);
+  }
+
   // POST
   // is member the same Id as the logged in user?
   @Post("create")
   async createChatroom(
     @Body() createChatroomDto: CreateChatroomDto,
   ): Promise<Chatroom | undefined> {
-    console.log(createChatroomDto);
     try {
       return this.chatroomService.createChatroom(createChatroomDto);
     } catch (err) {

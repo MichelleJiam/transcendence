@@ -17,7 +17,6 @@
           id="chatroomName"
           v-model="updateChatroomDto.chatroomName"
           type="text"
-          required
         />
       </div>
       <div>
@@ -31,7 +30,7 @@
 
 <script setup lang="ts">
 import apiRequest from "@/utils/apiRequest";
-import { UpdateChatroomDto } from "@/components/chat/penalty/createPenalty";
+import { UpdateChatroomDto } from "@/components/chat/penalty/chatUtils";
 import { useRoute } from "vue-router";
 
 const updateChatroomDto = new UpdateChatroomDto();
