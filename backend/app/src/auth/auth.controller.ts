@@ -24,7 +24,7 @@ export class AuthController {
   @Get("login")
   @UseGuards(IntraAuthGuard)
   async loginIntra() {
-    // console.log("User logged in: ", user.id);
+    console.log("/auth/login endpoint hit");
   }
 
   @Get("callback")
@@ -39,7 +39,7 @@ export class AuthController {
     console.log("callback: Set access_token cookie");
     console.log("redirecting to ", process.env.HOME_REDIRECT);
     response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
-    // return { id: user.id };
+    // return user;
   }
 
   // Debug routes. TODO: remove later
@@ -106,6 +106,5 @@ export class AuthController {
     //   `Authentication=; HttpOnly; Path=/; Max-Age=0`,
     // );
     response.clearCookie("Authentication");
-    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
   }
 }
