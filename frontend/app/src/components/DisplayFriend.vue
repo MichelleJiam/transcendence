@@ -2,24 +2,22 @@
   <div class="container">
     <h3>Friends</h3>
     <ul class="list-group">
-      <div v-if="listNotEmpty('friend')">
-        <li v-for="friend in friendList" :key="friend.id">
-          <span><img :src="avatar" alt="Avatar" class="avatar" /></span>
-          <span
-            class="dot"
-            :style="[
-              friend.status === 'offline'
-                ? { 'background-color': 'red' }
-                : friend.status === 'online'
-                ? { 'background-color': 'green' }
-                : { 'background-color': 'orange' },
-            ]"
-          ></span>
-          <span>{{ friend.playerName }}</span>
-          <button class="unfriend" @click="unfriend(friend)">Unfriend</button>
-        </li>
-      </div>
-      <div v-else><i>No friends...</i></div>
+      <p v-if="store.isLoading">Loading...</p>
+      <li v-for="friend in friendList" :key="friend.id">
+        <span><img :src="friend.avatarUrl" alt="Avatar" class="avatar" /></span>
+        <span
+          class="dot"
+          :style="[
+            friend.status === 'offline'
+              ? { 'background-color': 'red' }
+              : friend.status === 'online'
+              ? { 'background-color': 'green' }
+              : { 'background-color': 'orange' },
+          ]"
+        ></span>
+        <span>{{ friend.playerName }}</span>
+        <button class="unfriend" @click="unfriend(friend)">Unfriend</button>
+      </li>
     </ul>
   </div>
 </template>
@@ -29,7 +27,6 @@ import { computed } from "vue";
 import { useFriendStore, type User } from "@/stores/FriendStore";
 
 const store = useFriendStore();
-const avatar = new URL("../assets/default-avatar.svg", import.meta.url).href;
 
 /**********************
  * computed properties *
@@ -49,29 +46,6 @@ const friendList = computed(() => {
 
 async function unfriend(player: User) {
   await store.removeRelation(player);
-}
-
-/***********
- * function *
- ***********/
-
-function listNotEmpty(type: string) {
-  let list = [];
-  if (type == "friend") {
-    list = store.users.filter((player) => {
-      if (player?.relation?.status == "FRIEND") {
-        return player?.playerName;
-      }
-    });
-  } else if (type == "pending") {
-    list = store.users.filter((player) => {
-      if (player?.relation?.status == "PENDING") {
-        return player?.playerName;
-      }
-    });
-  }
-  if (list.length == 0) return false;
-  return true;
 }
 </script>
 

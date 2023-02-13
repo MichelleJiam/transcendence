@@ -1,7 +1,6 @@
 <template>
   <main>
     <div id="display-content">
-      <h1>Friends</h1>
       <Suspense>
         <template #default> <AllUsersFriend :userid="userId" /> </template>
         <template #fallback><p>loading...</p></template>
@@ -19,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import AllUsersFriend from "@/components/AllUsersFriend.vue";
@@ -32,7 +31,7 @@ const socket = io("http://localhost:3000/friend");
 const route = useRoute();
 const userId = route.params.id as string;
 
-onMounted(async () => {
+onBeforeMount(async () => {
   socket.on("connect", () => {
     console.log(
       socket.id + " user",
@@ -40,8 +39,6 @@ onMounted(async () => {
       "connected to socket on FriendPage"
     );
   });
-
-  await store.updateUserList(userId);
 });
 
 /*************************
@@ -78,5 +75,3 @@ button[disabled] {
   cursor: not-allowed;
 }
 </style>
-
-<!-- https://softauthor.com/vuejs-composition-api-search-bar-using-computed-properties/ -->
