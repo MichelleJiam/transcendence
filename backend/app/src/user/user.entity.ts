@@ -1,6 +1,14 @@
 import { Chatroom } from "src/chat/chat.entity";
 import { Message } from "src/message/message.entity";
 import { Avatar } from "src/avatar/avatar.entity";
+
+export enum UserStatus {
+  ONLINE = "online",
+  OFFLINE = "offline",
+  GAME = "game",
+  MATCHMAKING = "matchmaking",
+}
+
 import {
   Column,
   Entity,
@@ -13,6 +21,7 @@ import {
 } from "typeorm";
 import { Penalty } from "src/penalty/penalty.entity";
 import { Blocklist } from "src/blocklist/blocklist.entity";
+import { Friend } from "src/friend/friend.entity";
 
 @Entity()
 export class User {
@@ -85,9 +94,21 @@ export class User {
   @Column({ nullable: true })
   public avatarId?: number;
 
-  // @Column({
-  //   unique: true,
-  //   nullable: false, // column cannot be empty
-  // })
-  // public email!: string; // email must be unique
+  /* user status */
+
+  @Column({
+    name: "userStatus",
+    type: "enum",
+    enum: UserStatus,
+    default: UserStatus.OFFLINE,
+  })
+  public status!: UserStatus;
+
+  /* user friends */
+
+  @OneToMany(() => Friend, (friend: Friend) => friend.source)
+  source!: Friend[]; // array or relations where the user is the source (sender of friend request)
+
+  @OneToMany(() => Friend, (friend: Friend) => friend.target)
+  target!: Friend[]; // array of relations where the user is the target (receiver of friend request)
 }

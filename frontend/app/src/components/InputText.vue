@@ -1,11 +1,10 @@
 <template>
-  <div>
-    <label :for="id"> {{ label }} </label>
+  <div class="input-form">
+    <!-- <label :for="id"> {{ label }} </label> -->
     <input
       :id="id"
       type="text"
       autocomplete="off"
-      :value="value"
       :placeholder="placeholder"
       :disabled="disabled"
       @input="updateText"
@@ -32,6 +31,7 @@ const updateText = (e: Event) => {
 };
 </script>
 
+<style scoped></style>
 <!--
   $emit
 

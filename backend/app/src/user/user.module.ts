@@ -16,5 +16,6 @@ import { BlocklistService } from "src/blocklist/blocklist.service";
   ],
   controllers: [UserController],
   providers: [UserService, AvatarService, BlocklistService],
+  exports: [UserService],
 })
 export class UserModule {}

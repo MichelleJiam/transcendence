@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -17,6 +17,16 @@ export class UserService {
     return this.userRepository.find();
   }
 
+  getAllUsersPartial() {
+    return this.userRepository.find({
+      select: {
+        id: true,
+        playerName: true,
+        status: true,
+      },
+    });
+  }
+
   async create(createUserDto: CreateUserDto) {
     const newUser = this.userRepository.create(createUserDto);
     return this.userRepository.save(newUser);
@@ -26,9 +36,9 @@ export class UserService {
     const foundUser = this.userRepository.findOneBy({
       intraId: intraId,
     });
-    if (!foundUser) {
-      throw new HttpException("User not found", HttpStatus.NOT_FOUND);
-    }
+    // if (!foundUser) {
+    // 	throw new NotFoundException("User not found");
+    // }
     return foundUser;
   }
 
@@ -36,16 +46,16 @@ export class UserService {
     const foundUser = this.userRepository.findOneBy({
       id: id,
     });
-    if (!foundUser) {
-      throw new HttpException("User not found", HttpStatus.NOT_FOUND);
-    }
+    // if (!foundUser) {
+    //   throw new NotFoundException("User not found");
+    // }
     return foundUser;
   }
 
   async deleteUser(id: number) {
     const deleteResponse = await this.userRepository.delete(id);
     if (!deleteResponse.affected) {
-      throw new HttpException("User not found", HttpStatus.NOT_FOUND);
+      throw new NotFoundException("User not found");
     }
   }
 
