@@ -35,7 +35,7 @@ export function createPenalty(
     .catch((error) => {
       console.log(error);
     });
-} // this should work for both mute and ban
+}
 
 class Blocklist {
   blocklistOwner!: number;
