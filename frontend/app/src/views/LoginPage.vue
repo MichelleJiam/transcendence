@@ -75,13 +75,22 @@ button {
 
 <script setup lang="ts">
 import { useUserStore } from "@/stores/UserStore";
+import { onMounted, onUpdated, ref } from "vue";
 const userStore = useUserStore();
 
+onMounted(async () => {
+  console.log("[DEBUG] onMounted");
+  await userStore.checkAuthStatus();
+  console.log("Auth status is: ", userStore.isAuthenticated());
+  if (userStore.isAuthenticated()) {
+    await userStore.logIn();
+  }
+});
+
 async function submitLogin(): Promise<void> {
-  console.log("Clicked on login button");
+  console.log("[DEBUG] submitLogin");
   window.location.href = `http://localhost:3000/auth/login`;
-  // window.location.href = `http://localhost:5173/api/auth/login`; // causes ECONNREFUSED error
-  await userStore.logIn();
+  // await userStore.logIn();
 }
 </script>
 
