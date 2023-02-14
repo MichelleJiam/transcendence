@@ -1,44 +1,127 @@
 @import url("https://fonts.cdnfonts.com/css/arcade-classic");
 
-body {
-  /* set border and margin to null otherwise vh and vw will have some overflow  */
-  border: 0;
+* {
+  box-sizing: border-box;
+  padding: 0;
   margin: 0;
+}
+
+body {
   font-family: sans-serif;
   background: #1c1b1bfa;
   color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+nav {
+  /* position is relavtive to the body element */
+  height: 6vh;
+  width: 100%;
+  padding: 5px 10px;
 }
 
 div #display-content {
   height: 90%;
-  width: 80%;
+  width: 85%;
   background: #1c1b1b;
   text-align: center;
   border: 2px #302d2d solid;
-  border-radius: 5px;
+  border-radius: 4px;
+  padding: 20px;
 }
 
-h1, h2 {
+h1,
+h2,
+button {
   font-family: "ArcadeClassic", sans-serif;
 }
 
-nav {
-  position: absolute;
-  height: 6vh;
-  width: 100vw;
-  top: 0;
+h1 {
+  font-size: 8em;
 }
 
+/* LOOK BACK AT THIS */
 main {
+  /* position is relative to the body element */
   position: absolute;
   /* use the whole page with vh vw */
   height: 94vh;
   width: 100vw;
-  /* padding: 0; */
-  /* margin: 0; */
-  bottom: 0;
+  top: 6vh;
   /* display the items within main in the center */
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+button {
+  display: inline-block;
+
+  font-family: "ArcadeClassic", sans-serif;
+  color: black;
+  font-size: 24px;
+
+  padding: 10px 10px;
+  background: #39ff14;
+  transition: all 0.2s ease;
+  border: none;
+  border-radius: 4px;
+}
+
+button:hover,
+button:active {
+  background: #88ff72;
+  cursor: pointer;
+}
+
+input {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 22px;
+  padding: 5px 10px;
+}
+
+input:focus {
+  outline: none;
+}
+
+input[type="file"] {
+  /* display: block; */
+
+  border: none;
+}
+
+input[type="checkbox"] {
+  height: 1em;
+  width: 1em;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+input[type="checkbox"]:checked {
+  accent-color: #39ff14;
+}
+
+label {
+  font-size: 22px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Apply same border style */
+button,
+input {
+  border: none;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+form {
+  background: #151414e4;
+  text-align: center;
+  padding: 20px 28px;
+  border: 2px #302d2d solid;
+  border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }

@@ -8,32 +8,48 @@
 <template>
   <main>
     <div id="display-content">
-      <h1>
-        Hi
-        <span class="playerName">{{ store.accountSettings.playerName }}</span>
-      </h1>
-      <h2>You can edit your account settings here.</h2>
-      <AvatarDisplay :src="store.avatar.url" />
-      <form>
+      <div class="user-info">
+        <h1>
+          Hi
+          <span class="playerName">{{ store.accountSettings.playerName }}</span>
+        </h1>
+        <AvatarDisplay class="user-avatar" :src="store.avatar.url" />
+      </div>
+
+      <div class="user-settings">
+        <h2>You can edit your account settings here.</h2>
         <AvatarUpload />
-        <InputText
-          id="playerName"
-          v-model="playerName"
-          label="Player Name: "
-          :value="playerName"
-        />
-        <span class="validate">
-          <i>{{ message }}</i>
-        </span>
-        <InputCheckbox
-          id="twoFactorAuthentication"
-          v-model:checked="twoFactorAuthentication"
-          label="Two-factor authentication: "
-        />
-      </form>
-      <button :disabled="isDisabled" @click="submitAccountSettings">
-        Update account settings
-      </button>
+        <form class="account-settings">
+          <label class="account-settings-label" for="player-name"
+            >Player Name</label
+          >
+          <InputText
+            id="playerName"
+            v-model="playerName"
+            class="account-settings-input"
+            label="Player Name: "
+            :placeholder="playerName"
+          />
+          <span class="validate"
+            ><i>{{ message }}</i></span
+          >
+          <label class="two-fa-settings-label" for="player-name">2FA</label>
+          <InputCheckbox
+            id="twoFactorAuthentication"
+            v-model:checked="twoFactorAuthentication"
+            class="account-settings-checkbox"
+            label="2FA"
+          />
+
+          <button
+            class="account-settings-button"
+            :disabled="isDisabled"
+            @click.prevent="submitAccountSettings"
+          >
+            Update account settings
+          </button>
+        </form>
+      </div>
     </div>
   </main>
 </template>
@@ -91,15 +107,86 @@ function validPlayerName(playerName: string) {
 </script>
 
 <style scoped>
-h1 {
-  font-size: 8rem;
-}
-
 .validate {
-  color: red;
+  color: #da14ff;
 }
 
 .playerName {
   color: #39ff14;
+}
+
+#display-content {
+  display: grid;
+  grid-template-columns: 40% 60%;
+  gap: 20px;
+  padding: 40px;
+  height: auto;
+}
+
+.user-info {
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+  align-items: stretch;
+}
+.user-avatar {
+  border-radius: 50%;
+  border: 5px solid #39ff14;
+  align-self: center;
+}
+
+.user-settings {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.account-settings {
+  display: grid;
+  row-gap: 10px;
+  grid-template-columns: 2fr 1fr;
+  text-align: left;
+  grid-template-areas:
+    "name-label inputfield"
+    "fa-label checkbox"
+    "validate validate"
+    "button button";
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-size: 6em;
+}
+h2 {
+  margin-bottom: 20px;
+  font-size: 3em;
+}
+.account-settings-label {
+  grid-area: name-label;
+  font-family: "ArcadeClassic", sans-serif;
+  font-size: 30px;
+}
+
+.two-fa-settings-label {
+  grid-area: fa-label;
+  font-family: "ArcadeClassic", sans-serif;
+  font-size: 30px;
+}
+.account-settings-button {
+  grid-area: button;
+}
+
+.account-settings-checkbox {
+  margin: auto;
+  grid-area: checkbox;
+}
+
+.account-settings-input {
+  font-size: 18px;
+  grid-area: inputfield;
+}
+
+.validate {
+  grid-area: validate;
 }
 </style>

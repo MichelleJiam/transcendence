@@ -7,6 +7,7 @@ import LiveStream from "../views/LiveStream.vue";
 import Chatroom from "../views/Chatroom.vue";
 import SingleChatroom from "../views/SingleChatroom.vue";
 import NotFound from "../views/NotFound.vue";
+import FriendPage from "../views/FriendPage.vue";
 import type { Component } from "vue";
 
 const routes: {
@@ -28,6 +29,8 @@ const routes: {
   { path: "/stream", component: LiveStream },
   { path: "/chat", component: Chatroom },
   { path: "/chat/:id", component: SingleChatroom } /* temp workaround */,
+  { path: "/:id/friends", component: FriendPage },
+  { path: "/friends", component: FriendPage },
   { path: "/:pathMatch(.*)*", component: NotFound },
 ];
 

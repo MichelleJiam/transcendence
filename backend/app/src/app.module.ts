@@ -10,6 +10,8 @@ import * as Joi from "joi";
 import { PenaltyModule } from "./penalty/penalty.module";
 import { BlocklistModule } from "./blocklist/blocklist.module";
 import { PenaltyDelete } from "./penalty/penalty.scheduler";
+import { AuthModule } from "./auth/auth.module";
+import { FriendModule } from "./friend/friend.module";
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { PenaltyDelete } from "./penalty/penalty.scheduler";
     ChatModule,
     PenaltyModule,
     BlocklistModule,
+    FriendModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
@@ -28,6 +31,7 @@ import { PenaltyDelete } from "./penalty/penalty.scheduler";
       }),
     }),
     DatabaseModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, PenaltyDelete],
