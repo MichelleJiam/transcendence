@@ -23,6 +23,7 @@ export class MessageService {
       order: {
         id: "asc",
       },
+      cache: true,
     });
   }
 
@@ -53,6 +54,7 @@ export class MessageService {
         body: true,
         createdAt: true,
       },
+      cache: true,
     });
     return messages;
   }
@@ -84,6 +86,7 @@ export class MessageService {
         body: true,
         createdAt: true,
       },
+      cache: true,
     });
     if (messages) return messages;
     throw new NotFoundException("Posts not found");

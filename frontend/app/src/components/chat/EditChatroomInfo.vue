@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import apiRequest from "@/utils/apiRequest";
-import { UpdateChatroomDto } from "@/components/chat/penalty/chatUtils";
+import { UpdateChatroomDto } from "@/components/chat/chatUtils";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
 

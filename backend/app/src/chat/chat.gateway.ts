@@ -1,3 +1,4 @@
+import { forwardRef, Inject } from "@nestjs/common";
 import {
   SubscribeMessage,
   WebSocketGateway,
@@ -19,19 +20,21 @@ import { ChatService } from "./chat.service";
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private chatService: ChatService) {}
-
   @WebSocketServer()
   server!: Server;
+  constructor(
+    @Inject(forwardRef(() => ChatService))
+    private readonly chatService: ChatService,
+  ) {}
 
-  @SubscribeMessage("sendMessage")
-  async handleSendMessage(
-    client: Socket,
-    payload: CreateMessageDto,
-  ): Promise<void> {
-    await this.chatService.postMessageToChatroom(payload);
-    this.server.emit("recMessage", payload);
-  }
+  // @SubscribeMessage("sendMessage")
+  // async handleSendMessage(
+  //   client: Socket,
+  //   payload: CreateMessageDto,
+  // ): Promise<void> {
+  //   await this.chatService.postMessageToChatroom(payload);
+  //   this.server.emit("recMessage", payload);
+  // }
 
   afterInit(server: Server) {
     console.log(server);
