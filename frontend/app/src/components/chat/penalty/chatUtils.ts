@@ -7,6 +7,10 @@ export class UpdateChatroomDto {
   password?: string;
 }
 
+export class AddMemberDto {
+  member!: number;
+}
+
 class Penalty {
   penaltyType!: string;
   user!: number;

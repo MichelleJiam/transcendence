@@ -17,21 +17,25 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from "@/stores/UserStore";
 import apiRequest from "@/utils/apiRequest";
 import { convertDateTime } from "@/utils/dateTime";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import GetChatUsers from "./GetChatUsers.vue";
+import { isMember, AddMemberDto } from "./penalty/chatUtils";
 const route = useRoute();
 const chatroomId = route.params.id;
+const userStore = useUserStore();
 
 const messages = ref([]);
 const chatRoomInfo = ref([]);
 
 const backendurlChatName = "/chat/" + chatroomId;
-const backendurlMessages = "/chat/" + chatroomId + "/messages";
+const backendurlMessages =
+  "/chat/" + chatroomId + "/user/" + userStore.user.id + "/messages";
 
-onMounted(() => {
+onMounted(async () => {
   apiRequest(backendurlMessages, "get").then((response) => {
     messages.value = response.data; // returns the response data into the users variable which can then be used in the template
     for (const date of messages.value) {
@@ -42,10 +46,6 @@ onMounted(() => {
   apiRequest(backendurlChatName, "get").then((response) => {
     chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
   });
-  // needs auth cookie info to know what user i need to grab for
-  // axios.get("http://localhost:3000/chat/user/:userId").then((response) => {
-  //   userChats.value = response.data;
-  // });
 });
 </script>
 <style scoped>

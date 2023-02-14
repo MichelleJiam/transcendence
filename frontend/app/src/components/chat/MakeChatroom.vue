@@ -23,27 +23,22 @@
         <label for="password">Password for password chats:</label>
         <input id="password" v-model="postChatData.password" type="text" />
       </div>
-      <div>
-        <label for="user">userId:</label>
-        <input id="user" v-model="postChatData.user" type="number" required />
-      </div>
-      <div>
-        <label for="otherUser">otherUser:</label>
-        <input id="otherUser" v-model="postChatData.otherUser" type="number" />
-      </div>
       <button>Create chat</button>
     </form>
   </section>
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from "@/stores/UserStore";
 import apiRequest from "@/utils/apiRequest";
+
+const userStore = useUserStore();
 
 const postChatData = {
   type: String("public"),
   chatroomName: String("test name here"),
   password: String("password here"),
-  user: Number,
+  user: Number(userStore.user.id),
   otherUser: Number,
 };
 

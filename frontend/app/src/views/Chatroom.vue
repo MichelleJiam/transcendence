@@ -2,9 +2,7 @@
   <main>
     <div id="display-content">
       <h1>Chatrooms</h1>
-      <h3>
-        <GetChatrooms></GetChatrooms>
-      </h3>
+      <GetChatrooms></GetChatrooms>
       <h2>Create a chat</h2>
       <MakeChatroom></MakeChatroom>
     </div>
