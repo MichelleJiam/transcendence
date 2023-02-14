@@ -65,6 +65,7 @@ export class ChatMethod {
         id: chatroomId,
       },
     });
+
     if (member) {
       if (member.member.length > 1) return true;
     }
@@ -76,8 +77,8 @@ export class ChatMethod {
       (await this.hasMultipleAdminsInChatroom(chatroomId)) == true ||
       (await this.hasMultipleMembersInChatroom(chatroomId)) == true
     )
-      return true;
-    return false;
+      return false;
+    return true;
   }
 
   async isMemberOfChatroom(

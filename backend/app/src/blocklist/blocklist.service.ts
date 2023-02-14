@@ -36,6 +36,7 @@ export class BlocklistService {
           playerName: true,
         },
       },
+      cache: true,
     });
   }
 
@@ -60,6 +61,7 @@ export class BlocklistService {
           playerName: true,
         },
       },
+      cache: true,
     });
     return blockedUsers;
   }
@@ -106,6 +108,7 @@ export class BlocklistService {
           playerName: true,
         },
       },
+      cache: true,
     });
     if (user) {
       this.blocklistRepository.delete(user.id);

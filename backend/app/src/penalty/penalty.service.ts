@@ -40,6 +40,7 @@ export class PenaltyService {
         time: true,
         id: true,
       },
+      cache: true,
     });
     return foundPenalties;
   }
@@ -54,6 +55,7 @@ export class PenaltyService {
       where: {
         time: LessThanOrEqual(fiveMinutesAgo),
       },
+      cache: true,
     });
     return foundPenalties;
   }
@@ -82,6 +84,7 @@ export class PenaltyService {
         time: true,
         id: true,
       },
+      cache: true,
     });
     return foundPenalties;
   }
@@ -114,6 +117,7 @@ export class PenaltyService {
         time: true,
         id: true,
       },
+      cache: true,
     });
     return foundBan;
   }
@@ -155,6 +159,7 @@ export class PenaltyService {
           id: chatroomId,
         },
       },
+      cache: true,
     });
     return foundMute;
   }

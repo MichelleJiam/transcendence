@@ -33,6 +33,7 @@ import { ChatService } from "./chat.service";
     PenaltyService,
     ChatService,
     ChatMethod,
+    ChatGateway,
     UserService,
     MessageService,
     AvatarService,

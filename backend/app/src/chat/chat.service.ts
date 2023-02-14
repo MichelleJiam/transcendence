@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MessageService } from "src/message/message.service";
 import { User } from "src/user/user.entity";
@@ -27,12 +33,17 @@ import { CreatePenaltyDto } from "src/penalty/dto/create-penalty.dto";
 import { Penalty } from "src/penalty/penalty.entity";
 import { BlocklistService } from "src/blocklist/blocklist.service";
 import { filterMessages } from "src/blocklist/blocklist.method";
+import { ChatGateway } from "./chat.gateway";
+import { Socket } from "dgram";
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectRepository(Chatroom)
     private readonly chatroomRepository: Repository<Chatroom>,
+
+    @Inject(forwardRef(() => ChatGateway))
+    private readonly chatGateway: ChatGateway,
 
     private readonly messageService: MessageService,
     private readonly chatMethod: ChatMethod,
@@ -190,6 +201,7 @@ export class ChatService {
         },
         message: true,
       },
+      cache: true,
     });
     return chatrooms;
   }
@@ -234,6 +246,7 @@ export class ChatService {
         },
         message: true,
       },
+      cache: true,
     });
     return chatrooms;
   }
@@ -305,6 +318,11 @@ export class ChatService {
       "You do not have permission to send messages here.",
       HttpStatus.FORBIDDEN,
     );
+  }
+
+  async handleSendMessage(payload: CreateMessageDto): Promise<void> {
+    await this.postMessageToChatroom(payload);
+    this.chatGateway.server.emit("recMessage", payload);
   }
 
   async createPenalty(
@@ -483,8 +501,9 @@ export class ChatService {
     toDeleteId: number,
   ): Promise<Chatroom | string> {
     const chatroom = await this.getChatroomInfoById(chatroomId);
-    if (await this.chatMethod.onlyOnePersonInChatroom(chatroomId)) {
+    if ((await this.chatMethod.onlyOnePersonInChatroom(chatroomId)) == true) {
       this.deleteChatroom(chatroomId);
+      console.log("deleted chatroom");
       return "Chatroom has been deleted.";
     }
     if (
@@ -494,8 +513,12 @@ export class ChatService {
         (await this.chatMethod.hasMultipleAdminsInChatroom(chatroomId)) == true
       ) {
         swapOwner(chatroom, chatroom.admin[1]);
-      } else {
+      } else if (
+        (await this.chatMethod.hasMultipleMembersInChatroom(chatroomId)) == true
+      ) {
         swapOwner(chatroom, chatroom.member[1]);
+      } else {
+        this.deleteChatroom(chatroomId);
       }
     }
     const updatedChatroom = deleteFromChatroom(chatroom, toDeleteId);

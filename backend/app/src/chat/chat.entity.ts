@@ -36,11 +36,17 @@ export class Chatroom {
   public chatroomName!: string;
 
   // shows messages belonging to this chatroom
-  @OneToMany(() => Message, (message: Message) => message.chatroomId)
+  @OneToMany(() => Message, (message: Message) => message.chatroomId, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   @JoinColumn()
   public message!: Message[];
 
-  @OneToMany(() => Penalty, (penalty: Penalty) => penalty.chatroom)
+  @OneToMany(() => Penalty, (penalty: Penalty) => penalty.chatroom, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   @JoinColumn()
   public penalty!: Penalty[];
 
@@ -50,9 +56,15 @@ export class Chatroom {
   })
   owner!: User;
 
-  @ManyToMany(() => User, (member: User) => member.chatroomMember)
+  @ManyToMany(() => User, (member: User) => member.chatroomMember, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   member!: User[];
 
-  @ManyToMany(() => User, (admin: User) => admin.chatroomAdmin)
+  @ManyToMany(() => User, (admin: User) => admin.chatroomAdmin, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   admin!: User[];
 }
