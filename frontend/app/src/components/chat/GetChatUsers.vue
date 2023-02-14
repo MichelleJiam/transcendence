@@ -80,11 +80,15 @@ import {
   isOwner,
   isAdmin,
   deleteAdmin,
+  isMember,
+  AddMemberDto,
 } from "./penalty/chatUtils";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
+import { useUserStore } from "@/stores/UserStore";
 
-const userId = 2; // replace this with the user Id in the cookie
+const userStore = useUserStore();
+const userId = userStore.user.id; // replace this with the user Id in the cookie
 const mute = "mute";
 const ban = "ban";
 
@@ -97,6 +101,16 @@ const chatRoomInfo = ref([]);
 const isUserOwner = ref();
 const isUserAdmin = ref();
 
+onBeforeMount(async () => {
+  if ((await isMember(chatroomId, userStore.user.id)) == false) {
+    const addMemberUrl = "/chat/" + chatroomId + "/add/member";
+    const addMemberDto = new AddMemberDto();
+    addMemberDto.member = userStore.user.id;
+    await apiRequest(addMemberUrl, "put", { data: addMemberDto });
+    location.reload();
+  }
+});
+
 onMounted(async () => {
   const ownerUrl = "/chat/" + chatroomId + "/is_owner/" + userId;
   const adminUrl = "/chat/" + chatroomId + "/is_admin/" + userId;
@@ -108,14 +122,18 @@ onMounted(async () => {
   });
   await apiRequest(backendurlChatName, "get").then(async (response) => {
     chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
-    ownerName = response.data.owner.playerName;
+    ownerName =
+      response.data.owner.playerName ??
+      "unnamedPlayer" + response.data.owner.id;
     for (const member of chatRoomInfo.value.member) {
       member["isOwner"] = await isOwner(chatroomId, member.id);
       member["isAdmin"] = await isAdmin(chatroomId, member.id);
+      member.playerName = member.playerName ?? "unnamedPlayer" + member.id;
     }
     for (const admin of chatRoomInfo.value.admin) {
       admin["isOwner"] = await isOwner(chatroomId, admin.id);
       admin["isAdmin"] = await isAdmin(chatroomId, admin.id);
+      admin.playerName = admin.playerName ?? "unnamedPlayer" + admin.id;
     }
   });
 });

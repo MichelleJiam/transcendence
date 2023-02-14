@@ -1,6 +1,6 @@
 <template>
   <section>
-    <form @submit.prevent="editChat(2)">
+    <form @submit.prevent="editChat(userStore.user.id)">
       <!-- change this to cookie user id-->
       <div>
         select type of chat:<br />
@@ -32,10 +32,12 @@
 import apiRequest from "@/utils/apiRequest";
 import { UpdateChatroomDto } from "@/components/chat/penalty/chatUtils";
 import { useRoute } from "vue-router";
+import { useUserStore } from "@/stores/UserStore";
 
 const updateChatroomDto = new UpdateChatroomDto();
 const route = useRoute();
 const chatroomId = route.params.id;
+const userStore = useUserStore();
 
 function editChat(adminId: number) {
   const url = "/chat/" + chatroomId + "/admin/" + adminId + "/update/info";
