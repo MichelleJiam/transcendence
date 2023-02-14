@@ -9,6 +9,7 @@ import { GameModule } from "./game/game.module";
 import * as Joi from "joi";
 import { AuthModule } from "./auth/auth.module";
 import { MatchModule } from "./match/match.module";
+import { FriendModule } from "./friend/friend.module";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MatchModule } from "./match/match.module";
     MessageModule,
     GameModule,
     MatchModule,
+    FriendModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),

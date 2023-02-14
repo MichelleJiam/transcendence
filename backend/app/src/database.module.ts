@@ -6,6 +6,7 @@ import { Message } from "./message/message.entity";
 import { Avatar } from "./avatar/avatar.entity";
 import { Game } from "./game/entities/game.entity";
 import { Match } from "./match/entities/match.entity";
+import { Friend } from "./friend/friend.entity";
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { Match } from "./match/entities/match.entity";
         username: configService.get("POSTGRES_USER"),
         password: configService.get("POSTGRES_PASSWORD"),
         database: configService.get("POSTGRES_DB"),
-        entities: [User, Message, Avatar, Game, Match],
+        entities: [User, Message, Avatar, Game, Match, Friend],
         synchronize: true /* automatically updates database schema */,
       }),
     }),
