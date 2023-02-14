@@ -1,7 +1,6 @@
 <template>
-  <!-- <nav v-if="userStore.authenticated === true"> -->
-  <nav v-if="useUserStore().authenticated">
-    <!-- <nav v-if="isAuthenticated()"> -->
+  <!-- <nav v-if="useUserStore().authenticated"> -->
+  <nav v-if="isAuthenticated()">
     <NavBar />
   </nav>
   <RouterView />
@@ -14,10 +13,6 @@ import { useUserStore } from "@/stores/UserStore";
 const userStore = useUserStore();
 
 function isAuthenticated() {
-  console.log(
-    "Checking if user authenticated for displaying navbar: ",
-    userStore.authenticated
-  );
-  return userStore.authenticated;
+  return userStore.isAuthenticated();
 }
 </script>
