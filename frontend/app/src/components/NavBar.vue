@@ -61,7 +61,7 @@ a.router-link-exact-active {
   color: var(--primary-color);
 }
 a:hover {
-  color: var(--primary-color-hover);
+  color: var(----primary-color-transparant);
   transition: all 0.2s ease;
 }
 </style>

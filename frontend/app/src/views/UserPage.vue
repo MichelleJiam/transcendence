@@ -30,7 +30,7 @@
             label="Player Name: "
             :placeholder="playerName"
           />
-          <span class="validate"
+          <span class="validate-message"
             ><i>{{ message }}</i></span
           >
           <label class="two-fa-settings-label" for="player-name">2FA</label>
@@ -111,14 +111,11 @@ function validPlayerName(playerName: string) {
 #display-content {
   display: flex;
   justify-content: center;
-  /* overwrite the size defined in the global css */
   height: auto;
   width: auto;
 }
 
-/* FLEX ITEM 1/2 */
 .user-info {
-  border: 2px solid white;
   /* HI "username" and avatar */
   display: flex;
   flex-direction: column;
@@ -128,36 +125,32 @@ function validPlayerName(playerName: string) {
   flex-basis: 450px;
 }
 
-/* FLEX ITEM 2/2 */
 .user-settings {
-  border: 2px solid white;
-  /* usersettings text, avatar upload component, input field, inputcheckbox, button */
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-around;
 
-  flex-basis: 850px;
+  flex-basis: 650px;
 }
 
 .account-settings {
   display: grid;
+  justify-items: left;
   row-gap: 10px;
-  grid-template-columns: 2fr 1fr;
-  text-align: left;
   grid-template-areas:
-  "name-label inputfield"
-  "fa-label checkbox"
-  "validate validate"
-  "button button";
+    "name-label inputfield"
+    "fa-label checkbox"
+    "validate validate"
+    "button button";
 }
 
 h1 {
-  /* margin-bottom: 20px; */
-  margin: 0;
   font-size: 4.5em;
 }
+
 h2 {
-  font-size: 3em;
+  font-size: 2.5em;
+  margin-bottom: 20px;
 }
 
 .two-fa-settings-label {
@@ -167,26 +160,27 @@ h2 {
 }
 .account-settings-button {
   grid-area: button;
+  justify-self: stretch;
 }
 
 .account-settings-checkbox {
-  margin: auto;
+  justify-self: end;
   grid-area: checkbox;
 }
 
 .account-settings-input {
   font-size: 18px;
   grid-area: inputfield;
+  justify-self: end;
 }
 
-.validate {
+.validate-message {
   grid-area: validate;
 }
-.validate {
+.validate-message {
   color: var(--validation-color);
 }
 .playerName {
-  /* color: #39ff14; */
   color: var(--primary-color);
 }
 </style>
