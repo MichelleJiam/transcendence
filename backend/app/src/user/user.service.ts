@@ -86,4 +86,8 @@ export class UserService {
   async getAvatarById(id: number) {
     return this.avatarService.getAvatarById(id);
   }
+
+  async setTwoFactorSecret(secret: string, id: number) {
+    return this.userRepository.update(id, { twoFASecret: secret });
+  }
 }
