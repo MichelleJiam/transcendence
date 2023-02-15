@@ -2,6 +2,7 @@ import { AuthService } from "../auth.service";
 import { Strategy } from "passport-42";
 import { PassportStrategy } from "@nestjs/passport";
 import { Injectable } from "@nestjs/common";
+import { User } from "src/user/user.entity";
 
 @Injectable()
 export class IntraStrategy extends PassportStrategy(Strategy) {
@@ -24,6 +25,7 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     accessToken: string,
     refreshToken: string,
     profile: { id: string },
+    // callback: (error: any, user: User) => void,
   ) {
     console.log("Attempting to validate user according to IntraStrategy");
     const createUser = {
@@ -33,5 +35,6 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
 
     const user = await this.authService.validateUser(createUser);
     return user;
+    // callback(null, { ...user });
   }
 }
