@@ -58,10 +58,10 @@ a {
 }
 
 a.router-link-exact-active {
-  color: #39ff14;
+  color: var(--primary-color);
 }
 a:hover {
-  color: #88ff72;
+  color: var(----primary-color-transparant);
   transition: all 0.2s ease;
 }
 </style>
