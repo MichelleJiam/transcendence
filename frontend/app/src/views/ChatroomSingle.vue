@@ -32,6 +32,7 @@
             </template>
             <template #fallback><p>loading...</p></template>
           </suspense>
+          <EditChatroomInfoVue></EditChatroomInfoVue>
         </div>
       </div>
     </div>
@@ -39,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+import EditChatroomInfoVue from "@/components/chat/EditChatroomInfo.vue";
 import GetChatUsers from "@/components/chat/GetChatUsers.vue";
 import GetSingleChatroomMessages from "@/components/chat/GetSingleChatroomMessages.vue";
 import LeaveChat from "@/components/chat/LeaveChat.vue";
