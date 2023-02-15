@@ -10,7 +10,8 @@ import router from "./router";
 
 // import "bootstrap/dist/css/bootstrap.css";
 // import bootstrap from "bootstrap/dist/js/bootstrap.bundle.js";
-import "./assets/global.css";
+import "./assets/style/global.css";
+import "./assets/style/colors.css"
 
 const app = createApp(App);
 
