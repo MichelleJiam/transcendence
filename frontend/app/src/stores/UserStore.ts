@@ -49,8 +49,7 @@ export const useUserStore = defineStore("user", {
           .catch(() => {
             console.log("User already logged out");
           });
-
-        console.log("Authenticated: ", this.authenticated);
+        console.log(this.isAuthenticated());
       }
       console.log("About to push to login");
       await router.push("/login");
