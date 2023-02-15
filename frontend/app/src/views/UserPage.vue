@@ -9,11 +9,11 @@
   <main>
     <div id="display-content">
       <div class="user-info">
-        <h1>
+        <h1 class="user-title">
           Hi
           <span class="playerName">{{ store.accountSettings.playerName }}</span>
         </h1>
-        <AvatarDisplay class="user-avatar" :src="store.avatar.url" />
+        <AvatarDisplay :src="store.avatar.url" />
       </div>
 
       <div class="user-settings">
@@ -107,38 +107,36 @@ function validPlayerName(playerName: string) {
 </script>
 
 <style scoped>
-.validate {
-  color: #da14ff;
-}
-
-.playerName {
-  color: #39ff14;
-}
 
 #display-content {
-  display: grid;
-  grid-template-columns: 40% 60%;
-  gap: 20px;
-  padding: 40px;
-  height: auto;
-}
-
-.user-info {
   display: flex;
-  gap: 20px;
-  flex-direction: column;
-  align-items: stretch;
-}
-.user-avatar {
-  border-radius: 50%;
-  border: 5px solid #39ff14;
-  align-self: center;
+  justify-content: center;
+  /* overwrite the size defined in the global css */
+  height: auto;
+  width: auto;
 }
 
+/* FLEX ITEM 1/2 */
+.user-info {
+  border: 2px solid white;
+  /* HI "username" and avatar */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+
+  flex-basis: 450px;
+}
+
+/* FLEX ITEM 2/2 */
 .user-settings {
+  border: 2px solid white;
+  /* usersettings text, avatar upload component, input field, inputcheckbox, button */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  flex-basis: 850px;
 }
 
 .account-settings {
@@ -147,24 +145,19 @@ function validPlayerName(playerName: string) {
   grid-template-columns: 2fr 1fr;
   text-align: left;
   grid-template-areas:
-    "name-label inputfield"
-    "fa-label checkbox"
-    "validate validate"
-    "button button";
+  "name-label inputfield"
+  "fa-label checkbox"
+  "validate validate"
+  "button button";
 }
 
 h1 {
-  margin-bottom: 20px;
-  font-size: 6em;
+  /* margin-bottom: 20px; */
+  margin: 0;
+  font-size: 4.5em;
 }
 h2 {
-  margin-bottom: 20px;
   font-size: 3em;
-}
-.account-settings-label {
-  grid-area: name-label;
-  font-family: "ArcadeClassic", sans-serif;
-  font-size: 30px;
 }
 
 .two-fa-settings-label {
@@ -188,5 +181,12 @@ h2 {
 
 .validate {
   grid-area: validate;
+}
+.validate {
+  color: var(--validation-color);
+}
+.playerName {
+  /* color: #39ff14; */
+  color: var(--primary-color);
 }
 </style>

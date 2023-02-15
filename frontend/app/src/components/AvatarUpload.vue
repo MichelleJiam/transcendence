@@ -43,8 +43,11 @@ async function submitAvatar() {
 
 <style scoped>
 form {
-  display: grid;
-  /* grid-template-columns: 1fr 3fr 2fr; */
+  border: 2px solid white;
+}
+
+form {
+  /* display: grid;
   grid-template-columns: 3fr 2fr;
   grid-template-areas:
     "label input"
@@ -52,21 +55,21 @@ form {
 
   column-gap: 10px;
   text-align: left;
-  row-gap: 10px;
+  row-gap: 10px; */
 }
 
 label {
-  grid-area: label;
+  /* grid-area: label;
   font-family: "ArcadeClassic", sans-serif;
-  font-size: 30px;
+  font-size: 30px; */
 }
 
 input {
-  grid-area: input;
-  font-size: 18px;
+  /* grid-area: input;
+  font-size: 18px; */
 }
 
 button {
-  grid-area: button;
+  /* grid-area: button; */
 }
 </style>
