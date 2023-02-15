@@ -78,7 +78,7 @@ button:active {
 input {
   display: inline-block;
   vertical-align: middle;
-  font-size: 22px;
+  font-size: 18px;
   padding: 5px 10px;
 }
 
@@ -87,15 +87,12 @@ input:focus {
 }
 
 input[type="file"] {
-  /* display: block; */
-
-  border: none;
+  display: inline-block;
 }
 
 input[type="checkbox"] {
   height: 1em;
   width: 1em;
-  margin-left: 5px;
   vertical-align: middle;
 }
 

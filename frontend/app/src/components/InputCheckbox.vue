@@ -24,17 +24,3 @@ const updateCheckbox = (e: Event) => {
   emit("update:checked", target.checked);
 };
 </script>
-
-<style scoped>
-
-div {
-  border: 2px solid white;
-  margin: 0;
-  padding: 0;
-}
-
-input[type="checkbox"] {
-  margin: 0;
-}
-
-</style>
