@@ -38,23 +38,16 @@ export const useUserStore = defineStore("user", {
   //     profile: null,
   //   };
   // },
-  // getters: {
-  //   isAuthenticated: (state) => { // commented out because gives not callable error
-  //     console.log("Authenticated? ", state.authenticated);
-  //     return state.authenticated === true;
-  //   },
-  // },
   actions: {
     isAuthenticated() {
-      console.log("Authenticated? ", this.authenticated);
+      console.log("[DEBUG] isAuthenticated | returns ", this.authenticated);
       return this.authenticated === true;
     },
     async logIn() {
       console.log("[DEBUG] userStore.logIn");
+      await this.getUserDataFromBackend();
       this.authenticated = true;
-      await this.checkAuthStatus(); // fixes mainpage loading after logout
-      await this.getUserData();
-      console.log("Trying to log in user id: ", this.user.id);
+      // console.log("Trying to log in user id: ", this.user.id);
       await router.push("/home");
     },
     async logOut() {
@@ -91,7 +84,7 @@ export const useUserStore = defineStore("user", {
         });
     },
     // async getUserData(): Promise<UserProfile | null> {
-    async getUserData() {
+    async getUserDataFromBackend() {
       console.log("[DEBUG] getUserData");
       await apiRequest(`/auth/status`, "get")
         .then((response) => {
