@@ -13,6 +13,7 @@ import { useUserStore } from "@/stores/UserStore";
 const userStore = useUserStore();
 
 function isAuthenticated() {
+  console.log("[DEBUG] App.vue NavBar display check");
   return userStore.isAuthenticated();
 }
 </script>
