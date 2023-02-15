@@ -1,40 +1,48 @@
 <template>
   <section>
-    <button id="settings-button" @click="useToggleModal()">Settings</button>
-    <div id="chat-settings" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <form @submit.prevent="editChat(userStore.user.id)">
-          <!-- change this to cookie user id-->
-          <div>
-            select type of chat:<br />
-            <label for="type">Choose a chat type:</label>
-            <select id="type" v-model="updateChatroomDto.type" name="type">
-              <option value="public" selected>public</option>
-              <option value="private">private</option>
-              <option value="password">password</option>
-            </select>
+    <button id="settings-button" @click="showModal = true">Settings</button>
+    <modal v-if="showModal" @close="showModal = false">
+      <div class="modal-mask">
+        <div class="modal-wrapper">
+          <div class="modal-container">
+            <div class="modal-header">
+              <button class="modal-default-button" @click="$emit('close')">
+                OK
+              </button>
+            </div>
+            <form @submit.prevent="editChat(userStore.user.id)">
+              <!-- change this to cookie user id-->
+              <div>
+                select type of chat:<br />
+                <label for="type">Choose a chat type:</label>
+                <select id="type" v-model="updateChatroomDto.type" name="type">
+                  <option value="public" selected>public</option>
+                  <option value="private">private</option>
+                  <option value="password">password</option>
+                </select>
+              </div>
+              <div>
+                <label for="chatroomName">Name the chat:</label>
+                <input
+                  id="chatroomName"
+                  v-model="updateChatroomDto.chatroomName"
+                  type="text"
+                />
+              </div>
+              <div>
+                <label for="password">Update password:</label>
+                <input
+                  id="password"
+                  v-model="updateChatroomDto.password"
+                  type="text"
+                />
+              </div>
+              <button>Update chat</button>
+            </form>
           </div>
-          <div>
-            <label for="chatroomName">Name the chat:</label>
-            <input
-              id="chatroomName"
-              v-model="updateChatroomDto.chatroomName"
-              type="text"
-            />
-          </div>
-          <div>
-            <label for="password">Update password:</label>
-            <input
-              id="password"
-              v-model="updateChatroomDto.password"
-              type="text"
-            />
-          </div>
-          <button>Update chat</button>
-        </form>
+        </div>
       </div>
-    </div>
+    </modal>
   </section>
 </template>
 
@@ -43,7 +51,10 @@ import apiRequest from "@/utils/apiRequest";
 import { UpdateChatroomDto } from "@/components/chat/chatUtils";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
-import { reactive, readonly } from "vue";
+import { ref } from "vue";
+
+const showModal = ref(false);
+const emit = defineEmits(["close"]);
 
 const updateChatroomDto = new UpdateChatroomDto();
 const route = useRoute();
@@ -60,75 +71,67 @@ function editChat(adminId: number) {
       console.log(error);
     });
 }
-
-const modal = reactive({
-  role: [],
-});
-
-function useToggleModal() {
-  const toggleModel = (role = "") => {
-    modal.role.pop();
-  };
-
-  const openModal = (role = "") => {
-    modal.role.push({ type: role, isOpen: true });
-  };
-
-  const hasRole = (role = "") => {
-    if (role === "") return false;
-    const findRole = modal.role.find((currentRole) =>
-      currentRole.type === "" ? null : currentRole.type === role
-    );
-    if (findRole === undefined) return false;
-
-    return findRole.type === role && findRole.isOpen === true ? true : false;
-  };
-
-  return {
-    state: readonly(modal),
-    toggleModel,
-    openModal,
-    hasRole,
-  };
-}
 </script>
 
 <style scoped>
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  padding-top: 100px; /* Location of the box */
-  left: 0;
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
   top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0, 0, 0); /* Fallback color */
-  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: table;
+  transition: opacity 0.3s ease;
 }
 
-/* Modal Content */
-.modal-content {
-  background-color: #fefefe;
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
 }
 
-/* The Close Button */
-.close {
-  color: #aaaaaa;
+.modal-container {
+  width: 300px;
+  margin: 0px auto;
+  padding: 20px 30px;
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  transition: all 0.3s ease;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.modal-header h3 {
+  margin-top: 0;
+  color: #42b983;
+}
+
+.modal-body {
+  margin: 20px 0;
+}
+
+.modal-default-button {
   float: right;
-  font-size: 28px;
-  font-weight: bold;
 }
 
-.close:hover,
-.close:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
+/*
+ * The following styles are auto-applied to elements with
+ * transition="modal" when their visibility is toggled
+ * by Vue.js.
+ *
+ * You can easily play with the modal transition by editing
+ * these styles.
+ */
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .modal-container,
+.modal-leave-active .modal-container {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
 }
 </style>
