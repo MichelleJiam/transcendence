@@ -1,14 +1,37 @@
 <template>
   <main>
     <div id="display-content">
-      <h2>{{ chatRoomInfo.chatroomName }}</h2>
-      <LeaveChat></LeaveChat>
+      <div class="row">
+        <div class="header">
+          <h2>{{ chatRoomInfo.chatroomName }}</h2>
+        </div>
+        <div class="leave">
+          <suspense>
+            <template #default>
+              <LeaveChat></LeaveChat>
+            </template>
+            <template #fallback><p>loading...</p></template>
+          </suspense>
+        </div>
+      </div>
       <div class="row">
         <div class="column">
-          <GetSingleChatroomMessages></GetSingleChatroomMessages>
+          <div class="sub">
+            <suspense>
+              <template #default>
+                <GetSingleChatroomMessages></GetSingleChatroomMessages>
+              </template>
+              <template #fallback><p>loading...</p></template>
+            </suspense>
+          </div>
         </div>
-        <div class="column">
-          <GetChatUsers></GetChatUsers>
+        <div class="columnright">
+          <suspense>
+            <template #default>
+              <GetChatUsers></GetChatUsers>
+            </template>
+            <template #fallback><p>loading...</p></template>
+          </suspense>
         </div>
       </div>
     </div>
@@ -41,10 +64,45 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
+.header {
+  float: left;
+  width: 70%;
+  padding: 10px;
+  text-align: center;
+}
+
+.leave {
+  float: left;
+  width: 30%;
+  text-align: right;
+  padding: 1rem;
+}
+
 /* Create two equal columns that floats next to each other */
 .column {
   float: left;
-  width: 50%;
+  width: 70%;
+  padding: 10px;
+  height: 40rem;
+  overflow-y: auto;
+  transform: rotateX(180deg);
+  -moz-transform: rotateX(180deg); /* Mozilla */
+  -webkit-transform: rotateX(180deg); /* Safari and Chrome */
+  -ms-transform: rotateX(180deg); /* IE 9+ */
+  -o-transform: rotateX(180deg); /* Opera */
+}
+
+.sub {
+  transform: rotateX(180deg);
+  -moz-transform: rotateX(180deg); /* Mozilla */
+  -webkit-transform: rotateX(180deg); /* Safari and Chrome */
+  -ms-transform: rotateX(180deg); /* IE 9+ */
+  -o-transform: rotateX(180deg); /* Opera */
+}
+
+.columnright {
+  float: right;
+  width: 30%;
   padding: 10px;
 }
 
@@ -56,7 +114,7 @@ onMounted(async () => {
 }
 </style>
 <style scoped>
-h1 {
-  font-size: 10rem;
+h2 {
+  font-size: 3rem;
 }
 </style>

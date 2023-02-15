@@ -1,11 +1,15 @@
 <template>
   <h2>Public chats</h2>
-  <div v-for="publicChat in publicChats" :key="publicChat.id">
-    <p>
-      <a :href="publicChat.linkUrl">{{ publicChat.chatroomName }}</a>
-      owned by
-      {{ publicChat.owner.playerName }}
-    </p>
+  <div class="overflow-y">
+    <div v-for="publicChat in publicChats" :key="publicChat.id">
+      <div class="messageBox">
+        <p class="chatroom">
+          <a :href="publicChat.linkUrl">{{ publicChat.chatroomName }}</a>
+          owned by
+          {{ publicChat.owner.playerName }}
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -28,6 +32,26 @@ onMounted(() => {
 });
 </script>
 <style scoped>
+h2 {
+  font-size: 3rem;
+  margin: 1% 0%;
+}
+.chatroom {
+  margin: 1% 0%;
+}
+
+.overflow-y {
+  height: 20rem;
+  overflow-y: auto;
+}
+
+.messageBox {
+  background-color: #151414e4;
+  margin: 1.25% 4%;
+  padding: 2% 2%;
+  border-radius: 2rem;
+}
+
 a {
   color: aliceblue;
 }

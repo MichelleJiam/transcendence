@@ -48,14 +48,5 @@ function editChat(adminId: number) {
     .catch((error) => {
       console.log(error);
     });
-
-  // axios
-  //   .post("http://localhost:3000/chat/create", postChatData)
-  //   .then((response) => {
-  //     console.log(response);
-  //   }) // axios throws errors for non 2xx responses by default!
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
 }
 </script>

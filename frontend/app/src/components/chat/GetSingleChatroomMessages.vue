@@ -1,9 +1,23 @@
 <template>
   <section>
     <div v-for="msg of messages" :key="messages.id">
-      <pre><b>{{ msg.userId.playerName }}</b>	<i style="font-size: 12px;">Posted at: {{ msg.formattedCreatedAt }}</i></pre>
-      <p>{{ msg.body }}</p>
-      <hr />
+      <div class="messageBox">
+        <div class="row">
+          <div class="playerName">
+            <b>{{ msg.userId.playerName }}</b>
+          </div>
+          <div class="dateTime">
+            <i style="font-size: 12px"
+              >Posted at: {{ msg.formattedCreatedAt }}</i
+            >
+          </div>
+        </div>
+        <div class="row">
+          <div class="textBody">
+            <p>{{ msg.body }}</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </template>
@@ -36,5 +50,35 @@ onMounted(async () => {
 <style scoped>
 * {
   box-sizing: border-box;
+}
+
+.messageBox {
+  background-color: #151414e4;
+  margin: 2% 4%;
+  padding: 2% 2%;
+  border-radius: 2rem;
+}
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+  padding: 1%;
+}
+
+.playerName {
+  float: left;
+  width: 24%;
+}
+
+.dateTime {
+  float: right;
+  width: 30%;
+}
+
+.textBody {
+  float: center;
+  text-align: center;
+  width: 100%;
 }
 </style>

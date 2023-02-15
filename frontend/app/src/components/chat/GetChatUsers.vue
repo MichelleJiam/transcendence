@@ -1,72 +1,82 @@
 <template>
-  <h2>Owner of the chat</h2>
-  {{ ownerName }} 👑
-  <h2>Admins of the chat</h2>
-  <div v-for="admin in chatRoomInfo.admin" :key="chatRoomInfo.admin.id">
-    <p style="padding: 2px">
-      {{ admin.playerName }}
-      <span v-if="admin.isOwner == true">👑</span>
-      <br />
-      <button
-        v-if="
-          isUserAdmin == true && admin.isOwner == false && admin.id != userId
-        "
-        style="margin: 4px 2px"
-        @click="deleteAdmin(chatRoomInfo.id, userId, admin.id)"
-      >
-        delete admin
-      </button>
-      <button
-        v-if="
-          isUserOwner == true && admin.isOwner == false && admin.id != userId
-        "
-        style="margin: 4px 2px"
-        @click="swapOwner(chatRoomInfo.id, userId, admin.id)"
-      >
-        make owner
-      </button>
-    </p>
-  </div>
-  <h2>Members of the chat</h2>
-  <div v-for="member in chatRoomInfo.member" :key="chatRoomInfo.member.id">
-    <p style="padding: 2px">
-      {{ member.playerName }} <span v-if="member.isOwner == true">👑</span>
-      <br />
-      <button
-        v-if="member.id != userId"
-        style="margin: 4px 2px"
-        @click="createBlock(userId, member.id)"
-      >
-        block
-      </button>
-      <button
-        v-if="
-          isUserAdmin == true && member.isOwner == false && member.id != userId
-        "
-        style="margin: 4px 2px"
-        @click="createPenalty(userId, member.id, mute, chatRoomInfo.id)"
-      >
-        mute
-      </button>
-      <button
-        v-if="
-          isUserAdmin == true && member.isOwner == false && member.id != userId
-        "
-        style="margin: 4px 2px"
-        @click="createPenalty(userId, member.id, ban, chatRoomInfo.id)"
-      >
-        ban
-      </button>
-      <button
-        v-if="
-          isUserAdmin == true && member.isAdmin == false && member.id != userId
-        "
-        style="margin: 4px 2px"
-        @click="makeAdmin(chatRoomInfo.id, userId, member.id)"
-      >
-        make admin
-      </button>
-    </p>
+  <div class="messageBox">
+    <h2>Owner of the chat</h2>
+    <div class="roles">{{ ownerName }} 👑</div>
+    <h2>Admins of the chat</h2>
+    <div class="roles">
+      <div v-for="admin in chatRoomInfo.admin" :key="chatRoomInfo.admin.id">
+        <p>
+          {{ admin.playerName }}
+          <span v-if="admin.isOwner == true">👑</span>
+          <br />
+          <button
+            v-if="
+              isUserAdmin == true &&
+              admin.isOwner == false &&
+              admin.id != userId
+            "
+            @click="deleteAdmin(chatRoomInfo.id, userId, admin.id)"
+          >
+            delete admin
+          </button>
+          <button
+            v-if="
+              isUserOwner == true &&
+              admin.isOwner == false &&
+              admin.id != userId
+            "
+            @click="swapOwner(chatRoomInfo.id, userId, admin.id)"
+          >
+            make owner
+          </button>
+        </p>
+      </div>
+    </div>
+    <h2>Members of the chat</h2>
+    <div class="roles">
+      <div v-for="member in chatRoomInfo.member" :key="chatRoomInfo.member.id">
+        <p>
+          {{ member.playerName }} <span v-if="member.isOwner == true">👑</span>
+          <br />
+          <button
+            v-if="member.id != userId"
+            @click="createBlock(userId, member.id)"
+          >
+            block
+          </button>
+          <button
+            v-if="
+              isUserAdmin == true &&
+              member.isOwner == false &&
+              member.id != userId
+            "
+            @click="createPenalty(userId, member.id, mute, chatRoomInfo.id)"
+          >
+            mute
+          </button>
+          <button
+            v-if="
+              isUserAdmin == true &&
+              member.isOwner == false &&
+              member.id != userId
+            "
+            @click="createPenalty(userId, member.id, ban, chatRoomInfo.id)"
+          >
+            ban
+          </button>
+          <button
+            v-if="
+              isUserAdmin == true &&
+              member.isAdmin == false &&
+              member.id != userId
+            "
+            @click="makeAdmin(chatRoomInfo.id, userId, member.id)"
+          >
+            make admin
+          </button>
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -88,7 +98,7 @@ import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
 
 const userStore = useUserStore();
-const userId = userStore.user.id; // replace this with the user Id in the cookie
+const userId = userStore.user.id;
 const mute = "mute";
 const ban = "ban";
 
@@ -138,3 +148,33 @@ onMounted(async () => {
   });
 });
 </script>
+<style scoped>
+button {
+  width: 14%;
+  height: 2%;
+  font-size: 0.7rem;
+  padding: 1% 1%;
+  margin: 1% 1%;
+}
+
+.messageBox {
+  background-color: #151414e4;
+  margin: 2% 4%;
+  padding: 2% 2%;
+  border-radius: 2rem;
+  height: 45rem;
+  overflow-y: auto;
+}
+
+.roles {
+  margin: 2% 4%;
+}
+
+h2 {
+  padding: 2% 1%;
+}
+
+p {
+  padding: 1% 2%;
+}
+</style>
