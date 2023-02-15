@@ -5,7 +5,7 @@
         <div class="column">
           <GetPublicChatrooms></GetPublicChatrooms>
         </div>
-        <div class="column">
+        <div class="column createChat">
           <MakeChatroom></MakeChatroom>
         </div>
       </div>
@@ -24,11 +24,6 @@ import MakeChatroom from "@/components/chat/MakeChatroom.vue";
 import UserChats from "@/components/chat/UserChats.vue";
 </script>
 <style scoped>
-h1 {
-  font-size: 10rem;
-}
-</style>
-<style scoped>
 * {
   box-sizing: border-box;
 }
@@ -36,8 +31,13 @@ h1 {
 /* Create two equal columns that floats next to each other */
 .column {
   float: left;
-  width: 50%;
+  width: 70%;
   padding: 10px;
+}
+
+.createChat {
+  float: right;
+  width: 30%;
 }
 
 /* Clear floats after the columns */
@@ -45,10 +45,5 @@ h1 {
   content: "";
   display: table;
   clear: both;
-}
-</style>
-<style scoped>
-h1 {
-  font-size: 10rem;
 }
 </style>

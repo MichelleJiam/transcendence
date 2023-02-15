@@ -23,3 +23,10 @@ async function leaveChatroom() {
   });
 }
 </script>
+<style scoped>
+button {
+  width: 7rem;
+  height: 3rem;
+  font-size: 1rem;
+}
+</style>

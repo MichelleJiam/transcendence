@@ -33,12 +33,17 @@ div #display-content {
 
 h1,
 h2,
+h3,
 button {
   font-family: "ArcadeClassic", sans-serif;
 }
 
 h1 {
   font-size: 8em;
+}
+
+h3 {
+  font-size: 3em;
 }
 
 /* LOOK BACK AT THIS */
@@ -124,4 +129,11 @@ form {
   border: 2px #302d2d solid;
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+a {
+  color: aliceblue;
+}
+a:hover {
+  color: #39ff14;
 }

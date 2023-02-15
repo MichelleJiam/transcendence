@@ -1,11 +1,15 @@
 <template>
-  <h2>Chats you're in:</h2>
-  <div v-for="userChat in userChats" :key="userChat.id">
-    <p>
-      <a :href="userChat.linkUrl">{{ userChat.chatroomName }}</a>
-      owned by
-      {{ userChat.owner.playerName }}
-    </p>
+  <h2>Your chats</h2>
+  <div class="overflow-y">
+    <div v-for="userChat in userChats" :key="userChat.id">
+      <div class="messageBox">
+        <p class="chatroom">
+          <a :href="userChat.linkUrl">{{ userChat.chatroomName }}</a>
+          owned by
+          {{ userChat.owner.playerName }}
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -32,10 +36,23 @@ onMounted(() => {
 });
 </script>
 <style scoped>
-a {
-  color: aliceblue;
+h2 {
+  font-size: 3rem;
+  margin: 1% 0%;
 }
-a:hover {
-  color: #39ff14;
+
+.overflow-y {
+  height: 20rem;
+  overflow-y: auto;
+}
+
+.messageBox {
+  background-color: #151414e4;
+  margin: 1.25% 4%;
+  padding: 2% 2%;
+  border-radius: 2rem;
+}
+.chatroom {
+  margin: 1% 0%;
 }
 </style>

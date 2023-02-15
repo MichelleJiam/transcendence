@@ -1,28 +1,46 @@
 <template>
   <form @submit.prevent="createChat">
     <div>
-      <h2>Create a chat</h2>
-      <label for="type">Choose a chat type:</label>
-      <select id="type" v-model="postChatData.type" name="type">
+      <h3>Create a chat</h3>
+      <label for="type"
+        ><span class="formText">Choose a chat type:</span></label
+      >
+      <select
+        id="type"
+        v-model="postChatData.type"
+        name="type"
+        class="inputStyle"
+      >
         <option value="public" selected>public</option>
         <option value="private">private</option>
         <option value="password">password</option>
       </select>
     </div>
     <div>
-      <label for="chatroomName">Name the chat:</label>
+      <label for="chatroomName"
+        ><span class="formText">Name the chat:</span></label
+      >
+      <br />
       <input
         id="chatroomName"
         v-model="postChatData.chatroomName"
         type="text"
+        class="inputStyle"
         required
       />
     </div>
+
     <div>
-      <label for="password">Password for password chats:</label>
-      <input id="password" v-model="postChatData.password" type="text" />
+      <label for="password"><span class="formText">Password:</span></label>
+      <br />
+      <input
+        id="password"
+        v-model="postChatData.password"
+        type="text"
+        class="inputStyle"
+      />
     </div>
-    <button>Create chat</button>
+    <button class="buttonStyle">Create chat</button>
   </form>
 </template>
 
@@ -55,3 +73,20 @@ function createChat() {
     });
 }
 </script>
+<style scoped>
+.formText {
+  font-size: 1rem;
+}
+
+.inputStyle {
+  width: 25%;
+  height: 10%;
+  font-size: 0.8rem;
+  margin: 1% 1%;
+}
+
+.buttonStyle {
+  height: 3rem;
+  margin: 1% 1%;
+}
+</style>
