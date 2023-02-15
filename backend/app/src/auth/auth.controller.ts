@@ -106,5 +106,6 @@ export class AuthController {
     //   `Authentication=; HttpOnly; Path=/; Max-Age=0`,
     // );
     response.clearCookie("Authentication");
+    response.status(200);
   }
 }
