@@ -39,7 +39,6 @@ export class AuthController {
     console.log("callback: Set access_token cookie");
     console.log("redirecting to ", process.env.HOME_REDIRECT);
     response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
-    // return user;
   }
 
   // Debug routes. TODO: remove later

@@ -13,16 +13,10 @@ import router from "@/router";
 //   twoFA: boolean;
 // }
 
-// interface UserStore {
-//   authenticated: boolean;
-//   profile: UserProfile | null;
-// }
-
 export const useUserStore = defineStore("user", {
   state: () => ({
     authenticated: false,
     user: {
-      // profile: null as UserProfile | null,
       id: 0,
       // intraId: 0,
       playerName: null,
@@ -32,12 +26,6 @@ export const useUserStore = defineStore("user", {
       avatarId: null,
     },
   }),
-  // state: (): UserStore => {
-  //   return {
-  //     authenticated: false,
-  //     profile: null,
-  //   };
-  // },
   actions: {
     isAuthenticated() {
       console.log("[DEBUG] isAuthenticated | returns ", this.authenticated);
@@ -79,22 +67,18 @@ export const useUserStore = defineStore("user", {
         .catch(() => {
           this.authenticated = false;
           console.log("User is not authenticated");
-          // await router.push("/login");
           return false;
         });
     },
-    // async getUserData(): Promise<UserProfile | null> {
     async getUserDataFromBackend() {
       console.log("[DEBUG] getUserData");
       await apiRequest(`/auth/status`, "get")
         .then((response) => {
           console.log("id in getUserData response: " + response.data.user.id);
-          // if (this.profile) {
           this.user.id = response.data.user.id;
           this.user.playerName = response.data.user.playerName;
           this.user.twoFA = response.data.user.twoFA;
           this.user.avatarId = response.data.user.avatarID;
-          // }
           return response.data.user;
         })
         .catch(async () => {
