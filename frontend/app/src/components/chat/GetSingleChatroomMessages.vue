@@ -1,7 +1,7 @@
 <template>
   <section>
     <div v-for="msg of messages" :key="messages.id">
-      <div class="messageBox">
+      <div class="chat-message-box">
         <div class="row">
           <div class="playerName">
             <b>{{ msg.userId.playerName }}</b>
@@ -52,12 +52,6 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
-.messageBox {
-  background-color: #151414e4;
-  margin: 2% 4%;
-  padding: 2% 2%;
-  border-radius: 2rem;
-}
 /* Clear floats after the columns */
 .row:after {
   content: "";

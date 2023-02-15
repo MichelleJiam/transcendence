@@ -2,8 +2,8 @@
   <h2>Your chats</h2>
   <div class="overflow-y">
     <div v-for="userChat in userChats" :key="userChat.id">
-      <div class="messageBox">
-        <p class="chatroom">
+      <div class="chat-message-box main-chat-page-format">
+        <p class="chatroom-list">
           <a :href="userChat.linkUrl">{{ userChat.chatroomName }}</a>
           owned by
           {{ userChat.owner.playerName }}
@@ -38,21 +38,11 @@ onMounted(() => {
 <style scoped>
 h2 {
   font-size: 3rem;
-  margin: 1% 0%;
+  margin: 1rem;
 }
 
 .overflow-y {
   height: 20rem;
   overflow-y: auto;
-}
-
-.messageBox {
-  background-color: #151414e4;
-  margin: 1.25% 4%;
-  padding: 2% 2%;
-  border-radius: 2rem;
-}
-.chatroom {
-  margin: 1% 0%;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="messageBox">
+  <div class="chat-message-box scroll-y">
     <h2>Owner of the chat</h2>
     <div class="roles">{{ ownerName }} 👑</div>
     <h2>Admins of the chat</h2>
@@ -157,11 +157,7 @@ button {
   margin: 1% 1%;
 }
 
-.messageBox {
-  background-color: #151414e4;
-  margin: 2% 4%;
-  padding: 2% 2%;
-  border-radius: 2rem;
+.scroll-y {
   height: 45rem;
   overflow-y: auto;
 }

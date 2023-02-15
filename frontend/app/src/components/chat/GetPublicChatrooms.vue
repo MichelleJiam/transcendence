@@ -2,8 +2,8 @@
   <h2>Public chats</h2>
   <div class="overflow-y">
     <div v-for="publicChat in publicChats" :key="publicChat.id">
-      <div class="messageBox">
-        <p class="chatroom">
+      <div class="chat-message-box main-chat-page-format">
+        <p class="chatroom-list">
           <a :href="publicChat.linkUrl">{{ publicChat.chatroomName }}</a>
           owned by
           {{ publicChat.owner.playerName }}
@@ -36,20 +36,10 @@ h2 {
   font-size: 3rem;
   margin: 1% 0%;
 }
-.chatroom {
-  margin: 1% 0%;
-}
 
 .overflow-y {
   height: 20rem;
   overflow-y: auto;
-}
-
-.messageBox {
-  background-color: #151414e4;
-  margin: 1.25% 4%;
-  padding: 2% 2%;
-  border-radius: 2rem;
 }
 
 a {

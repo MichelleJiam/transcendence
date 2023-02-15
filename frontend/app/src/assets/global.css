@@ -137,3 +137,19 @@ a {
 a:hover {
   color: #39ff14;
 }
+
+.chat-message-box {
+  background-color: #151414e4;
+  margin: 0.5rem 1rem;
+  padding: 1rem;
+  border-radius: 2rem;
+}
+
+.main-chat-page-format {
+  margin: 1rem 1rem;
+}
+
+.chatroom-list {
+  margin: 0.2rem 0.2rem;
+  padding: 0.3rem;
+}
