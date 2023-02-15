@@ -9,11 +9,20 @@
 
 <script setup lang="ts">
 import { useUserStore } from "@/stores/UserStore";
+import { onMounted } from "vue";
 const userStore = useUserStore();
 
+onMounted(async () => {
+  console.log("[DEBUG] onMounted");
+  await userStore.checkAuthStatus();
+  if (userStore.isAuthenticated()) {
+    await userStore.logIn();
+  }
+});
+
 async function submitLogin(): Promise<void> {
-  location.href = `http://localhost:3000/auth/login`;
-  await userStore.logIn();
+  console.log("[DEBUG] submitLogin");
+  window.location.href = `http://localhost:3000/auth/login`;
 }
 </script>
 
