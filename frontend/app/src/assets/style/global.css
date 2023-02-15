@@ -68,7 +68,7 @@ button {
   font-size: 24px;
 
   padding: 10px 10px;
-  background: #39ff14;
+  background: var(--primary-color);
   transition: all 0.2s ease;
   border: none;
   border-radius: 4px;
@@ -76,14 +76,14 @@ button {
 
 button:hover,
 button:active {
-  background: #88ff72;
+  background: var(--primary-color);
   cursor: pointer;
 }
 
 input {
   display: inline-block;
   vertical-align: middle;
-  font-size: 22px;
+  font-size: 18px;
   padding: 5px 10px;
 }
 
@@ -92,26 +92,24 @@ input:focus {
 }
 
 input[type="file"] {
-  /* display: block; */
-
-  border: none;
+  display: inline-block;
 }
 
 input[type="checkbox"] {
   height: 1em;
   width: 1em;
-  margin-left: 5px;
   vertical-align: middle;
 }
 
 input[type="checkbox"]:checked {
-  accent-color: #39ff14;
+  accent-color: var(--primary-color)
 }
 
 label {
-  font-size: 22px;
+  font-size: 32px;
   display: inline-block;
   vertical-align: middle;
+  font-family: "ArcadeClassic", sans-serif;
 }
 
 /* Apply same border style */
