@@ -56,11 +56,7 @@ export class UserController {
   /* deletes the user based on the id given when a delete request is made */
   @Delete("id/:id")
   @UseGuards(CurrentUserGuard)
-  deleteUser(@Param("id", ParseIntPipe) id: number, @currentUser() user: User) {
-    if (user.id != id) {
-      console.log("Oops not authorized");
-      return;
-    }
+  deleteUser(@Param("id", ParseIntPipe) id: number) {
     return this.userService.deleteUser(id);
   }
 
