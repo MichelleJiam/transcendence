@@ -1,4 +1,4 @@
-import { AuthService } from "./../auth/auth.service";
+import { AuthService } from "../auth/auth.service";
 import { TwoFactorAuthCodeDto } from "./twofactor-auth-code.dto";
 import { currentUserFromBody } from "./../auth/decorators/current-user.decorator";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -45,17 +45,23 @@ export class TwoFactorAuthController {
     await this.twoFactorAuthService.enableTwoFactor(user);
   }
 
+  @Post("disable")
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
+  async disableTwoFactorAuth(@currentUserFromBody() user: User) {
+    await this.twoFactorAuthService.disableTwoFactor(user);
+  }
+
   @Post("authenticate")
   @HttpCode(200)
   async authenticate(
     @currentUserFromBody() user: User,
-    @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto,
-    @Res({ passthrough: true }) response: Response,
+    @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto, // @Res({ passthrough: true }) response: Response,
   ) {
     await this.validateCode(user, twoFactorAuthCode);
 
-    const authCookie = this.authService.getCookieWithJwtToken(user.id);
-    response.setHeader("Set-Cookie", authCookie);
+    // const authCookie = this.authService.getCookieWithJwtToken(user.id);
+    // response.setHeader("Set-Cookie", authCookie);
   }
 
   private async validateCode(user: User, twoFactorAuthCode: string) {

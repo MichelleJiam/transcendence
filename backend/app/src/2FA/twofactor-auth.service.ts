@@ -4,7 +4,6 @@ import { Injectable } from "@nestjs/common";
 import { authenticator } from "otplib";
 import { toFileStream } from "qrcode";
 import { Response } from "express";
-import { currentUser } from "src/auth/decorators/current-user.decorator";
 
 @Injectable()
 export class TwoFactorAuthService {
@@ -26,10 +25,10 @@ export class TwoFactorAuthService {
     return toFileStream(stream, otpauthUrl);
   }
 
-  public isTwoFactorAuthCodeValid(twoFAAuthCode: string, user: User) {
+  public isTwoFactorAuthCodeValid(twoFactorAuthCode: string, user: User) {
     if (user.twoFASecret) {
       return authenticator.verify({
-        token: twoFAAuthCode,
+        token: twoFactorAuthCode,
         secret: user.twoFASecret,
       });
     }
@@ -37,5 +36,12 @@ export class TwoFactorAuthService {
 
   public async enableTwoFactor(user: User) {
     await this.userService.updateUser(user.id, { ...user, twoFAEnabled: true });
+  }
+
+  public async disableTwoFactor(user: User) {
+    await this.userService.updateUser(user.id, {
+      ...user,
+      twoFAEnabled: false,
+    });
   }
 }

@@ -16,9 +16,9 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useAccountSettings } from "@/stores/AccountSettings";
+import { useUserStore } from "@/stores/UserStore";
 
-const store = useAccountSettings();
+const store = useUserStore();
 type Avatar = {
   selectedFile?: File;
 };
@@ -68,5 +68,4 @@ label {
 button {
   grid-area: button;
 }
-
 </style>

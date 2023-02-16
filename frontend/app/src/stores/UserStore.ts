@@ -2,40 +2,49 @@ import { defineStore } from "pinia";
 import { apiRequest } from "@/utils/apiRequest";
 import router from "@/router";
 
-// interface PublicProfile {
-//   id: number;
-//   playerName: string;
-//   status: string;
-//   avatarId: number;
-// }
+interface PublicProfile {
+  id: number;
+  playerName: string;
+  status: string;
+  avatarId: number;
+  avatarUrl: string | undefined;
+}
 
-// interface UserProfile extends PublicProfile {
-//   twoFA: boolean;
-// }
+interface UserProfile extends PublicProfile {
+  intraId: string;
+  twoFAEnabled: boolean;
+}
 
 export const useUserStore = defineStore("user", {
-  state: () => ({
-    authenticated: false,
-    user: {
-      id: 0,
-      // intraId: 0,
-      playerName: null,
-      // password: "password", // TODO: remove
-      // messages: [],
-      twoFA: false,
-      avatarId: null,
-    },
-  }),
+  // state: () => ({
+  //   authenticated: false,
+  //   user: {
+  //     id: 0,
+  //     intraId: "",
+  //     playerName: null,
+  //     // password: "password", // TODO: remove
+  //     // messages: [],
+  //     twoFA: false,
+  //     avatarId: null,
+  //   },
+  // }),
+  state: () => {
+    return {
+      user: {} as UserProfile,
+      authenticated: false,
+    };
+  },
   actions: {
+    // auth
     isAuthenticated() {
       console.log("[DEBUG] isAuthenticated | returns ", this.authenticated);
       return this.authenticated === true;
     },
     async logIn() {
       console.log("[DEBUG] userStore.logIn");
-      await this.getUserDataFromBackend();
+      await this.retrieveCurrentUserData();
       this.authenticated = true;
-      // console.log("Trying to log in user id: ", this.user.id);
+      console.log("Trying to log in user id: ", this.user.id);
       await router.push("/home");
     },
     async logOut() {
@@ -69,21 +78,54 @@ export const useUserStore = defineStore("user", {
           return false;
         });
     },
-    async getUserDataFromBackend() {
-      console.log("[DEBUG] getUserData");
-      await apiRequest(`/auth/status`, "get")
-        .then((response) => {
-          console.log("id in getUserData response: " + response.data.user.id);
-          this.user.id = response.data.user.id;
-          this.user.playerName = response.data.user.playerName;
-          this.user.twoFA = response.data.user.twoFA;
-          this.user.avatarId = response.data.user.avatarID;
-          return response.data.user;
-        })
-        .catch(async () => {
-          console.log("User is not authenticated");
-        });
+    // user data
+    async retrieveCurrentUserData() {
+      console.log("[DEBUG] retrieveUserData");
+      try {
+        const res = await apiRequest(`/auth/status`, "get");
+        this.user.id = res.data.user.id;
+        this.user.playerName = res.data.user.playerName;
+        this.user.twoFAEnabled = res.data.user.twoFAEnabled;
+        this.user.avatarId = res.data.user.avatarID;
+        return res.data.user;
+      } catch (error) {
+        console.log(`Error in retrieveCurrentUserData(): ${error}`);
+      }
       return null;
+    },
+    async updateAccountSettings(
+      newPlayerName: string,
+      twoFA: boolean | undefined
+    ) {
+      try {
+        await apiRequest(`/user/${this.user.id}/update-settings`, "put", {
+          data: { playerName: newPlayerName, twoFAEnabled: twoFA },
+        });
+        this.retrieveCurrentUserData();
+        alert("Your account settings succesfully updated");
+      } catch (error) {
+        console.log(`Error in updateAccountSettings(): ${error}`);
+      }
+    },
+    // avatar
+    async updateAvatar(selectedFile: File) {
+      try {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        await apiRequest(`/user/${this.user.id}/avatar`, "post", {
+          data: formData,
+        });
+      } catch (error) {
+        console.log(`Error in updateAvatar(): ${error}`);
+      }
+    },
+    async getAvatar() {
+      try {
+        const res = await apiRequest(`/user/${this.user.id}/avatar`, "get");
+        this.user.avatarUrl = res.config.url;
+      } catch (error) {
+        console.log(`Error in getAvatar(): ${error}`);
+      }
     },
   },
   persist: true,
