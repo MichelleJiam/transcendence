@@ -1,3 +1,4 @@
+import { CurrentUserGuard } from "./../auth/guards/current-user.guard";
 import { JwtAuthGuard } from "./../auth/guards/jwt-auth.guard";
 import {
   Controller,
@@ -54,7 +55,12 @@ export class UserController {
 
   /* deletes the user based on the id given when a delete request is made */
   @Delete("id/:id")
-  deleteUser(@Param("id", ParseIntPipe) id: number) {
+  @UseGuards(CurrentUserGuard)
+  deleteUser(@Param("id", ParseIntPipe) id: number, @currentUser() user: User) {
+    if (user.id != id) {
+      console.log("Oops not authorized");
+      return;
+    }
     return this.userService.deleteUser(id);
   }
 
@@ -73,6 +79,7 @@ export class UserController {
 
   @Put(":id/update-settings")
   @UsePipes(ValidationPipe)
+  @UseGuards(CurrentUserGuard)
   async updateUser(
     @Param("id", ParseIntPipe) id: number,
     @Body() userSettings: UpdateUserSettingsDto,
@@ -93,6 +100,7 @@ export class UserController {
   /* avatar */
 
   @Post(":id/avatar")
+  @UseGuards(CurrentUserGuard)
   @UseInterceptors(FileInterceptor("file"))
   async addAvatar(
     @Param("id", ParseIntPipe) id: number,
@@ -108,6 +116,7 @@ export class UserController {
     @Param("id", ParseIntPipe) id: number,
     @Res({ passthrough: true }) res: Response,
   ) {
+    // add id check here
     const user = await this.findUsersById(id);
     if (user != null) {
       const avatarId = user.avatarId;
