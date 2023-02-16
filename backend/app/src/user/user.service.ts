@@ -77,9 +77,9 @@ export class UserService {
     return await this.userRepository.update(id, settings);
   }
 
-  async addAvatar(userId: number, imageBuffer: Buffer, filename: string) {
+  async addAvatar(id: number, imageBuffer: Buffer, filename: string) {
     const avatar = await this.avatarService.uploadAvatar(imageBuffer, filename);
-    await this.userRepository.update(userId, { avatarId: avatar.id });
+    await this.userRepository.update(id, { avatarId: avatar.id });
     return avatar;
   }
 
