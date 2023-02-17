@@ -3,6 +3,7 @@ import { ConflictException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { UserService } from "../user/user.service";
+import { RequestUser } from "src/user/user.controller";
 
 @Injectable()
 export class AuthService {
@@ -37,6 +38,13 @@ export class AuthService {
     console.log("Signed token for user: ", id);
     console.log("Token: ", accessToken);
     return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${process.env.JWT_EXPIRATION}`;
+  }
+
+  // Gets sub (id) from the JWT token in the Authentication cookie embedded in the request.
+  public getUserIdFromRequestAuthCookie(req: RequestUser) {
+    const jwtFromRequest = req.cookies.Authentication;
+    const decoded = this.jwtService.decode(jwtFromRequest);
+    return decoded?.sub;
   }
 
   // Checks if user has site account. If not, creates one.
