@@ -11,6 +11,12 @@ export class AddMemberDto {
   member!: number;
 }
 
+export class SendMessageDto {
+  chatroomId!: number;
+  body!: string;
+  userId!: number;
+}
+
 class Penalty {
   penaltyType!: string;
   user!: number;

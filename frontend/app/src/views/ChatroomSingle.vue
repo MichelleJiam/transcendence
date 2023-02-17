@@ -32,6 +32,13 @@
             </template>
             <template #fallback><p>loading...</p></template>
           </suspense>
+        </div>
+      </div>
+      <div class="row">
+        <div class="header post">
+          <PostMessages></PostMessages>
+        </div>
+        <div class="leave settings">
           <EditChatroomInfoVue></EditChatroomInfoVue>
         </div>
       </div>
@@ -44,6 +51,7 @@ import EditChatroomInfoVue from "@/components/chat/EditChatroomInfo.vue";
 import GetChatUsers from "@/components/chat/GetChatUsers.vue";
 import GetSingleChatroomMessages from "@/components/chat/GetSingleChatroomMessages.vue";
 import LeaveChat from "@/components/chat/LeaveChat.vue";
+import PostMessages from "@/components/chat/message/PostMessages.vue";
 import apiRequest from "@/utils/apiRequest";
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
@@ -78,6 +86,16 @@ onMounted(async () => {
   width: 30%;
   text-align: right;
   padding: 1rem;
+}
+
+.post {
+  float: center;
+  width: 70%;
+}
+
+.settings {
+  float: center;
+  width: 30%;
 }
 
 /* Create two equal columns that floats next to each other */

@@ -1,3 +1,41 @@
+<template>
+  <section>
+    <form @submit.prevent="sendMessage()">
+      <div>
+        <input
+          id="body"
+          v-model="sendMessageDto.body"
+          type="text"
+          required
+          @keyup.enter="sendMessage()"
+        />
+        <button>Post Message</button>
+      </div>
+    </form>
+  </section>
+</template>
+
+<script setup lang="ts">
+import { useUserStore } from "@/stores/UserStore";
+import { baseUrl } from "@/utils/apiRequest";
+import { io } from "socket.io-client";
+import { useRoute } from "vue-router";
+import { SendMessageDto } from "../chatUtils";
+
+const socketUrl = baseUrl;
+const route = useRoute();
+const chatroomId = route.params.id;
+const userStore = useUserStore();
+const socket = io(socketUrl);
+
+const sendMessageDto = new SendMessageDto();
+sendMessageDto.userId = userStore.user.id;
+sendMessageDto.chatroomId = Number(chatroomId);
+
+function sendMessage() {
+  socket.emit("sendMessage", sendMessageDto);
+}
+</script>
 <!-- <template>
   <section>
     <form @submit.prevent="createPost">

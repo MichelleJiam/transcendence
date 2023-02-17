@@ -320,11 +320,6 @@ export class ChatService {
     );
   }
 
-  async handleSendMessage(payload: CreateMessageDto): Promise<void> {
-    await this.postMessageToChatroom(payload);
-    this.chatGateway.server.emit("recMessage", payload);
-  }
-
   async createPenalty(
     chatroomId: number,
     adminId: number,

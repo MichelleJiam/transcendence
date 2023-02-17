@@ -158,7 +158,7 @@ button {
 }
 
 .scroll-y {
-  height: 45rem;
+  height: 38rem;
   overflow-y: auto;
 }
 
