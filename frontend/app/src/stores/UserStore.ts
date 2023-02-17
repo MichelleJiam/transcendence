@@ -63,7 +63,7 @@ export const useUserStore = defineStore("user", {
       console.log("About to push to login");
       await router.push("/login");
     },
-    async checkAuthStatus() {
+    async checkAuthStatus(): Promise<boolean> {
       console.log("[DEBUG] checkAuthStatus");
       await apiRequest(`/auth/status`, "get")
         .then(() => {
@@ -75,8 +75,8 @@ export const useUserStore = defineStore("user", {
         .catch(() => {
           this.authenticated = false;
           console.log("User is not authenticated");
-          return false;
         });
+      return false;
     },
     // user data
     async retrieveCurrentUserData() {
