@@ -35,7 +35,7 @@ export const useUserStore = defineStore("user", {
     };
   },
   actions: {
-    // auth
+    // AUTH
     isAuthenticated() {
       console.log("[DEBUG] isAuthenticated | returns ", this.authenticated);
       return this.authenticated === true;
@@ -66,9 +66,8 @@ export const useUserStore = defineStore("user", {
     async checkAuthStatus(): Promise<boolean> {
       console.log("[DEBUG] checkAuthStatus");
       await apiRequest(`/auth/status`, "get")
-        .then(() => {
+        .then((response) => {
           this.authenticated = true;
-          // this.user.twoFA = response.data.user.twoFA;
           console.log("User is authenticated");
           return true;
         })
@@ -78,15 +77,15 @@ export const useUserStore = defineStore("user", {
         });
       return this.authenticated;
     },
-    // user data
+    // USER DATA
     async retrieveCurrentUserData() {
       console.log("[DEBUG] retrieveUserData");
       try {
         const res = await apiRequest(`/auth/status`, "get");
-        this.user.id = res.data.user.id;
-        this.user.playerName = res.data.user.playerName;
-        this.user.twoFAEnabled = res.data.user.twoFAEnabled;
-        this.user.avatarId = res.data.user.avatarID;
+        this.user.id = res.data.id;
+        this.user.playerName = res.data.playerName;
+        this.user.twoFAEnabled = res.data.twoFAEnabled;
+        this.user.avatarId = res.data.avatarID ?? null;
         return res.data.user;
       } catch (error) {
         console.log(`Error in retrieveCurrentUserData(): ${error}`);
@@ -107,7 +106,7 @@ export const useUserStore = defineStore("user", {
         console.log(`Error in updateAccountSettings(): ${error}`);
       }
     },
-    // avatar
+    // AVATAR
     async updateAvatar(selectedFile: File) {
       try {
         const formData = new FormData();

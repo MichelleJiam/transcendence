@@ -1,5 +1,9 @@
 import { CreateUserDto } from "./../user/dto/create-user.dto";
-import { ConflictException, Injectable } from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { UserService } from "../user/user.service";
@@ -40,11 +44,26 @@ export class AuthService {
     return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${process.env.JWT_EXPIRATION}`;
   }
 
-  // Gets sub (id) from the JWT token in the Authentication cookie embedded in the request.
-  public getUserIdFromRequestAuthCookie(req: RequestUser) {
+  // Gets user id from the JWT token in the Authentication cookie embedded
+  // in the request context and uses UserService to return the user attached
+  // to that id.
+  public async retrieveUserFromRequestAuthCookie(req: RequestUser) {
     const jwtFromRequest = req.cookies.Authentication;
     const decoded = this.jwtService.decode(jwtFromRequest);
-    return decoded?.sub;
+    const user = await this.userService.findUserById(decoded?.sub);
+    return user;
+  }
+
+  // Sets request.user using user id in auth cookie if it's not set.
+  public async fillRequestUserIfAbsent(req: RequestUser) {
+    if (req.user === undefined || req.user.id === undefined) {
+      const user = await this.retrieveUserFromRequestAuthCookie(req);
+      if (!user) {
+        throw new InternalServerErrorException();
+      }
+      req.user = user;
+    }
+    return req.user;
   }
 
   // Checks if user has site account. If not, creates one.
