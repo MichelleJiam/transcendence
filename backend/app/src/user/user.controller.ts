@@ -23,16 +23,12 @@ import { UpdateUserSettingsDto } from "./dto/update-user-settings.dto";
 import { UserService } from "./user.service";
 import { createReadStream } from "fs";
 import { join } from "path";
-import { Response, Request } from "express";
+import { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Readable } from "typeorm/platform/PlatformTools";
-import { User } from "./user.entity";
+import { RequestUser } from "./request-user.interface";
 // the code for each function can be found in:
 // user.service.ts
-
-export interface RequestUser extends Request {
-  user: User;
-}
 
 @Controller("user")
 @UseGuards(JwtAuthGuard)
@@ -78,16 +74,13 @@ export class UserController {
    */
 
   @Put(":id/update-settings")
-  @UsePipes(ValidationPipe)
   @UseGuards(OwnerGuard)
+  @UsePipes(ValidationPipe)
   async updateUser(
     @Param("id", ParseIntPipe) id: number,
     @Body() userSettings: UpdateUserSettingsDto,
-    @Req() req: RequestUser,
   ) {
-    // console.log("updateUser req: ", req);
-    console.log("updating settings for user ", req.user.id);
-    console.log("param id? ", req.params.id);
+    console.log("updating settings for user ", id);
     return await this.userService.updateUser(id, userSettings);
   }
 
@@ -152,3 +145,4 @@ export class UserController {
     }
   }
 }
+export { RequestUser };

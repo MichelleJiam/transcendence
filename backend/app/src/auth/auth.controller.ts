@@ -98,7 +98,6 @@ export class AuthController {
   @Get("logout") // temporary for testing in browser, TODO: change later
   @UseGuards(JwtAuthGuard)
   async logout(
-    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
     @currentUser() user: User,
   ) {

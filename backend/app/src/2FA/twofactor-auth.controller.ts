@@ -1,6 +1,6 @@
-import { AuthService } from "../auth/auth.service";
+import { TwoFactorAuthGuard } from "./../auth/guards/twofactor-auth.guard";
 import { TwoFactorAuthCodeDto } from "./twofactor-auth-code.dto";
-import { currentUserFromBody } from "./../auth/decorators/current-user.decorator";
+import { currentUser } from "./../auth/decorators/current-user.decorator";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { TwoFactorAuthService } from "./twofactor-auth.service";
 import { User } from "../user/user.entity";
@@ -8,6 +8,7 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Get,
   HttpCode,
   Post,
   Res,
@@ -20,14 +21,11 @@ import { Response } from "express";
 @Controller("2fa")
 @UseInterceptors(ClassSerializerInterceptor)
 export class TwoFactorAuthController {
-  constructor(
-    private readonly twoFactorAuthService: TwoFactorAuthService,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly twoFactorAuthService: TwoFactorAuthService) {}
 
   @Post("register")
   @UseGuards(JwtAuthGuard)
-  async register(@Res() response: Response, @currentUserFromBody() user: User) {
+  async register(@Res() response: Response, @currentUser() user: User) {
     const { otpauthUrl } =
       await this.twoFactorAuthService.generateTwoFactorAuthSecret(user);
 
@@ -38,7 +36,7 @@ export class TwoFactorAuthController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   async enableTwoFactorAuth(
-    @currentUserFromBody() user: User,
+    @currentUser() user: User,
     @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto,
   ) {
     await this.validateCode(user, twoFactorAuthCode);
@@ -48,16 +46,18 @@ export class TwoFactorAuthController {
   @Post("disable")
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
-  async disableTwoFactorAuth(@currentUserFromBody() user: User) {
+  async disableTwoFactorAuth(@currentUser() user: User) {
     await this.twoFactorAuthService.disableTwoFactor(user);
   }
 
   @Post("authenticate")
   @HttpCode(200)
+  @UseGuards(TwoFactorAuthGuard)
   async authenticate(
-    @currentUserFromBody() user: User,
+    @currentUser() user: User,
     @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto, // @Res({ passthrough: true }) response: Response,
   ) {
+    console.log("2FA Authenticate for user ", user.id);
     await this.validateCode(user, twoFactorAuthCode);
 
     // const authCookie = this.authService.getCookieWithJwtToken(user.id);
@@ -72,5 +72,12 @@ export class TwoFactorAuthController {
     if (!isCodeValid) {
       throw new UnauthorizedException("Wrong authentication code");
     }
+  }
+
+  // DEBUG // TODO: remove
+  @Get("test")
+  @UseGuards(JwtAuthGuard)
+  async test(@currentUser() user: User) {
+    console.log("2FA test user ", user.id);
   }
 }
