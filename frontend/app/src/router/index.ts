@@ -7,13 +7,14 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   const userStore = useUserStore();
   console.log("[DEBUG] beforeEach");
   if (to.name === "login") {
     return true;
   }
-  if (!userStore.isAuthenticated()) {
+  if ((await userStore.checkAuthStatus()) === false) {
+    console.log("User not authenticated, pushing to login");
     return { name: "login" };
   }
 });
