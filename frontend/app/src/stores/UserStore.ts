@@ -76,7 +76,7 @@ export const useUserStore = defineStore("user", {
           this.authenticated = false;
           console.log("User is not authenticated");
         });
-      return false;
+      return this.authenticated;
     },
     // user data
     async retrieveCurrentUserData() {
