@@ -24,10 +24,15 @@
 
 <script setup lang="ts">
 import { useUserStore } from "@/stores/UserStore";
-import apiRequest from "@/utils/apiRequest";
+import { apiRequest, baseUrl } from "@/utils/apiRequest";
 import { convertDateTime } from "@/utils/dateTime";
+import { io } from "socket.io-client";
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+
+const socketUrl = baseUrl;
+
+const socket = io(socketUrl);
 
 const route = useRoute();
 const chatroomId = route.params.id;
@@ -38,12 +43,25 @@ const backendurlMessages =
   "/chat/" + chatroomId + "/user/" + userStore.user.id + "/messages";
 
 onMounted(async () => {
-  await apiRequest(backendurlMessages, "get").then((response) => {
-    messages.value = response.data; // returns the response data into the users variable which can then be used in the template
-    for (const date of messages.value) {
-      const dateTime = new Date(date.createdAt);
-      date["formattedCreatedAt"] = convertDateTime(dateTime);
-    }
+  await apiRequest(backendurlMessages, "get")
+    .then((response) => {
+      messages.value = response.data; // returns the response data into the users variable which can then be used in the template
+      for (const date of messages.value) {
+        const dateTime = new Date(date.createdAt);
+        date["formattedCreatedAt"] = convertDateTime(dateTime);
+        date.userId.playerName =
+          date.userId.playerName ?? "unnamedPlayer" + userStore.user.id;
+      }
+    })
+    .catch((err) => console.error(err));
+
+  socket.on("recMessage", (message) => {
+    console.log(message);
+    message.userId.playerName =
+      message.userId.playerName ?? "unnamedPlayer" + userStore.user.id;
+    const dateTime = new Date(message.createdAt);
+    message["formattedCreatedAt"] = convertDateTime(dateTime);
+    messages.value.push(message);
   });
 });
 </script>

@@ -22,19 +22,20 @@ export class ChatGateway
 {
   @WebSocketServer()
   server!: Server;
+
   constructor(
     @Inject(forwardRef(() => ChatService))
     private readonly chatService: ChatService,
   ) {}
 
-  // @SubscribeMessage("sendMessage")
-  // async handleSendMessage(
-  //   client: Socket,
-  //   payload: CreateMessageDto,
-  // ): Promise<void> {
-  //   await this.chatService.postMessageToChatroom(payload);
-  //   this.server.emit("recMessage", payload);
-  // }
+  @SubscribeMessage("sendMessage")
+  async handleSendMessage(
+    client: Socket,
+    payload: CreateMessageDto,
+  ): Promise<void> {
+    const message = await this.chatService.postMessageToChatroom(payload);
+    this.server.emit("recMessage", message);
+  }
 
   afterInit(server: Server) {
     console.log(server);
