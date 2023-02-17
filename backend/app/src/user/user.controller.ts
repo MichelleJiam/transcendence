@@ -1,4 +1,4 @@
-import { CurrentUserGuard } from "./../auth/guards/current-user.guard";
+import { OwnerGuard } from "../auth/guards/owner.guard";
 import { JwtAuthGuard } from "./../auth/guards/jwt-auth.guard";
 import {
   Controller,
@@ -16,19 +16,23 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
+  Req,
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserSettingsDto } from "./dto/update-user-settings.dto";
 import { UserService } from "./user.service";
 import { createReadStream } from "fs";
 import { join } from "path";
-import { Response } from "express";
+import { Response, Request } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Readable } from "typeorm/platform/PlatformTools";
-import { currentUser } from "src/auth/decorators/current-user.decorator";
 import { User } from "./user.entity";
 // the code for each function can be found in:
 // user.service.ts
+
+export interface RequestUser extends Request {
+  user: User;
+}
 
 @Controller("user")
 @UseGuards(JwtAuthGuard)
@@ -55,7 +59,7 @@ export class UserController {
 
   /* deletes the user based on the id given when a delete request is made */
   @Delete("id/:id")
-  @UseGuards(CurrentUserGuard)
+  @UseGuards(OwnerGuard)
   deleteUser(@Param("id", ParseIntPipe) id: number) {
     return this.userService.deleteUser(id);
   }
@@ -75,11 +79,15 @@ export class UserController {
 
   @Put(":id/update-settings")
   @UsePipes(ValidationPipe)
-  @UseGuards(CurrentUserGuard)
+  @UseGuards(OwnerGuard)
   async updateUser(
     @Param("id", ParseIntPipe) id: number,
     @Body() userSettings: UpdateUserSettingsDto,
+    @Req() req: RequestUser,
   ) {
+    // console.log("updateUser req: ", req);
+    console.log("updating settings for user ", req.user.id);
+    console.log("param id? ", req.params.id);
     return await this.userService.updateUser(id, userSettings);
   }
 
@@ -96,7 +104,7 @@ export class UserController {
   /* avatar */
 
   @Post(":id/avatar")
-  @UseGuards(CurrentUserGuard)
+  @UseGuards(OwnerGuard)
   @UseInterceptors(FileInterceptor("file"))
   async addAvatar(
     @Param("id", ParseIntPipe) id: number,
