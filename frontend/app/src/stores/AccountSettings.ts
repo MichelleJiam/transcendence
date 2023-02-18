@@ -32,6 +32,20 @@ export const useAccountSettings = defineStore("accountSettings", {
       }
     },
 
+    // ADDED BY SANNE -> NOT WORKING YET
+    async updatePlayername(newPlayerName: string) {
+      console.log("IN UPDATE PLAYERNAME");
+      try {
+        await apiRequest(
+          `/user/${this.accountSettings.userId}/update-settings`,
+          "put",
+          { data: { playerName: newPlayerName } }
+        );
+      } catch (error) {
+        alert("error in updatePlayername");
+      }
+    },
+
     async updateAccountSettings(
       newPlayerName: string,
       twoFA: boolean | undefined
