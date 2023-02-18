@@ -107,7 +107,6 @@ function validPlayerName(playerName: string) {
 </script>
 
 <style scoped>
-
 #display-content {
   display: flex;
   justify-content: center;
