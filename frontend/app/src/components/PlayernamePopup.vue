@@ -1,5 +1,6 @@
 <template>
   <form>
+    <button class="exit-button" @click.prevent="cancelLogin">X</button>
     <h2>Hey there,</h2>
     <p>
       Welcome to our super-duper, incredibly awesome pong game! We're so excited
@@ -28,12 +29,20 @@
 import { useAccountSettings } from "@/stores/AccountSettings";
 import { ref } from "vue";
 import InputText from "@/components/InputText.vue";
+import router from "@/router";
+import { useUserStore } from "@/stores/UserStore";
 
 const store = useAccountSettings();
+const userStore = useUserStore();
 
 function setPlayerName() {
   // function that will update player name
   store.updatePlayername("test");
+}
+
+function cancelLogin() {
+  router.push('/login');
+  userStore.logOut();
 }
 
 const playerName = ref<string>("");
@@ -46,6 +55,15 @@ form {
   gap: 10px;
   width: 550px;
   text-align: left;
+}
+
+.exit-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 25px;
+  padding: 0;
+  margin: 10px;
 }
 
 label {

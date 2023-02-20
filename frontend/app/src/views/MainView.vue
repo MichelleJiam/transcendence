@@ -29,6 +29,7 @@ store.setUserId(route.params.id);
 
 const showPopup = computed (() => {
   return store.accountSettings.playerName == null;
+  // return false; // FOR DEVELOPMENT PURPOSE
 })
 
 onMounted(async () => {
