@@ -1,8 +1,3 @@
-<!--
-  TODO: add a x button on the form, if you exit it will log
-  you out and bring you back to the login page.
--->
-
 <template>
   <main>
     <PlayernamePopup
@@ -11,29 +6,25 @@
     ></PlayernamePopup>
     <div id="display-content">
       <h1>MAIN VIEW</h1>
-      <h2>player name: {{ store.accountSettings.playerName }}</h2>
+      <h2>player name: {{ userStore.user.playerName }}</h2>
     </div>
   </main>
   <div :class="{overlay: showPopup}"></div>
 </template>
 
 <script setup lang="ts">
-import { useAccountSettings } from "@/stores/AccountSettings";
 import PlayernamePopup from "@/components/PlayernamePopup.vue";
 import { onMounted, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useUserStore } from "@/stores/UserStore";
 
-const store = useAccountSettings();
-const route = useRoute();
-store.setUserId(route.params.id);
+const userStore = useUserStore();
 
 const showPopup = computed (() => {
-  return store.accountSettings.playerName == null;
-  // return false; // FOR DEVELOPMENT PURPOSE
+  return userStore.user.playerName == null;
 })
 
 onMounted(async () => {
-  await store.getAccountSettings();
+  await userStore.retrieveCurrentUserData();
 });
 </script>
 
