@@ -1,3 +1,4 @@
+import { currentUser } from "./../auth/decorators/current-user.decorator";
 import { OwnerGuard } from "../auth/guards/owner.guard";
 import { JwtAuthGuard } from "./../auth/guards/jwt-auth.guard";
 import {
@@ -27,6 +28,7 @@ import { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Readable } from "typeorm/platform/PlatformTools";
 import { RequestUser } from "./request-user.interface";
+import { User } from "./user.entity";
 // the code for each function can be found in:
 // user.service.ts
 
@@ -41,8 +43,16 @@ export class UserController {
     return this.userService.getAllUsers();
   }
 
+  /* retrieves current user from jwt auth cookie */
+  @Get("current")
+  getCurrentUser(@currentUser() user: User) {
+    // JwtAuthGuard already calls userService.findUserById
+    // so we don't call it again.
+    return user;
+  }
+
   /* localhost:3000/user/id/{an+id} - show user based on the id provided */
-  @Get("id/:id")
+  @Get(":id")
   findUsersById(@Param("id", ParseIntPipe) id: number) {
     return this.userService.findUserById(id);
   }
@@ -54,7 +64,7 @@ export class UserController {
   // }
 
   /* deletes the user based on the id given when a delete request is made */
-  @Delete("id/:id")
+  @Delete(":id")
   @UseGuards(OwnerGuard)
   deleteUser(@Param("id", ParseIntPipe) id: number) {
     return this.userService.deleteUser(id);

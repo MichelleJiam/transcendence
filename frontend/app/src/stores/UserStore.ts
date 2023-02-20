@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { apiRequest } from "@/utils/apiRequest";
+import PlayerNamePopup from "@/components/PlayerNamePopup.vue";
 import router from "@/router";
 
 interface PublicProfile {
@@ -45,19 +46,20 @@ export const useUserStore = defineStore("user", {
       await this.retrieveCurrentUserData();
       this.authenticated = true;
       console.log("Trying to log in user id: ", this.user.id);
-      await router.push("/home");
+      // await router.push("/home");
     },
     async logOut() {
       console.log("[DEBUG] logOut");
       if (this.authenticated) {
         await apiRequest(`/auth/logout`, "get") // TODO: change method to POST later
-          .then(() => {
-            this.authenticated = false;
-            console.log("User logged out");
-          })
+          // .then(() => {
+          //   this.authenticated = false;
+          //   console.log("User logged out");
+          // })
           .catch(() => {
             console.log("User already logged out");
           });
+        this.authenticated = false;
         console.log(this.isAuthenticated());
       }
       console.log("About to push to login");
@@ -66,10 +68,16 @@ export const useUserStore = defineStore("user", {
     async checkAuthStatus(): Promise<boolean> {
       console.log("[DEBUG] checkAuthStatus");
       await apiRequest(`/auth/status`, "get")
-        .then((response) => {
+        .then(async (response) => {
+          // console.log("res.data", response.data);
+          // if (response.data === "SETUP") {
+          //   await PlayerNamePopup;
+          // } else if (response.data === "2FA") {
+          //   console.log("2FA auth needed");
+          // }
+          // await this.logIn();
           this.authenticated = true;
           console.log("User is authenticated");
-          return true;
         })
         .catch(() => {
           this.authenticated = false;
@@ -81,7 +89,8 @@ export const useUserStore = defineStore("user", {
     async retrieveCurrentUserData() {
       console.log("[DEBUG] retrieveUserData");
       try {
-        const res = await apiRequest(`/auth/status`, "get");
+        // const res = await apiRequest(`/auth/status`, "get");
+        const res = await apiRequest(`/user/current`, "get");
         this.user.id = res.data.id;
         this.user.playerName = res.data.playerName;
         this.user.twoFAEnabled = res.data.twoFAEnabled;
