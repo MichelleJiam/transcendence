@@ -41,12 +41,10 @@ onMounted(async () => {
   justify-items: center;
 	align-items: center;
   grid-template: 
-    "username username username"
-    "stats gamehistory achievements";
+    "username username stats"
+    "gamehistory gamehistory achievements"
+    "gamehistory gamehistory achievements";
 }
-/* .main-container > * {
-  border: 10px solid white;
-} */
 .username {
   grid-area: username;
 }

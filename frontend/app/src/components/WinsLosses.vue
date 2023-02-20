@@ -32,9 +32,9 @@ const losses = 2;
 	border-radius: var(--border-radius);
 }
 
-.stats-container > * {
-	/* border: 1px solid white; */
-}
+/* .stats-container > * {
+	border: 1px solid white;
+} */
 
 h2 {
 	font-size: 50px;
