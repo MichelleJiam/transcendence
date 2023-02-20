@@ -14,10 +14,10 @@ const userStore = useUserStore();
 
 onMounted(async () => {
   console.log("[DEBUG] onMounted");
-  await userStore.checkAuthStatus();
-  if (userStore.isAuthenticated()) {
-    await userStore.logIn();
-  }
+  // await userStore.checkAuthStatus();
+  // if (userStore.isAuthenticated()) {
+  //   await userStore.logIn();
+  // }
 });
 
 async function submitLogin(): Promise<void> {

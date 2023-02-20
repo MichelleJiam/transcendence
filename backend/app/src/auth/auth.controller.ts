@@ -91,6 +91,13 @@ export class AuthController {
   @Get("status")
   checkAuthentication(@currentUser() user: User) {
     console.log("Current authenticated user: ", user);
+    // if (user.twoFAEnabled === true) {
+    //   return "2FA";
+    // } else if (user.playerName === null) {
+    //   return "SETUP";
+    // } else {
+    //   return "AUTHENTICATED";
+    // }
     return user;
   }
 

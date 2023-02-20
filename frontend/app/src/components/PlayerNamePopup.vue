@@ -15,20 +15,20 @@
     </p>
     <label for="player-name">Player Name</label>
     <InputText
-      class="inputfield"
       id="playerName"
       v-model="playerName"
+      class="inputfield"
       label="Player Name"
       placeholder="playername"
     />
-    <span class=validate-message>{{ message }}</span>
+    <span class="validate-message">{{ message }}</span>
     <button @click.prevent="setPlayerName">Submit</button>
   </form>
 </template>
 
 <script setup lang="ts">
 import { useUserStore } from "@/stores/UserStore";
-import { ref, onMounted, watch} from "vue";
+import { ref, onMounted, watch } from "vue";
 import InputText from "@/components/InputText.vue";
 import router from "@/router";
 
@@ -37,18 +37,21 @@ const playerName = ref<string>("");
 let message = "";
 
 function setPlayerName() {
-  userStore.updateAccountSettings(playerName.value, userStore.user.twoFAEnabled);
+  userStore.updateAccountSettings(
+    playerName.value,
+    userStore.user.twoFAEnabled
+  );
 }
 
 function cancelLogin() {
-  router.push('/login');
+  router.push("/login");
   userStore.logOut();
 }
 
 onMounted(async () => {
-  await userStore.retrieveCurrentUserData();
+  // await userStore.retrieveCurrentUserData();
   playerName.value = userStore.user.playerName;
-})
+});
 
 watch(playerName, () => {
   if (playerName.value?.length <= 2 || playerName.value?.length > 8) {
@@ -59,12 +62,11 @@ watch(playerName, () => {
   } else {
     message = "";
   }
-})
+});
 
 function validPlayerName(playerName: string) {
   return /^[a-zA-Z0-9-_!]+$/.test(playerName);
 }
-
 </script>
 
 <style scoped>

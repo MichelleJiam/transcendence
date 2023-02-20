@@ -13,6 +13,7 @@ router.beforeEach(async (to) => {
   if (to.name === "login") {
     return true;
   }
+  // check if user's auth token expired in between page loads
   if ((await userStore.checkAuthStatus()) === false) {
     console.log("User not authenticated, pushing to login");
     return { name: "login" };

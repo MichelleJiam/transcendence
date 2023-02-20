@@ -9,22 +9,22 @@
       <h2>player name: {{ userStore.user.playerName }}</h2>
     </div>
   </main>
-  <div :class="{overlay: showPopup}"></div>
+  <div :class="{ overlay: showPopup }"></div>
 </template>
 
 <script setup lang="ts">
-import PlayernamePopup from "@/components/PlayernamePopup.vue";
+import PlayernamePopup from "@/components/PlayerNamePopup.vue";
 import { onMounted, computed } from "vue";
 import { useUserStore } from "@/stores/UserStore";
 
 const userStore = useUserStore();
 
-const showPopup = computed (() => {
+const showPopup = computed(() => {
   return userStore.user.playerName == null;
-})
+});
 
 onMounted(async () => {
-  await userStore.retrieveCurrentUserData();
+  // await userStore.retrieveCurrentUserData();
 });
 </script>
 
