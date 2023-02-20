@@ -44,12 +44,11 @@ form {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 33%;
+  width: 550px;
   text-align: left;
 }
 
 label {
-  /* margin-right: 20px; */
   align-self: center;
 }
 
@@ -63,10 +62,11 @@ button {
 
 h2 {
   align-self: center;
-  font-size: 2.5em;
+  font-size: 3em;
 }
 
 p {
   margin-bottom: 20px;
+  font-size: 20px;
 }
 </style>
