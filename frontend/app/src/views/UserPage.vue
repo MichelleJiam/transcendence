@@ -115,7 +115,6 @@ function validPlayerName(playerName: string) {
 }
 
 .user-info {
-  /* HI "username" and avatar */
   display: flex;
   flex-direction: column;
   align-items: center;
