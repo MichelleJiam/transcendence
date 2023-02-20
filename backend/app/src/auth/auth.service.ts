@@ -1,6 +1,7 @@
 import { CreateUserDto } from "./../user/dto/create-user.dto";
 import {
   ConflictException,
+  ExecutionContext,
   Injectable,
   InternalServerErrorException,
 } from "@nestjs/common";
@@ -55,7 +56,9 @@ export class AuthService {
   }
 
   // Sets request.user using user id in auth cookie if it's not set.
-  public async fillRequestUserIfAbsent(req: RequestUser) {
+  public async getRequestWithUser(context: ExecutionContext) {
+    const req = context.switchToHttp().getRequest();
+
     if (req.user === undefined || req.user.id === undefined) {
       const user = await this.retrieveUserFromRequestAuthCookie(req);
       if (!user) {
@@ -63,7 +66,7 @@ export class AuthService {
       }
       req.user = user;
     }
-    return req.user;
+    return req;
   }
 
   // Checks if user has site account. If not, creates one.

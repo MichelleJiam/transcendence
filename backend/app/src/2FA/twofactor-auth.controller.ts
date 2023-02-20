@@ -1,4 +1,4 @@
-import { TwoFactorAuthGuard } from "./../auth/guards/twofactor-auth.guard";
+import { ValidUserGuard } from "../auth/guards/valid-user.guard";
 import { TwoFactorAuthCodeDto } from "./twofactor-auth-code.dto";
 import { currentUser } from "./../auth/decorators/current-user.decorator";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -52,10 +52,10 @@ export class TwoFactorAuthController {
 
   @Post("authenticate")
   @HttpCode(200)
-  @UseGuards(TwoFactorAuthGuard)
+  @UseGuards(ValidUserGuard)
   async authenticate(
     @currentUser() user: User,
-    @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto, // @Res({ passthrough: true }) response: Response,
+    @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto,
   ) {
     console.log("2FA Authenticate for user ", user.id);
     await this.validateCode(user, twoFactorAuthCode);

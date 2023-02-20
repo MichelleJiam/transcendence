@@ -1,6 +1,5 @@
 import { ExecutionContext, Injectable } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
-import { RequestUser } from "src/user/request-user.interface";
 import { AuthService } from "../auth.service";
 
 // saves repetition of jwt authguard
@@ -13,8 +12,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     const result = (await super.canActivate(context)) as boolean;
 
     // fill in request.user object if necessary, for currentUser decorator
-    const req: RequestUser = context.switchToHttp().getRequest();
-    await this.authService.fillRequestUserIfAbsent(req);
+    const req = await this.authService.getRequestWithUser(context);
 
     return result;
   }
