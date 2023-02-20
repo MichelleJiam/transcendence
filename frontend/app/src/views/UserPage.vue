@@ -1,10 +1,3 @@
-<!--
-    this should be the main page layout
-    so the basic nav bar and the content div
-    then there should be different components that render
-    on different circumstances
--->
-
 <template>
   <main>
     <div id="display-content">
@@ -87,7 +80,7 @@ function submitAccountSettings() {
 /*  client-Side input validation */
 
 watch(playerName, () => {
-  if (playerName.value?.length <= 3 || playerName.value?.length > 8) {
+  if (playerName.value?.length <= 2 || playerName.value?.length > 8) {
     message = "Player name must be between 3 and 8 characters";
     isDisabled.value = true;
   } else if (!validPlayerName(playerName.value)) {
@@ -114,7 +107,6 @@ function validPlayerName(playerName: string) {
 }
 
 .user-info {
-  /* HI "username" and avatar */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -174,8 +166,6 @@ h2 {
 
 .validate-message {
   grid-area: validate;
-}
-.validate-message {
   color: var(--validation-color);
 }
 .playerName {
