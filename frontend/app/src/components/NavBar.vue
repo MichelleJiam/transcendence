@@ -43,6 +43,10 @@ li {
   text-decoration: none;
 }
 
+.font-awesome {
+  font-size: 1em;
+}
+
 li:first-child {
   margin-right: 20px;
 }
