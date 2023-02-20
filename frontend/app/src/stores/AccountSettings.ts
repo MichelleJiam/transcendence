@@ -4,7 +4,7 @@ import { apiRequest } from "@/utils/apiRequest";
 export type settings = {
   userId: string | string[];
   playerName: string;
-  twoFA: boolean;
+  twoFAEnabled: boolean;
 };
 
 export type avatar = {
@@ -26,23 +26,9 @@ export const useAccountSettings = defineStore("accountSettings", {
           "get"
         );
         this.accountSettings.playerName = res.data.playerName;
-        this.accountSettings.twoFA = res.data.twoFA;
+        this.accountSettings.twoFAEnabled = res.data.twoFAEnabled;
       } catch (error) {
         console.log(`Error in getAccountSettings(): ${error}`);
-      }
-    },
-
-    // ADDED BY SANNE -> NOT WORKING YET
-    async updatePlayername(newPlayerName: string) {
-      console.log("IN UPDATE PLAYERNAME");
-      try {
-        await apiRequest(
-          `/user/${this.accountSettings.userId}/update-settings`,
-          "put",
-          { data: { playerName: newPlayerName } }
-        );
-      } catch (error) {
-        alert("error in updatePlayername");
       }
     },
 
@@ -54,7 +40,7 @@ export const useAccountSettings = defineStore("accountSettings", {
         await apiRequest(
           `/user/${this.accountSettings.userId}/update-settings`,
           "put",
-          { data: { playerName: newPlayerName, twoFA: twoFA } }
+          { data: { playerName: newPlayerName, twoFAEnabled: twoFA } }
         );
         this.getAccountSettings(); /* how to protect this? */
         alert("Your account settings succesfully updated");

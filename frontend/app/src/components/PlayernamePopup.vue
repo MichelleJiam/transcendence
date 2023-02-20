@@ -19,25 +19,25 @@
       id="playerName"
       v-model="playerName"
       label="Player Name"
-      :placeholder="playerName"
+      placeholder="playername"
     />
+    <span class=validate-message>{{ message }}</span>
     <button @click.prevent="setPlayerName">Submit</button>
   </form>
 </template>
 
 <script setup lang="ts">
-import { useAccountSettings } from "@/stores/AccountSettings";
-import { ref } from "vue";
+import { useUserStore } from "@/stores/UserStore";
+import { ref, onMounted, watch} from "vue";
 import InputText from "@/components/InputText.vue";
 import router from "@/router";
-import { useUserStore } from "@/stores/UserStore";
 
-const store = useAccountSettings();
 const userStore = useUserStore();
+const playerName = ref<string>("");
+let message = "";
 
 function setPlayerName() {
-  // function that will update player name
-  store.updatePlayername("test");
+  userStore.updateAccountSettings(playerName.value, userStore.user.twoFAEnabled);
 }
 
 function cancelLogin() {
@@ -45,7 +45,26 @@ function cancelLogin() {
   userStore.logOut();
 }
 
-const playerName = ref<string>("");
+onMounted(async () => {
+  await userStore.retrieveCurrentUserData();
+  playerName.value = userStore.user.playerName;
+})
+
+watch(playerName, () => {
+  if (playerName.value?.length <= 2 || playerName.value?.length > 8) {
+    message = "Player name must be between 3 and 8 characters";
+  } else if (!validPlayerName(playerName.value)) {
+    message =
+      "Player name can only include alphabetic characters, digits and the following special characters -_";
+  } else {
+    message = "";
+  }
+})
+
+function validPlayerName(playerName: string) {
+  return /^[a-zA-Z0-9-_!]+$/.test(playerName);
+}
+
 </script>
 
 <style scoped>
@@ -72,6 +91,11 @@ label {
 
 .inputfield {
   width: 100%;
+}
+
+.validate-message {
+  align-self: center;
+  color: var(--validation-color);
 }
 
 button {
