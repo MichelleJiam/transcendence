@@ -1,8 +1,14 @@
 import { CreateUserDto } from "./../user/dto/create-user.dto";
-import { ConflictException, Injectable } from "@nestjs/common";
+import {
+  ConflictException,
+  ExecutionContext,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { UserService } from "../user/user.service";
+import { RequestUser } from "src/user/user.controller";
 
 @Injectable()
 export class AuthService {
@@ -37,6 +43,30 @@ export class AuthService {
     console.log("Signed token for user: ", id);
     console.log("Token: ", accessToken);
     return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${process.env.JWT_EXPIRATION}`;
+  }
+
+  // Gets user id from the JWT token in the Authentication cookie embedded
+  // in the request context and uses UserService to return the user attached
+  // to that id.
+  public async retrieveUserFromRequestAuthCookie(req: RequestUser) {
+    const jwtFromRequest = req.cookies.Authentication;
+    const decoded = this.jwtService.decode(jwtFromRequest);
+    const user = await this.userService.findUserById(decoded?.sub);
+    return user;
+  }
+
+  // Sets request.user using user id in auth cookie if it's not set.
+  public async getRequestWithUser(context: ExecutionContext) {
+    const req = context.switchToHttp().getRequest();
+
+    if (req.user === undefined || req.user.id === undefined) {
+      const user = await this.retrieveUserFromRequestAuthCookie(req);
+      if (!user) {
+        throw new InternalServerErrorException();
+      }
+      req.user = user;
+    }
+    return req;
   }
 
   // Checks if user has site account. If not, creates one.
