@@ -30,6 +30,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { Readable } from "typeorm/platform/PlatformTools";
 import { RequestUser } from "./request-user.interface";
 import { User } from "./user.entity";
+import PartialJwtGuard from "src/auth/guards/partial-jwt.guard";
 // the code for each function can be found in:
 // user.service.ts
 
@@ -46,7 +47,7 @@ export class UserController {
 
   /* retrieves current user from jwt auth cookie */
   @Get("current")
-  @UseGuards(ValidUserGuard)
+  @UseGuards(PartialJwtGuard)
   getCurrentUser(@currentUser() user: User) {
     console.log("Retrieving details of current user: ", user.id);
     // JwtAuthGuard already calls userService.findUserById

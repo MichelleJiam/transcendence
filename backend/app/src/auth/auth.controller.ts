@@ -1,4 +1,3 @@
-import { ValidUserGuard } from "./guards/valid-user.guard";
 import {
   Controller,
   Get,
@@ -17,6 +16,7 @@ import { currentUser } from "./decorators/current-user.decorator";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { IntraAuthGuard } from "./guards/intra-auth.guard";
 import { User } from "../user/user.entity";
+import { TokenType } from "./token-payload.interface";
 
 @Controller("auth")
 export class AuthController {
@@ -37,6 +37,11 @@ export class AuthController {
     console.log("Callback");
     // only issue cookie if 2FA not enabled. otherwise need to authenticate 2FA first
     if (user.twoFAEnabled === true) {
+      const authCookie = this.authService.getCookieWithJwtToken(
+        user.id,
+        TokenType.PARTIAL,
+      );
+      response.setHeader("Set-Cookie", authCookie);
       console.log("2FA required, redirecting to 2FA frontend");
       response.redirect(`${process.env.HOME_REDIRECT}/2fa`);
     } else {
