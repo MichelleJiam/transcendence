@@ -4,7 +4,9 @@
 
 <script setup lang="ts">
 defineProps({
-  src: { type: String, default: "../assets/default-avatar.png" },
+  src: { type: String }, //, default: "../assets/default-avatar.png" },
+  // removed the default as it resulted in a 404 error,
+  // removing it still seems to load in the default avatar correctly.
 });
 </script>
 
@@ -14,5 +16,6 @@ defineProps({
 .avatar {
   width: 300px;
   height: 300px;
+  border-radius: 50%;
 }
 </style>

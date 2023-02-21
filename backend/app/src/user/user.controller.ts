@@ -1,3 +1,4 @@
+import { OwnerGuard } from "../auth/guards/owner.guard";
 import { JwtAuthGuard } from "./../auth/guards/jwt-auth.guard";
 import {
   Controller,
@@ -15,6 +16,7 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
+  Req,
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserSettingsDto } from "./dto/update-user-settings.dto";
@@ -24,8 +26,7 @@ import { join } from "path";
 import { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Readable } from "typeorm/platform/PlatformTools";
-import { currentUser } from "src/auth/decorators/current-user.decorator";
-import { User } from "./user.entity";
+import { RequestUser } from "./request-user.interface";
 // the code for each function can be found in:
 // user.service.ts
 
@@ -54,6 +55,7 @@ export class UserController {
 
   /* deletes the user based on the id given when a delete request is made */
   @Delete("id/:id")
+  @UseGuards(OwnerGuard)
   deleteUser(@Param("id", ParseIntPipe) id: number) {
     return this.userService.deleteUser(id);
   }
@@ -72,11 +74,13 @@ export class UserController {
    */
 
   @Put(":id/update-settings")
+  @UseGuards(OwnerGuard)
   @UsePipes(ValidationPipe)
   async updateUser(
     @Param("id", ParseIntPipe) id: number,
     @Body() userSettings: UpdateUserSettingsDto,
   ) {
+    console.log("updating settings for user ", id);
     return await this.userService.updateUser(id, userSettings);
   }
 
@@ -93,6 +97,7 @@ export class UserController {
   /* avatar */
 
   @Post(":id/avatar")
+  @UseGuards(OwnerGuard)
   @UseInterceptors(FileInterceptor("file"))
   async addAvatar(
     @Param("id", ParseIntPipe) id: number,
@@ -108,6 +113,7 @@ export class UserController {
     @Param("id", ParseIntPipe) id: number,
     @Res({ passthrough: true }) res: Response,
   ) {
+    // add id check here
     const user = await this.findUsersById(id);
     if (user != null) {
       const avatarId = user.avatarId;
@@ -139,3 +145,4 @@ export class UserController {
     }
   }
 }
+export { RequestUser };
