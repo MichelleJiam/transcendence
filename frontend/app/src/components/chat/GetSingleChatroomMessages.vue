@@ -56,7 +56,6 @@ onMounted(async () => {
     .catch((err) => console.error(err));
 
   socket.on("recMessage", (message) => {
-    console.log(message);
     message.userId.playerName =
       message.userId.playerName ?? "unnamedPlayer" + userStore.user.id;
     const dateTime = new Date(message.createdAt);

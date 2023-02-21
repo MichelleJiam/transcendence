@@ -17,6 +17,14 @@ export class SendMessageDto {
   userId!: number;
 }
 
+export class PostChatDto {
+  type!: string;
+  chatroomName!: string;
+  password?: string;
+  user!: number;
+  otherUser?: number;
+}
+
 class Penalty {
   penaltyType!: string;
   user!: number;

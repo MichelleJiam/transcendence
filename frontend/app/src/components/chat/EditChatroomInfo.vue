@@ -1,15 +1,16 @@
 <template>
-  <section>
-    <button id="settings-button" @click="showModal = true">Settings</button>
-    <modal v-if="showModal" @close="showModal = false">
-      <div class="modal-mask">
-        <div class="modal-wrapper">
-          <div class="modal-container">
-            <div class="modal-header">
-              <button class="modal-default-button" @click="$emit('close')">
-                OK
-              </button>
-            </div>
+  <Transition name="modal">
+    <div v-if="show" class="modal-mask">
+      <div class="modal-container">
+        <div class="modal-header">
+          <button class="modal-default-button" @click="$emit('close')">
+            X
+          </button>
+          <slot name="header"><h3>Settings</h3> </slot>
+        </div>
+
+        <div class="modal-body">
+          <slot name="body">
             <form @submit.prevent="editChat(userStore.user.id)">
               <!-- change this to cookie user id-->
               <div>
@@ -39,22 +40,26 @@
               </div>
               <button>Update chat</button>
             </form>
-          </div>
+          </slot>
+        </div>
+
+        <div class="modal-footer">
+          <slot name="footer"> default footer </slot>
         </div>
       </div>
-    </modal>
-  </section>
+    </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
-import apiRequest from "@/utils/apiRequest";
-import { UpdateChatroomDto } from "@/components/chat/chatUtils";
-import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
-import { ref } from "vue";
+import apiRequest from "@/utils/apiRequest";
+import { useRoute } from "vue-router";
+import { UpdateChatroomDto } from "./chatUtils";
 
-const showModal = ref(false);
-const emit = defineEmits(["close"]);
+const props = defineProps({
+  show: Boolean,
+});
 
 const updateChatroomDto = new UpdateChatroomDto();
 const route = useRoute();
@@ -66,14 +71,15 @@ function editChat(adminId: number) {
   apiRequest(url, "put", { data: updateChatroomDto })
     .then((response) => {
       console.log(response);
+      location.reload();
     }) // axios throws errors for non 2xx responses by default!
     .catch((error) => {
-      console.log(error);
+      alert(error);
     });
 }
 </script>
 
-<style scoped>
+<style>
 .modal-mask {
   position: fixed;
   z-index: 9998;
@@ -82,29 +88,22 @@ function editChat(adminId: number) {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  display: table;
+  display: flex;
   transition: opacity 0.3s ease;
 }
 
-.modal-wrapper {
-  display: table-cell;
-  vertical-align: middle;
-}
-
 .modal-container {
-  width: 300px;
-  margin: 0px auto;
+  width: 40rem;
+  margin: auto;
   padding: 20px 30px;
-  background-color: #fff;
+  /* background-color: #fff; */
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
-  font-family: Helvetica, Arial, sans-serif;
 }
 
 .modal-header h3 {
   margin-top: 0;
-  color: #42b983;
 }
 
 .modal-body {
@@ -124,13 +123,16 @@ function editChat(adminId: number) {
  * these styles.
  */
 
-.modal-enter-from,
+.modal-enter-from {
+  opacity: 0;
+}
+
 .modal-leave-to {
   opacity: 0;
 }
 
-.modal-enter-active .modal-container,
-.modal-leave-active .modal-container {
+.modal-enter-from .modal-container,
+.modal-leave-to .modal-container {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
 }

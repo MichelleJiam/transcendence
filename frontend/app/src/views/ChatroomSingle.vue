@@ -39,7 +39,19 @@
           <PostMessages></PostMessages>
         </div>
         <div class="leave settings">
-          <EditChatroomInfoVue></EditChatroomInfoVue>
+          <button
+            v-if="isCurrentUserOwner == true"
+            id="show-modal"
+            @click="showModal = true"
+          >
+            Settings
+          </button>
+
+          <Teleport to="body">
+            <!-- use the modal component, pass in the prop -->
+            <EditChatroomInfoVue :show="showModal" @close="close()">
+            </EditChatroomInfoVue>
+          </Teleport>
         </div>
       </div>
     </div>
@@ -52,6 +64,7 @@ import GetChatUsers from "@/components/chat/GetChatUsers.vue";
 import GetSingleChatroomMessages from "@/components/chat/GetSingleChatroomMessages.vue";
 import LeaveChat from "@/components/chat/LeaveChat.vue";
 import PostMessages from "@/components/chat/message/PostMessages.vue";
+import { useUserStore } from "@/stores/UserStore";
 import apiRequest from "@/utils/apiRequest";
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
@@ -59,12 +72,21 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 const chatroomId = route.params.id;
 const chatRoomInfo = ref([]);
+const showModal = ref<boolean>(false);
+const userStore = useUserStore();
+const isCurrentUserOwner = ref<boolean>(false);
 
 const backendurlChatName = "/chat/" + chatroomId;
+
+function close() {
+  showModal.value = false;
+}
 
 onMounted(async () => {
   await apiRequest(backendurlChatName, "get").then((response) => {
     chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
+    if (chatRoomInfo.value.owner.id == userStore.user.id)
+      isCurrentUserOwner.value = true;
   });
 });
 </script>
