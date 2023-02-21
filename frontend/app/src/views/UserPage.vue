@@ -1,19 +1,12 @@
-<!--
-    this should be the main page layout
-    so the basic nav bar and the content div
-    then there should be different components that render
-    on different circumstances
--->
-
 <template>
   <main>
     <div id="display-content">
       <div class="user-info">
         <h1 class="user-title">
           Hi
-          <span class="playerName">{{ store.accountSettings.playerName }}</span>
+          <span class="playerName">{{ store.user.playerName }}</span>
         </h1>
-        <AvatarDisplay :src="store.avatar.url" />
+        <AvatarDisplay :src="store.user.avatarUrl" />
       </div>
 
       <div class="user-settings">
@@ -59,9 +52,8 @@ import InputText from "@/components/InputText.vue";
 import InputCheckbox from "@/components/InputCheckbox.vue";
 import AvatarDisplay from "@/components/AvatarDisplay.vue";
 import AvatarUpload from "@/components/AvatarUpload.vue";
-import { useAccountSettings } from "@/stores/AccountSettings";
 import { ref, onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useUserStore } from "@/stores/UserStore";
 
 const twoFactorAuthentication = ref<boolean>();
 const playerName = ref<string>("");
@@ -69,15 +61,15 @@ const isDisabled = ref<boolean>();
 
 let message = "";
 
-const route = useRoute();
-const store = useAccountSettings();
+// const route = useRoute();
+const store = useUserStore();
 
-store.setUserId(route.params.id); // temporary workaround: remove when user authentication is fixed
+// store.setUserId(route.params.id); // temporary workaround: remove when user authentication is fixed
 
 onMounted(async () => {
-  await store.getAccountSettings();
-  twoFactorAuthentication.value = store.accountSettings.twoFA;
-  playerName.value = store.accountSettings.playerName;
+  await store.retrieveCurrentUserData();
+  twoFactorAuthentication.value = store.user.twoFAEnabled;
+  playerName.value = store.user.playerName;
   await store.getAvatar();
 });
 
@@ -88,7 +80,7 @@ function submitAccountSettings() {
 /*  client-Side input validation */
 
 watch(playerName, () => {
-  if (playerName.value.length <= 3 || playerName.value.length > 8) {
+  if (playerName.value?.length <= 2 || playerName.value?.length > 8) {
     message = "Player name must be between 3 and 8 characters";
     isDisabled.value = true;
   } else if (!validPlayerName(playerName.value)) {
@@ -107,7 +99,6 @@ function validPlayerName(playerName: string) {
 </script>
 
 <style scoped>
-
 #display-content {
   display: flex;
   justify-content: center;
@@ -116,7 +107,6 @@ function validPlayerName(playerName: string) {
 }
 
 .user-info {
-  /* HI "username" and avatar */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -176,8 +166,6 @@ h2 {
 
 .validate-message {
   grid-area: validate;
-}
-.validate-message {
   color: var(--validation-color);
 }
 .playerName {

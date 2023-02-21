@@ -2,40 +2,49 @@ import { defineStore } from "pinia";
 import { apiRequest } from "@/utils/apiRequest";
 import router from "@/router";
 
-// interface PublicProfile {
-//   id: number;
-//   playerName: string;
-//   status: string;
-//   avatarId: number;
-// }
+interface PublicProfile {
+  id: number;
+  playerName: string;
+  status: string;
+  avatarId: number;
+  avatarUrl: string | undefined;
+}
 
-// interface UserProfile extends PublicProfile {
-//   twoFA: boolean;
-// }
+interface UserProfile extends PublicProfile {
+  intraId: string;
+  twoFAEnabled: boolean;
+}
 
 export const useUserStore = defineStore("user", {
-  state: () => ({
-    authenticated: false,
-    user: {
-      id: 0,
-      // intraId: 0,
-      playerName: null,
-      // password: "password", // TODO: remove
-      // messages: [],
-      twoFA: false,
-      avatarId: null,
-    },
-  }),
+  // state: () => ({
+  //   authenticated: false,
+  //   user: {
+  //     id: 0,
+  //     intraId: "",
+  //     playerName: null,
+  //     // password: "password", // TODO: remove
+  //     // messages: [],
+  //     twoFA: false,
+  //     avatarId: null,
+  //   },
+  // }),
+  state: () => {
+    return {
+      user: {} as UserProfile,
+      authenticated: false,
+    };
+  },
   actions: {
+    // AUTH
     isAuthenticated() {
       console.log("[DEBUG] isAuthenticated | returns ", this.authenticated);
       return this.authenticated === true;
     },
     async logIn() {
       console.log("[DEBUG] userStore.logIn");
-      await this.getUserDataFromBackend();
+      await this.retrieveCurrentUserData();
       this.authenticated = true;
-      // console.log("Trying to log in user id: ", this.user.id);
+      console.log("Trying to log in user id: ", this.user.id);
       await router.push("/home");
     },
     async logOut() {
@@ -54,36 +63,68 @@ export const useUserStore = defineStore("user", {
       console.log("About to push to login");
       await router.push("/login");
     },
-    async checkAuthStatus() {
+    async checkAuthStatus(): Promise<boolean> {
       console.log("[DEBUG] checkAuthStatus");
       await apiRequest(`/auth/status`, "get")
-        .then(() => {
+        .then((response) => {
           this.authenticated = true;
-          // this.user.twoFA = response.data.user.twoFA;
           console.log("User is authenticated");
           return true;
         })
         .catch(() => {
           this.authenticated = false;
           console.log("User is not authenticated");
-          return false;
         });
+      return this.authenticated;
     },
-    async getUserDataFromBackend() {
-      console.log("[DEBUG] getUserData");
-      await apiRequest(`/auth/status`, "get")
-        .then((response) => {
-          console.log("id in getUserData response: " + response.data.user.id);
-          this.user.id = response.data.user.id;
-          this.user.playerName = response.data.user.playerName;
-          this.user.twoFA = response.data.user.twoFA;
-          this.user.avatarId = response.data.user.avatarID;
-          return response.data.user;
-        })
-        .catch(async () => {
-          console.log("User is not authenticated");
-        });
+    // USER DATA
+    async retrieveCurrentUserData() {
+      console.log("[DEBUG] retrieveUserData");
+      try {
+        const res = await apiRequest(`/auth/status`, "get");
+        this.user.id = res.data.id;
+        this.user.playerName = res.data.playerName;
+        this.user.twoFAEnabled = res.data.twoFAEnabled;
+        this.user.avatarId = res.data.avatarID ?? null;
+        return res.data.user;
+      } catch (error) {
+        console.log(`Error in retrieveCurrentUserData(): ${error}`);
+      }
       return null;
+    },
+    async updateAccountSettings(
+      newPlayerName: string,
+      twoFA: boolean | undefined
+    ) {
+      try {
+        await apiRequest(`/user/${this.user.id}/update-settings`, "put", {
+          data: { playerName: newPlayerName, twoFAEnabled: twoFA },
+        });
+        this.retrieveCurrentUserData();
+        alert("Your account settings succesfully updated");
+      } catch (error) {
+        console.log(`Error in updateAccountSettings(): ${error}`);
+      }
+    },
+    // AVATAR
+    async updateAvatar(selectedFile: File) {
+      try {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        await apiRequest(`/user/${this.user.id}/avatar`, "post", {
+          data: formData,
+        });
+      } catch (error) {
+        console.log(`Error in updateAvatar(): ${error}`);
+      }
+    },
+    async getAvatar() {
+      try {
+        const res = await apiRequest(`/user/${this.user.id}/avatar`, "get");
+        this.user.avatarUrl = res.config.url;
+      } catch (error) {
+        console.log(`Error in getAvatar(): ${error}`);
+      }
     },
   },
   persist: true,

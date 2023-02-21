@@ -7,8 +7,8 @@ export class UpdateUserSettingsDto {
   playerName!: string;
 
   @IsBoolean()
-  @IsNotEmpty({ message: "twoFA value can not be empty" })
-  twoFA!: boolean;
+  @IsNotEmpty({ message: "twoFAEnabled value can not be empty" })
+  twoFAEnabled!: boolean;
 }
 
 // can we extend from another DTO? check lecture 13: the update payload

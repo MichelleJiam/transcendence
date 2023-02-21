@@ -85,7 +85,10 @@ export class User {
     type: "boolean",
     default: false,
   })
-  public twoFA!: boolean;
+  public twoFAEnabled!: boolean;
+
+  @Column({ nullable: true })
+  public twoFASecret?: string;
 
   @JoinColumn({ name: "avatarId" })
   @OneToOne(() => Avatar, {
