@@ -1,6 +1,5 @@
 <template>
   <section>
-    <form @submit.prevent="sendMessage()">
       <div>
         <input
           id="body"
@@ -9,9 +8,8 @@
           required
           @keyup.enter="sendMessage()"
         />
-        <button>Post Message</button>
+        <button @click="sendMessage()">Post Message</button>
       </div>
-    </form>
   </section>
 </template>
 
