@@ -47,8 +47,8 @@ async function cancelLogin() {
 form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  width: 550px;
+  gap: 30px;
+  width: 70%;
   text-align: left;
 }
 
@@ -69,11 +69,6 @@ label {
   width: 100%;
 }
 
-.validate-message {
-  align-self: center;
-  color: var(--validation-color);
-}
-
 button {
   width: 100%;
 }
@@ -81,10 +76,12 @@ button {
 h2 {
   align-self: center;
   font-size: 3em;
+  margin: 20px;
 }
 
 p {
   margin-bottom: 20px;
   font-size: 20px;
+  margin: 20px;
 }
 </style>

@@ -59,6 +59,7 @@ export const useUserStore = defineStore("user", {
             console.log("User already logged out");
           });
         this.authenticated = false;
+        this.$reset();
         console.log(this.isAuthenticated());
       }
       console.log("About to push to login");

@@ -2,9 +2,6 @@
   <main>
     <form action="#!">
       <h1>Pong</h1>
-      <div v-if="userStore.isAuthenticated() && TwoFARequired()">
-        <TwoFactorPopup />
-      </div>
       <button @click.prevent="submitLogin">Login through 42</button>
     </form>
   </main>
@@ -14,7 +11,7 @@
 import router from "@/router";
 import { useUserStore } from "@/stores/UserStore";
 import { onMounted } from "vue";
-import TwoFactorPopup from "@/components/TwoFactorPopup.vue";
+
 const userStore = useUserStore();
 
 onMounted(async () => {
@@ -30,7 +27,6 @@ onMounted(async () => {
 async function submitLogin(): Promise<void> {
   console.log("[DEBUG] submitLogin");
   window.location.href = `http://localhost:3000/auth/login`;
-
   // await apiRequest(`/auth/login`, "get")
   //   .then(() => {
   //     console.log("successfully logged in");
@@ -38,10 +34,6 @@ async function submitLogin(): Promise<void> {
   //   .catch((err) => {
   //     console.log("error with logging in: ", err);
   //   });
-}
-
-function TwoFARequired() {
-  return userStore.user.twoFAEnabled;
 }
 </script>
 
