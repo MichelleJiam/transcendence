@@ -8,6 +8,7 @@ import {
 } from "typeorm";
 import { User } from "src/user/user.entity";
 import { Chatroom } from "src/chat/chat.entity";
+import { IsNotEmpty } from "class-validator";
 
 @Entity()
 export class Message {
@@ -19,6 +20,7 @@ export class Message {
   @Column({
     nullable: false,
   })
+  @IsNotEmpty()
   public body!: string;
 
   @CreateDateColumn()

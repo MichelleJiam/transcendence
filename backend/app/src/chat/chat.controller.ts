@@ -132,8 +132,12 @@ export class ChatController {
   @Post("post_message")
   async postMessageToChatroom(
     @Body() createMessageDto: CreateMessageDto,
-  ): Promise<Message> {
-    return this.chatroomService.postMessageToChatroom(createMessageDto);
+  ): Promise<Message | undefined> {
+    try {
+      return this.chatroomService.postMessageToChatroom(createMessageDto);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   @Post(":chatroomId/admin/:adminId/penalty")

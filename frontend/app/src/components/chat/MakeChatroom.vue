@@ -5,12 +5,7 @@
       <label for="type"
         ><span class="formText">Choose a chat type:</span></label
       >
-      <select
-        id="type"
-        v-model="postChatData.type"
-        name="type"
-        class="inputStyle"
-      >
+      <select id="type" v-model="chatType" name="type" class="inputStyle">
         <option value="public" selected>public</option>
         <option value="private">private</option>
         <option value="password">password</option>
@@ -23,7 +18,7 @@
       <br />
       <input
         id="chatroomName"
-        v-model="postChatData.chatroomName"
+        v-model="chatName"
         type="text"
         class="inputStyle"
         required
@@ -35,7 +30,7 @@
       <br />
       <input
         id="password"
-        v-model="postChatData.password"
+        v-model="chatPassword"
         type="text"
         class="inputStyle"
       />
@@ -47,30 +42,45 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/UserStore";
 import apiRequest from "@/utils/apiRequest";
+import { PostChatDto } from "./chatUtils";
+import { ref } from "vue";
 
 const userStore = useUserStore();
+const chatName = ref<string>("");
+const chatPassword = ref<string>();
+const chatType = ref<string>("public");
 
-const postChatData = {
-  type: String("public"),
-  chatroomName: String("test name here"),
-  password: String("password here"),
-  user: Number(userStore.user.id),
-  otherUser: Number,
-};
+const postChatData = new PostChatDto();
+postChatData.user = userStore.user.id;
+
+// const postChatData = {
+//   type: String("public"),
+//   chatroomName: String("test name here"),
+//   password: String("password here"),
+//   user: Number(userStore.user.id),
+//   otherUser: Number,
+// };
 
 function createChat() {
-  if (!postChatData.chatroomName) {
+  if (!chatName.value == null || chatName.value.trim() === "") {
     console.log("Chat must be named");
-    throw new TypeError("Chat must be named");
+    alert("Chat must be named");
+    return;
+  } else {
+    postChatData.chatroomName = chatName.value;
+    postChatData.type = chatType.value;
+    postChatData.password = chatPassword.value;
+    apiRequest("/chat/create", "post", { data: postChatData })
+      .then((response) => {
+        location.reload();
+        console.log(response);
+      }) // axios throws errors for non 2xx responses by default!
+      .catch((error) => {
+        console.log(error);
+      });
+    chatName.value = "default chat name";
+    chatPassword.value = "";
   }
-  apiRequest("/chat/create", "post", { data: postChatData })
-    .then((response) => {
-      location.reload();
-      console.log(response);
-    }) // axios throws errors for non 2xx responses by default!
-    .catch((error) => {
-      console.log(error);
-    });
 }
 </script>
 <style scoped>

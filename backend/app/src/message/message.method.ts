@@ -14,3 +14,8 @@ export function createNewMessage(
 
   return newMessage;
 }
+
+export function validateBody(body: string): boolean {
+  if (body == null || body.match(/^\s*$/) !== null) return false;
+  return true;
+}

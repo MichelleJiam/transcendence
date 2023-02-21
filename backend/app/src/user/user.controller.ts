@@ -30,7 +30,7 @@ import { User } from "./user.entity";
 // user.service.ts
 
 @Controller("user")
-// @UseGuards(JwtAuthGuard) // TURN BACK ON
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

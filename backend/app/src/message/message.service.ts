@@ -1,11 +1,15 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Chatroom } from "src/chat/chat.entity";
 import { User } from "src/user/user.entity";
 import { Repository } from "typeorm";
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { Message } from "./message.entity";
-import { createNewMessage } from "./message.method";
+import { createNewMessage, validateBody } from "./message.method";
 
 @Injectable()
 export class MessageService {
@@ -97,6 +101,8 @@ export class MessageService {
     chatroom: Chatroom,
     user: User,
   ) {
+    if (validateBody(createMessageDto.body) == false)
+      throw new BadRequestException("cannot send empty message");
     const newMessage = createNewMessage(createMessageDto.body, chatroom, user);
     return this.messageRepository.save(newMessage);
   }
