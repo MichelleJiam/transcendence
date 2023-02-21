@@ -15,7 +15,7 @@ import { baseUrl } from "@/utils/apiRequest";
 import { io } from "socket.io-client";
 import { useRoute } from "vue-router";
 import { ref } from "vue";
-import { SendMessageDto } from "../chatUtils";
+import { SendMessageDto } from "../../chatUtils";
 
 const socketUrl = baseUrl;
 const route = useRoute();
