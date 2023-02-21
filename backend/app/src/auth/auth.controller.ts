@@ -24,12 +24,8 @@ export class AuthController {
 
   @Get("login")
   @UseGuards(IntraAuthGuard)
-  // @UseGuards(ValidUserGuard)
   async loginIntra() {
-    // @currentUser() user: User, // @Res({ passthrough: true }) response: Response, // enabling passthrough lets Nest handle response logic
     console.log("/auth/login endpoint hit");
-    // this.callback(response, user);
-    // response.redirect(`${process.env.INTRA_CALLBACK}`);
   }
 
   @Get("callback")
@@ -46,7 +42,7 @@ export class AuthController {
       console.log("callback: Set access_token cookie");
     }
     console.log("redirecting to ", process.env.HOME_REDIRECT);
-    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
+    response.status(200).redirect(`${process.env.HOME_REDIRECT}/login`);
   }
 
   // Debug routes. TODO: remove later

@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { apiRequest } from "@/utils/apiRequest";
-import PlayerNamePopup from "@/components/PlayerNamePopup.vue";
 import router from "@/router";
 
 interface PublicProfile {

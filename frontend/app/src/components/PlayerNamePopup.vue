@@ -43,9 +43,9 @@ function setPlayerName() {
   );
 }
 
-function cancelLogin() {
+async function cancelLogin() {
+  await userStore.logOut();
   router.push("/login");
-  userStore.logOut();
 }
 
 onMounted(async () => {
