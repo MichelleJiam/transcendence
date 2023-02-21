@@ -102,7 +102,7 @@ input[type="checkbox"] {
 }
 
 input[type="checkbox"]:checked {
-  accent-color: var(--primary-color)
+  accent-color: var(--primary-color);
 }
 
 label {

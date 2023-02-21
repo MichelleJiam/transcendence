@@ -8,7 +8,6 @@ import { UserService } from "src/user/user.service";
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly userService: UserService) {
     super({
-      // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env.JWT_SECRET,
       ignoreExpiration: false,
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -20,10 +19,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: { sub: number }) {
-    console.log("Validating JWT token");
+    console.log("Validating JWT token for user ", payload.sub);
     const user = await this.userService.findUserById(payload.sub);
 
     if (!user) {
+      console.log("Unauthorized access caught by JwtStrategy");
       throw new UnauthorizedException();
     }
     return { user };

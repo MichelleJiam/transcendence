@@ -1,3 +1,4 @@
+import { TwoFactorModule } from "./2FA/twofactor-auth.module";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
@@ -32,6 +33,7 @@ import { FriendModule } from "./friend/friend.module";
     }),
     DatabaseModule,
     AuthModule,
+    TwoFactorModule,
   ],
   controllers: [AppController],
   providers: [AppService, PenaltyDelete],

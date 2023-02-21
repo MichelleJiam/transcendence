@@ -21,6 +21,7 @@ const routes: {
     component: HomePage,
     alias: ["/home", "/homepage"],
   },
+  { path: "/:id/home", component: HomePage },
   { path: "/login", component: LoginPage, name: "login" },
   { path: "/game", component: GamePage },
   { path: "/:id/account", component: UserPage } /* temp workaround */,
