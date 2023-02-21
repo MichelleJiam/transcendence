@@ -59,11 +59,11 @@
 </template>
 
 <script setup lang="ts">
-import EditChatroomInfoVue from "@/components/chat/EditChatroomInfo.vue";
-import GetChatUsers from "@/components/chat/GetChatUsers.vue";
-import GetSingleChatroomMessages from "@/components/chat/GetSingleChatroomMessages.vue";
-import LeaveChat from "@/components/chat/LeaveChat.vue";
-import PostMessages from "@/components/chat/message/PostMessages.vue";
+import EditChatroomInfoVue from "@/components/chat/single_chatroom/EditChatroomInfo.vue";
+import GetChatUsers from "@/components/chat/single_chatroom/GetChatUsers.vue";
+import GetSingleChatroomMessages from "@/components/chat/single_chatroom/message/GetSingleChatroomMessages.vue";
+import LeaveChat from "@/components/chat/single_chatroom/LeaveChat.vue";
+import PostMessages from "@/components/chat/single_chatroom/message/PostMessages.vue";
 import { useUserStore } from "@/stores/UserStore";
 import apiRequest from "@/utils/apiRequest";
 import { ref, onMounted } from "vue";

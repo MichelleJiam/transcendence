@@ -92,7 +92,7 @@ import {
   deleteAdmin,
   isMember,
   AddMemberDto,
-} from "./chatUtils";
+} from "../chatUtils";
 import { ref, onMounted, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";

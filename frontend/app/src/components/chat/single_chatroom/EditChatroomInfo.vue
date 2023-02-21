@@ -55,7 +55,7 @@
 import { useUserStore } from "@/stores/UserStore";
 import apiRequest from "@/utils/apiRequest";
 import { useRoute } from "vue-router";
-import { UpdateChatroomDto } from "./chatUtils";
+import { UpdateChatroomDto } from "../chatUtils";
 
 const props = defineProps({
   show: Boolean,

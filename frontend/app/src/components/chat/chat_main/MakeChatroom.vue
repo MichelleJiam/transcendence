@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="createChat">
+  <form @keyup.enter="createChat()" @submit.prevent="createChat">
     <div>
       <h3>Create a chat</h3>
       <label for="type"
@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/UserStore";
 import apiRequest from "@/utils/apiRequest";
-import { PostChatDto } from "./chatUtils";
+import { PostChatDto } from "../chatUtils";
 import { ref } from "vue";
 
 const userStore = useUserStore();
