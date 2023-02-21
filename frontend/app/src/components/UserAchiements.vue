@@ -45,6 +45,7 @@ let showDescription: number | null = null;
 h2 {
   font-size: 50px;
   margin-bottom: 20px;
+  color: var(--primary-color);
 }
 
 .achievement-container {
@@ -57,7 +58,7 @@ h2 {
 }
 .font-awesome {
 	font-size: 75px;
-	/* opacity: .7; */
+	opacity: .7;
 	margin: 0;
 }
 .achievement-text {
