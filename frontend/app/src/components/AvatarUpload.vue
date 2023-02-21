@@ -1,11 +1,13 @@
 <template>
   <form>
     <label for="avatar">Avatar</label>
-    <input
-      type="file"
-      accept="image/x-png,image/gif,image/jpeg"
-      @change="onFileSelected"
-    />
+    <div class="inputfield">
+      <input
+        type="file"
+        accept="image/x-png,image/gif,image/jpeg"
+        @change="onFileSelected"
+      />
+    </div>
     <button :disabled="isDisabledAvatar" @click="submitAvatar">
       Update avatar
     </button>
@@ -14,9 +16,9 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useAccountSettings } from "@/stores/AccountSettings";
+import { useUserStore } from "@/stores/UserStore";
 
-const store = useAccountSettings();
+const store = useUserStore();
 type Avatar = {
   selectedFile?: File;
 };
@@ -44,26 +46,23 @@ async function submitAvatar() {
 <style scoped>
 form {
   display: grid;
-  /* grid-template-columns: 1fr 3fr 2fr; */
-  grid-template-columns: 3fr 2fr;
-  grid-template-areas:
-    "label input"
-    "button button";
-
-  column-gap: 10px;
-  text-align: left;
+  /* justify-items: center; */
   row-gap: 10px;
+  grid-template-areas:
+    "name-label inputfield"
+    "button button";
 }
 
 label {
-  grid-area: label;
-  font-family: "ArcadeClassic", sans-serif;
-  font-size: 30px;
+  grid-area: name-label;
+  justify-self: start;
 }
 
-input {
-  grid-area: input;
-  font-size: 18px;
+.inputfield {
+  display: inline-block;
+  margin-right: 0;
+  grid-area: inputfield;
+  justify-self: end;
 }
 
 button {

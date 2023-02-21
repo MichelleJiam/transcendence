@@ -12,11 +12,10 @@
       <li><router-link to="/chat">Chat</router-link></li>
       <li><router-link to="/stream">Live</router-link></li>
       <li><router-link to="/friends">Friends</router-link></li>
-      <!-- when this is click login should be set to false -->
       <li id="logout">
-        <router-link to="/login" @click="userStore.logOut()">
+        <button @click="userStore.logOut()">
           <font-awesome class="font-awesome" icon="sign-out" />
-        </router-link>
+        </button>
       </li>
     </ul>
   </nav>
@@ -59,10 +58,10 @@ a {
 }
 
 a.router-link-exact-active {
-  color: #39ff14;
+  color: var(--primary-color);
 }
 a:hover {
-  color: #88ff72;
+  color: var(----primary-color-transparant);
   transition: all 0.2s ease;
 }
 </style>

@@ -1,19 +1,12 @@
-<!--
-    this should be the main page layout
-    so the basic nav bar and the content div
-    then there should be different components that render
-    on different circumstances
--->
-
 <template>
   <main>
     <div id="display-content">
       <div class="user-info">
-        <h1>
+        <h1 class="user-title">
           Hi
-          <span class="playerName">{{ store.accountSettings.playerName }}</span>
+          <span class="playerName">{{ store.user.playerName }}</span>
         </h1>
-        <AvatarDisplay class="user-avatar" :src="store.avatar.url" />
+        <AvatarDisplay :src="store.user.avatarUrl" />
       </div>
 
       <div class="user-settings">
@@ -30,7 +23,7 @@
             label="Player Name: "
             :placeholder="playerName"
           />
-          <span class="validate"
+          <span class="validate-message"
             ><i>{{ message }}</i></span
           >
           <label class="two-fa-settings-label" for="player-name">2FA</label>
@@ -59,9 +52,8 @@ import InputText from "@/components/InputText.vue";
 import InputCheckbox from "@/components/InputCheckbox.vue";
 import AvatarDisplay from "@/components/AvatarDisplay.vue";
 import AvatarUpload from "@/components/AvatarUpload.vue";
-import { useAccountSettings } from "@/stores/AccountSettings";
 import { ref, onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useUserStore } from "@/stores/UserStore";
 
 const twoFactorAuthentication = ref<boolean>();
 const playerName = ref<string>("");
@@ -69,15 +61,15 @@ const isDisabled = ref<boolean>();
 
 let message = "";
 
-const route = useRoute();
-const store = useAccountSettings();
+// const route = useRoute();
+const store = useUserStore();
 
-store.setUserId(route.params.id); // temporary workaround: remove when user authentication is fixed
+// store.setUserId(route.params.id); // temporary workaround: remove when user authentication is fixed
 
 onMounted(async () => {
-  await store.getAccountSettings();
-  twoFactorAuthentication.value = store.accountSettings.twoFA;
-  playerName.value = store.accountSettings.playerName;
+  await store.retrieveCurrentUserData();
+  twoFactorAuthentication.value = store.user.twoFAEnabled;
+  playerName.value = store.user.playerName;
   await store.getAvatar();
 });
 
@@ -88,7 +80,7 @@ function submitAccountSettings() {
 /*  client-Side input validation */
 
 watch(playerName, () => {
-  if (playerName.value.length <= 3 || playerName.value.length > 8) {
+  if (playerName.value?.length <= 2 || playerName.value?.length > 8) {
     message = "Player name must be between 3 and 8 characters";
     isDisabled.value = true;
   } else if (!validPlayerName(playerName.value)) {
@@ -107,45 +99,34 @@ function validPlayerName(playerName: string) {
 </script>
 
 <style scoped>
-.validate {
-  color: #da14ff;
-}
-
-.playerName {
-  color: #39ff14;
-}
-
 #display-content {
-  display: grid;
-  grid-template-columns: 40% 60%;
-  gap: 20px;
-  padding: 40px;
+  display: flex;
+  justify-content: center;
   height: auto;
+  width: auto;
 }
 
 .user-info {
   display: flex;
-  gap: 20px;
   flex-direction: column;
-  align-items: stretch;
-}
-.user-avatar {
-  border-radius: 50%;
-  border: 5px solid #39ff14;
-  align-self: center;
+  align-items: center;
+  justify-content: space-around;
+
+  flex-basis: 450px;
 }
 
 .user-settings {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-around;
+
+  flex-basis: 650px;
 }
 
 .account-settings {
   display: grid;
+  justify-items: left;
   row-gap: 10px;
-  grid-template-columns: 2fr 1fr;
-  text-align: left;
   grid-template-areas:
     "name-label inputfield"
     "fa-label checkbox"
@@ -154,17 +135,12 @@ function validPlayerName(playerName: string) {
 }
 
 h1 {
-  margin-bottom: 20px;
-  font-size: 6em;
+  font-size: 4.5em;
 }
+
 h2 {
+  font-size: 2.5em;
   margin-bottom: 20px;
-  font-size: 3em;
-}
-.account-settings-label {
-  grid-area: name-label;
-  font-family: "ArcadeClassic", sans-serif;
-  font-size: 30px;
 }
 
 .two-fa-settings-label {
@@ -174,19 +150,25 @@ h2 {
 }
 .account-settings-button {
   grid-area: button;
+  justify-self: stretch;
 }
 
 .account-settings-checkbox {
-  margin: auto;
+  justify-self: end;
   grid-area: checkbox;
 }
 
 .account-settings-input {
   font-size: 18px;
   grid-area: inputfield;
+  justify-self: end;
 }
 
-.validate {
+.validate-message {
   grid-area: validate;
+  color: var(--validation-color);
+}
+.playerName {
+  color: var(--primary-color);
 }
 </style>

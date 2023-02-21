@@ -24,7 +24,7 @@ export class AuthController {
   @Get("login")
   @UseGuards(IntraAuthGuard)
   async loginIntra() {
-    // console.log("User logged in: ", user.id);
+    console.log("/auth/login endpoint hit");
   }
 
   @Get("callback")
@@ -34,11 +34,14 @@ export class AuthController {
     @currentUser() user: User,
   ) {
     console.log("Callback");
-    const authCookie = this.authService.getCookieWithJwtToken(user.id);
-    response.setHeader("Set-Cookie", authCookie);
-    console.log("callback: Set access_token cookie");
-    response.status(200).redirect(`localhost:5173/login`);
-    // return { id: user.id };
+    // only issue cookie if 2FA not enabled. otherwise need to authenticate 2FA first
+    if (user.twoFAEnabled === false) {
+      const authCookie = this.authService.getCookieWithJwtToken(user.id);
+      response.setHeader("Set-Cookie", authCookie);
+      console.log("callback: Set access_token cookie");
+    }
+    console.log("redirecting to ", process.env.HOME_REDIRECT);
+    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
   }
 
   // Debug routes. TODO: remove later
@@ -92,10 +95,9 @@ export class AuthController {
   }
 
   // @Post("logout")
-  @Get("logout") // temporary for testing in browser
+  @Get("logout") // temporary for testing in browser, TODO: change later
   @UseGuards(JwtAuthGuard)
   async logout(
-    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
     @currentUser() user: User,
   ) {
@@ -105,6 +107,6 @@ export class AuthController {
     //   `Authentication=; HttpOnly; Path=/; Max-Age=0`,
     // );
     response.clearCookie("Authentication");
-    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
+    response.status(200);
   }
 }
