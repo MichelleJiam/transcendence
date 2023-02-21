@@ -1,3 +1,4 @@
+import { ValidUserGuard } from "./../auth/guards/valid-user.guard";
 import { currentUser } from "./../auth/decorators/current-user.decorator";
 import { OwnerGuard } from "../auth/guards/owner.guard";
 import { JwtAuthGuard } from "./../auth/guards/jwt-auth.guard";
@@ -33,19 +34,21 @@ import { User } from "./user.entity";
 // user.service.ts
 
 @Controller("user")
-@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   /* default Get - go to localhost:3000/user it displays all users */
   @Get()
+  @UseGuards(JwtAuthGuard)
   getAllUsers() {
     return this.userService.getAllUsers();
   }
 
   /* retrieves current user from jwt auth cookie */
   @Get("current")
+  @UseGuards(ValidUserGuard)
   getCurrentUser(@currentUser() user: User) {
+    console.log("Retrieving details of current user: ", user.id);
     // JwtAuthGuard already calls userService.findUserById
     // so we don't call it again.
     return user;
@@ -53,6 +56,7 @@ export class UserController {
 
   /* localhost:3000/user/id/{an+id} - show user based on the id provided */
   @Get(":id")
+  @UseGuards(JwtAuthGuard)
   findUsersById(@Param("id", ParseIntPipe) id: number) {
     return this.userService.findUserById(id);
   }
@@ -65,6 +69,7 @@ export class UserController {
 
   /* deletes the user based on the id given when a delete request is made */
   @Delete(":id")
+  @UseGuards(JwtAuthGuard)
   @UseGuards(OwnerGuard)
   deleteUser(@Param("id", ParseIntPipe) id: number) {
     return this.userService.deleteUser(id);
@@ -72,6 +77,7 @@ export class UserController {
 
   /* localhost:3000/user/create - a user can be created */
   @Post("create")
+  @UseGuards(JwtAuthGuard)
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
@@ -84,6 +90,7 @@ export class UserController {
    */
 
   @Put(":id/update-settings")
+  @UseGuards(JwtAuthGuard)
   @UseGuards(OwnerGuard)
   @UsePipes(ValidationPipe)
   async updateUser(
@@ -107,6 +114,7 @@ export class UserController {
   /* avatar */
 
   @Post(":id/avatar")
+  @UseGuards(JwtAuthGuard)
   @UseGuards(OwnerGuard)
   @UseInterceptors(FileInterceptor("file"))
   async addAvatar(
@@ -119,6 +127,7 @@ export class UserController {
   }
 
   @Get(":id/avatar")
+  @UseGuards(JwtAuthGuard)
   async getAvatar(
     @Param("id", ParseIntPipe) id: number,
     @Res({ passthrough: true }) res: Response,

@@ -36,13 +36,16 @@ export class AuthController {
   ) {
     console.log("Callback");
     // only issue cookie if 2FA not enabled. otherwise need to authenticate 2FA first
-    if (user.twoFAEnabled === false) {
+    if (user.twoFAEnabled === true) {
+      console.log("2FA required, redirecting to 2FA frontend");
+      response.redirect(`${process.env.HOME_REDIRECT}/2fa`);
+    } else {
       const authCookie = this.authService.getCookieWithJwtToken(user.id);
       response.setHeader("Set-Cookie", authCookie);
       console.log("callback: Set access_token cookie");
+      console.log("redirecting to ", process.env.HOME_REDIRECT);
+      response.status(200).redirect(`${process.env.HOME_REDIRECT}/login`);
     }
-    console.log("redirecting to ", process.env.HOME_REDIRECT);
-    response.status(200).redirect(`${process.env.HOME_REDIRECT}/login`);
   }
 
   // Debug routes. TODO: remove later
