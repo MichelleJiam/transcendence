@@ -9,6 +9,7 @@ import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { UserService } from "../user/user.service";
 import { RequestUser } from "src/user/user.controller";
+import { TokenPayload, TokenType } from "./token-payload.interface";
 
 @Injectable()
 export class AuthService {
@@ -36,8 +37,9 @@ export class AuthService {
 
   // Returns Authentication cookie with JWT access token as value.
   // Enabling httpOnly option makes cookie inaccessible to clientside JS and therefore XSS attacks.
-  public getCookieWithJwtToken(id: number) {
-    const payload = { sub: id };
+  // eslint-disable-next-line @typescript-eslint/typedef
+  public getCookieWithJwtToken(id: number, type: TokenType = TokenType.FULL) {
+    const payload: TokenPayload = { sub: id, type };
     const accessToken = this.jwtService.sign(payload);
 
     console.log("Signed token for user: ", id);
