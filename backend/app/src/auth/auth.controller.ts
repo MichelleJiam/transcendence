@@ -1,3 +1,4 @@
+import { ValidUserGuard } from "./guards/valid-user.guard";
 import {
   Controller,
   Get,
@@ -23,8 +24,12 @@ export class AuthController {
 
   @Get("login")
   @UseGuards(IntraAuthGuard)
+  // @UseGuards(ValidUserGuard)
   async loginIntra() {
+    // @currentUser() user: User, // @Res({ passthrough: true }) response: Response, // enabling passthrough lets Nest handle response logic
     console.log("/auth/login endpoint hit");
+    // this.callback(response, user);
+    // response.redirect(`${process.env.INTRA_CALLBACK}`);
   }
 
   @Get("callback")
