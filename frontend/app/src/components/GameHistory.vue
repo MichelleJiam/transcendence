@@ -1,6 +1,6 @@
 <template>
 	<div class="stats-container">
-		<h2>Overview of played games</h2>
+		<h2>Game History</h2>
 		a div with all game history information
 	</div>
 </template>
@@ -23,5 +23,6 @@
 
 h2 {
 	font-size: 50px;
+	color: var(--primary-color);
 }
 </style>
