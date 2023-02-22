@@ -25,7 +25,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (!user) {
       console.log("Unauthorized access caught by JwtStrategy");
-      throw new UnauthorizedException();
+      throw new UnauthorizedException({
+        message: "JWT: no user found in database with id ",
+        id: payload.sub,
+      });
     }
     // only validates if JWT token payload indicates full access
     if (payload.type === TokenType.FULL) {

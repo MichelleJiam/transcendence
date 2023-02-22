@@ -49,7 +49,7 @@ async function cancelLogin() {
 }
 
 onMounted(async () => {
-  // await userStore.retrieveCurrentUserData();
+  await userStore.retrieveCurrentUserData();
   playerName.value = userStore.user.playerName;
 });
 
