@@ -11,11 +11,11 @@
       <li><router-link to="/login" @click="userStore.logOut()" class="logout-text">Logout</router-link></li>
     </ul>
     <div class="buttons">
-      <button class="logout-icon" @click="userStore.logOut()">
-        <font-awesome class="font-awesome logout-icon" icon="sign-out"/>
-      </button>
       <button class="menu-icon" @click="test"> 
         <font-awesome class="font-awesome" icon="bars"/>
+      </button>
+      <button class="logout-icon" @click="userStore.logOut()">
+        <font-awesome class="font-awesome logout-icon" icon="sign-out"/>
       </button>
     </div>
     <!-- the div to overlay when the menu button is clicked and the size is small -->
@@ -51,16 +51,21 @@ nav {
   top: 0;
   right: 0;
   z-index: 999;
-  display: flex;
   align-items: center;
   justify-content: space-between;
-  background: transparent;
-  /* transition: all .5s ease; */
 }
 .navbar {
   width: 1000px;
   display: flex;
   justify-content: space-around;
+}
+
+.buttons {
+  position: fixed;
+  top: 0;
+  right: 0;
+  padding: 5px;
+  z-index: 999;
 }
 
 li {
@@ -71,7 +76,7 @@ li {
   font-family: "ArcadeClassic", sans-serif;
   text-decoration: none;
   list-style: none;
-  font-size: 2.5em;
+  font-size: 2.5rem;
   padding: 5px 0;
   margin-right: 10px;
   /* transition: all .2s ease; */
@@ -88,16 +93,6 @@ li {
   color: var(--primary-color-transparant);
   transition: all 0.5s ease;
 }
-
-.buttons {
-  display: flex;
-  align-items: center;
-}
-
-.buttons button {
-  margin-left: 10px;
-}
-
 .menu-icon {
   cursor: pointer;
   z-index: 9999;
