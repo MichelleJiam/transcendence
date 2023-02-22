@@ -1,5 +1,5 @@
 <template>
-  <form @keyup.enter="createChat()" @submit.prevent="createChat">
+  <form @submit.prevent="createChat()">
     <div>
       <h3>Create a chat</h3>
       <label for="type"
