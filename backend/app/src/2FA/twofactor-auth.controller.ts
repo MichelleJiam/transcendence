@@ -1,4 +1,3 @@
-import { ValidUserGuard } from "../auth/guards/valid-user.guard";
 import { TwoFactorAuthCodeDto } from "./twofactor-auth-code.dto";
 import { currentUser } from "./../auth/decorators/current-user.decorator";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -57,7 +56,6 @@ export class TwoFactorAuthController {
 
   @Post("authenticate")
   @HttpCode(200)
-  // @UseGuards(ValidUserGuard)
   @UseGuards(PartialJwtGuard)
   async authenticate(
     @currentUser() user: User,

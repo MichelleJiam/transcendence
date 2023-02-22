@@ -35,22 +35,23 @@ export class AuthController {
     @currentUser() user: User,
   ) {
     console.log("Callback");
-    // only issue cookie if 2FA not enabled. otherwise need to authenticate 2FA first
+    let redirectTo, authCookie;
+
+    // Issue partial access cookie if 2FA needed.
     if (user.twoFAEnabled === true) {
-      const authCookie = this.authService.getCookieWithJwtToken(
+      authCookie = this.authService.getCookieWithJwtToken(
         user.id,
         TokenType.PARTIAL,
       );
-      response.setHeader("Set-Cookie", authCookie);
+      redirectTo = `${process.env.HOME_REDIRECT}/2fa`;
       console.log("2FA required, redirecting to 2FA frontend");
-      response.redirect(`${process.env.HOME_REDIRECT}/2fa`);
     } else {
-      const authCookie = this.authService.getCookieWithJwtToken(user.id);
-      response.setHeader("Set-Cookie", authCookie);
-      console.log("callback: Set access_token cookie");
-      console.log("redirecting to ", process.env.HOME_REDIRECT);
-      response.status(200).redirect(`${process.env.HOME_REDIRECT}/login`);
+      authCookie = this.authService.getCookieWithJwtToken(user.id);
+      redirectTo = `${process.env.HOME_REDIRECT}/login`;
     }
+    response.setHeader("Set-Cookie", authCookie);
+    console.log("redirecting to ", redirectTo);
+    response.status(200).redirect(redirectTo);
   }
 
   // Debug routes. TODO: remove later

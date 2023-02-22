@@ -1,42 +1,86 @@
 <template>
   <main>
-    <!-- <div v-if="promptFor2FA()"> -->
-    <TwoFactorPopup class="twofa-popup" />
-    <!-- </div> -->
+    <div id="display-content">
+      <h1>Two Factor <br />Authentication <br />Required</h1>
+      <img class="picture" src="../assets/images/cat_door_security.gif" />
+      <p>Please enter the code from your authenticator app.</p>
+      <label for="authCode">Authenticator Code</label>
+      <br />
+      <InputText
+        id="authCode"
+        v-model="authCode"
+        class="inputfield"
+        label="AuthCode"
+        placeholder="authenticator code"
+      />
+      <br />
+      <br />
+      <button @click="submitCode">Submit</button>
+      <button @click="cancelLogin">Cancel Login</button>
+    </div>
   </main>
 </template>
 
 <script setup lang="ts">
-import TwoFactorPopup from "@/components/TwoFactorPopup.vue";
 import { useUserStore } from "@/stores/UserStore";
-import { onMounted } from "vue";
+import { ref } from "vue";
+import InputText from "@/components/InputText.vue";
+import router from "@/router";
+import apiRequest from "@/utils/apiRequest";
 
 const userStore = useUserStore();
+const authCode = ref<string>("");
 
-onMounted(async () => {
-  await userStore.retrieveCurrentUserData();
-});
+async function submitCode() {
+  await apiRequest(`/2fa/authenticate`, "post", {
+    data: { twoFactorAuthCode: authCode },
+  })
+    .then((response) => {
+      if (response.status === 200) {
+        userStore.logIn();
+      }
+      router.push("/home");
+    })
+    .catch((err) => {
+      console.log("Something went wrong with 2FA: ", err);
+      alert("Wrong two factor authentication code!");
+      // router.push("/login");
+    });
+}
 
-function promptFor2FA() {
-  console.log("user: ", userStore.user);
-  // console.log(
-  //   "Prompt for 2FA? ",
-  //   !userStore.isAuthenticated(),
-  //   " && ",
-  //   userStore.user.twoFAEnabled
-  // );
-  // return !userStore.isAuthenticated() && userStore.user.twoFAEnabled;
-  return true;
+async function cancelLogin() {
+  await userStore.logOut();
+  router.push("/login");
 }
 </script>
 
 <style scoped>
-.twofa-popup {
-  position: absolute;
-  z-index: 2;
+h1 {
+  font-size: 3em;
+  margin-bottom: 50px;
+}
+.picture {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
 }
 
-h1 {
-  font-size: 10rem;
+p {
+  margin-bottom: 20px;
+  font-size: 20px;
+  margin: 20px;
+}
+
+label {
+  align-self: center;
+}
+
+.inputfield {
+  width: 50%;
+  max-width: 500px;
+}
+
+button {
+  margin: 10px;
 }
 </style>
