@@ -3,19 +3,13 @@
     <button class="exit-button" @click.prevent="cancelTwoFA">X</button>
     <h2>2FA Registration</h2>
     <img :src="qrCode" />
+    <br />
     <form class="token-box" @submit.prevent="validateToken">
       <p>Enter the code shown in your authenticator app:</p>
       <input v-model="token" type="text" name="token" />
       <button type="submit" name="button">validate</button>
     </form>
     <p>{{ validationMessage }}</p>
-    <!-- <InputText
-      id="code"
-      v-model="code"
-      class="inputfield"
-      label="Code"
-      placeholder="authenticator code"
-    /> -->
   </form>
 </template>
 
@@ -25,7 +19,7 @@ import InputText from "@/components/InputText.vue";
 import apiRequest from "@/utils/apiRequest";
 
 const token = ref<string>("");
-const qrCode = ref();
+const qrCode = ref("");
 let validationMessage = "";
 const emit = defineEmits(["uncheck"]);
 
@@ -35,11 +29,21 @@ onMounted(async () => {
     data: { responseType: "blob" },
   })
     .then(async (response) => {
-      // qrCode.value = response.data.qr;
+      console.log("response: ", response.data);
       const blob = new Blob([response.data], {
         type: response.headers["content-type"],
       });
       qrCode.value = URL.createObjectURL(blob);
+      // let newImg = document.createElement("img");
+      // const blob = new Blob([response.data], {
+      //   type: response.headers["content-type"],
+      // });
+      // let url = URL.createObjectURL(blob);
+      // newImg.onload = () => {
+      // 	URL.revokeObjectURL(url);
+      // }
+      // newImg.src = url;
+      console.log("qr value: ", qrCode.value);
     })
     .catch((err) => {
       console.log("Unable to get 2FA QR code: ", err);
