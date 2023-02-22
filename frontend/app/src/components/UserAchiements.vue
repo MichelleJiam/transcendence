@@ -58,8 +58,12 @@ h2 {
 }
 .font-awesome {
 	font-size: 75px;
-	opacity: .7;
+	opacity: .6;
 	margin: 0;
+}
+
+.achievement-earned {
+  opacity: 1;
 }
 .achievement-text {
 	position: absolute;

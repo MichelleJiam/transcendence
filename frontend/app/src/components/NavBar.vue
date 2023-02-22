@@ -1,6 +1,6 @@
 <template>
-  <nav id="overlay">
-    <ul class="navbar">
+  <nav>
+    <ul class="navbar" :class="{notactive: !menuOpen}">
       <li><router-link to="/">Home</router-link></li>
       <li><router-link :to="{name:'account', params: {id: useUserStore.$id}}">Account</router-link></li>
       <li><router-link to="/game">Game</router-link></li>
@@ -8,27 +8,45 @@
       <li><router-link to="/chat">Chat</router-link></li>
       <li><router-link to="/stream">Live</router-link></li>
       <li><router-link to="/friends">Friends</router-link></li>
+      <li><router-link to="/login" @click="userStore.logOut()" class="logout-text">Logout</router-link></li>
     </ul>
-    <div class="main">
+    <div class="buttons">
       <button class="logout-icon" @click="userStore.logOut()">
-        <font-awesome class="font-awesome logout-icon" icon="sign-out" />
+        <font-awesome class="font-awesome logout-icon" icon="sign-out"/>
       </button>
-      <button class="menu-icon">
-        <font-awesome class="font-awesome" icon="bars" />
+      <button class="menu-icon" @click="test"> 
+        <font-awesome class="font-awesome" icon="bars"/>
       </button>
     </div>
+    <!-- the div to overlay when the menu button is clicked and the size is small -->
+    <div :class="{overlay: menuOpen}"></div>
   </nav>
 </template>
 
 <script setup lang="ts">
 import { useUserStore } from "../stores/UserStore";
+import { ref } from "vue";
 const userStore = useUserStore();
+let menuOpen = ref(false);
+
+function test() {
+  menuOpen.value = !menuOpen.value;
+  console.log(menuOpen.value)
+}
 
 </script>
 
 <style scoped>
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
 nav {
-  border: 2px solid blue;
   position: fixed;
   top: 0;
   right: 0;
@@ -37,10 +55,9 @@ nav {
   align-items: center;
   justify-content: space-between;
   background: transparent;
-  transition: all .5s ease;
+  /* transition: all .5s ease; */
 }
 .navbar {
-  /* border: 2px solid white; */
   width: 1000px;
   display: flex;
   justify-content: space-around;
@@ -57,12 +74,13 @@ li {
   font-size: 2.5em;
   padding: 5px 0;
   margin-right: 10px;
-  transition: all .2s ease;
+  /* transition: all .2s ease; */
 }
 
-.logout-icon {
-
+.navbar .logout-text {
+  display: none;
 }
+
 .navbar a.router-link-exact-active {
   color: var(--primary-color);
 }
@@ -71,13 +89,12 @@ li {
   transition: all 0.5s ease;
 }
 
-.main {
+.buttons {
   display: flex;
   align-items: center;
 }
 
-.main button {
-  /* margin-right: 25px; */
+.buttons button {
   margin-left: 10px;
 }
 
@@ -92,7 +109,6 @@ li {
     width: 800px;
   }
   .navbar a {
-    /* display: none; */
     font-size: 2em;
   }
 }
@@ -103,64 +119,27 @@ li {
   }
   .navbar {
     position: absolute;
-    top: 100%;
-    left: 2%;
-    width: 500px;
-    height: 30vh;
+    top: 0;
+    padding-top: 50%;
+    width: 100%;
     flex-direction: column;
+    align-items: center;
+    z-index: 99;
+    font-size: 1.5rem;
+    row-gap: 1rem;
   }
-/* BUTOON IS DISSAPEARING ATM, FIX THIS */
+
+  .notactive {
+    display: none;
+  }
   .logout-icon {
-    position: absolute;
-    right: 2%;
-    /* top: 1; */
-    display: inline-block;
-    width: auto;
-    height: auto;
-    padding: 0;
+    display: none;
+  }
+  .logout-text {
+    display: none;
+  }
+  .navbar .logout-text {
+    display: block;
   }
 }
-
-
-/* ul {
-  display: flex;
-  justify-content: left;
-  align-items: center;
-  gap: 20px;
-  padding: 0;
-} */
-
-/* li {
-  font-size: 2.5em;
-  padding: 0;
-  font-family: "ArcadeClassic", sans-serif;
-  display: inline-block;
-  text-decoration: none;
-  list-style: none;
-} */
-
-/* .logout {
-
-} */
-/* .font-awesome {
-  font-size: 1em;
-} */
-
-/* li:last-child {
-  margin-left: auto;
-  justify-self: flex-end;
-} */
-
-/* a {
-  text-decoration: none;
-  color: white;
-}
-
-a.router-link-exact-active {
-  color: var(--primary-color);
-}
-a:hover {
-  color: var(--primary-color-transparant);
-  transition: all 0.2s ease;
-} */
 </style>
