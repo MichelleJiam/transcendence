@@ -69,6 +69,7 @@ export class BlocklistService {
   async createBlockEntryForUser(
     createBlockDto: CreateBlockDto,
   ): Promise<Blocklist | undefined> {
+    console.log(createBlockDto);
     const owner = await this.userService.findUserById(
       createBlockDto.blocklistOwner,
     );

@@ -78,6 +78,16 @@ export function createBlock(blocklistOwner: number, blockedUser: number) {
     });
 }
 
+export function unBlock(blocklistOwner: number, blockedUser: number) {
+  const url =
+    "/blocklist/remove/owner/" + blocklistOwner + "/blocked/" + blockedUser;
+
+  apiRequest(url, "delete").then((response) => {
+    location.reload();
+    console.log(response);
+  });
+}
+
 class AddAdminDto {
   newAdmin!: number;
   byAdmin!: number;
@@ -207,13 +217,4 @@ export async function kickUser(
     .catch((err) => {
       console.log(err);
     });
-}
-
-export function inBlocklist(blocklist: any, userId: number) {
-  for (const entry of blocklist) {
-    if (entry.blockedUser.id == userId) {
-      return true;
-    }
-  }
-  return false;
 }
