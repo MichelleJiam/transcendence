@@ -1,5 +1,5 @@
 <template>
-  <form>
+  <form @keydown.enter="setPlayerName">
     <button class="exit-button" @click.prevent="cancelLogin">X</button>
     <h2>Hey there,</h2>
     <p>
@@ -23,6 +23,7 @@
     />
     <span class=validate-message>{{ message }}</span>
     <button @click.prevent="setPlayerName">Submit</button>
+    <!-- <button @click.prevent="setPlayerName">→</button> -->
   </form>
 </template>
 
@@ -37,6 +38,7 @@ const playerName = ref<string>("");
 let message = "";
 
 function setPlayerName() {
+  console.log("goes in setplayername");
   userStore.updateAccountSettings(playerName.value, userStore.user.twoFAEnabled);
 }
 
