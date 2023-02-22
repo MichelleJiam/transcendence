@@ -9,6 +9,7 @@ export class UpdateChatroomDto {
 
 export class AddMemberDto {
   member!: number;
+  password?: string;
 }
 
 export class SendMessageDto {
@@ -109,7 +110,7 @@ export function deleteAdmin(
   toDeleteId: number
 ) {
   const url =
-    "/chat/" + chatroomId + "/admin/" + adminId + "/delete/" + toDeleteId;
+    "/chat/" + chatroomId + "/admin/" + adminId + "/delete/admin/" + toDeleteId;
 
   apiRequest(url, "delete")
     .then((response) => {
@@ -188,5 +189,31 @@ export async function isOwner(
     isUserOwner.value = response.data; // returns the response data into the users variable which can then be used in the template
   });
   if (isUserOwner.value == true) return true;
+  return false;
+}
+
+export async function kickUser(
+  chatroomId: number,
+  adminId: number,
+  toDeleteId: number
+) {
+  const url =
+    "/chat/" + chatroomId + "/admin/" + adminId + "/delete/user/" + toDeleteId;
+  await apiRequest(url, "delete")
+    .then((response) => {
+      location.reload();
+      console.log(response);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
+
+export function inBlocklist(blocklist: any, userId: number) {
+  for (const entry of blocklist) {
+    if (entry.blockedUser.id == userId) {
+      return true;
+    }
+  }
   return false;
 }

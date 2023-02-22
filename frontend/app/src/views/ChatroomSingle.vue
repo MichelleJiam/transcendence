@@ -4,6 +4,13 @@
       <div class="row">
         <div class="header">
           <h2>{{ chatRoomInfo.chatroomName }}</h2>
+          <span v-if="isPrivate == true">we're in a private chat!</span>
+          <span v-if="isPassword == true">
+            <Teleport to="body">
+              <!-- use the modal component, pass in the prop -->
+              <PasswordModal :show="showPassword" @close="showPassword = false">
+              </PasswordModal> </Teleport
+          ></span>
         </div>
         <div class="leave">
           <suspense>
@@ -68,13 +75,17 @@ import { useUserStore } from "@/stores/UserStore";
 import apiRequest from "@/utils/apiRequest";
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import PasswordModal from "@/components/chat/single_chatroom/PasswordModal.vue";
 
 const route = useRoute();
 const chatroomId = route.params.id;
 const chatRoomInfo = ref([]);
 const showModal = ref<boolean>(false);
+const showPassword = ref<boolean>(false);
 const userStore = useUserStore();
 const isCurrentUserOwner = ref<boolean>(false);
+const isPrivate = ref<boolean>(false);
+const isPassword = ref<boolean>(false);
 
 const backendurlChatName = "/chat/" + chatroomId;
 
@@ -87,6 +98,9 @@ onMounted(async () => {
     chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
     if (chatRoomInfo.value.owner.id == userStore.user.id)
       isCurrentUserOwner.value = true;
+    if (chatRoomInfo.value.type === "private") isPrivate.value = true;
+    if (chatRoomInfo.value.type === "password") isPassword.value = true;
+    showPassword.value = true;
   });
 });
 </script>
@@ -111,12 +125,10 @@ onMounted(async () => {
 }
 
 .post {
-  float: center;
   width: 70%;
 }
 
 .settings {
-  float: center;
   width: 30%;
 }
 

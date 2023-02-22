@@ -12,7 +12,6 @@
         <div class="modal-body">
           <slot name="body">
             <form @submit.prevent="editChat(userStore.user.id)">
-              <!-- change this to cookie user id-->
               <div>
                 select type of chat:<br />
                 <label for="type">Choose a chat type:</label>

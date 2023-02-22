@@ -67,6 +67,16 @@
           <button
             v-if="
               isUserAdmin == true &&
+              member.isOwner == false &&
+              member.id != userId
+            "
+            @click="kickUser(chatroomId, userId, member.id)"
+          >
+            kick
+          </button>
+          <button
+            v-if="
+              isUserAdmin == true &&
               member.isAdmin == false &&
               member.id != userId
             "
@@ -92,8 +102,9 @@ import {
   deleteAdmin,
   isMember,
   AddMemberDto,
+  kickUser,
 } from "../chatUtils";
-import { ref, onMounted, onBeforeMount } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
 
@@ -110,16 +121,6 @@ let ownerName: string;
 const chatRoomInfo = ref([]);
 const isUserOwner = ref();
 const isUserAdmin = ref();
-
-onBeforeMount(async () => {
-  if ((await isMember(chatroomId, userStore.user.id)) == false) {
-    const addMemberUrl = "/chat/" + chatroomId + "/add/member";
-    const addMemberDto = new AddMemberDto();
-    addMemberDto.member = userStore.user.id;
-    await apiRequest(addMemberUrl, "put", { data: addMemberDto });
-    location.reload();
-  }
-});
 
 onMounted(async () => {
   const ownerUrl = "/chat/" + chatroomId + "/is_owner/" + userId;
@@ -144,6 +145,19 @@ onMounted(async () => {
       admin["isOwner"] = await isOwner(chatroomId, admin.id);
       admin["isAdmin"] = await isAdmin(chatroomId, admin.id);
       admin.playerName = admin.playerName ?? "unnamedPlayer" + admin.id;
+    }
+    if (
+      (await isMember(chatroomId, userStore.user.id)) == false &&
+      chatRoomInfo.value.type != "password"
+    ) {
+      const addMemberUrl = "/chat/" + chatroomId + "/add/member";
+      const addMemberDto = new AddMemberDto();
+      addMemberDto.member = userStore.user.id;
+      await apiRequest(addMemberUrl, "put", { data: addMemberDto }).then(
+        (response) => {
+          chatRoomInfo.value = response.data;
+        }
+      );
     }
   });
 });

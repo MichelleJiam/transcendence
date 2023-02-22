@@ -137,6 +137,21 @@ export class ChatService {
     return chatroom;
   }
 
+  async getChatroomPassword(id: number): Promise<Chatroom> {
+    const chatroom = await this.chatroomRepository.findOne({
+      where: {
+        id: id,
+      },
+      select: {
+        password: true,
+      },
+    });
+    if (!chatroom) {
+      throw new HttpException("Chatroom not found", HttpStatus.NOT_FOUND);
+    }
+    return chatroom;
+  }
+
   async getMessagesFromChatroom(chatroomId: number): Promise<Message[]> {
     return this.messageService.getMessagesFromChatroom(chatroomId);
   }
@@ -355,8 +370,11 @@ export class ChatService {
   ): Promise<Chatroom> {
     const chatroom = await this.getChatroomInfoById(chatroomId);
     if (chatroom.type === "password") {
-      if (chatroom.password !== addMemberDto.password)
+      const password = await this.getChatroomPassword(chatroomId);
+      if (password.password !== addMemberDto.password) {
+        console.log(addMemberDto.password);
         throw new HttpException("Incorrect password", HttpStatus.BAD_REQUEST);
+      }
     }
     if (
       (await this.chatMethod.isMemberOfChatroom(
@@ -518,6 +536,14 @@ export class ChatService {
     }
     const updatedChatroom = deleteFromChatroom(chatroom, toDeleteId);
     return await this.chatroomRepository.save(updatedChatroom);
+  }
+
+  async kickUser(chatroomId: number, adminId: number, userId: number) {
+    const chatroom = await this.getChatroomInfoById(chatroomId);
+    if ((await this.isAdminOfChatroom(chatroomId, adminId)) == true) {
+      const newChatroom = deleteFromChatroom(chatroom, userId);
+      return await this.chatroomRepository.save(newChatroom);
+    }
   }
 
   // DELETE CHAT
