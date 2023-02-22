@@ -7,12 +7,15 @@ import { User } from "./user.entity";
 import { UserService } from "./user.service";
 import { Avatar } from "src/avatar/avatar.entity";
 import { AvatarService } from "src/avatar/avatar.service";
+import { Chatroom } from "src/chat/chat.entity";
+import { Blocklist } from "src/blocklist/blocklist.entity";
+import { BlocklistService } from "src/blocklist/blocklist.service";
 import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
     forwardRef(() => AuthModule),
-    TypeOrmModule.forFeature([User, Message, Avatar]),
+    TypeOrmModule.forFeature([User, Message, Avatar, Chatroom, Blocklist]),
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: process.env.JWT_SECRET,
@@ -24,7 +27,7 @@ import { JwtModule } from "@nestjs/jwt";
     }),
   ],
   controllers: [UserController],
+  providers: [UserService, AvatarService, BlocklistService],
   exports: [UserService],
-  providers: [UserService, AvatarService],
 })
 export class UserModule {}

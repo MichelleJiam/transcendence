@@ -1,3 +1,4 @@
+import { Chatroom } from "src/chat/chat.entity";
 import { Message } from "src/message/message.entity";
 import { Avatar } from "src/avatar/avatar.entity";
 
@@ -12,10 +13,14 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Penalty } from "src/penalty/penalty.entity";
+import { Blocklist } from "src/blocklist/blocklist.entity";
 import { Friend } from "src/friend/friend.entity";
 
 @Entity()
@@ -42,10 +47,39 @@ export class User {
   })
   public password!: string; // TODO: remove once 42Auth implemented
 
-  //link message table to user
+  // relationships for chat START
+  @OneToMany(() => Message, (message: Message) => message.userId)
   @JoinColumn()
-  @OneToMany(() => Message, (messages: Message) => messages.userId)
-  public messages!: Message[];
+  public message!: Message[];
+
+  @OneToMany(() => Penalty, (penalty: Penalty) => penalty.user)
+  @JoinColumn()
+  public penalty!: Penalty[];
+
+  @OneToMany(
+    () => Blocklist,
+    (blocklist: Blocklist) => blocklist.blocklistOwner,
+  )
+  @JoinColumn()
+  public blocklistOwner!: Blocklist[];
+
+  @OneToMany(() => Blocklist, (blocklist: Blocklist) => blocklist.blockedUser)
+  @JoinColumn()
+  public blockedUser!: Chatroom[];
+
+  @OneToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.owner)
+  @JoinColumn()
+  public chatroomOwner!: Chatroom[];
+
+  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.member)
+  @JoinTable()
+  public chatroomMember!: Chatroom[];
+
+  @ManyToMany(() => Chatroom, (chatroom: Chatroom) => chatroom.admin)
+  @JoinTable()
+  public chatroomAdmin!: Chatroom[];
+
+  // relationships for chat END
 
   @Column({
     type: "boolean",
