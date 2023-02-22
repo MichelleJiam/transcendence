@@ -100,7 +100,6 @@
 import apiRequest from "@/utils/apiRequest";
 import {
   createPenalty,
-  createBlock,
   makeAdmin,
   swapOwner,
   isOwner,
@@ -109,7 +108,7 @@ import {
   isMember,
   AddMemberDto,
   kickUser,
-  unBlock,
+  Blocklist,
 } from "../chatUtils";
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
@@ -138,6 +137,38 @@ function inBlocklist(userId: number) {
     }
   }
   return false;
+}
+
+function createBlock(blocklistOwner: number, blockedUser: number) {
+  const url = "/blocklist/create";
+
+  const newBlocklist = new Blocklist();
+  newBlocklist.blocklistOwner = blocklistOwner;
+  newBlocklist.blockedUser = blockedUser;
+
+  apiRequest(url, "post", { data: newBlocklist })
+    .then((response) => {
+      const newBlocklistEntry = new Blocklist();
+      newBlocklistEntry.id = response.data.id;
+      newBlocklistEntry.blockedUser = response.data.blockedUser;
+      newBlocklistEntry.blocklistOwner = response.data.blocklistOwner;
+      blocklist.value.push(newBlocklistEntry);
+      location.reload();
+      console.log(response);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+function unBlock(blocklistOwner: number, blockedUser: number) {
+  const url =
+    "/blocklist/remove/owner/" + blocklistOwner + "/blocked/" + blockedUser;
+
+  apiRequest(url, "delete").then((response) => {
+    location.reload();
+    console.log(response);
+  });
 }
 
 onMounted(async () => {

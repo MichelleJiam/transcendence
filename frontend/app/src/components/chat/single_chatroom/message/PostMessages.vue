@@ -2,7 +2,13 @@
   <section>
     <div>
       <form @keyup.enter="sendMessage()" @submit.prevent="sendMessage()">
-        <input id="body" v-model="messageBody" type="text" required />
+        <input
+          id="body"
+          v-model="messageBody"
+          type="text"
+          class="space"
+          required
+        />
         <button>Post Message</button>
       </form>
     </div>
@@ -37,3 +43,8 @@ function sendMessage() {
   }
 }
 </script>
+<style scoped>
+.space {
+  margin-right: 2rem;
+}
+</style>

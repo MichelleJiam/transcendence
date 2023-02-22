@@ -56,7 +56,8 @@ export function createPenalty(
     });
 }
 
-class Blocklist {
+export class Blocklist {
+  id?: number;
   blocklistOwner!: number;
   blockedUser!: number;
 }
