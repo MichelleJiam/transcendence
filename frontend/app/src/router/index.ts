@@ -7,12 +7,13 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(async (to) => {
+router.beforeEach(async (to, from) => {
   const userStore = useUserStore();
   console.log("[DEBUG] beforeEach");
-  if (to.name === "login") {
+  if (to.name === "login" || to.name === "2fa") {
     return true;
   }
+  // check if user's auth token expired in between page loads
   if ((await userStore.checkAuthStatus()) === false) {
     console.log("User not authenticated, pushing to login");
     return { name: "login" };
