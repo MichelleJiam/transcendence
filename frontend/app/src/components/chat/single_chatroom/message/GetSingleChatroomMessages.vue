@@ -1,7 +1,7 @@
 <template>
   <section>
     <div v-for="msg of messages" :key="messages.id">
-      <div class="chat-message-box">
+      <div v-if="inBlocklist(msg.userId.id) == false" class="chat-message-box">
         <div class="row">
           <div class="playerName">
             <b>{{ msg.userId.playerName }}</b>
@@ -45,6 +45,15 @@ const backendurlMessages =
 
 const backendBlocklist = "/blocklist/user/" + userStore.user.id;
 
+function inBlocklist(userId: number) {
+  for (const entry of blocklist.value) {
+    if (entry.blockedUser.id == userId) {
+      return true;
+    }
+  }
+  return false;
+}
+
 onMounted(async () => {
   await apiRequest(backendurlMessages, "get")
     .then((response) => {
@@ -71,7 +80,6 @@ onMounted(async () => {
       message.userId.playerName ?? "unnamedPlayer" + message.userId.id;
     const dateTime = new Date(message.createdAt);
     message["formattedCreatedAt"] = convertDateTime(dateTime);
-    // if (inBlocklist(blocklist.value, message.userId.id))
     messages.value.push(message);
   });
 });

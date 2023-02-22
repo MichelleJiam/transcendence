@@ -39,10 +39,16 @@
           {{ member.playerName }} <span v-if="member.isOwner == true">👑</span>
           <br />
           <button
-            v-if="member.id != userId"
+            v-if="member.id != userId && inBlocklist(member.id) == false"
             @click="createBlock(userId, member.id)"
           >
             block
+          </button>
+          <button
+            v-if="member.id != userId && inBlocklist(member.id) == true"
+            @click="unBlock(userId, member.id)"
+          >
+            unblock
           </button>
           <button
             v-if="
@@ -103,6 +109,7 @@ import {
   isMember,
   AddMemberDto,
   kickUser,
+  unBlock,
 } from "../chatUtils";
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
@@ -116,11 +123,22 @@ const ban = "ban";
 const route = useRoute();
 const chatroomId = Number(route.params.id);
 const backendurlChatName = "/chat/" + chatroomId;
+const backendBlocklist = "/blocklist/user/" + userStore.user.id;
 
 let ownerName: string;
 const chatRoomInfo = ref([]);
 const isUserOwner = ref();
 const isUserAdmin = ref();
+const blocklist = ref([]);
+
+function inBlocklist(userId: number) {
+  for (const entry of blocklist.value) {
+    if (entry.blockedUser.id == userId) {
+      return true;
+    }
+  }
+  return false;
+}
 
 onMounted(async () => {
   const ownerUrl = "/chat/" + chatroomId + "/is_owner/" + userId;
@@ -160,6 +178,13 @@ onMounted(async () => {
       );
     }
   });
+  await apiRequest(backendBlocklist, "get")
+    .then((response) => {
+      blocklist.value = response.data;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 </script>
 <style scoped>

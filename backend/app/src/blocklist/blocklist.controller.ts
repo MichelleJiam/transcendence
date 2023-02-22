@@ -6,6 +6,7 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
+  Body,
 } from "@nestjs/common";
 import { Blocklist } from "./blocklist.entity";
 import { BlocklistService } from "./blocklist.service";
@@ -34,13 +35,19 @@ export class BlocklistController {
 
   @Post("create")
   async blockUser(
-    createBlockDto: CreateBlockDto,
+    @Body() createBlockDto: CreateBlockDto,
   ): Promise<Blocklist | undefined> {
     return this.blocklistService.createBlockEntryForUser(createBlockDto);
   }
 
-  @Delete("remove")
-  async removeBlock(deleteBlockDto: DeleteBlockDto): Promise<void> {
+  @Delete("remove/owner/:userId/blocked/:blockedId")
+  async removeBlock(
+    @Param("userId", ParseIntPipe) userId: number,
+    @Param("blockedId", ParseIntPipe) blockedId: number,
+  ): Promise<void> {
+    const deleteBlockDto = new DeleteBlockDto();
+    deleteBlockDto.blocklistOwner = userId;
+    deleteBlockDto.blockedUser = blockedId;
     return this.blocklistService.deleteBlockEntry(deleteBlockDto);
   }
 }
