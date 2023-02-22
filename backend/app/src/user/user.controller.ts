@@ -1,4 +1,3 @@
-import { ValidUserGuard } from "./../auth/guards/valid-user.guard";
 import { currentUser } from "./../auth/decorators/current-user.decorator";
 import { OwnerGuard } from "../auth/guards/owner.guard";
 import { JwtAuthGuard } from "./../auth/guards/jwt-auth.guard";
@@ -55,10 +54,10 @@ export class UserController {
     return user;
   }
 
-  /* localhost:3000/user/id/{an+id} - show user based on the id provided */
+  /* localhost:3000/user/{an+id} - show user based on the id provided */
   @Get(":id")
   @UseGuards(JwtAuthGuard)
-  findUsersById(@Param("id", ParseIntPipe) id: number) {
+  findUserById(@Param("id", ParseIntPipe) id: number) {
     return this.userService.findUserById(id);
   }
 
@@ -134,7 +133,7 @@ export class UserController {
     @Res({ passthrough: true }) res: Response,
   ) {
     // add id check here
-    const user = await this.findUsersById(id);
+    const user = await this.findUserById(id);
     if (user != null) {
       const avatarId = user.avatarId;
       if (user.avatarId == null) {

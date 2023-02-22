@@ -24,7 +24,8 @@ const showPopup = computed(() => {
 });
 
 onMounted(async () => {
-  // await userStore.retrieveCurrentUserData();
+  // refresh userStore data
+  await userStore.retrieveCurrentUserData();
 });
 </script>
 

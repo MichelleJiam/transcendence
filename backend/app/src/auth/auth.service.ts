@@ -37,7 +37,6 @@ export class AuthService {
 
   // Returns Authentication cookie with JWT access token as value.
   // Enabling httpOnly option makes cookie inaccessible to clientside JS and therefore XSS attacks.
-  // eslint-disable-next-line @typescript-eslint/typedef
   public getCookieWithJwtToken(id: number, type: TokenType = TokenType.FULL) {
     const payload: TokenPayload = { sub: id, type };
     const accessToken = this.jwtService.sign(payload);
