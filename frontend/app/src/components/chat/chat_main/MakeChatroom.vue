@@ -53,14 +53,6 @@ const chatType = ref<string>("public");
 const postChatData = new PostChatDto();
 postChatData.user = userStore.user.id;
 
-// const postChatData = {
-//   type: String("public"),
-//   chatroomName: String("test name here"),
-//   password: String("password here"),
-//   user: Number(userStore.user.id),
-//   otherUser: Number,
-// };
-
 function createChat() {
   if (!chatName.value == null || chatName.value.trim() === "") {
     console.log("Chat must be named");
@@ -76,7 +68,7 @@ function createChat() {
         console.log(response);
       }) // axios throws errors for non 2xx responses by default!
       .catch((error) => {
-        console.log(error);
+        alert(error);
       });
     chatName.value = "default chat name";
     chatPassword.value = "";

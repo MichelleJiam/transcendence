@@ -39,8 +39,11 @@ const chatroomId = route.params.id;
 const userStore = useUserStore();
 
 const messages = ref([]);
+const blocklist = ref([]);
 const backendurlMessages =
   "/chat/" + chatroomId + "/user/" + userStore.user.id + "/messages";
+
+const backendBlocklist = "/blocklist/user/" + userStore.user.id;
 
 onMounted(async () => {
   await apiRequest(backendurlMessages, "get")
@@ -55,11 +58,20 @@ onMounted(async () => {
     })
     .catch((err) => console.error(err));
 
+  await apiRequest(backendBlocklist, "get")
+    .then((response) => {
+      blocklist.value = response.data;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
   socket.on("recMessage", (message) => {
     message.userId.playerName =
-      message.userId.playerName ?? "unnamedPlayer" + userStore.user.id;
+      message.userId.playerName ?? "unnamedPlayer" + message.userId.id;
     const dateTime = new Date(message.createdAt);
     message["formattedCreatedAt"] = convertDateTime(dateTime);
+    // if (inBlocklist(blocklist.value, message.userId.id))
     messages.value.push(message);
   });
 });
@@ -88,7 +100,6 @@ onMounted(async () => {
 }
 
 .textBody {
-  float: center;
   text-align: center;
   width: 100%;
 }

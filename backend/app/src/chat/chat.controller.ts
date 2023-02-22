@@ -222,20 +222,21 @@ export class ChatController {
   }
 
   // DELETE FUNCTIONS
-  @Delete(":chatroomId/delete/:userId")
+  @Delete(":chatroomId/admin/:adminId/delete/user/:userId")
   async deleteUserFromChatroom(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Param("adminId", ParseIntPipe) adminId: number,
     @Param("userId", ParseIntPipe) userId: number,
   ): Promise<Chatroom | undefined> {
     try {
-      return this.chatroomService.deleteUserFromChatroom(chatroomId, userId);
+      return this.chatroomService.kickUser(chatroomId, adminId, userId);
     } catch (err) {
       console.log(err);
     }
   }
 
   // is adminId the same as the id of the user who called this?
-  @Delete(":chatroomId/admin/:adminId/delete/:toDeleteId")
+  @Delete(":chatroomId/admin/:adminId/delete/admin/:toDeleteId")
   async deleteAdminFromChatroom(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Param("adminId", ParseIntPipe) adminId: number,
