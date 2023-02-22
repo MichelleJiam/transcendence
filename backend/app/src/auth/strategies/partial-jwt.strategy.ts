@@ -6,7 +6,10 @@ import { UserService } from "src/user/user.service";
 import { TokenPayload, TokenType } from "../token-payload.interface";
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class PartialJwtStrategy extends PassportStrategy(
+  Strategy,
+  "partial-jwt",
+) {
   constructor(private readonly userService: UserService) {
     super({
       secretOrKey: process.env.JWT_SECRET,
@@ -20,27 +23,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: TokenPayload) {
-    console.log("Validating JWT token for user ", payload.sub);
+    console.log("Validating partial JWT token for user ", payload.sub);
     const user = await this.userService.findUserById(payload.sub);
 
     if (!user) {
-      console.log("Unauthorized access caught by JwtStrategy");
+      console.log("Unauthorized access caught by PartialJwtStrategy");
       throw new UnauthorizedException({
-        message: "JWT: no user found in database with id ",
+        message: "PartialJWT: no user found in database with id ",
         id: payload.sub,
       });
     }
-    // only validates if JWT token payload indicates full access
-    if (payload.type === TokenType.FULL) {
-      return user;
-    }
-    // If user doesn't have 2FA enabled, we don't check the
-    // twoFactorAuthenticated flag in the payload.
-    // if (!user.twoFAEnabled) {
-    //   return user;
-    // }
-    // if (payload.twoFactorAuthenticated) {
-    //   return { user };
-    // }
+    return user;
   }
 }
