@@ -1,7 +1,7 @@
 <template>
   <main>
     <div id="display-content">
-      <h1>Two Factor <br />Authentication <br />Required</h1>
+      <h1>2FA Authentication <br />Required</h1>
       <img class="picture" src="../assets/images/cat_door_security.gif" />
       <p>Please enter the code from your authenticator app.</p>
       <label for="authCode">Authenticator Code</label>
@@ -35,9 +35,9 @@ async function submitCode() {
   await apiRequest(`/2fa/authenticate`, "post", {
     data: { twoFactorAuthCode: authCode },
   })
-    .then((response) => {
+    .then(async (response) => {
       if (response.status === 200) {
-        userStore.logIn();
+        await userStore.logIn();
       }
       router.push("/home");
     })

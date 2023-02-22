@@ -75,7 +75,7 @@ export class TwoFactorAuthController {
       user,
     );
     if (!isCodeValid) {
-      throw new UnauthorizedException("Wrong authentication code");
+      throw new UnauthorizedException("2FA: wrong authentication code");
     }
   }
 
