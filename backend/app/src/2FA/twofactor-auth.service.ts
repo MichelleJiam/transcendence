@@ -1,8 +1,12 @@
 import { UserService } from "../user/user.service";
 import { User } from "../user/user.entity";
-import { Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { authenticator } from "otplib";
-import { toFileStream } from "qrcode";
+import { toDataURL, toFileStream } from "qrcode";
 import { Response } from "express";
 
 @Injectable()
@@ -23,15 +27,28 @@ export class TwoFactorAuthService {
 
   public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
     return toFileStream(stream, otpauthUrl);
+    // return toDataURL(
+    //   otpauthUrl,
+    //   function (err: Error | null | undefined, qrImage: string) {
+    //     if (!err) {
+    //       return qrImage;
+    //     } else {
+    //       throw new InternalServerErrorException(
+    //         "Could not create 2FA QR code",
+    //       );
+    //     }
+    //   },
+    // );
   }
 
   public isTwoFactorAuthCodeValid(twoFactorAuthCode: string, user: User) {
-    if (user.twoFASecret) {
-      return authenticator.verify({
-        token: twoFactorAuthCode,
-        secret: user.twoFASecret,
-      });
+    if (!user.twoFASecret) {
+      throw new BadRequestException("2FA: user has not registered a secret");
     }
+    return authenticator.verify({
+      token: twoFactorAuthCode,
+      secret: user.twoFASecret,
+    });
   }
 
   public async enableTwoFactor(user: User) {

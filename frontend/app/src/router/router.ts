@@ -7,6 +7,7 @@ import LiveStream from "../views/LiveStream.vue";
 import ChatRoom from "../views/ChatRoom.vue";
 import NotFound from "../views/NotFound.vue";
 import FriendPage from "../views/FriendPage.vue";
+import TwoFAPage from "@/views/TwoFAPage.vue";
 import type { Component } from "vue";
 
 const routes: {
@@ -31,6 +32,7 @@ const routes: {
   { path: "/:id/friends", component: FriendPage },
   { path: "/friends", component: FriendPage },
   { path: "/:pathMatch(.*)*", component: NotFound },
+  { path: "/2fa", component: TwoFAPage, name: "2fa" },
 ];
 
 export default routes;

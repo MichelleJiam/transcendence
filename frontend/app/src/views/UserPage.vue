@@ -1,5 +1,10 @@
 <template>
   <main>
+    <TwoFactorPopup
+      v-if="showTwoFAPopup()"
+      class="two-fa-popup"
+      @uncheck="uncheckTwoFACheckbox"
+    ></TwoFactorPopup>
     <div id="display-content">
       <div class="user-info">
         <h1 class="user-title">
@@ -45,6 +50,7 @@
       </div>
     </div>
   </main>
+  <div :class="{ overlay: showTwoFAPopup() }"></div>
 </template>
 
 <script setup lang="ts">
@@ -54,29 +60,35 @@ import AvatarDisplay from "@/components/AvatarDisplay.vue";
 import AvatarUpload from "@/components/AvatarUpload.vue";
 import { ref, onMounted, watch } from "vue";
 import { useUserStore } from "@/stores/UserStore";
+import TwoFactorPopup from "@/components/TwoFactorPopup.vue";
 
 const twoFactorAuthentication = ref<boolean>();
 const playerName = ref<string>("");
 const isDisabled = ref<boolean>();
-
 let message = "";
 
-// const route = useRoute();
 const store = useUserStore();
-
-// store.setUserId(route.params.id); // temporary workaround: remove when user authentication is fixed
 
 onMounted(async () => {
   await store.retrieveCurrentUserData();
   twoFactorAuthentication.value = store.user.twoFAEnabled;
   playerName.value = store.user.playerName;
+  console.log("2fa enabled? ", twoFactorAuthentication.value);
   await store.getAvatar();
 });
+
+function showTwoFAPopup() {
+  console.log("show popup? ", twoFactorAuthentication.value);
+  return twoFactorAuthentication.value === true;
+}
 
 function submitAccountSettings() {
   store.updateAccountSettings(playerName.value, twoFactorAuthentication.value);
 }
 
+function uncheckTwoFACheckbox() {
+  twoFactorAuthentication.value = false;
+}
 /*  client-Side input validation */
 
 watch(playerName, () => {
@@ -148,6 +160,23 @@ h2 {
   font-family: "ArcadeClassic", sans-serif;
   font-size: 30px;
 }
+
+.two-fa-popup {
+  position: absolute;
+  z-index: 2;
+}
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  /* background-color: pink; */
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  /* display: none; */
+}
+
 .account-settings-button {
   grid-area: button;
   justify-self: stretch;
