@@ -17,7 +17,9 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
-  Req,
+  Logger,
+  HttpException,
+  HttpStatus,
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserSettingsDto } from "./dto/update-user-settings.dto";
@@ -30,12 +32,14 @@ import { Readable } from "typeorm/platform/PlatformTools";
 import { RequestUser } from "./request-user.interface";
 import { User } from "./user.entity";
 import PartialJwtGuard from "src/auth/guards/partial-jwt.guard";
+import { QueryFailedError } from "typeorm";
 // the code for each function can be found in:
 // user.service.ts
 
 @Controller("user")
 export class UserController {
   constructor(private readonly userService: UserService) {}
+  private readonly logger = new Logger(UserController.name);
 
   /* default Get - go to localhost:3000/user it displays all users */
   @Get()
@@ -97,8 +101,16 @@ export class UserController {
     @Param("id", ParseIntPipe) id: number,
     @Body() userSettings: UpdateUserSettingsDto,
   ) {
-    console.log("updating settings for user ", id);
-    return await this.userService.updateUser(id, userSettings);
+    this.logger.log("Hit the updateUser route");
+    try {
+      return await this.userService.updateUser(id, userSettings);
+    } catch (error) {
+      if (error instanceof QueryFailedError) this.logger.error(error.message);
+      throw new HttpException(
+        "Player name already exists",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   // @Put("/update-settings")
