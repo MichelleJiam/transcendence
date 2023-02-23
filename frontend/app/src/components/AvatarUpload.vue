@@ -37,6 +37,7 @@ async function onFileSelected(e: Event) {
 }
 
 async function submitAvatar() {
+  console.log("[DEBUG] submitAvatar");
   if (avatar.selectedFile) {
     store.updateAvatar(avatar.selectedFile);
   }

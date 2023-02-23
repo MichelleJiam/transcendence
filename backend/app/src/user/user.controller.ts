@@ -12,7 +12,6 @@ import {
   Put,
   ValidationPipe,
   UsePipes,
-  StreamableFile,
   Res,
   UseInterceptors,
   UploadedFile,
@@ -24,21 +23,22 @@ import {
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserSettingsDto } from "./dto/update-user-settings.dto";
 import { UserService } from "./user.service";
-import { createReadStream } from "fs";
-import { join } from "path";
 import { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { Readable } from "typeorm/platform/PlatformTools";
 import { RequestUser } from "./request-user.interface";
 import { User } from "./user.entity";
 import PartialJwtGuard from "src/auth/guards/partial-jwt.guard";
 import { QueryFailedError } from "typeorm";
+import { AvatarService } from "src/avatar/avatar.service";
 // the code for each function can be found in:
 // user.service.ts
 
 @Controller("user")
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly avatarService: AvatarService,
+  ) {}
   private readonly logger = new Logger(UserController.name);
 
   /* default Get - go to localhost:3000/user it displays all users */
@@ -123,7 +123,9 @@ export class UserController {
   //   return await this.userService.updateUser(user.id, userSettings);
   // }
 
-  /* avatar */
+  /*********
+   * avatar *
+   *********/
 
   @Post(":id/avatar")
   @UseGuards(JwtAuthGuard)
@@ -133,44 +135,31 @@ export class UserController {
     @Param("id", ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    // delete avatar before posting a new one
+    this.logger.log("Hit the addAvatar route");
     file.filename = "avatar" + "-" + id + "-" + Date.now();
     return this.userService.addAvatar(id, file.buffer, file.filename);
   }
 
+  @Delete(":id/avatar")
+  async deleteAvatar(@Param("id", ParseIntPipe) id: number) {
+    this.logger.log("Hit the deleteAvatar route");
+    await this.avatarService.deleteAvatar(id);
+  }
   @Get(":id/avatar")
   @UseGuards(JwtAuthGuard)
   async getAvatar(
     @Param("id", ParseIntPipe) id: number,
     @Res({ passthrough: true }) res: Response,
   ) {
-    // add id check here
+    this.logger.log("Hit the getAvatar route");
     const user = await this.findUserById(id);
     if (user != null) {
       const avatarId = user.avatarId;
       if (user.avatarId == null) {
-        res.header("Content-Type", "image");
-        res.header(
-          "Content-Disposition",
-          `inline; filename="default-avatar.jpg"`,
-        );
-        const defaultAvatar = createReadStream(
-          join(process.cwd(), "src/assets/default-avatar.png"),
-        );
-        return new StreamableFile(defaultAvatar);
-        // split up into different functions
+        return this.avatarService.getDefaultAvatar(res);
       } else {
         if (avatarId) {
-          const file = await this.userService.getAvatarById(avatarId);
-          res.header("Content-Type", "image");
-          res.header(
-            "Content-Disposition",
-            `inline; filename="${file.filename}"`,
-          );
-          if (file.data) {
-            const stream = Readable.from(file.data);
-            return new StreamableFile(stream);
-          }
+          return await this.avatarService.getAvatar(avatarId, res);
         }
       }
     }

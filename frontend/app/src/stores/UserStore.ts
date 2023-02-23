@@ -123,14 +123,20 @@ export const useUserStore = defineStore("user", {
      *********/
 
     async updateAvatar(selectedFile: File) {
+      console.log("[DEBUG] updateAvatar");
+      if (selectedFile.size > 1000000) {
+        alert("File exceeds the maximum upload size of 2mb");
+      }
       try {
         const formData = new FormData();
         formData.append("file", selectedFile);
         await apiRequest(`/user/${this.user.id}/avatar`, "post", {
           data: formData,
         });
+        alert("Avatar successfully updated");
       } catch (error) {
         console.log(`Error in updateAvatar(): ${error}`);
+        alert(error);
       }
     },
     async getAvatar() {
