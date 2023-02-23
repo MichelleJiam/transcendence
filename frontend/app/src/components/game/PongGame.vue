@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import type { PropType } from "vue";
 import type { Keys, GameRoom, Canvas } from "./pong.types";
 import { Socket } from "socket.io-client";
@@ -21,17 +21,24 @@ let ctx: CanvasRenderingContext2D;
 let key: Keys;
 let gameRoom: GameRoom;
 
-onMounted(async () => {
+onMounted(() => {
+  console.log("onMounted");
   initCanvas();
   initGame();
   drawBorderLines();
   drawCenterLine();
   drawPaddles();
-  await countdown();
-  // await countdown().then((data) => {
-  //   console.log(data);
-  // });
-  intervalId = setInterval(draw, 5);
+  if (gameRoom.player == 1) {
+    props.socket.emit("countdown", gameRoom);
+  }
+});
+
+/* end game and forfeit the other player and kick everyone out of the room */
+onUnmounted(() => {
+  console.log("unmounted");
+  // if (gameRoom.player == 0) {
+  //   props.socket.emit("leaveRoom", gameRoom.id);
+  // }
 });
 
 /******************
@@ -117,77 +124,12 @@ function initGame() {
   }
 }
 
-/*************
- * COUNTDOWN *
- *************/
-
-const countdown = () => {
-  return new Promise<string>((resolve) => {
-    let count = 3;
-
-    const timeout = setInterval(function () {
-      ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
-      drawBorderLines();
-      drawCountdownCenterLine();
-      drawPaddles();
-      if (count < 0) {
-        clearInterval(timeout);
-        resolve("start game!");
-      }
-      props.socket.emit("countdown", count);
-      // drawCountdown(count);
-      // drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
-      count--;
-    }, 750);
-  });
-};
-
-props.socket.on("drawCount", (count: number) => {
-  drawCountdown(count);
-  drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
-});
-
-/*************
- * GAME LOOP *
- *************/
-
-let intervalId = setInterval(draw, 5); // change interval to change speed; can be a feature?
-clearInterval(intervalId);
-
 /************
  * END GAME *
  ************/
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const emit = defineEmits(["game-over"]);
-
-async function gameOver() {
-  if (gameRoom.winner == 1) {
-    gameRoom.winner = gameRoom.playerOne.id;
-    gameRoom.loser = gameRoom.playerTwo.id;
-  } else {
-    gameRoom.winner = gameRoom.playerTwo.id;
-    gameRoom.loser = gameRoom.playerOne.id;
-  }
-  await sleep(2000);
-  emit("game-over", gameRoom);
-  // document.location.reload();
-}
-
-props.socket.on("endGame", (winnerGameRoom: GameRoom) => {
-  clearInterval(intervalId);
-  ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
-  drawCenterLine();
-  drawBorderLines();
-  drawPaddles();
-  props.socket.emit("drawScoreboard", winnerGameRoom);
-  // drawScoreboard(
-  //   winnerGameRoom.playerOne.score,
-  //   winnerGameRoom.playerTwo.score
-  // );
-  // drawGameOver(winnerGameRoom.winner);
-  gameOver();
-});
 
 props.socket.on(
   "drawScoreboard",
@@ -198,6 +140,24 @@ props.socket.on(
   }
 );
 
+async function gameOver() {
+  await sleep(2000);
+  emit("game-over", gameRoom);
+}
+
+props.socket.on("endGame", (winnerGameRoom: GameRoom) => {
+  ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
+  drawCenterLine();
+  drawBorderLines();
+  drawPaddles();
+  drawScoreboard(
+    winnerGameRoom.playerOne.score,
+    winnerGameRoom.playerTwo.score
+  );
+  drawGameOver(winnerGameRoom.winner);
+  gameOver();
+});
+
 async function endMatch() {
   if (gameRoom.winner == 1) {
     gameRoom.playerOne.score++;
@@ -207,34 +167,25 @@ async function endMatch() {
     resetBall(gameRoom.view.width - gameRoom.view.width / 4);
     gameRoom.ball.moveX = -gameRoom.ball.moveX;
   }
-
   if (gameRoom.playerOne.score == 3 || gameRoom.playerTwo.score == 3) {
-    props.socket.emit("endGame", gameRoom);
-    return;
+    if (gameRoom.player == 1) {
+      props.socket.emit("endGame", gameRoom);
+    }
+  } else if (gameRoom.player == 1) {
+    props.socket.emit("countdown", gameRoom);
   }
-  clearInterval(intervalId);
-  await countdown().then((data) => {
-    console.log(data);
-  });
-  intervalId = setInterval(draw, 5);
 }
 
 /************
  * MOVEMENT *
  ************/
 
-async function determineKeyStrokes() {
+function determineKeyStrokes() {
   if (key.up) {
     props.socket.emit("movePaddleUp", gameRoom);
   }
   if (key.down) {
     props.socket.emit("movePaddleDown", gameRoom);
-  }
-}
-
-async function moveBall() {
-  if (gameRoom.player == 1) {
-    props.socket.emit("moveBall", gameRoom);
   }
 }
 
@@ -254,7 +205,7 @@ props.socket.on("movePaddleTwoDown", (MoveY: number) => {
   gameRoom.playerTwo.paddle.y = MoveY * gameRoom.view.height;
 });
 
-props.socket.on("calculateBallMovement", (x: number, y: number) => {
+props.socket.on("calculateBallMovement", async (x: number, y: number) => {
   if (
     x * gameRoom.view.width + gameRoom.ball.moveX >
     gameRoom.view.width -
@@ -274,7 +225,11 @@ props.socket.on("calculateBallMovement", (x: number, y: number) => {
     } else {
       gameRoom.ball.moveX = -gameRoom.ball.moveX;
       gameRoom.winner = 1;
+      if (gameRoom.player == 1) {
+        props.socket.emit("endMatch");
+      }
       endMatch();
+      return;
     }
   } else if (
     x * gameRoom.view.width + gameRoom.ball.moveX <
@@ -294,7 +249,11 @@ props.socket.on("calculateBallMovement", (x: number, y: number) => {
     } else {
       gameRoom.ball.moveX = -gameRoom.ball.moveX;
       gameRoom.winner = 2;
+      if (gameRoom.player == 1) {
+        props.socket.emit("endMatch");
+      }
       endMatch();
+      return;
     }
   }
   if (
@@ -336,16 +295,27 @@ function keyUpHandler(e: KeyboardEvent) {
  * DRAWING FUNCTIONS *
  *********************/
 
-async function draw() {
+props.socket.on("drawCountdown", (count: number) => {
+  ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
+  drawBorderLines();
+  drawCountdownCenterLine();
+  drawPaddles();
+  drawCountdown(count);
+  drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
+});
+
+props.socket.on("drawCanvas", () => {
   ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();
   drawBorderLines();
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
-  await moveBall();
+  if (gameRoom.player == 1) {
+    props.socket.emit("moveBall", gameRoom);
+  }
   drawBall();
-  await determineKeyStrokes();
+  determineKeyStrokes();
   drawPaddles();
-}
+});
 
 function drawScoreboard(playerOneScore: number, playerTwoScore: number) {
   ctx.beginPath();
@@ -400,7 +370,7 @@ function drawBorderLines() {
   ctx.closePath();
 }
 
-function drawPaddles() {
+async function drawPaddles() {
   ctx.beginPath();
   ctx.rect(
     gameRoom.playerOne.paddle.width + gameRoom.playerOne.paddle.offset,
@@ -424,7 +394,7 @@ function drawPaddles() {
   ctx.closePath();
 }
 
-function drawBall() {
+async function drawBall() {
   ctx.beginPath();
   ctx.rect(
     gameRoom.ball.x,

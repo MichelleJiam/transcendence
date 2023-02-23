@@ -57,13 +57,14 @@ const activeGames = ref(Array<Game>());
 game.value.state = State.READY;
 
 async function gameOver(gameRoom: GameRoom) {
-  game.value = gameRoom;
+  // game.value = gameRoom;
   game.value.state = State.READY;
   socket.emit("leaveRoom", gameRoom.id);
   joined.value = false;
   console.log(id, "has left room ", gameRoom.id);
   await apiRequest(`/game`, "put", { data: gameRoom });
   socket.emit("updateActiveGames");
+  // clear all gameRoom values somehow?
 }
 
 socket.on("disconnecting", (socket) => {
@@ -103,15 +104,14 @@ async function getActiveGames() {
 
 async function watchGame(gameId: number) {
   const res = await apiRequest(`/game/${gameId}`, "get");
-  console.log("GAME: ", res.data);
 
   // now need to build view for watcher
   game.value.id = res.data.id;
   game.value.player = 0;
   game.value.playerOne = {
     id: res.data.playerOne,
-    socket: res.data.playerOne.socket,
-    score: res.data.playerOne.score,
+    socket: res.data.playerOneSocket,
+    score: res.data.playerOneScore,
     paddle: {
       height: 0,
       width: 0,
@@ -121,8 +121,8 @@ async function watchGame(gameId: number) {
   };
   game.value.playerTwo = {
     id: res.data.playerTwo,
-    socket: res.data.playerTwo.socket,
-    score: res.data.playerTwo.score,
+    socket: res.data.playerTwoSocket,
+    score: res.data.playerTwoScore,
     paddle: {
       height: 0,
       width: 0,
@@ -130,9 +130,9 @@ async function watchGame(gameId: number) {
       offset: 0,
     },
   };
+  socket.emit("watchGame", game.value); // adds them to gameRoom
+  console.log(id, " has joined room ", gameId, " as a WATCHER");
   game.value.state = State.PLAYING;
-  socket.emit("watchGame", gameId); // adds them to gameRoom
-  console.log(id, " has joined room ", game.value.id, " as a WATCHER");
   joined.value = true;
 }
 
@@ -142,7 +142,7 @@ socket.on("addPlayerOne", (gameRoom: GameRoom) => {
     game.value.player = 1;
     socket.emit("joinRoom", game.value);
     joined.value = true;
-    console.log(id, "has joined room ", game.value.id);
+    console.log(id, "has joined room ", game.value.id, " as PLAYER 1");
     socket.emit("updateActiveGames");
   }
 });
@@ -178,7 +178,7 @@ const startGame = async () => {
     };
     game.value.state = State.PLAYING;
     socket.emit("joinRoom", game.value);
-    console.log(id, " has joined room ", game.value.id);
+    console.log(id, " has joined room ", game.value.id, " as PLAYER 2");
     joined.value = true;
   }
 };
