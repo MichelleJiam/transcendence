@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { apiRequest } from "@/utils/apiRequest";
 import router from "@/router";
+import type { AxiosError } from "axios";
 
 interface PublicProfile {
   id: number;
@@ -105,6 +106,7 @@ export const useUserStore = defineStore("user", {
       newPlayerName: string,
       twoFA: boolean | undefined
     ) {
+      console.log("[DEBUG] updateAccountSettings");
       try {
         await apiRequest(`/user/${this.user.id}/update-settings`, "put", {
           data: { playerName: newPlayerName, twoFAEnabled: twoFA },
@@ -112,10 +114,14 @@ export const useUserStore = defineStore("user", {
         this.retrieveCurrentUserData();
         alert("Your account settings succesfully updated");
       } catch (error) {
-        console.log(`Error in updateAccountSettings(): ${error}`);
+        this.handleError(error as AxiosError);
       }
     },
-    // AVATAR
+
+    /*********
+     * avatar *
+     *********/
+
     async updateAvatar(selectedFile: File) {
       try {
         const formData = new FormData();
@@ -133,6 +139,17 @@ export const useUserStore = defineStore("user", {
         this.user.avatarUrl = res.config.url;
       } catch (error) {
         console.log(`Error in getAvatar(): ${error}`);
+      }
+    },
+
+    /*****************
+     * error handling *
+     *****************/
+
+    handleError(error: AxiosError) {
+      if (error.response && error.response.data) {
+        console.log((error.response.data as Error).message);
+        alert((error.response.data as Error).message);
       }
     },
   },
