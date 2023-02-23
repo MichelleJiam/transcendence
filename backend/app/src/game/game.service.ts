@@ -18,7 +18,6 @@ export class GameService {
   constructor(
     @InjectRepository(Game)
     private readonly gameRepository: Repository<Game>,
-
     private readonly userService: UserService,
   ) {}
 
@@ -113,6 +112,7 @@ export class GameService {
       .execute();
     return game;
   }
+
   async remove(gameId: number) {
     if (this.findOne(gameId) == null) {
       this.logger.debug("game does not exist, unable to delete");
