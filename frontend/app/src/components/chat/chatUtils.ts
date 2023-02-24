@@ -1,4 +1,5 @@
-import apiRequest from "@/utils/apiRequest";
+import apiRequest, { baseUrl } from "@/utils/apiRequest";
+import { io } from "socket.io-client";
 import { ref } from "vue";
 
 export class UpdateChatroomDto {
@@ -39,7 +40,8 @@ export function createPenalty(
   chatroomId: number
 ) {
   const url = "/chat/" + chatroomId + "/admin/" + adminId + "/penalty";
-  console.log(url);
+  const socketUrl = baseUrl;
+  const socket = io(socketUrl);
 
   const newPenalty = new Penalty();
   newPenalty.chatroom = chatroomId;
@@ -48,6 +50,7 @@ export function createPenalty(
 
   apiRequest(url, "post", { data: newPenalty })
     .then((response) => {
+      socket.emit("checkBan", newPenalty);
       location.reload();
       console.log(response);
     })

@@ -8,6 +8,7 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  UseGuards,
 } from "@nestjs/common";
 import { CreateMessageDto } from "src/message/dto/create-message.dto";
 import { CreatePenaltyDto } from "src/penalty/dto/create-penalty.dto";
@@ -20,11 +21,17 @@ import { AddMemberDto } from "./dto/add-member.dto";
 import { CreateChatroomDto } from "./dto/create-chat.dto";
 import { SwapOwnerDto } from "./dto/swap-owner.dto";
 import { UpdateChatroomDto } from "./dto/update-chat.dto";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+import { currentUser } from "src/auth/decorators/current-user.decorator";
+import { User } from "src/user/user.entity";
+import { isCurrentUser } from "src/user/user.utils";
 
 // TODO:
 //  VALIDATE USER BEFORE DOING ANYTHING is active user same as user in dto
+// use @currentUser user: User, and incorporate that into the functions to validate that the correct user Id is being passed constantly.
 
 @Controller("chat")
+@UseGuards(JwtAuthGuard)
 export class ChatController {
   constructor(private readonly chatroomService: ChatService) {}
 
@@ -53,7 +60,9 @@ export class ChatController {
   @Get("user/:userId")
   async getChatroomsOfUser(
     @Param("userId", ParseIntPipe) userId: number,
+    @currentUser() user: User,
   ): Promise<Chatroom[]> {
+    isCurrentUser(user.id, userId);
     return this.chatroomService.getChatroomsOfUser(userId);
   }
 
@@ -73,8 +82,10 @@ export class ChatController {
   async getMessagesFromChatroomForUser(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Param("userId", ParseIntPipe) userId: number,
+    @currentUser() user: User,
   ): Promise<Message[] | undefined> {
     try {
+      isCurrentUser(user.id, userId);
       return this.chatroomService.getMessagesFromChatroomForUser(
         chatroomId,
         userId,
@@ -120,8 +131,10 @@ export class ChatController {
   @Post("create")
   async createChatroom(
     @Body() createChatroomDto: CreateChatroomDto,
+    @currentUser() user: User,
   ): Promise<Chatroom | undefined> {
     try {
+      isCurrentUser(user.id, createChatroomDto.user);
       return this.chatroomService.createChatroom(createChatroomDto);
     } catch (err) {
       console.log(err);
@@ -132,8 +145,10 @@ export class ChatController {
   @Post("post_message")
   async postMessageToChatroom(
     @Body() createMessageDto: CreateMessageDto,
+    @currentUser() user: User,
   ): Promise<Message | undefined> {
     try {
+      isCurrentUser(user.id, createMessageDto.userId);
       return this.chatroomService.postMessageToChatroom(createMessageDto);
     } catch (err) {
       console.error(err);
@@ -145,12 +160,18 @@ export class ChatController {
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Param("adminId", ParseIntPipe) adminId: number,
     @Body() createPenaltyDto: CreatePenaltyDto,
-  ): Promise<Penalty> {
-    return this.chatroomService.createPenalty(
-      chatroomId,
-      adminId,
-      createPenaltyDto,
-    );
+    @currentUser() user: User,
+  ): Promise<Penalty | undefined> {
+    try {
+      isCurrentUser(user.id, adminId);
+      return this.chatroomService.createPenalty(
+        chatroomId,
+        adminId,
+        createPenaltyDto,
+      );
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   // PUT
@@ -175,8 +196,10 @@ export class ChatController {
   async addAdminToChatroomById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Body() addAdminDto: AddAdminDto,
+    @currentUser() user: User,
   ): Promise<Chatroom | undefined> {
     try {
+      isCurrentUser(user.id, addAdminDto.byAdmin);
       // check if user is not banned from chat
       return this.chatroomService.addAdminToChatroom(chatroomId, addAdminDto);
     } catch (err) {
@@ -189,8 +212,10 @@ export class ChatController {
   async changeOwnerofChatroomById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Body() swapOwnerDto: SwapOwnerDto,
+    @currentUser() user: User,
   ): Promise<Chatroom | undefined> {
     try {
+      isCurrentUser(user.id, swapOwnerDto.oldOwner);
       // check if user is not banned from chat
       return this.chatroomService.changeOwnerofChatroomById(
         chatroomId,
@@ -209,8 +234,10 @@ export class ChatController {
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Param("adminId", ParseIntPipe) adminId: number,
     @Body() updateChatroomDto: UpdateChatroomDto,
+    @currentUser() user: User,
   ): Promise<Chatroom | undefined> {
     try {
+      isCurrentUser(user.id, adminId);
       return this.chatroomService.updateChatroomInfoById(
         chatroomId,
         adminId,
@@ -227,8 +254,10 @@ export class ChatController {
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Param("adminId", ParseIntPipe) adminId: number,
     @Param("userId", ParseIntPipe) userId: number,
+    @currentUser() user: User,
   ): Promise<Chatroom | undefined> {
     try {
+      isCurrentUser(user.id, adminId);
       return this.chatroomService.kickUser(chatroomId, adminId, userId);
     } catch (err) {
       console.log(err);
@@ -241,8 +270,10 @@ export class ChatController {
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Param("adminId", ParseIntPipe) adminId: number,
     @Param("toDeleteId", ParseIntPipe) toDeleteId: number,
+    @currentUser() user: User,
   ): Promise<Chatroom | undefined> {
     try {
+      isCurrentUser(user.id, adminId);
       return this.chatroomService.deleteAdminFromChatroom(
         chatroomId,
         adminId,
@@ -257,8 +288,10 @@ export class ChatController {
   async leaveChatroom(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Param("userId", ParseIntPipe) userId: number,
+    @currentUser() user: User,
   ): Promise<Chatroom | string | undefined> {
     try {
+      isCurrentUser(user.id, userId);
       return this.chatroomService.leaveChatroom(chatroomId, userId);
     } catch (err) {
       console.log(err);

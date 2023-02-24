@@ -34,7 +34,6 @@ import { Penalty } from "src/penalty/penalty.entity";
 import { BlocklistService } from "src/blocklist/blocklist.service";
 import { filterMessages } from "src/blocklist/blocklist.method";
 import { ChatGateway } from "./chat.gateway";
-import { Socket } from "dgram";
 
 @Injectable()
 export class ChatService {
