@@ -226,7 +226,8 @@ props.socket.on("calculateBallMovement", async (x: number, y: number) => {
       gameRoom.ball.moveX = -gameRoom.ball.moveX;
       gameRoom.winner = 1;
       if (gameRoom.player == 1) {
-        props.socket.emit("endMatch");
+        console.log("frontend intervalId: ", gameRoom.intervalId);
+        props.socket.emit("endMatch", gameRoom);
       }
       endMatch();
       return;
@@ -250,7 +251,7 @@ props.socket.on("calculateBallMovement", async (x: number, y: number) => {
       gameRoom.ball.moveX = -gameRoom.ball.moveX;
       gameRoom.winner = 2;
       if (gameRoom.player == 1) {
-        props.socket.emit("endMatch");
+        props.socket.emit("endMatch", gameRoom);
       }
       endMatch();
       return;
@@ -304,7 +305,9 @@ props.socket.on("drawCountdown", (count: number) => {
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
 });
 
-props.socket.on("drawCanvas", () => {
+props.socket.on("drawCanvas", (intervalId: ReturnType<typeof setInterval>) => {
+  gameRoom.intervalId = intervalId;
+  console.log("intervalId: ", intervalId);
   ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();
   drawBorderLines();

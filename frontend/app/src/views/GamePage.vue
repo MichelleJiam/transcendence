@@ -11,9 +11,6 @@
             {{ activeGame.playerOne }} vs. {{ activeGame.playerTwo }}
           </button>
         </div>
-        <!-- <PongWatch :socket="socket" /> -->
-        <!-- <button class="btn" @click="startGame">PLAY</button>
-        <button class="btn" @click="watchGame">WATCH</button> -->
       </div>
       <div v-else-if="game.state == State.WAITING" class="loader">
         <LoaderKnightRider />
