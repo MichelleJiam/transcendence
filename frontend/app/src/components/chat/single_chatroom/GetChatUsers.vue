@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import apiRequest from "@/utils/apiRequest";
+import apiRequest, { baseUrl } from "@/utils/apiRequest";
 import {
   createPenalty,
   makeAdmin,
@@ -113,6 +113,7 @@ import {
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
+import { io } from "socket.io-client";
 
 const userStore = useUserStore();
 const userId = userStore.user.id;
@@ -129,6 +130,9 @@ const chatRoomInfo = ref([]);
 const isUserOwner = ref();
 const isUserAdmin = ref();
 const blocklist = ref([]);
+
+const socketUrl = baseUrl;
+const socket = io(socketUrl);
 
 function inBlocklist(userId: number) {
   for (const entry of blocklist.value) {
@@ -148,11 +152,6 @@ function createBlock(blocklistOwner: number, blockedUser: number) {
 
   apiRequest(url, "post", { data: newBlocklist })
     .then((response) => {
-      const newBlocklistEntry = new Blocklist();
-      newBlocklistEntry.id = response.data.id;
-      newBlocklistEntry.blockedUser = response.data.blockedUser;
-      newBlocklistEntry.blocklistOwner = response.data.blocklistOwner;
-      blocklist.value.push(newBlocklistEntry);
       location.reload();
       console.log(response);
     })
@@ -174,12 +173,17 @@ function unBlock(blocklistOwner: number, blockedUser: number) {
 onMounted(async () => {
   const ownerUrl = "/chat/" + chatroomId + "/is_owner/" + userId;
   const adminUrl = "/chat/" + chatroomId + "/is_admin/" + userId;
+  // *** check if current user is Owner
   await apiRequest(ownerUrl, "get").then((response) => {
     isUserOwner.value = response.data; // returns the response data into the users variable which can then be used in the template
   });
+
+  // *** check if current user is Admin
   await apiRequest(adminUrl, "get").then((response) => {
     isUserAdmin.value = response.data; // returns the response data into the users variable which can then be used in the template
   });
+
+  // *** GET chatroom data and add user to member list if not in there yet
   await apiRequest(backendurlChatName, "get").then(async (response) => {
     chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
     ownerName =
@@ -209,6 +213,8 @@ onMounted(async () => {
       );
     }
   });
+
+  // *** Get user's blocklist
   await apiRequest(backendBlocklist, "get")
     .then((response) => {
       blocklist.value = response.data;
@@ -216,6 +222,19 @@ onMounted(async () => {
     .catch((err) => {
       console.log(err);
     });
+
+  // *** auto kick people if banned
+  socket.on("gotBanned", (response) => {
+    console.log(response);
+    if (
+      chatroomId === response.chatroom &&
+      response.penaltyType === "ban" &&
+      response.user.id === userStore.user.id
+    ) {
+      alert("Sorry, you've been banned");
+      window.location.href = "/chat";
+    } else console.log("you did not get banned");
+  });
 });
 </script>
 <style scoped>

@@ -9,33 +9,29 @@ import {
 } from "@nestjs/websockets";
 
 import { Socket, Server } from "socket.io";
-import { CreateMessageDto } from "src/message/dto/create-message.dto";
-import { ChatService } from "./chat.service";
+import { CreatePenaltyDto } from "./dto/create-penalty.dto";
+import { PenaltyService } from "./penalty.service";
 
 @WebSocketGateway({
   cors: {
     origin: "*",
   },
 })
-export class ChatGateway
+export class PenaltyGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
   server!: Server;
 
   constructor(
-    @Inject(forwardRef(() => ChatService))
-    private readonly chatService: ChatService,
+    @Inject(forwardRef(() => PenaltyService))
+    private readonly penaltyService: PenaltyService,
   ) {}
 
-  @SubscribeMessage("sendMessage")
-  async handleSendMessage(
-    client: Socket,
-    payload: CreateMessageDto,
-  ): Promise<void> {
+  @SubscribeMessage("checkBan")
+  async checkBan(client: Socket, payload: CreatePenaltyDto): Promise<void> {
     try {
-      const message = await this.chatService.postMessageToChatroom(payload);
-      this.server.emit("recMessage", message);
+      this.server.emit("gotBanned", payload);
     } catch (err) {
       console.log(err);
     }
