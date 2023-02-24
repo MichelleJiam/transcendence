@@ -36,6 +36,7 @@ export interface GameRoom {
   playerTwo: Player;
   ball: Ball;
   view: Canvas;
+  intervalId?: ReturnType<typeof setInterval>;
   state: number;
 }
 

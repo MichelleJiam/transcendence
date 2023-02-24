@@ -38,7 +38,7 @@ export class GameGateway {
       if (count < 0) {
         clearInterval(timeout);
         this.intervalId = setInterval(() => {
-          this.server.to(gameRoom.id).emit("drawCanvas");
+          this.server.to(gameRoom.id).emit("drawCanvas", gameRoom.intervalId);
           // this.moveBall(gameRoom);
         }, 8);
       }
@@ -165,7 +165,13 @@ export class GameGateway {
   }
 
   @SubscribeMessage("endMatch")
-  endMatch() {
+  endMatch(@MessageBody() gameRoom: GameRoom) {
+    console.log(
+      "intervalId for gameRoom ",
+      gameRoom.id,
+      ": ",
+      gameRoom.intervalId,
+    );
     clearInterval(this.intervalId);
   }
 
