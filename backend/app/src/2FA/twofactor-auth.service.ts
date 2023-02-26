@@ -26,7 +26,8 @@ export class TwoFactorAuthService {
   }
 
   public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
-    return toFileStream(stream, otpauthUrl);
+    return await toFileStream(stream, otpauthUrl);
+    // return await toDataURL(otpauthUrl);
     // return toDataURL(
     //   otpauthUrl,
     //   function (err: Error | null | undefined, qrImage: string) {
