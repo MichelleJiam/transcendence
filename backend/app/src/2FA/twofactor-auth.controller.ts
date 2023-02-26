@@ -32,8 +32,13 @@ export class TwoFactorAuthController {
   async register(@Res() response: Response, @currentUser() user: User) {
     const { otpauthUrl } =
       await this.twoFactorAuthService.generateTwoFactorAuthSecret(user);
-
-    return this.twoFactorAuthService.pipeQrCodeStream(response, otpauthUrl);
+    console.log("returning: ", otpauthUrl);
+    // return otpauthUrl;
+    response.setHeader("content-type", "image/png");
+    return await this.twoFactorAuthService.pipeQrCodeStream(
+      response,
+      otpauthUrl,
+    );
   }
 
   @Post("enable")
