@@ -229,3 +229,14 @@ export async function kickUser(
       console.log(err);
     });
 }
+
+export async function buildUserPageUrl(userId: number) {
+  const url = "/user/" + userId;
+  const userData = ref();
+
+  await apiRequest(url, "get").then((response) => {
+    console.log(response);
+    userData.value = response.data;
+    location.href = "/user/" + userData.value.playerName;
+  });
+}
