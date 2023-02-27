@@ -13,6 +13,13 @@ export class AddMemberDto {
   password?: string;
 }
 
+export class CreateDMDto {
+  type = "DM";
+  chatroomName!: string;
+  user!: number;
+  otherUser!: number;
+}
+
 export class SendMessageDto {
   chatroomId!: number;
   body!: string;

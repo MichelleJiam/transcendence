@@ -4,7 +4,18 @@
       <div class="row">
         <div class="header">
           <h2>{{ chatRoomInfo.chatroomName }}</h2>
-          <span v-if="isPrivate == true">we're in a private chat!</span>
+          <span v-if="isPrivate == true">
+            <input id="link" class="linkurl" type="text" :value="routeUrl" />
+            <div class="tooltip">
+              <button class="copy" @click="copyUrl()" @mouseout="outCopy()">
+                <span id="myTooltip" class="tooltiptext">
+                  {{ copyUrlText }}</span
+                >
+                Copy
+              </button>
+            </div>
+          </span>
+
           <span v-if="isPassword == true">
             <Teleport to="body">
               <!-- use the modal component, pass in the prop -->
@@ -72,12 +83,13 @@ import GetSingleChatroomMessages from "@/components/chat/single_chatroom/message
 import LeaveChat from "@/components/chat/single_chatroom/LeaveChat.vue";
 import PostMessages from "@/components/chat/single_chatroom/message/PostMessages.vue";
 import { useUserStore } from "@/stores/UserStore";
-import apiRequest from "@/utils/apiRequest";
+import apiRequest, { baseUrl } from "@/utils/apiRequest";
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import PasswordModal from "@/components/chat/single_chatroom/PasswordModal.vue";
 
 const route = useRoute();
+const routeUrl = baseUrl + route.path;
 const chatroomId = route.params.id;
 const chatRoomInfo = ref([]);
 const showModal = ref<boolean>(false);
@@ -89,8 +101,19 @@ const isPassword = ref<boolean>(false);
 
 const backendurlChatName = "/chat/" + chatroomId;
 
+const copyUrlText = ref<string>("Copy to clipboard");
+
 function close() {
   showModal.value = false;
+}
+
+function copyUrl() {
+  navigator.clipboard.writeText(routeUrl);
+  copyUrlText.value = "Copied: " + routeUrl;
+}
+
+function outCopy() {
+  copyUrlText.value = "Copy to Clipboard";
 }
 
 onMounted(async () => {
@@ -110,6 +133,18 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
+.linkurl {
+  height: 1rem;
+  width: 20rem;
+  font-size: 1rem;
+}
+
+.copy {
+  height: 2rem;
+  width: 4rem;
+  font-size: 1rem;
+  margin-left: 0.5rem;
+}
 .header {
   float: left;
   width: 70%;
@@ -170,5 +205,43 @@ onMounted(async () => {
 <style scoped>
 h2 {
   font-size: 3rem;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 20rem;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 1rem;
+  padding: 1rem;
+  position: absolute;
+  z-index: 1;
+  bottom: 150%;
+  left: 50%;
+  margin-left: -4rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 4.5rem; /* little arrow thingie */
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
 }
 </style>

@@ -52,6 +52,20 @@ export class UserService {
     return foundUser;
   }
 
+  async findUserByPlayerName(playerName: string) {
+    const foundUser = this.userRepository.findOne({
+      where: {
+        playerName: playerName,
+      },
+      select: {
+        id: true,
+        playerName: true,
+      },
+    });
+
+    return foundUser;
+  }
+
   async deleteUser(id: number) {
     const deleteResponse = await this.userRepository.delete(id);
     if (!deleteResponse.affected) {
