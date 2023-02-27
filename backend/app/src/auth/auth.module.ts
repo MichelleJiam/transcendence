@@ -7,6 +7,7 @@ import { AuthService } from "./auth.service";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { IntraStrategy } from "./strategies/intra.strategy";
 import { UserModule } from "../user/user.module";
+import { PartialJwtStrategy } from "./strategies/partial-jwt.strategy";
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { UserModule } from "../user/user.module";
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy, IntraStrategy],
+  providers: [AuthService, JwtStrategy, IntraStrategy, PartialJwtStrategy],
   exports: [AuthService],
   controllers: [AuthController],
 })

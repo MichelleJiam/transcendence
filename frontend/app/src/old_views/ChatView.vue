@@ -7,8 +7,8 @@
 </template>
 
 <script lang="ts">
-import GetMessages from "@/components/chat/GetMessages.vue";
-import PostMessages from "@/components/chat/PostMessages.vue";
+import GetMessages from "@/components/chat/message/GetMessages.vue";
+import PostMessages from "@/components/chat/message/PostMessages.vue";
 export default {
   components: {
     GetMessages,

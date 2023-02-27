@@ -1,8 +1,15 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Chatroom } from "src/chat/chat.entity";
+import { User } from "src/user/user.entity";
 import { Repository } from "typeorm";
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { Message } from "./message.entity";
+import { createNewMessage, validateBody } from "./message.method";
 
 @Injectable()
 export class MessageService {
@@ -11,26 +18,59 @@ export class MessageService {
     private readonly messageRepository: Repository<Message>,
   ) {}
 
-  getAllMessages() {
+  async getAllMessages() {
     return this.messageRepository.find({
-      relations: ["userId"],
-      order: {
-        userId: {
-          id: "asc",
-        },
+      relations: {
+        userId: true,
+        chatroomId: true,
       },
+      order: {
+        id: "asc",
+      },
+      cache: true,
     });
   }
 
-  async create(createMessageDto: CreateMessageDto) {
-    const newMessage = this.messageRepository.create(createMessageDto);
-    return this.messageRepository.save(newMessage);
+  async getMessagesFromChatroom(chatroomId: number): Promise<Message[]> {
+    const messages = await this.messageRepository.find({
+      order: {
+        id: "asc",
+      },
+      relations: {
+        chatroomId: true,
+        userId: true,
+      },
+      where: {
+        chatroomId: {
+          id: chatroomId,
+        },
+      },
+      select: {
+        userId: {
+          id: true,
+          playerName: true,
+        },
+        chatroomId: {
+          id: true,
+          chatroomName: true,
+          type: true,
+        },
+        body: true,
+        createdAt: true,
+      },
+      cache: true,
+    });
+    return messages;
   }
 
   async getMessageByUserId(id: number) {
     const messages = await this.messageRepository.find({
+      order: {
+        id: "asc",
+      },
       relations: {
         userId: true,
+        chatroomId: true,
       },
       where: {
         userId: {
@@ -42,39 +82,28 @@ export class MessageService {
           id: true,
           playerName: true,
         },
+        chatroomId: {
+          id: true,
+          chatroomName: true,
+          type: true,
+        },
         body: true,
         createdAt: true,
       },
+      cache: true,
     });
     if (messages) return messages;
     throw new NotFoundException("Posts not found");
   }
 
-  // finds username and retrieves all messages from this user
-  // relations links the userId column in the message entity with
-  // the id in the user entity
-  // where defines where username is the same as the given username
-  // select shows which columns should be returned
-  // https://typeorm.io/find-options#find-options
-  //   async getMessageByUsername(username: string) {
-  //     const messages = await this.messageRepository.find({
-  //       relations: {
-  //         userId: true,
-  //       },
-  //       where: {
-  //         userId: {
-  //           // username: username,
-  //         },
-  //       },
-  //       select: {
-  //         userId: {
-  //           id: true,
-  //         },
-  //         body: true,
-  //         createdAt: true,
-  //       },
-  //     });
-  //     if (messages) return messages;
-  //     throw new HttpException("Posts not found", HttpStatus.NOT_FOUND);
-  //   }
+  async create(
+    createMessageDto: CreateMessageDto,
+    chatroom: Chatroom,
+    user: User,
+  ) {
+    if (validateBody(createMessageDto.body) == false)
+      throw new BadRequestException("cannot send empty message");
+    const newMessage = createNewMessage(createMessageDto.body, chatroom, user);
+    return this.messageRepository.save(newMessage);
+  }
 }

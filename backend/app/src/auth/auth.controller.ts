@@ -16,6 +16,7 @@ import { currentUser } from "./decorators/current-user.decorator";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { IntraAuthGuard } from "./guards/intra-auth.guard";
 import { User } from "../user/user.entity";
+import { TokenType } from "./token-payload.interface";
 
 @Controller("auth")
 export class AuthController {
@@ -34,14 +35,23 @@ export class AuthController {
     @currentUser() user: User,
   ) {
     console.log("Callback");
-    // only issue cookie if 2FA not enabled. otherwise need to authenticate 2FA first
-    if (user.twoFAEnabled === false) {
-      const authCookie = this.authService.getCookieWithJwtToken(user.id);
-      response.setHeader("Set-Cookie", authCookie);
-      console.log("callback: Set access_token cookie");
+    let redirectTo, authCookie;
+
+    // Issue partial access cookie if 2FA needed.
+    if (user.twoFAEnabled === true) {
+      authCookie = this.authService.getCookieWithJwtToken(
+        user.id,
+        TokenType.PARTIAL,
+      );
+      redirectTo = `${process.env.HOME_REDIRECT}/2fa`;
+      console.log("2FA required, redirecting to 2FA frontend");
+    } else {
+      authCookie = this.authService.getCookieWithJwtToken(user.id);
+      redirectTo = `${process.env.HOME_REDIRECT}/login`;
     }
-    console.log("redirecting to ", process.env.HOME_REDIRECT);
-    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
+    response.setHeader("Set-Cookie", authCookie);
+    console.log("redirecting to ", redirectTo);
+    response.status(200).redirect(redirectTo);
   }
 
   // Debug routes. TODO: remove later
@@ -91,6 +101,13 @@ export class AuthController {
   @Get("status")
   checkAuthentication(@currentUser() user: User) {
     console.log("Current authenticated user: ", user);
+    // if (user.twoFAEnabled === true) {
+    //   return "2FA";
+    // } else if (user.playerName === null) {
+    //   return "SETUP";
+    // } else {
+    //   return "AUTHENTICATED";
+    // }
     return user;
   }
 

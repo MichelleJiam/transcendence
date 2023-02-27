@@ -1,15 +1,22 @@
 #!/bin/bash
 
+
 if [ -z "$1" ]
 then
 	echo "Please specify a name for the folder and files"
 	exit
 fi
 
-if [[ -d "${PWD}/src/$1" ]]
+src="../backend/app/src/$1"
+name=$1
+
+if [[ -d "../backend/app/src/$1" ]]
 then
 	echo "$1 already exists, folder not created." 
-	exit
+else
+	# DIRECTORY
+	echo "Creating file at: $src"
+	mkdir $src
 fi
 
 capitalize()
@@ -18,13 +25,7 @@ capitalize()
   printf '%s' "$1" | tail -c '+2'
 }
 
-echo "Creating folder and files for: ${PWD}/src/$1"
-
-src="${PWD}/src/$1"
-name=$1
-
-# DIRECTORY
-mkdir $src
+echo "Creating files for: $src"
 
 # CONTROLLER
 touch $src/$1.controller.ts
@@ -58,10 +59,3 @@ import { $(capitalize "$name")Service } from \"./$name.service\";
 	providers: [$(capitalize "$name")Service],
 })
 export class $(capitalize "$name")Module {}" >> $src/$1.module.ts
-
-# MODEL
-touch $src/$1.model.ts
-echo "export class $(capitalize "$name") {
-	constructor (
-		){}
-}" >> $src/$1.model.ts
