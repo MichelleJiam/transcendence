@@ -1,9 +1,10 @@
 <template>
   <main>
     <TwoFactorPopup
-      v-if="showTwoFAPopup()"
+      v-if="showTwoFAPopup"
       class="two-fa-popup"
       @uncheck="uncheckTwoFACheckbox"
+      @close-popup="toggleTwoFAPopup(false)"
     ></TwoFactorPopup>
     <div id="display-content">
       <div class="user-info">
@@ -37,6 +38,7 @@
             v-model:checked="twoFactorAuthentication"
             class="account-settings-checkbox"
             label="2FA"
+            @change="checkForTwoFAPopup()"
           />
 
           <button
@@ -50,7 +52,7 @@
       </div>
     </div>
   </main>
-  <div :class="{ overlay: showTwoFAPopup() }"></div>
+  <div :class="{ overlay: showTwoFAPopup }"></div>
 </template>
 
 <script setup lang="ts">
@@ -61,8 +63,10 @@ import AvatarUpload from "@/components/AvatarUpload.vue";
 import { ref, onMounted, watch } from "vue";
 import { useUserStore } from "@/stores/UserStore";
 import TwoFactorPopup from "@/components/TwoFactorPopup.vue";
+import apiRequest from "@/utils/apiRequest";
 
 const twoFactorAuthentication = ref<boolean>();
+const showTwoFAPopup = ref<boolean>(false);
 const playerName = ref<string>("");
 const isDisabled = ref<boolean>();
 let message = "";
@@ -77,10 +81,24 @@ onMounted(async () => {
   await store.getAvatar();
 });
 
-function showTwoFAPopup() {
-  console.log("show popup? ", twoFactorAuthentication.value);
-  return twoFactorAuthentication.value === true;
+async function checkForTwoFAPopup() {
+  if (twoFactorAuthentication.value === true) {
+    toggleTwoFAPopup(true);
+  } else {
+    toggleTwoFAPopup(false);
+    await apiRequest(`/2fa/disable`, "post");
+    console.log("2FA disabled");
+  }
 }
+
+function toggleTwoFAPopup(newState: boolean) {
+  showTwoFAPopup.value = newState;
+}
+
+// function showTwoFAPopup() {
+//   console.log("show popup? ", twoFactorAuthentication.value);
+//   return twoFactorAuthentication.value === true;
+// }
 
 function submitAccountSettings() {
   store.updateAccountSettings(playerName.value, twoFactorAuthentication.value);

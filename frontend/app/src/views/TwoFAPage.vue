@@ -33,7 +33,7 @@ const authCode = ref<string>("");
 
 async function submitCode() {
   await apiRequest(`/2fa/authenticate`, "post", {
-    data: { twoFactorAuthCode: authCode },
+    data: { twoFactorAuthCode: authCode.value },
   })
     .then(async (response) => {
       if (response.status === 200) {
@@ -44,7 +44,6 @@ async function submitCode() {
     .catch((err) => {
       console.log("Something went wrong with 2FA: ", err);
       alert("Wrong two factor authentication code!");
-      // router.push("/login");
     });
 }
 
