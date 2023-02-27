@@ -8,6 +8,7 @@ import { Chatroom } from "./chat/chat.entity";
 import { Penalty } from "./penalty/penalty.entity";
 import { Blocklist } from "./blocklist/blocklist.entity";
 import { Friend } from "./friend/friend.entity";
+import { Achievement } from "./achievement/achievement.entity";
 
 @Module({
   imports: [
@@ -21,7 +22,16 @@ import { Friend } from "./friend/friend.entity";
         username: configService.get("POSTGRES_USER"),
         password: configService.get("POSTGRES_PASSWORD"),
         database: configService.get("POSTGRES_DB"),
-        entities: [User, Message, Avatar, Friend, Chatroom, Penalty, Blocklist],
+        entities: [
+          User,
+          Message,
+          Avatar,
+          Friend,
+          Chatroom,
+          Penalty,
+          Blocklist,
+          Achievement,
+        ],
         synchronize: true,
       }),
     }),
