@@ -26,7 +26,7 @@ const gameHistory = [
 	{gameid: 2, winner: "sanne", loser: "test2"},
 	{gameid: 3, winner: "test1", loser: "sanne"},
 	{gameid: 4, winner: "sanne", loser: "test4"},
-	{gameid: 5, winner: "test2", loser: "sanne"},
+	{gameid: 5, winner: "tes", loser: "sanneeee"},
 	{gameid: 6, winner: "sanne", loser: "test3"},
 	{gameid: 7, winner: "sanne", loser: "test5"},
 	{gameid: 8, winner: "sanne", loser: "test1"},
@@ -45,7 +45,7 @@ const gameHistory = [
 	{gameid: 21, winner: "sanne", loser: "test5"},
 	{gameid: 22, winner: "sanne", loser: "test1"},
 	{gameid: 23, winner: "sanne", loser: "test2"},
-	{gameid: 24, winner: "test1", loser: "sanne"},
+	{gameid: 24, winner: "t1estxz1", loser: "sanne"},
 	{gameid: 25, winner: "sanne", loser: "test4"},
 	{gameid: 26, winner: "test2", loser: "sanne"},
 	{gameid: 27, winner: "sanne", loser: "test3"},
@@ -58,7 +58,7 @@ const gameHistory = [
 	display: flex;
 	flex-direction: column;
 	height: 700px;
-	width: 100%;
+	width: 375px;
 	padding: 20px;
 
 	background-color: var(--box-background-color);
@@ -80,7 +80,9 @@ const gameHistory = [
 	color: var(--loser-color);
 }
 .gamehistory-list {
-	font-size: 1.2rem;
+	font-family: var(--arcade-font);
+	font-weight: lighter;
+	font-size: 1.3rem;
 	overflow: scroll;
 	overflow-x: hidden;
 }
@@ -104,24 +106,4 @@ h2 {
 	/* color: var(--primary-color); */
 }
 
-/* TEMP SCROLLBAR STYLING */
-/* width */
-::-webkit-scrollbar {
-  width: 5px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: var(--primary-color);
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #2b2929b6;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #2b2929;
-}
 </style>

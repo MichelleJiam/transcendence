@@ -33,7 +33,8 @@ let showDescription: number | null = null;
 .flex-container {
 	display: flex;
 	flex-direction: column;
-
+  width: 375px;
+  
 	padding: 20px;
 
 	background-color: var(--box-background-color);
@@ -45,7 +46,7 @@ let showDescription: number | null = null;
 h2 {
   font-size: 50px;
   margin-bottom: 20px;
-  color: var(--primary-color);
+  /* color: var(--primary-color); */
 }
 
 .achievement-container {
