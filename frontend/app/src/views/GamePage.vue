@@ -31,13 +31,13 @@
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
 import PongMain from "../components/game/PongMain.vue";
-import PongWatch from "../components/game/PongWatch.vue";
 import apiRequest from "../utils/apiRequest";
 import { onBeforeMount, onUnmounted, ref } from "vue";
+import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import { onMounted } from "vue";
 import type { Game, GameRoom } from "../components/game/pong.types";
-import { useUserStore } from "@/stores/UserStore";
+// import { useUserStore } from "@/stores/UserStore";
 
 const State = {
   READY: 0,
@@ -45,8 +45,10 @@ const State = {
   PLAYING: 2,
 };
 
-const userStore = useUserStore();
-const id = ref(0);
+const route = useRoute();
+const id = route.params.id as string;
+// const userStore = useUserStore();
+// const id = ref(0);
 const socket = io("http://localhost:3000/pong");
 const joined = ref(false);
 const game = ref({} as GameRoom);
@@ -75,10 +77,11 @@ onBeforeMount(async () => {
 });
 
 onMounted(async () => {
-  await userStore.retrieveCurrentUserData();
-  id.value = userStore.user.id;
+  // await userStore.retrieveCurrentUserData();
+  // id.value = userStore.user.id;
   await apiRequest(
-    `/match/${id.value}`,
+    // `/match/${id.value}`,
+    `/match/${id}`,
     "delete"
   ); /* protection if user refreshes; removes them from queue */
   socket.on("connect", () => {
@@ -88,7 +91,8 @@ onMounted(async () => {
 
 onUnmounted(async () => {
   console.log("unmounted");
-  await apiRequest(`/match/${id.value}`, "delete");
+  // await apiRequest(`/match/${id.value}`, "delete");
+  await apiRequest(`/match/${id}`, "delete");
 });
 
 socket.on("updateActiveGames", () => {
@@ -145,7 +149,8 @@ socket.on("addPlayerOne", (gameRoom: GameRoom) => {
 });
 
 const startGame = async () => {
-  const res = await apiRequest(`/match/${id.value}`, "get");
+  // const res = await apiRequest(`/match/${id.value}`, "get");
+  const res = await apiRequest(`/match/${id}`, "get");
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
   } else {

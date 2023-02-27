@@ -11,7 +11,8 @@ import type { Keys, GameRoom, Canvas } from "./pong.types";
 import { Socket } from "socket.io-client";
 
 const props = defineProps({
-  id: { type: Number, required: true },
+  // id: { type: Number, required: true },
+  id: { type: String, required: true },
   game: { type: Object as PropType<GameRoom>, required: true },
   socket: { type: Socket, required: true },
 });
