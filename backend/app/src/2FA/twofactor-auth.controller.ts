@@ -1,4 +1,3 @@
-import { ValidUserGuard } from "../auth/guards/valid-user.guard";
 import { TwoFactorAuthCodeDto } from "./twofactor-auth-code.dto";
 import { currentUser } from "./../auth/decorators/current-user.decorator";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -17,11 +16,16 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { Response } from "express";
+import { AuthService } from "src/auth/auth.service";
+import PartialJwtGuard from "src/auth/guards/partial-jwt.guard";
 
 @Controller("2fa")
 @UseInterceptors(ClassSerializerInterceptor)
 export class TwoFactorAuthController {
-  constructor(private readonly twoFactorAuthService: TwoFactorAuthService) {}
+  constructor(
+    private readonly twoFactorAuthService: TwoFactorAuthService,
+    private readonly authService: AuthService,
+  ) {}
 
   @Post("register")
   @UseGuards(JwtAuthGuard)
@@ -52,16 +56,17 @@ export class TwoFactorAuthController {
 
   @Post("authenticate")
   @HttpCode(200)
-  @UseGuards(ValidUserGuard)
+  @UseGuards(PartialJwtGuard)
   async authenticate(
     @currentUser() user: User,
     @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto,
+    @Res({ passthrough: true }) response: Response,
   ) {
     console.log("2FA Authenticate for user ", user.id);
     await this.validateCode(user, twoFactorAuthCode);
 
-    // const authCookie = this.authService.getCookieWithJwtToken(user.id);
-    // response.setHeader("Set-Cookie", authCookie);
+    const authCookie = this.authService.getCookieWithJwtToken(user.id);
+    response.setHeader("Set-Cookie", authCookie);
   }
 
   private async validateCode(user: User, twoFactorAuthCode: string) {
@@ -70,14 +75,15 @@ export class TwoFactorAuthController {
       user,
     );
     if (!isCodeValid) {
-      throw new UnauthorizedException("Wrong authentication code");
+      throw new UnauthorizedException("2FA: wrong authentication code");
     }
   }
 
   // DEBUG // TODO: remove
   @Get("test")
   @UseGuards(JwtAuthGuard)
-  async test(@currentUser() user: User) {
+  test(@currentUser() user: User) {
+    console.log("user: ", user);
     console.log("2FA test user ", user.id);
   }
 }

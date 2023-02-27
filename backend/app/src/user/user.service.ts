@@ -52,20 +52,6 @@ export class UserService {
     return foundUser;
   }
 
-  // async getUserMessages(id: number) {
-  //   // this is how you do it from the opposite side, gets user and displays all messages by said user (Og from message.service.ts)
-  //   const users = await this.userRepository.find({
-  //     select: ["id"],
-  //     where: {
-  //       id: id, // compares ids and retrieves all the messages
-  //     },
-  //     relations: {
-  //       messages: true,
-  //     },
-  //   });
-  //   if (users) return users;
-  // }
-
   async deleteUser(id: number) {
     const deleteResponse = await this.userRepository.delete(id);
     if (!deleteResponse.affected) {

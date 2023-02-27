@@ -4,9 +4,11 @@ import GamePage from "../views/GamePage.vue";
 import UserPage from "../views/UserPage.vue";
 import LeaderBoard from "../views/LeaderBoard.vue";
 import LiveStream from "../views/LiveStream.vue";
-import ChatRoom from "../views/ChatRoom.vue";
+import Chatroom from "../views/ChatroomMainPage.vue";
+import SingleChatroom from "../views/ChatroomSingle.vue";
 import NotFound from "../views/NotFound.vue";
 import FriendPage from "../views/FriendPage.vue";
+import TwoFAPage from "@/views/TwoFAPage.vue";
 import type { Component } from "vue";
 
 const routes: {
@@ -24,14 +26,16 @@ const routes: {
   { path: "/login", component: LoginPage, name: "login" },
   { path: "/:id/game", component: GamePage } /* temp workaround */,
   { path: "/game", component: GamePage },
-  { path: "/:id/account", component: UserPage } /* temp workaround */,
+  { path: "/:id/account", component: UserPage, name: 'account' } /* temp workaround */,
   { path: "/account", component: UserPage, alias: ["/user"] },
   { path: "/leaderboard", component: LeaderBoard },
   { path: "/stream", component: LiveStream },
-  { path: "/chat", component: ChatRoom },
+  { path: "/chat", component: Chatroom },
+  { path: "/chat/:id", component: SingleChatroom } /* temp workaround */,
   { path: "/:id/friends", component: FriendPage },
   { path: "/friends", component: FriendPage },
   { path: "/:pathMatch(.*)*", component: NotFound },
+  { path: "/2fa", component: TwoFAPage, name: "2fa" },
 ];
 
 export default routes;
