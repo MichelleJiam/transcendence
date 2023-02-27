@@ -18,12 +18,20 @@ export class GameService {
   constructor(
     @InjectRepository(Game)
     private readonly gameRepository: Repository<Game>,
-
     private readonly userService: UserService,
   ) {}
 
   async findAll() {
     return await this.gameRepository.find({});
+  }
+
+  async findActive() {
+    const games = await this.gameRepository.find({
+      where: {
+        state: "playing",
+      },
+    });
+    return games;
   }
 
   async findOne(id: number) {
@@ -104,6 +112,7 @@ export class GameService {
       .execute();
     return game;
   }
+
   async remove(gameId: number) {
     if (this.findOne(gameId) == null) {
       this.logger.debug("game does not exist, unable to delete");

@@ -28,6 +28,17 @@ export class GameController {
     return games;
   }
 
+  @Get("/active")
+  async findActive() {
+    const games = await this.gameService.findActive();
+    if (games === null) {
+      this.logger.debug("no active games");
+      throw new NotFoundException("Unable to find active game");
+    } else {
+      return games;
+    }
+  }
+
   @Get(":id")
   async findOne(@Param("id", ParseIntPipe) id: number) {
     const game = await this.gameService.findOne(id);
@@ -39,7 +50,6 @@ export class GameController {
     }
   }
 
-  /* curl -X POST -d "playerOne=5&playerTwo=6&status=playing" http://localhost:3000/game/ */
   @Post()
   async create(@Body() createGameDto: CreateGameDto) {
     const game = await this.gameService.create(createGameDto).catch(() => {
