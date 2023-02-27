@@ -23,8 +23,7 @@ const losses = 2;
 	align-items: center;
 	padding: 20px;
 
-	width: auto;
-	height: auto;
+	width: 375px;
 
 	background-color: var(--box-background-color);
 	box-shadow: var(--box-shadow);
@@ -52,13 +51,13 @@ h2 {
 }
 
 #losses {
-	color: #BB000E;
+	color: var(--loser-color);
 }
 
 #losses-count {
 	font-size: 30px;
 	font-family: var(--arcade-font);
-	color: #BB000E;
+	color: var(--loser-color);
 }
 
 
