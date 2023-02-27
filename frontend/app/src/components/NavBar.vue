@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from "../stores/UserStore";
-import { ref, onMounted, computed, watchEffect } from "vue";
+import { ref, onMounted, watchEffect } from "vue";
 const userStore = useUserStore();
 let menuOpen = ref(false);
 let windowWidth = ref(window.innerWidth);
@@ -72,6 +72,7 @@ nav {
   z-index: 999;
   align-items: center;
   justify-content: space-between;
+  padding-top: 10px;
 }
 .navbar {
   width: 1000px;
@@ -85,6 +86,8 @@ nav {
   right: 0;
   padding: 5px;
   z-index: 999;
+  padding-top: 10px;
+  padding-right: 10px;
 }
 
 li {
