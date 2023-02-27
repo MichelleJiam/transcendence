@@ -29,16 +29,21 @@ export class TwoFactorAuthController {
 
   @Post("register")
   @UseGuards(JwtAuthGuard)
-  async register(@Res() response: Response, @currentUser() user: User) {
+  async register(
+    @Res() response: Response,
+    @currentUser() user: User,
+  ): Promise<string | void> {
     const { otpauthUrl } =
       await this.twoFactorAuthService.generateTwoFactorAuthSecret(user);
-    console.log("returning: ", otpauthUrl);
-    // return otpauthUrl;
-    response.setHeader("content-type", "image/png");
-    return await this.twoFactorAuthService.pipeQrCodeStream(
-      response,
+    // const qrCode = await this.twoFactorAuthService.pipeQrCodeStream(
+    //   response,
+    //   otpauthUrl,
+    // );
+    const qrCode = await this.twoFactorAuthService.getQrCodeAsDataUrl(
       otpauthUrl,
     );
+    // console.log("returning from /register: ", qrCode);
+    response.send(qrCode);
   }
 
   @Post("enable")
@@ -49,7 +54,9 @@ export class TwoFactorAuthController {
     @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto,
   ) {
     await this.validateCode(user, twoFactorAuthCode);
+    console.log("Code is valid");
     await this.twoFactorAuthService.enableTwoFactor(user);
+    console.log("2FA has been enabled");
   }
 
   @Post("disable")
@@ -75,11 +82,18 @@ export class TwoFactorAuthController {
   }
 
   private async validateCode(user: User, twoFactorAuthCode: string) {
+    console.log(
+      "Attempting to validate code [",
+      twoFactorAuthCode,
+      "] for user ",
+      user.id,
+    );
     const isCodeValid = this.twoFactorAuthService.isTwoFactorAuthCodeValid(
       twoFactorAuthCode,
       user,
     );
     if (!isCodeValid) {
+      console.log("validateCode failed");
       throw new UnauthorizedException("2FA: wrong authentication code");
     }
   }

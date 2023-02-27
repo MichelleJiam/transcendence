@@ -2,7 +2,8 @@
   <form>
     <button class="exit-button" @click.prevent="cancelTwoFA">X</button>
     <h2>2FA Registration</h2>
-    <img :src="qrCode" />
+    <p>Scan me with your authenticator app!</p>
+    <img :src="qrCode" class="qr-code" />
     <!-- <qrcode-vue :value="qrCode" :margin="2" /> -->
     <form class="token-box" @submit.prevent="validateToken">
       <p>Enter the code shown in your authenticator app:</p>
@@ -16,7 +17,6 @@
 <script setup lang="ts">
 import QrcodeVue from "qrcode.vue";
 import { onMounted, ref } from "vue";
-import InputText from "@/components/InputText.vue";
 import apiRequest from "@/utils/apiRequest";
 
 const token = ref<string>("");
@@ -24,63 +24,22 @@ const qrCode = ref();
 let validationMessage = "";
 const emit = defineEmits(["uncheck"]);
 
-function convertFileStreamToImage(fileStream: Blob): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const image = new Image();
-      image.src = reader.result as string;
-      console.log("reader result: ", reader.result);
-      image.onload = () => resolve(image);
-      image.onerror = reject;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(fileStream);
-  });
-}
-
 onMounted(async () => {
   console.log("mounting 2fa popup");
-  // qrCode.value =
-  //   "otpauth://totp/Pong:64077?secret=FRLXCBL4MY7CI3DE&period=30&digits=6&algorithm=SHA1&issuer=Pong";
-  await apiRequest(`/2fa/register`, "post") //, { data: { responseType: "blob" } })
-    .then(async (response) => {
-      // console.log("response: ", response.data);
-      console.log("assigning /register response to qrCode");
-      // qrCode.value = response.data;
-      const blob = new Blob([response.data], {
-        // type: response.headers["content-type"],
-        type: "image/png",
-      });
-      // qrCode.value = URL.createObjectURL(blob);
-      convertFileStreamToImage(blob)
-        .then((image) => {
-          console.log("image: ", image);
-          qrCode.value = image;
-        })
-        .catch((err) => {
-          console.log("Unable to convert stream to image: ", err);
-        });
-      // let newImg = document.createElement("img");
-      // const blob = new Blob([response.data], {
-      //   type: response.headers["content-type"],
-      // });
-      // let url = URL.createObjectURL(blob);
-      // newImg.onload = () => {
-      // 	URL.revokeObjectURL(url);
-      // }
-      // newImg.src = url;
-      console.log("qr value: ", qrCode.value);
+  await apiRequest(`/2fa/register`, "post")
+    .then((response) => {
+      console.log("response: ", response.data);
+      qrCode.value = response.data;
     })
     .catch((err) => {
       console.log("Unable to get 2FA QR code: ", err);
     });
-  // console.log("end of onMount");
 });
 
 async function validateToken() {
+  console.log("Sending token: ", token.value);
   await apiRequest(`/2fa/enable`, "post", {
-    data: { twoFactorAuthCode: token },
+    data: { twoFactorAuthCode: token.value },
   })
     .then(() => {
       alert("Two factor authentication successfully enabled!");
@@ -125,12 +84,14 @@ h2 {
 }
 
 .qr-code {
-  width: 30%;
+  width: 40%;
+  height: 40%;
   align-self: center;
 }
 p {
   margin-bottom: 20px;
   font-size: 20px;
   margin: 20px;
+  align-self: center;
 }
 </style>

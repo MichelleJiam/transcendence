@@ -24,7 +24,11 @@ const routes: {
   { path: "/:id/home", component: HomePage },
   { path: "/login", component: LoginPage, name: "login" },
   { path: "/game", component: GamePage },
-  { path: "/:id/account", component: UserPage, name: 'account' } /* temp workaround */,
+  {
+    path: "/:id/account",
+    component: UserPage,
+    name: "account",
+  } /* temp workaround */,
   { path: "/account", component: UserPage, alias: ["/user"] },
   { path: "/leaderboard", component: LeaderBoard },
   { path: "/stream", component: LiveStream },
