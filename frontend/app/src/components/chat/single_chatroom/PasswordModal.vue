@@ -26,7 +26,7 @@
         </div>
 
         <div class="modal-footer">
-          <slot name="footer"> default footer </slot>
+          <slot name="footer"> </slot>
         </div>
       </div>
     </div>
