@@ -32,9 +32,15 @@ export class TwoFactorAuthService {
   }
 
   public isTwoFactorAuthCodeValid(twoFactorAuthCode: string, user: User) {
-    if (!user.twoFASecret) {
+    if (!user.twoFASecret || user.twoFASecret.length < 1) {
       throw new BadRequestException("2FA: user has not registered a secret");
     }
+    console.log(
+      "Trying to verify token ",
+      twoFactorAuthCode,
+      " with secret ",
+      user.twoFASecret,
+    );
     return authenticator.verify({
       token: twoFactorAuthCode,
       secret: user.twoFASecret,
@@ -49,6 +55,7 @@ export class TwoFactorAuthService {
     await this.userService.updateUser(user.id, {
       ...user,
       twoFAEnabled: false,
+      twoFASecret: "",
     });
   }
 }

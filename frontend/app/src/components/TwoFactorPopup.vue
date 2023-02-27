@@ -22,7 +22,7 @@ import apiRequest from "@/utils/apiRequest";
 const token = ref<string>("");
 const qrCode = ref();
 let validationMessage = "";
-const emit = defineEmits(["uncheck"]);
+const emit = defineEmits(["uncheck", "close-popup"]);
 
 onMounted(async () => {
   console.log("mounting 2fa popup");
@@ -43,9 +43,10 @@ async function validateToken() {
   })
     .then(() => {
       alert("Two factor authentication successfully enabled!");
+      emit("close-popup");
     })
     .catch((err) => {
-      validationMessage = "Wrong two factor authentication code";
+      validationMessage = "Wrong two factor authentication code"; // not displaying
       console.log("Something went wrong with 2FA enabling: ", err);
     });
 }
@@ -61,6 +62,7 @@ form {
   flex-direction: column;
   gap: 30px;
   width: 70%;
+  max-width: 550px;
   text-align: left;
 }
 .exit-button {
