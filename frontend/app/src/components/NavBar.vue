@@ -1,37 +1,56 @@
 <template>
   <nav>
     <ul class="navbar" :class="{notactive: !menuOpen}">
-      <li><router-link to="/">Home</router-link></li>
-      <li><router-link :to="{name:'account', params: {id: useUserStore.$id}}">Account</router-link></li>
-      <li><router-link to="/game">Game</router-link></li>
-      <li><router-link to="/leaderboard">Leaderboard</router-link></li>
-      <li><router-link to="/chat">Chat</router-link></li>
-      <li><router-link to="/stream">Live</router-link></li>
-      <li><router-link to="/friends">Friends</router-link></li>
-      <li><router-link to="/login" @click="userStore.logOut()" class="logout-text">Logout</router-link></li>
+      <li @click="closeMenu"><router-link to="/">Home</router-link></li>
+      <li @click="closeMenu"><router-link :to="{name:'account', params: {id: useUserStore.$id}}">Account</router-link></li>
+      <li @click="closeMenu"><router-link to="/game">Game</router-link></li>
+      <li @click="closeMenu"><router-link to="/leaderboard">Leaderboard</router-link></li>
+      <li @click="closeMenu"><router-link to="/chat">Chat</router-link></li>
+      <li @click="closeMenu"><router-link to="/stream">Live</router-link></li>
+      <li @click="closeMenu"><router-link to="/friends">Friends</router-link></li>
+      <li @click="closeMenu"><router-link to="/login" @click="userStore.logOut()" class="logout-text">Logout</router-link></li>
     </ul>
     <div class="buttons">
-      <button class="menu-icon" @click="test"> 
+      <button class="menu-icon" @click="openMenu"> 
         <font-awesome class="font-awesome" icon="bars"/>
       </button>
       <button class="logout-icon" @click="userStore.logOut()">
         <font-awesome class="font-awesome logout-icon" icon="sign-out"/>
       </button>
     </div>
-    <!-- the div to overlay when the menu button is clicked and the size is small -->
     <div :class="{overlay: menuOpen}"></div>
   </nav>
 </template>
 
 <script setup lang="ts">
 import { useUserStore } from "../stores/UserStore";
-import { ref } from "vue";
+import { ref, onMounted, computed, watchEffect } from "vue";
 const userStore = useUserStore();
 let menuOpen = ref(false);
+let windowWidth = ref(window.innerWidth);
 
-function test() {
+onMounted(() => {
+    window.onresize = () => {
+      windowWidth.value = window.innerWidth;
+      console.log(windowWidth.value);
+  }
+})
+
+watchEffect(() => {
+  if (windowWidth.value >= 1100 && menuOpen.value == true) {
+    menuOpen.value = false;
+  }
+})
+
+function openMenu() {
   menuOpen.value = !menuOpen.value;
   console.log(menuOpen.value)
+}
+
+function closeMenu() {
+  if (menuOpen.value == true) {
+    menuOpen.value = false;
+  }
 }
 
 </script>
@@ -79,7 +98,6 @@ li {
   font-size: 2.5rem;
   padding: 5px 0;
   margin-right: 10px;
-  /* transition: all .2s ease; */
 }
 
 .navbar .logout-text {
@@ -100,15 +118,6 @@ li {
 }
 
 @media (max-width: 1100px) {
-  .navbar {
-    width: 800px;
-  }
-  .navbar a {
-    font-size: 2em;
-  }
-}
-
-@media (max-width: 875px) {
   .menu-icon {
     display: block;
   }
