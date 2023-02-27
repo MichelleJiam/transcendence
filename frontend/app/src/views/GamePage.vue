@@ -54,7 +54,6 @@ const activeGames = ref(Array<Game>());
 game.value.state = State.READY;
 
 async function gameOver(gameRoom: GameRoom) {
-  // game.value = gameRoom;
   game.value.state = State.READY;
   socket.emit("leaveRoom", gameRoom.id);
   joined.value = false;
@@ -102,7 +101,6 @@ async function getActiveGames() {
 async function watchGame(gameId: number) {
   const res = await apiRequest(`/game/${gameId}`, "get");
 
-  // now need to build view for watcher
   game.value.id = res.data.id;
   game.value.player = 0;
   game.value.playerOne = {
@@ -194,8 +192,6 @@ p {
 }
 
 button {
-  /* height: 50%;
-  width: 100%; */
   height: 10%;
   width: 20%;
   background: #1c1b1b;
@@ -212,12 +208,6 @@ button:hover {
   color: #39ff14;
   background-color: #1c1b1b;
 }
-/* .my-btn {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-} */
 .loader {
   height: 50%;
   width: 100%;

@@ -33,7 +33,10 @@ onMounted(() => {
   }
 });
 
-/* end game and forfeit the other player and kick everyone out of the room */
+/*
+  for p1 or p2 end game and forfeit the other player and kick everyone out of the room
+  for p0 - just exit the room and go back to main component
+*/
 onUnmounted(() => {
   console.log("unmounted");
   // if (gameRoom.player == 0) {
@@ -69,7 +72,12 @@ function initCanvas() {
   };
 }
 
-function resetBall(ballX: number) {
+props.socket.on("resetBall", (ballX: number) => {
+  if (ballX < 0) {
+    ballX = gameRoom.view.width - gameRoom.view.width / 4;
+  } else {
+    ballX = gameRoom.view.width / 4;
+  }
   gameRoom.ball = {
     radius: gameRoom.view.width * 0.014,
     x: ballX,
@@ -77,7 +85,11 @@ function resetBall(ballX: number) {
     moveX: (gameRoom.view.width * 0.014) / 5,
     moveY: -((gameRoom.view.width * 0.014) / 5),
   };
-}
+  gameRoom.ball.moveX = -gameRoom.ball.moveX;
+  if (gameRoom.player == 1) {
+    props.socket.emit("countdown", gameRoom);
+  }
+});
 
 function initGame() {
   gameRoom = {
@@ -158,29 +170,23 @@ props.socket.on("endGame", (winnerGameRoom: GameRoom) => {
   gameOver();
 });
 
-async function endMatch() {
-  if (gameRoom.winner == 1) {
-    gameRoom.playerOne.score++;
-    resetBall(gameRoom.view.width / 4);
-  } else {
-    gameRoom.playerTwo.score++;
-    resetBall(gameRoom.view.width - gameRoom.view.width / 4);
-    gameRoom.ball.moveX = -gameRoom.ball.moveX;
+/********************
+ * UPDATE GAME ROOM *
+ *******************/
+
+props.socket.on(
+  "updateScore",
+  (playerOneScore: number, playerTwoScore: number) => {
+    gameRoom.playerOne.score = playerOneScore;
+    gameRoom.playerTwo.score = playerTwoScore;
   }
-  if (gameRoom.playerOne.score == 3 || gameRoom.playerTwo.score == 3) {
-    if (gameRoom.player == 1) {
-      props.socket.emit("endGame", gameRoom);
-    }
-  } else if (gameRoom.player == 1) {
-    props.socket.emit("countdown", gameRoom);
-  }
-}
+);
 
 /************
  * MOVEMENT *
  ************/
 
-function determineKeyStrokes() {
+async function determineKeyStrokes() {
   if (key.up) {
     props.socket.emit("movePaddleUp", gameRoom);
   }
@@ -203,73 +209,6 @@ props.socket.on("movePaddleOneDown", (MoveY: number) => {
 
 props.socket.on("movePaddleTwoDown", (MoveY: number) => {
   gameRoom.playerTwo.paddle.y = MoveY * gameRoom.view.height;
-});
-
-props.socket.on("calculateBallMovement", async (x: number, y: number) => {
-  if (
-    x * gameRoom.view.width + gameRoom.ball.moveX >
-    gameRoom.view.width -
-      gameRoom.ball.radius -
-      gameRoom.playerTwo.paddle.width * 2 -
-      gameRoom.playerTwo.paddle.offset
-  ) {
-    if (
-      y * gameRoom.view.height >
-        gameRoom.playerTwo.paddle.y - gameRoom.ball.radius &&
-      gameRoom.ball.y <
-        gameRoom.playerTwo.paddle.y +
-          gameRoom.playerTwo.paddle.height +
-          gameRoom.ball.radius
-    ) {
-      gameRoom.ball.moveX = -gameRoom.ball.moveX;
-    } else {
-      gameRoom.ball.moveX = -gameRoom.ball.moveX;
-      gameRoom.winner = 1;
-      if (gameRoom.player == 1) {
-        console.log("frontend intervalId: ", gameRoom.intervalId);
-        props.socket.emit("endMatch", gameRoom);
-      }
-      endMatch();
-      return;
-    }
-  } else if (
-    x * gameRoom.view.width + gameRoom.ball.moveX <
-    gameRoom.ball.radius +
-      gameRoom.playerTwo.paddle.width +
-      gameRoom.playerTwo.paddle.offset
-  ) {
-    if (
-      y * gameRoom.view.height >
-        gameRoom.playerOne.paddle.y - gameRoom.ball.radius &&
-      y * gameRoom.view.height <
-        gameRoom.playerOne.paddle.y +
-          gameRoom.playerOne.paddle.height +
-          gameRoom.ball.radius
-    ) {
-      gameRoom.ball.moveX = -gameRoom.ball.moveX;
-    } else {
-      gameRoom.ball.moveX = -gameRoom.ball.moveX;
-      gameRoom.winner = 2;
-      if (gameRoom.player == 1) {
-        props.socket.emit("endMatch", gameRoom);
-      }
-      endMatch();
-      return;
-    }
-  }
-  if (
-    y * gameRoom.view.height + gameRoom.ball.moveY <
-    gameRoom.ball.radius + gameRoom.view.offset - gameRoom.view.borderLines
-  ) {
-    gameRoom.ball.moveY = -gameRoom.ball.moveY;
-  } else if (
-    y * gameRoom.view.height + gameRoom.ball.moveY >
-    gameRoom.view.height - gameRoom.ball.radius - gameRoom.view.offset
-  ) {
-    gameRoom.ball.moveY = -gameRoom.ball.moveY;
-  }
-  gameRoom.ball.x += gameRoom.ball.moveX;
-  gameRoom.ball.y += gameRoom.ball.moveY;
 });
 
 /****************
@@ -305,22 +244,17 @@ props.socket.on("drawCountdown", (count: number) => {
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
 });
 
-props.socket.on("drawCanvas", (intervalId: ReturnType<typeof setInterval>) => {
-  gameRoom.intervalId = intervalId;
-  console.log("intervalId: ", intervalId);
+props.socket.on("drawCanvas", () => {
   ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();
   drawBorderLines();
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
-  if (gameRoom.player == 1) {
-    props.socket.emit("moveBall", gameRoom);
-  }
-  drawBall();
-  determineKeyStrokes();
   drawPaddles();
+  determineKeyStrokes();
+  drawBall();
 });
 
-function drawScoreboard(playerOneScore: number, playerTwoScore: number) {
+async function drawScoreboard(playerOneScore: number, playerTwoScore: number) {
   ctx.beginPath();
   ctx.font = gameRoom.view.width * 0.07 + "px ArcadeClassic";
   ctx.fillStyle = "#39ff14";
@@ -337,7 +271,7 @@ function drawScoreboard(playerOneScore: number, playerTwoScore: number) {
   ctx.closePath();
 }
 
-function drawCenterLine() {
+async function drawCenterLine() {
   ctx.beginPath();
   ctx.lineWidth = gameRoom.view.width * 0.015;
   ctx.setLineDash([gameRoom.view.width * 0.014, 27]);
@@ -351,7 +285,7 @@ function drawCenterLine() {
   ctx.closePath();
 }
 
-function drawBorderLines() {
+async function drawBorderLines() {
   ctx.beginPath();
   ctx.setLineDash([0]);
   ctx.lineWidth = gameRoom.view.borderLines;
@@ -372,6 +306,30 @@ function drawBorderLines() {
   ctx.stroke();
   ctx.closePath();
 }
+
+props.socket.on("drawPaddles", () => {
+  ctx.beginPath();
+  ctx.rect(
+    gameRoom.playerOne.paddle.width + gameRoom.playerOne.paddle.offset,
+    gameRoom.playerOne.paddle.y,
+    gameRoom.playerOne.paddle.width,
+    gameRoom.playerOne.paddle.height
+  );
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fill();
+  ctx.closePath();
+  ctx.beginPath();
+  ctx.rect(
+    gameRoom.view.width -
+      (gameRoom.playerTwo.paddle.width * 2 + gameRoom.playerTwo.paddle.offset),
+    gameRoom.playerTwo.paddle.y,
+    gameRoom.playerTwo.paddle.width,
+    gameRoom.playerTwo.paddle.height
+  );
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fill();
+  ctx.closePath();
+});
 
 async function drawPaddles() {
   ctx.beginPath();
@@ -409,6 +367,22 @@ async function drawBall() {
   ctx.fill();
   ctx.closePath();
 }
+
+props.socket.on("drawBall", (x: number, y: number) => {
+  gameRoom.ball.x = x * gameRoom.view.width;
+  gameRoom.ball.y = y * gameRoom.view.height;
+
+  ctx.beginPath();
+  ctx.rect(
+    gameRoom.ball.x,
+    gameRoom.ball.y,
+    gameRoom.ball.radius,
+    gameRoom.ball.radius
+  );
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fill();
+  ctx.closePath();
+});
 
 const drawCountdown = (count: number) => {
   ctx.beginPath();
