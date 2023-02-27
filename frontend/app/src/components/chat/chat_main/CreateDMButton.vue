@@ -9,6 +9,8 @@ import { useRoute } from "vue-router";
 import apiRequest, { baseUrl } from "@/utils/apiRequest";
 import { ref } from "vue";
 
+// maybe you can use a prop for this?
+
 const userStore = useUserStore();
 const route = useRoute();
 const otherUserName = String(route.params.username); // assuming: /:username

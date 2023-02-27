@@ -4,6 +4,7 @@
       <div class="row">
         <div class="header">
           <h2>{{ chatRoomInfo.chatroomName }}</h2>
+          <span v-if="isDM == true"> invite to game here </span>
           <span v-if="isPrivate == true">
             <input id="link" class="linkurl" type="text" :value="routeUrl" />
             <div class="tooltip">
@@ -15,7 +16,6 @@
               </button>
             </div>
           </span>
-
           <span v-if="isPassword == true">
             <Teleport to="body">
               <!-- use the modal component, pass in the prop -->
@@ -98,6 +98,7 @@ const userStore = useUserStore();
 const isCurrentUserOwner = ref<boolean>(false);
 const isPrivate = ref<boolean>(false);
 const isPassword = ref<boolean>(false);
+const isDM = ref<boolean>(false);
 
 const backendurlChatName = "/chat/" + chatroomId;
 
@@ -123,6 +124,7 @@ onMounted(async () => {
       isCurrentUserOwner.value = true;
     if (chatRoomInfo.value.type === "private") isPrivate.value = true;
     if (chatRoomInfo.value.type === "password") isPassword.value = true;
+    if (chatRoomInfo.value.type === "DM") isDM.value = true;
     showPassword.value = true;
   });
 });
