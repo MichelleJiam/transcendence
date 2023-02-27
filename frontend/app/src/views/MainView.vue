@@ -79,4 +79,11 @@ h1 {
   height: 100%;
   /* display: none; */
 }
+
+@media (max-width: 1100px){
+  #display-content {
+    width: 700px;
+  }
+}
+
 </style>
