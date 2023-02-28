@@ -1,5 +1,5 @@
 <template>
-  <section><button></button></section>
+  <section><button>Invite to Game</button></section>
 </template>
 
 <script setup lang="ts">

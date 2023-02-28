@@ -52,19 +52,19 @@ export class UserService {
     return foundUser;
   }
 
-  async findUserByPlayerName(playerName: string) {
-    const foundUser = this.userRepository.findOne({
-      where: {
-        playerName: playerName,
-      },
-      select: {
-        id: true,
-        playerName: true,
-      },
-    });
+  // async findUserByPlayerName(playerName: string) {
+  //   const foundUser = this.userRepository.findOne({
+  //     where: {
+  //       playerName: playerName,
+  //     },
+  //     select: {
+  //       id: true,
+  //       playerName: true,
+  //     },
+  //   });
 
-    return foundUser;
-  }
+  //   return foundUser;
+  // }
 
   async deleteUser(id: number) {
     const deleteResponse = await this.userRepository.delete(id);

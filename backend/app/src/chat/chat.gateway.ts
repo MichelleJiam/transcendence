@@ -16,6 +16,7 @@ import { ChatService } from "./chat.service";
   cors: {
     origin: "*",
   },
+  namespace: "chat",
 })
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect

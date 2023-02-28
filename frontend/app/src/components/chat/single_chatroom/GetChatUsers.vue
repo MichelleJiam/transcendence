@@ -110,7 +110,7 @@ import {
   kickUser,
   Blocklist,
 } from "../chatUtils";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
 import { io } from "socket.io-client";
@@ -131,46 +131,93 @@ const isUserOwner = ref();
 const isUserAdmin = ref();
 const blocklist = ref([]);
 
-const socketUrl = baseUrl;
+const socketUrl = baseUrl + "/penalty";
 const socket = io(socketUrl);
 
-function inBlocklist(userId: number) {
-  for (const entry of blocklist.value) {
-    if (entry.blockedUser.id == userId) {
-      return true;
+onBeforeMount(async () => {
+  const isUserBannedUrl = "/penalty/chatroom/" + chatroomId + "/user/" + userId;
+  apiRequest(isUserBannedUrl, "get").then((response) => {
+    console.log("are you banned? ", response);
+    if (response.data == true) {
+      alert("You are unable to join this chat.");
+      window.location.href = "/chat";
     }
+  });
+});
+
+onMounted(async () => {
+  // *** setup view
+  setup();
+  // *** Get user's blocklist
+  getBlocklist();
+
+  if (
+    (await isMember(chatroomId, userStore.user.id)) == false &&
+    chatRoomInfo.value.type != "password"
+  ) {
+    const addMemberUrl = "/chat/" + chatroomId + "/add/member";
+    const addMemberDto = new AddMemberDto();
+    addMemberDto.member = userStore.user.id;
+    await apiRequest(addMemberUrl, "put", { data: addMemberDto })
+      .then((response) => {
+        chatRoomInfo.value = response.data;
+        socket.emit("newUserState");
+      })
+      .catch((err) => {
+        // alert("You are unable to join this chat.");
+        // window.location.href = "/chat";
+        console.error(err);
+      });
   }
-  return false;
-}
 
-function createBlock(blocklistOwner: number, blockedUser: number) {
-  const url = "/blocklist/create";
+  // *** auto kick people if banned
+  socket.on("gotBanned", (response) => {
+    if (
+      response.user == userStore.user.id &&
+      chatroomId == response.chatroom &&
+      response.penaltyType == "ban"
+    ) {
+      alert("Sorry, you've been banned, you can rejoin the chat in 2 minutes.");
+      window.location.href = "/chat";
+    } else {
+      if (
+        response.user == userStore.user.id &&
+        chatroomId == response.chatroom &&
+        response.penaltyType == "mute"
+      ) {
+        alert("You've been muted, you can reply again in 2 minutes.");
+      }
+      setup();
+    }
+  });
 
-  const newBlocklist = new Blocklist();
-  newBlocklist.blocklistOwner = blocklistOwner;
-  newBlocklist.blockedUser = blockedUser;
+  socket.on("userUpdate", () => {
+    setup();
+  });
 
-  apiRequest(url, "post", { data: newBlocklist })
+  socket.on("kickedAUser", (response) => {
+    if (
+      response.userId == userStore.user.id &&
+      chatroomId == response.chatroomId
+    ) {
+      alert("Sorry, you've been kicked from the chat.");
+      console.log("You've been kicked");
+      window.location.href = "/chat";
+    } else setup();
+  });
+});
+
+async function getBlocklist() {
+  await apiRequest(backendBlocklist, "get")
     .then((response) => {
-      location.reload();
-      console.log(response);
+      blocklist.value = response.data;
     })
-    .catch((error) => {
-      console.log(error);
+    .catch((err) => {
+      console.log(err);
     });
 }
 
-function unBlock(blocklistOwner: number, blockedUser: number) {
-  const url =
-    "/blocklist/remove/owner/" + blocklistOwner + "/blocked/" + blockedUser;
-
-  apiRequest(url, "delete").then((response) => {
-    location.reload();
-    console.log(response);
-  });
-}
-
-onMounted(async () => {
+async function setup(): Promise<void> {
   const ownerUrl = "/chat/" + chatroomId + "/is_owner/" + userId;
   const adminUrl = "/chat/" + chatroomId + "/is_admin/" + userId;
   // *** check if current user is Owner
@@ -199,43 +246,45 @@ onMounted(async () => {
       admin["isAdmin"] = await isAdmin(chatroomId, admin.id);
       admin.playerName = admin.playerName ?? "unnamedPlayer" + admin.id;
     }
-    if (
-      (await isMember(chatroomId, userStore.user.id)) == false &&
-      chatRoomInfo.value.type != "password"
-    ) {
-      const addMemberUrl = "/chat/" + chatroomId + "/add/member";
-      const addMemberDto = new AddMemberDto();
-      addMemberDto.member = userStore.user.id;
-      await apiRequest(addMemberUrl, "put", { data: addMemberDto }).then(
-        (response) => {
-          chatRoomInfo.value = response.data;
-        }
-      );
+  });
+}
+
+function inBlocklist(userId: number) {
+  for (const entry of blocklist.value) {
+    if (entry.blockedUser.id == userId) {
+      return true;
     }
-  });
+  }
+  return false;
+}
 
-  // *** Get user's blocklist
-  await apiRequest(backendBlocklist, "get")
+function createBlock(blocklistOwner: number, blockedUser: number) {
+  const url = "/blocklist/create";
+
+  const newBlocklist = new Blocklist();
+  newBlocklist.blocklistOwner = blocklistOwner;
+  newBlocklist.blockedUser = blockedUser;
+
+  apiRequest(url, "post", { data: newBlocklist })
     .then((response) => {
-      blocklist.value = response.data;
+      getBlocklist();
+      location.reload();
+      console.log(response);
     })
-    .catch((err) => {
-      console.log(err);
+    .catch((error) => {
+      console.log(error);
     });
+}
 
-  // *** auto kick people if banned
-  socket.on("gotBanned", (response) => {
+function unBlock(blocklistOwner: number, blockedUser: number) {
+  const url =
+    "/blocklist/remove/owner/" + blocklistOwner + "/blocked/" + blockedUser;
+
+  apiRequest(url, "delete").then((response) => {
+    location.reload();
     console.log(response);
-    if (
-      chatroomId === response.chatroom &&
-      response.penaltyType === "ban" &&
-      response.user.id === userStore.user.id
-    ) {
-      alert("Sorry, you've been banned");
-      window.location.href = "/chat";
-    } else console.log("you did not get banned");
   });
-});
+}
 </script>
 <style scoped>
 button {

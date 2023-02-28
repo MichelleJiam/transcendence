@@ -65,11 +65,11 @@ export class UserController {
     return this.userService.findUserById(id);
   }
 
-  @Get("player/:playerName")
-  @UseGuards(JwtAuthGuard)
-  findUserByPlayerName(@Param("playerName") playerName: string) {
-    return this.userService.findUserByPlayerName(playerName);
-  }
+  // @Get("player/:playerName")
+  // @UseGuards(JwtAuthGuard)
+  // findUserByPlayerName(@Param("playerName") playerName: string) {
+  //   return this.userService.findUserByPlayerName(playerName);
+  // }
 
   /* localhost:3000/user/{an+id}/messages - show all messages by specified user */
   // @Get(":id/messages")

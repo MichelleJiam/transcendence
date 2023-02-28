@@ -30,7 +30,7 @@ import { io } from "socket.io-client";
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 
-const socketUrl = baseUrl;
+const socketUrl = baseUrl + "/chat";
 
 const socket = io(socketUrl);
 
