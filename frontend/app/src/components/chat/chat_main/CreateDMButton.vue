@@ -10,6 +10,9 @@ import apiRequest, { baseUrl } from "@/utils/apiRequest";
 import { ref } from "vue";
 
 // maybe you can use a prop for this?
+const props = defineProps({
+  otherPlayer: Number,
+});
 
 const userStore = useUserStore();
 const route = useRoute();
@@ -19,27 +22,36 @@ createDM.user = userStore.user.id;
 createDM.chatroomName =
   userStore.user.playerName + " " + otherUserName + " DMs";
 
-const otherUser = ref();
+// const otherUser = ref();
 
 function createDMDto() {
-  const url = baseUrl + "/user/player/" + otherUserName;
-  apiRequest(url, "get")
+  if (props.otherPlayer != undefined) createDM.otherUser = props.otherPlayer;
+  apiRequest("/chat/create", "post", { data: createDM })
     .then((response) => {
-      otherUser.value = response.data;
-      createDM.otherUser = otherUser.value.id;
-      console.log(createDM);
-      apiRequest("/chat/create", "post", { data: createDM })
-        .then((response) => {
-          console.log("/chat/", response.data.id);
-          //   location.href = "/chat/" + response.data.id;
-          console.log(response);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      console.log(response);
+      location.href = "/chat/" + response.data.id;
     })
     .catch((err) => {
-      console.error(err);
+      console.log(err);
     });
+  // const url = baseUrl + "/user/player/" + otherUserName;
+  // apiRequest(url, "get")
+  //   .then((response) => {
+  //     otherUser.value = response.data;
+  //     createDM.otherUser = otherUser.value.id;
+  //     console.log(createDM);
+  //     apiRequest("/chat/create", "post", { data: createDM })
+  //       .then((response) => {
+  //         console.log("/chat/", response.data.id);
+  //         //   location.href = "/chat/" + response.data.id;
+  //         console.log(response);
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
+  //   })
+  //   .catch((err) => {
+  //     console.error(err);
+  //   });
 }
 </script>
