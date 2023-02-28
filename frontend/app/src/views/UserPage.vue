@@ -200,4 +200,15 @@ h2 {
 .playerName {
   color: var(--primary-color);
 }
+
+@media (max-width: 1100px) {
+  #display-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* height: auto; */
+  width: 600px;
+}
+
+}
 </style>

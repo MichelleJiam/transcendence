@@ -46,7 +46,6 @@ async function submitAvatar() {
 <style scoped>
 form {
   display: grid;
-  /* justify-items: center; */
   row-gap: 10px;
   grid-template-areas:
     "name-label inputfield"
