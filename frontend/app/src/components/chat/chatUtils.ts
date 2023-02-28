@@ -58,7 +58,7 @@ export async function createPenalty(
 
   await apiRequest(url, "post", { data: newPenalty })
     .then((response) => {
-      socket.emit("checkBan", newPenalty);
+      if (response.data) socket.emit("checkBan", newPenalty);
     })
     .catch((error) => {
       console.log(error);
