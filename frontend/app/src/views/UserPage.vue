@@ -32,6 +32,15 @@
           <span class="validate-message"
             ><i>{{ message }}</i></span
           >
+          <button
+            class="account-settings-button"
+            :disabled="isDisabled"
+            @click.prevent="updatePlayerName"
+          >
+            Update player name
+          </button>
+        </form>
+        <form class="account-settings">
           <label class="two-fa-settings-label" for="player-name">2FA</label>
           <InputCheckbox
             id="twoFactorAuthentication"
@@ -40,14 +49,6 @@
             label="2FA"
             @change="checkForTwoFAPopup()"
           />
-
-          <button
-            class="account-settings-button"
-            :disabled="isDisabled"
-            @click.prevent="submitAccountSettings"
-          >
-            Update account settings
-          </button>
         </form>
       </div>
     </div>
@@ -87,6 +88,7 @@ async function checkForTwoFAPopup() {
   } else {
     toggleTwoFAPopup(false);
     await apiRequest(`/2fa/disable`, "post");
+    alert("Two factor authentication has been disabled");
     console.log("2FA disabled");
   }
 }
@@ -95,17 +97,13 @@ function toggleTwoFAPopup(newState: boolean) {
   showTwoFAPopup.value = newState;
 }
 
-// function showTwoFAPopup() {
-//   console.log("show popup? ", twoFactorAuthentication.value);
-//   return twoFactorAuthentication.value === true;
-// }
-
-function submitAccountSettings() {
+function updatePlayerName() {
   store.updateAccountSettings(playerName.value, twoFactorAuthentication.value);
 }
 
 function uncheckTwoFACheckbox() {
   twoFactorAuthentication.value = false;
+  toggleTwoFAPopup(false);
 }
 /*  client-Side input validation */
 
