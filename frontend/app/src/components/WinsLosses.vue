@@ -1,5 +1,5 @@
 <template>
-<div class="stats-container">
+<div class="stats-container box-styling">
 		<h2 id="wins">WINS</h2>
 		<h2 id="losses">LOSSES</h2>
 		<h3 id="wins-count">{{ wins }}</h3>
@@ -24,16 +24,7 @@ const losses = 2;
 	padding: 20px;
 
 	width: 375px;
-
-	background-color: var(--box-background-color);
-	box-shadow: var(--box-shadow);
-	border: var(--border);
-	border-radius: var(--border-radius);
 }
-
-/* .stats-container > * {
-	border: 1px solid white;
-} */
 
 h2 {
 	font-size: 50px;
