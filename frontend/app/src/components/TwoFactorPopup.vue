@@ -6,29 +6,26 @@
     <img :src="qrCode" class="qr-code" />
     <!-- <qrcode-vue :value="qrCode" :margin="2" /> -->
     <form class="token-box" @submit.prevent="validateToken">
-      <p>Enter the code shown in your authenticator app:</p>
+      <p>Enter the 6-digit code shown in your authenticator app:</p>
       <input v-model="token" type="text" name="token" />
+      <span class="validate-message">{{ validationMessage }}</span>
       <button type="submit" name="button">validate</button>
     </form>
-    <p>{{ validationMessage }}</p>
   </form>
 </template>
 
 <script setup lang="ts">
-import QrcodeVue from "qrcode.vue";
 import { onMounted, ref } from "vue";
 import apiRequest from "@/utils/apiRequest";
 
 const token = ref<string>("");
 const qrCode = ref();
-let validationMessage = "";
+const validationMessage = ref<string>("");
 const emit = defineEmits(["uncheck", "close-popup"]);
 
 onMounted(async () => {
-  console.log("mounting 2fa popup");
   await apiRequest(`/2fa/register`, "post")
     .then((response) => {
-      console.log("response: ", response.data);
       qrCode.value = response.data;
     })
     .catch((err) => {
@@ -37,7 +34,6 @@ onMounted(async () => {
 });
 
 async function validateToken() {
-  console.log("Sending token: ", token.value);
   await apiRequest(`/2fa/enable`, "post", {
     data: { twoFactorAuthCode: token.value },
   })
@@ -46,7 +42,7 @@ async function validateToken() {
       emit("close-popup");
     })
     .catch((err) => {
-      validationMessage = "Wrong two factor authentication code"; // not displaying
+      validationMessage.value = "Wrong two factor authentication code";
       console.log("Something went wrong with 2FA enabling: ", err);
     });
 }
@@ -62,7 +58,7 @@ form {
   flex-direction: column;
   gap: 30px;
   width: 70%;
-  max-width: 550px;
+  max-width: 750px;
   text-align: left;
 }
 .exit-button {
@@ -76,6 +72,15 @@ form {
 .token-box {
   align-self: center;
 }
+.validate-message {
+  align-self: center;
+  color: var(--validation-color);
+}
+.qr-code {
+  width: 40%;
+  height: 40%;
+  align-self: center;
+}
 button {
   width: 100%;
 }
@@ -83,12 +88,6 @@ h2 {
   align-self: center;
   font-size: 3em;
   margin: 20px;
-}
-
-.qr-code {
-  width: 40%;
-  height: 40%;
-  align-self: center;
 }
 p {
   margin-bottom: 20px;

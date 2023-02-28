@@ -1,11 +1,10 @@
 <template>
   <main>
     <div id="display-content">
-      <h1>2FA Authentication <br />Required</h1>
+      <h1>2FA Code <br />Required</h1>
       <img class="picture" src="../assets/images/cat_door_security.gif" />
-      <p>Please enter the code from your authenticator app.</p>
+      <p>Please enter the 6-digit code from your authenticator app.</p>
       <label for="authCode">Authenticator Code</label>
-      <br />
       <InputText
         id="authCode"
         v-model="authCode"
@@ -13,10 +12,10 @@
         label="AuthCode"
         placeholder="authenticator code"
       />
-      <br />
-      <br />
-      <button @click="submitCode">Submit</button>
-      <button @click="cancelLogin">Cancel Login</button>
+      <div class="buttons">
+        <button @click="submitCode">Submit</button>
+        <button @click="cancelLogin">Cancel Login</button>
+      </div>
     </div>
   </main>
 </template>
@@ -54,9 +53,17 @@ async function cancelLogin() {
 </script>
 
 <style scoped>
+#display-content {
+  width: auto;
+  height: auto;
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 h1 {
   font-size: 3em;
-  margin-bottom: 50px;
 }
 .picture {
   width: 200px;
@@ -65,7 +72,6 @@ h1 {
 }
 
 p {
-  margin-bottom: 20px;
   font-size: 20px;
   margin: 20px;
 }
@@ -81,5 +87,10 @@ label {
 
 button {
   margin: 10px;
+  width: 200px;
+}
+.buttons {
+  width: 100%;
+  flex-direction: row;
 }
 </style>
