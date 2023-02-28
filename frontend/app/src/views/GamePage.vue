@@ -62,7 +62,7 @@ async function gameOver(gameRoom: GameRoom) {
   console.log(id, "has left room ", gameRoom.id);
   await apiRequest(`/game`, "put", { data: gameRoom });
   socket.emit("updateActiveGames");
-  // clear all gameRoom values somehow?
+  // clear all gameRoom values somehow? Is that needed?
 }
 
 socket.on("disconnecting", (socket) => {
@@ -217,7 +217,7 @@ button:hover {
 }
 .loader {
   height: 50%;
-  width: 100%;
+  width: 50%;
   display: block;
 }
 </style>
