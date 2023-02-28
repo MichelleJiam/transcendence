@@ -6,7 +6,11 @@ import { AppService } from "./app.service";
 import { MessageModule } from "./message/message.module";
 import { UserModule } from "./user/user.module";
 import { DatabaseModule } from "./database.module";
+import { ChatModule } from "./chat/chat.module";
 import * as Joi from "joi";
+import { PenaltyModule } from "./penalty/penalty.module";
+import { BlocklistModule } from "./blocklist/blocklist.module";
+import { PenaltyDelete } from "./penalty/penalty.scheduler";
 import { AuthModule } from "./auth/auth.module";
 import { FriendModule } from "./friend/friend.module";
 
@@ -14,6 +18,9 @@ import { FriendModule } from "./friend/friend.module";
   imports: [
     UserModule,
     MessageModule,
+    ChatModule,
+    PenaltyModule,
+    BlocklistModule,
     FriendModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
@@ -29,6 +36,6 @@ import { FriendModule } from "./friend/friend.module";
     TwoFactorModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PenaltyDelete],
 })
 export class AppModule {}

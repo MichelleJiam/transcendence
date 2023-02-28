@@ -147,7 +147,7 @@ function validPlayerName(playerName: string) {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-
+  gap: 10px;
   flex-basis: 650px;
 }
 
@@ -162,9 +162,9 @@ function validPlayerName(playerName: string) {
     "button button";
 }
 
-h1 {
+/* h1 {
   font-size: 4.5em;
-}
+} */
 
 h2 {
   font-size: 2.5em;
@@ -186,11 +186,9 @@ h2 {
   top: 0;
   left: 0;
   background: rgba(0, 0, 0, 0.8);
-  /* background-color: pink; */
   z-index: 1;
   width: 100%;
   height: 100%;
-  /* display: none; */
 }
 
 .account-settings-button {
@@ -215,5 +213,15 @@ h2 {
 }
 .playerName {
   color: var(--primary-color);
+}
+
+@media (max-width: 1100px) {
+  #display-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 600px;
+}
+
 }
 </style>
