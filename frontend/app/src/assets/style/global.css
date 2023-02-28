@@ -22,7 +22,7 @@ nav {
 }
 
 div #display-content {
-  height: 90%;
+  height: 1200px;
   width: 85%;
   background: #1c1b1b;
   text-align: center;
@@ -39,7 +39,7 @@ button {
 }
 
 h1 {
-  font-size: 8em;
+  font-size: 4.5em;
 }
 
 h3 {
@@ -136,6 +136,13 @@ a:hover {
   color: #39ff14;
 }
 
+.box-styling {
+  background-color: var(--box-background-color);
+	box-shadow: var(--box-shadow);
+	border: var(--border);
+	border-radius: var(--border-radius);
+}
+
 .chat-message-box {
   background-color: #151414e4;
   margin: 0.5rem 1rem;
@@ -154,6 +161,19 @@ a:hover {
 
 li {
   list-style: none;
+}
+
+/* class to add to a list or div to add for all list items */
+.list-elements li {
+  display: flex;
+	justify-content: space-between;
+  align-items: center;
+	padding: 10px;
+	background-color: #2b2929b6;
+	padding-left: 20px;
+	padding-right: 20px;
+	margin: 2px;
+	border-radius: 4px;
 }
 
 /* scroll bar styling */
