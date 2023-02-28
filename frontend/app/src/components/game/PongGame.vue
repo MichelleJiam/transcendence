@@ -34,10 +34,6 @@ onMounted(() => {
   }
 });
 
-/*
-  for p1 or p2 end game and forfeit the other player and kick everyone out of the room
-  for p0 - just exit the room and go back to main component
-*/
 onUnmounted(() => {
   console.log("unmounted");
   // if (gameRoom.player == 0) {
@@ -245,14 +241,17 @@ props.socket.on("drawCountdown", (count: number) => {
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
 });
 
+/* try having the canvas elements here
+- then in different function stemming from moveBall call a function that drawsBall and Paddles*/
 props.socket.on("drawCanvas", () => {
   ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();
   drawBorderLines();
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
-  drawPaddles();
-  determineKeyStrokes();
+  if (gameRoom.player == 1) props.socket.emit("moveBall", gameRoom);
   drawBall();
+  determineKeyStrokes();
+  drawPaddles();
 });
 
 async function drawScoreboard(playerOneScore: number, playerTwoScore: number) {
@@ -332,7 +331,7 @@ props.socket.on("drawPaddles", () => {
   ctx.closePath();
 });
 
-async function drawPaddles() {
+function drawPaddles() {
   ctx.beginPath();
   ctx.rect(
     gameRoom.playerOne.paddle.width + gameRoom.playerOne.paddle.offset,
@@ -356,7 +355,7 @@ async function drawPaddles() {
   ctx.closePath();
 }
 
-async function drawBall() {
+function drawBall() {
   ctx.beginPath();
   ctx.rect(
     gameRoom.ball.x,
@@ -369,21 +368,26 @@ async function drawBall() {
   ctx.closePath();
 }
 
-props.socket.on("drawBall", (x: number, y: number) => {
-  gameRoom.ball.x = x * gameRoom.view.width;
-  gameRoom.ball.y = y * gameRoom.view.height;
+props.socket.on(
+  "drawBall",
+  (x: number, y: number, moveX: number, moveY: number) => {
+    gameRoom.ball.x = x * gameRoom.view.width;
+    gameRoom.ball.y = y * gameRoom.view.height;
+    gameRoom.ball.moveX = moveX;
+    gameRoom.ball.moveY = moveY;
 
-  ctx.beginPath();
-  ctx.rect(
-    gameRoom.ball.x,
-    gameRoom.ball.y,
-    gameRoom.ball.radius,
-    gameRoom.ball.radius
-  );
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fill();
-  ctx.closePath();
-});
+    ctx.beginPath();
+    ctx.rect(
+      gameRoom.ball.x,
+      gameRoom.ball.y,
+      gameRoom.ball.radius,
+      gameRoom.ball.radius
+    );
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fill();
+    ctx.closePath();
+  }
+);
 
 const drawCountdown = (count: number) => {
   ctx.beginPath();
