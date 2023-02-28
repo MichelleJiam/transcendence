@@ -23,7 +23,6 @@ export const useUserStore = defineStore("user", {
   //     id: 0,
   //     intraId: "",
   //     playerName: null,
-  //     // password: "password", // TODO: remove
   //     // messages: [],
   //     twoFA: false,
   //     avatarId: null,
@@ -51,7 +50,7 @@ export const useUserStore = defineStore("user", {
     async logOut() {
       console.log("[DEBUG] logOut");
       if (this.authenticated) {
-        await apiRequest(`/auth/logout`, "get") // TODO: change method to POST later
+        await apiRequest(`/auth/logout`, "post")
           // .then(() => {
           //   this.authenticated = false;
           //   console.log("User logged out");
