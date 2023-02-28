@@ -88,7 +88,7 @@ export class UserController {
 
   /* localhost:3000/user/create - a user can be created */
   @Post("create")
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }

@@ -60,8 +60,6 @@ export class ChatService {
         message: true,
         owner: true,
         admin: true,
-        member: true,
-        penalty: true,
       },
       select: {
         id: true,
@@ -79,14 +77,6 @@ export class ChatService {
           id: true,
           playerName: true,
         },
-        penalty: {
-          penaltyType: true,
-          user: {
-            id: true,
-            playerName: true,
-          },
-        },
-        message: true,
       },
     });
     return foundChats;
@@ -99,7 +89,6 @@ export class ChatService {
         owner: true,
         admin: true,
         member: true,
-        penalty: true,
       },
       where: {
         id: id,
@@ -120,14 +109,6 @@ export class ChatService {
           id: true,
           playerName: true,
         },
-        penalty: {
-          penaltyType: true,
-          user: {
-            id: true,
-            playerName: true,
-          },
-        },
-        message: true,
       },
     });
     if (!chatroom) {
@@ -179,11 +160,8 @@ export class ChatService {
         id: "desc",
       },
       relations: {
-        message: true,
         owner: true,
-        admin: true,
         member: true,
-        penalty: true,
       },
       where: {
         member: {
@@ -198,22 +176,6 @@ export class ChatService {
           id: true,
           playerName: true,
         },
-        admin: {
-          id: true,
-          playerName: true,
-        },
-        member: {
-          id: true,
-          playerName: true,
-        },
-        penalty: {
-          penaltyType: true,
-          user: {
-            id: true,
-            playerName: true,
-          },
-        },
-        message: true,
       },
       cache: true,
     });
@@ -226,11 +188,7 @@ export class ChatService {
         id: "asc",
       },
       relations: {
-        message: true,
         owner: true,
-        admin: true,
-        member: true,
-        penalty: true,
       },
       where: {
         type: type,
@@ -243,22 +201,6 @@ export class ChatService {
           id: true,
           playerName: true,
         },
-        admin: {
-          id: true,
-          playerName: true,
-        },
-        member: {
-          id: true,
-          playerName: true,
-        },
-        penalty: {
-          penaltyType: true,
-          user: {
-            id: true,
-            playerName: true,
-          },
-        },
-        message: true,
       },
       cache: true,
     });
