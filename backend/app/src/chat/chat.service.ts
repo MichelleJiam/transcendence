@@ -288,21 +288,34 @@ export class ChatService {
         createPenaltyDto,
       )) == true
     ) {
+      if (
+        createPenaltyDto.penaltyType === "ban" &&
+        (await this.penaltyService.isBannedFromChatroom(
+          chatroomId,
+          createPenaltyDto.user,
+        )) == true
+      ) {
+        throw new HttpException("Already banned.", HttpStatus.BAD_REQUEST);
+      } else if (
+        createPenaltyDto.penaltyType === "mute" &&
+        (await this.penaltyService.isMutedFromChatroom(
+          chatroomId,
+          createPenaltyDto.user,
+        )) == true
+      ) {
+        throw new HttpException("Already muted.", HttpStatus.BAD_REQUEST);
+      }
+      if (createPenaltyDto.penaltyType === "ban") {
+        this.deleteUserFromChatroom(chatroomId, createPenaltyDto.user);
+      }
       const chatroom = await this.getChatroomInfoById(
         createPenaltyDto.chatroom,
       );
       const userPenalty = await this.chatMethod.getUser(createPenaltyDto.user);
-      if (createPenaltyDto.penaltyType === "ban") {
-        this.deleteUserFromChatroom(chatroomId, createPenaltyDto.user);
-      }
       const result = await this.penaltyService.createPenalty(
         chatroom,
         userPenalty,
         createPenaltyDto,
-      );
-      console.log(
-        "find penalty in chat createPenalty: ",
-        await this.penaltyService.findBan(chatroom.id, userPenalty.id),
       );
       return result;
     }

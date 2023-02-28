@@ -135,7 +135,8 @@ const socketUrl = baseUrl + "/penalty";
 const socket = io(socketUrl);
 
 onBeforeMount(async () => {
-  const isUserBannedUrl = "/penalty/chatroom/" + chatroomId + "/user/" + userId;
+  const isUserBannedUrl =
+    "/penalty/chatroom/" + chatroomId + "/user/" + userId + "/banned";
   apiRequest(isUserBannedUrl, "get").then((response) => {
     console.log("are you banned? ", response);
     if (response.data == true) {

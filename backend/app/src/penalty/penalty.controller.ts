@@ -18,11 +18,19 @@ export class PenaltyController {
     return this.penaltyService.getAllPenalties();
   }
 
-  @Get("/chatroom/:chatroomId/user/:userId")
+  @Get("/chatroom/:chatroomId/user/:userId/banned")
   async isBannedFromChat(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
     @Param("userId", ParseIntPipe) userId: number,
   ) {
     return this.penaltyService.isBannedFromChatroom(chatroomId, userId);
+  }
+
+  @Get("/chatroom/:chatroomId/user/:userId/muted")
+  async isMutedFromChat(
+    @Param("chatroomId", ParseIntPipe) chatroomId: number,
+    @Param("userId", ParseIntPipe) userId: number,
+  ) {
+    return this.penaltyService.isMutedFromChatroom(chatroomId, userId);
   }
 }

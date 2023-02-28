@@ -76,11 +76,13 @@ onMounted(async () => {
     });
 
   socket.on("recMessage", (message) => {
-    message.userId.playerName =
-      message.userId.playerName ?? "unnamedPlayer" + message.userId.id;
-    const dateTime = new Date(message.createdAt);
-    message["formattedCreatedAt"] = convertDateTime(dateTime);
-    messages.value.push(message);
+    if (message.chatroomId.id == chatroomId) {
+      message.userId.playerName =
+        message.userId.playerName ?? "unnamedPlayer" + message.userId.id;
+      const dateTime = new Date(message.createdAt);
+      message["formattedCreatedAt"] = convertDateTime(dateTime);
+      messages.value.push(message);
+    }
   });
 });
 </script>
