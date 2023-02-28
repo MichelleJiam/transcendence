@@ -48,11 +48,11 @@ export class MatchService {
         this.logger.debug("cannot match player with themself");
         throw new BadRequestException();
       }
+      /* abstract to different method that takes two ids */
       const createGameDto = new CreateGameDto();
       createGameDto.playerOne = match[0].playerId;
       createGameDto.playerTwo = id;
       createGameDto.state = "playing";
-      // send the below to Niks so they can hit the endpoint to start a game
       const game = await this.gameService.create(createGameDto).catch(() => {
         this.logger.debug("error in getMatch while trying to create new game");
         throw new BadRequestException();
