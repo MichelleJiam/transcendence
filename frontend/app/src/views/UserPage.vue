@@ -1,9 +1,10 @@
 <template>
   <main>
     <TwoFactorPopup
-      v-if="showTwoFAPopup()"
+      v-if="showTwoFAPopup"
       class="two-fa-popup"
       @uncheck="uncheckTwoFACheckbox"
+      @close-popup="toggleTwoFAPopup(false)"
     ></TwoFactorPopup>
     <div id="display-content">
       <div class="user-info">
@@ -31,26 +32,28 @@
           <span class="validate-message"
             ><i>{{ message }}</i></span
           >
+          <button
+            class="account-settings-button"
+            :disabled="isDisabled"
+            @click.prevent="updatePlayerName"
+          >
+            Update player name
+          </button>
+        </form>
+        <form class="account-settings">
           <label class="two-fa-settings-label" for="player-name">2FA</label>
           <InputCheckbox
             id="twoFactorAuthentication"
             v-model:checked="twoFactorAuthentication"
             class="account-settings-checkbox"
             label="2FA"
+            @change="checkForTwoFAPopup()"
           />
-
-          <button
-            class="account-settings-button"
-            :disabled="isDisabled"
-            @click.prevent="submitAccountSettings"
-          >
-            Update account settings
-          </button>
         </form>
       </div>
     </div>
   </main>
-  <div :class="{ overlay: showTwoFAPopup() }"></div>
+  <div :class="{ overlay: showTwoFAPopup }"></div>
 </template>
 
 <script setup lang="ts">
@@ -61,8 +64,10 @@ import AvatarUpload from "@/components/AvatarUpload.vue";
 import { ref, onMounted, watch } from "vue";
 import { useUserStore } from "@/stores/UserStore";
 import TwoFactorPopup from "@/components/TwoFactorPopup.vue";
+import apiRequest from "@/utils/apiRequest";
 
 const twoFactorAuthentication = ref<boolean>();
+const showTwoFAPopup = ref<boolean>(false);
 const playerName = ref<string>("");
 const isDisabled = ref<boolean>();
 let message = "";
@@ -77,17 +82,28 @@ onMounted(async () => {
   await store.getAvatar();
 });
 
-function showTwoFAPopup() {
-  console.log("show popup? ", twoFactorAuthentication.value);
-  return twoFactorAuthentication.value === true;
+async function checkForTwoFAPopup() {
+  if (twoFactorAuthentication.value === true) {
+    toggleTwoFAPopup(true);
+  } else {
+    toggleTwoFAPopup(false);
+    await apiRequest(`/2fa/disable`, "post");
+    alert("Two factor authentication has been disabled");
+    console.log("2FA disabled");
+  }
 }
 
-function submitAccountSettings() {
+function toggleTwoFAPopup(newState: boolean) {
+  showTwoFAPopup.value = newState;
+}
+
+function updatePlayerName() {
   store.updateAccountSettings(playerName.value, twoFactorAuthentication.value);
 }
 
 function uncheckTwoFACheckbox() {
   twoFactorAuthentication.value = false;
+  toggleTwoFAPopup(false);
 }
 /*  client-Side input validation */
 

@@ -1,11 +1,12 @@
 import { AuthService } from "../auth.service";
 import { Strategy } from "passport-42";
 import { PassportStrategy } from "@nestjs/passport";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { User } from "src/user/user.entity";
 
 @Injectable()
 export class IntraStrategy extends PassportStrategy(Strategy) {
+  private readonly logger = new Logger(IntraStrategy.name);
   constructor(private readonly authService: AuthService) {
     super({
       authorizationURL: process.env.INTRA_AUTHORIZE,
@@ -27,10 +28,9 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     profile: { id: string },
     // callback: (error: any, user: User) => void,
   ) {
-    console.log("Attempting to validate user according to IntraStrategy");
+    this.logger.log(`Validating intra user ${profile.id}`);
     const createUser = {
       intraId: profile.id,
-      password: "password", // TODO: remove once 42Auth implemented
     };
 
     const user = await this.authService.validateUser(createUser);
