@@ -10,8 +10,7 @@ for i in ${!intraNames[@]}; do
 
   jsonVar="{\
 	\"intraId\" : \"${i}\",\
-	\"playerName\" : \"${intraNames[$i]}\",\
-	\"password\" : \"${intraNames[$i]}123\"\
+	\"playerName\" : \"${intraNames[$i]}\"\
   }"
   curl -v "localhost:3000/user/create/" -H "Content-Type: application/json" -d "$jsonVar" \
   	-b ../cookie_jar.env # load cookies from saved file into request
