@@ -42,11 +42,6 @@ export class User {
   })
   public playerName!: string;
 
-  @Column({
-    nullable: false,
-  })
-  public password!: string; // TODO: remove once 42Auth implemented
-
   // relationships for chat START
   @OneToMany(() => Message, (message: Message) => message.userId)
   @JoinColumn()
