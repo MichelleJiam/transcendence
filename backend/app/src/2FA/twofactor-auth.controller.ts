@@ -7,7 +7,6 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
-  Get,
   HttpCode,
   Post,
   Res,
@@ -35,14 +34,9 @@ export class TwoFactorAuthController {
   ): Promise<string | void> {
     const { otpauthUrl } =
       await this.twoFactorAuthService.generateTwoFactorAuthSecret(user);
-    // const qrCode = await this.twoFactorAuthService.pipeQrCodeStream(
-    //   response,
-    //   otpauthUrl,
-    // );
     const qrCode = await this.twoFactorAuthService.getQrCodeAsDataUrl(
       otpauthUrl,
     );
-    // console.log("returning from /register: ", qrCode);
     response.send(qrCode);
   }
 
@@ -54,7 +48,6 @@ export class TwoFactorAuthController {
     @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto,
   ) {
     await this.validateCode(user, twoFactorAuthCode);
-    console.log("Code is valid");
     await this.twoFactorAuthService.enableTwoFactor(user);
     console.log("2FA has been enabled");
   }
@@ -83,27 +76,18 @@ export class TwoFactorAuthController {
   }
 
   private async validateCode(user: User, twoFactorAuthCode: string) {
-    console.log(
-      "Attempting to validate code [",
-      twoFactorAuthCode,
-      "] for user ",
-      user.id,
-    );
+    // console.log(
+    //   "Attempting to validate code [",
+    //   twoFactorAuthCode,
+    //   "] for user ",
+    //   user.id,
+    // );
     const isCodeValid = this.twoFactorAuthService.isTwoFactorAuthCodeValid(
       twoFactorAuthCode,
       user,
     );
     if (!isCodeValid) {
-      console.log("validateCode failed");
       throw new UnauthorizedException("2FA: wrong authentication code");
     }
-  }
-
-  // DEBUG // TODO: remove
-  @Get("test")
-  @UseGuards(JwtAuthGuard)
-  test(@currentUser() user: User) {
-    console.log("user: ", user);
-    console.log("2FA test user ", user.id);
   }
 }
