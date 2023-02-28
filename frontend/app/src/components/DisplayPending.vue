@@ -32,7 +32,7 @@ import { computed } from "vue";
 import { useFriendStore, type User } from "@/stores/FriendStore";
 
 const props = defineProps({
-  userid: { type: String, required: true },
+  userid: { type: Number, required: true },
 });
 
 const store = useFriendStore();
