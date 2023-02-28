@@ -47,7 +47,7 @@ export class GameGateway {
           gameRoom.id,
           setInterval(async () => {
             this.server.to(gameRoom.id).emit("drawCanvas");
-            this.moveBall(gameRoom);
+            // this.moveBall(gameRoom);
           }, 8),
         );
       }
@@ -182,7 +182,9 @@ export class GameGateway {
     }
   }
 
-  async moveBall(gameRoom: GameRoom) {
+  // async moveBall(gameRoom: GameRoom) {
+  @SubscribeMessage("moveBall")
+  moveBall(@MessageBody() gameRoom: GameRoom) {
     const x = gameRoom.ball.x / gameRoom.view.width;
     const y = gameRoom.ball.y / gameRoom.view.height;
 
@@ -201,15 +203,13 @@ export class GameGateway {
             gameRoom.playerTwo.paddle.height +
             gameRoom.ball.radius
       ) {
-        console.log("right paddle hit");
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
       } else {
-        console.log("right paddle missed");
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
         gameRoom.winner = 1;
         clearInterval(this.map.get(gameRoom.id));
         this.map.delete(gameRoom.id);
-        await this.endMatch(gameRoom);
+        this.endMatch(gameRoom);
         return;
       }
     } else if (
@@ -226,15 +226,13 @@ export class GameGateway {
             gameRoom.playerOne.paddle.height +
             gameRoom.ball.radius
       ) {
-        console.log("left paddle hit");
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
       } else {
-        console.log("left paddle missed");
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
         gameRoom.winner = 2;
         clearInterval(this.map.get(gameRoom.id));
         this.map.delete(gameRoom.id);
-        await this.endMatch(gameRoom);
+        this.endMatch(gameRoom);
         return;
       }
     }
@@ -242,13 +240,11 @@ export class GameGateway {
       y * gameRoom.view.height + gameRoom.ball.moveY <
       gameRoom.ball.radius + gameRoom.view.offset - gameRoom.view.borderLines
     ) {
-      console.log("top hit");
       gameRoom.ball.moveY = -gameRoom.ball.moveY;
     } else if (
       y * gameRoom.view.height + gameRoom.ball.moveY >
       gameRoom.view.height - gameRoom.ball.radius - gameRoom.view.offset
     ) {
-      console.log("bottom hit");
       gameRoom.ball.moveY = -gameRoom.ball.moveY;
     }
     gameRoom.ball.x += gameRoom.ball.moveX;
@@ -259,6 +255,8 @@ export class GameGateway {
         "drawBall",
         gameRoom.ball.x / gameRoom.view.width,
         gameRoom.ball.y / gameRoom.view.height,
+        gameRoom.ball.moveX,
+        gameRoom.ball.moveY,
       );
   }
 }

@@ -4,8 +4,9 @@
       v-show="showPopup"
       class="playername-popup"
     ></PlayerNamePopup>
-    <div id="display-content" class="main-container">
+    <div id="display-content">
       <h1 class="username">{{ userStore.user.playerName }}</h1>
+      <AvatarDisplay class="avatar" :src="userStore.user.avatarUrl" />
       <WinsLosses class="wins-losses"></WinsLosses>
       <GameHistory class="game-history"></GameHistory>
       <UserAchiements class="user-achievements"></UserAchiements>
@@ -19,6 +20,7 @@ import PlayerNamePopup from "@/components/PlayerNamePopup.vue";
 import WinsLosses from "@/components/WinsLosses.vue";
 import GameHistory from "@/components/GameHistory.vue";
 import UserAchiements from "@/components/UserAchiements.vue";
+import AvatarDisplay from "@/components/AvatarDisplay.vue";
 import { onMounted, computed } from "vue";
 import { useUserStore } from "@/stores/UserStore";
 
@@ -35,15 +37,16 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.main-container {
+
+#display-content {
   display: grid;
   gap: 20px;
   justify-items: center;
   align-items: center;
   grid-template:
-    "username username stats"
-    "gamehistory gamehistory achievements"
-    "gamehistory gamehistory achievements";
+    "avatar  username"
+    "gamehistory stats"
+    "gamehistory achievements";
 }
 .username {
   grid-area: username;
@@ -79,4 +82,14 @@ h1 {
   height: 100%;
   /* display: none; */
 }
+
+/* @media (max-width: 1100px){
+  #display-content {
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+    width: 700px;
+  }
+} */
+
 </style>
