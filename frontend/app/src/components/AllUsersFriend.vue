@@ -1,12 +1,13 @@
 <template>
-  <div class="container">
+  <div class="container box-styling">
+    <h3>All players</h3>
     <input v-model="searchQuery" type="text" placeholder="Search player..." />
-    <ul class="list-group">
+    <ul class="list-elements">
       <li v-for="player in searchedPlayers" :key="player.id">
         <span v-if="player.avatarUrl != undefined"
           ><img :src="player.avatarUrl" alt="Avatar" class="avatar"
         /></span>
-        <span v-if="player.relation != undefined">{{ player.playerName }}</span>
+        <span class="player-name" v-if="player.relation != undefined">{{ player.playerName }}</span>
         <button
           v-if="player.relation?.status == 'NONE'"
           @click="sendFriendRequest(player)"
@@ -95,40 +96,26 @@ async function unfriend(player: User) {
 <style scoped>
 .container {
   width: 50%;
-  max-height: 505px;
-  min-height: 505px;
   overflow-y: scroll;
-  box-shadow: rgba(0, 0, 0, 10) 0px 1px 4px;
-  margin-bottom: 40px;
 }
-
 .container input {
   margin: 20px;
 }
-
-.list-group {
-  list-style: none;
-}
-
-.list-group li {
-  padding: 1em;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 95px;
-  background-color: #3d2c2c;
-  margin: 10px 30px 10px 10px;
-}
-
 .avatar {
-  vertical-align: middle;
   width: 50px;
   height: 50px;
-  border-radius: 50%;
 }
-
+.player-name {
+  font-size: 18px;
+  font-family: var(--arcade-font);
+}
 .pending {
   background: #ff7200;
+}
+
+button {
+  padding: 3px;
+  font-size: 18px;
 }
 .pending button:hover,
 button:active {
@@ -139,18 +126,8 @@ button:active {
   background: #ff1818;
 }
 
-:disabled {
-  /* opacity: 0.3; */
-  cursor: progress;
-  /* cursor: url("../assets/accept.svg"), auto; */
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #39ff14;
+h3 {
+  margin-top: 20px;
 }
 </style>
 
