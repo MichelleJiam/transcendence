@@ -176,7 +176,7 @@ export class ChatService {
   async getChatroomsOfUser(userId: number): Promise<Chatroom[]> {
     const chatrooms = await this.chatroomRepository.find({
       order: {
-        id: "asc",
+        id: "desc",
       },
       relations: {
         message: true,
@@ -300,7 +300,7 @@ export class ChatService {
       }
       const chatroom = createChatroomEntity(createChatroomDto, user, userTwo);
       const newChatroom = this.chatroomRepository.create(chatroom);
-      return this.chatroomRepository.save(newChatroom);
+      return await this.chatroomRepository.save(newChatroom);
     }
     throw new HttpException(
       "Unable to create chatroom",
@@ -326,7 +326,7 @@ export class ChatService {
         createMessageDto.chatroomId,
       );
       const user = await this.chatMethod.getUser(createMessageDto.userId);
-      return this.messageService.create(createMessageDto, chatroom, user);
+      return await this.messageService.create(createMessageDto, chatroom, user);
     }
     throw new HttpException(
       "You do not have permission to send messages here.",
@@ -353,11 +353,16 @@ export class ChatService {
       if (createPenaltyDto.penaltyType === "ban") {
         this.deleteUserFromChatroom(chatroomId, createPenaltyDto.user);
       }
-      return this.penaltyService.createPenalty(
+      const result = await this.penaltyService.createPenalty(
         chatroom,
         userPenalty,
         createPenaltyDto,
       );
+      console.log(
+        "find penalty in chat createPenalty: ",
+        await this.penaltyService.findBan(chatroom.id, userPenalty.id),
+      );
+      return result;
     }
     throw new HttpException("Unable to make penalty.", HttpStatus.BAD_REQUEST);
   }

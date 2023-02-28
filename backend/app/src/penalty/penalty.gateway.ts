@@ -10,12 +10,14 @@ import {
 
 import { Socket, Server } from "socket.io";
 import { CreatePenaltyDto } from "./dto/create-penalty.dto";
+import { KickedAUserDto } from "./dto/kicked-a-user.dto";
 import { PenaltyService } from "./penalty.service";
 
 @WebSocketGateway({
   cors: {
     origin: "*",
   },
+  namespace: "penalty",
 })
 export class PenaltyGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -28,13 +30,26 @@ export class PenaltyGateway
     private readonly penaltyService: PenaltyService,
   ) {}
 
+  @SubscribeMessage("newUserState")
+  async joinedChat(client: Socket) {
+    this.server.emit("userUpdate");
+  }
+
   @SubscribeMessage("checkBan")
   async checkBan(client: Socket, payload: CreatePenaltyDto): Promise<void> {
     try {
+      console.log(payload);
       this.server.emit("gotBanned", payload);
     } catch (err) {
       console.log(err);
     }
+  }
+
+  @SubscribeMessage("kickUser")
+  async handleKick(client: Socket, payload: KickedAUserDto) {
+    console.log("kickUser: ", payload);
+    console.log("kickUser subscribe message: ", payload);
+    this.server.emit("kickedAUser", payload);
   }
 
   afterInit(server: Server) {

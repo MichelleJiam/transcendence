@@ -2,6 +2,9 @@ import apiRequest, { baseUrl } from "@/utils/apiRequest";
 import { io } from "socket.io-client";
 import { ref } from "vue";
 
+const socketUrl = baseUrl + "/penalty";
+const socket = io(socketUrl);
+
 export class UpdateChatroomDto {
   type?: string;
   chatroomName?: string;
@@ -40,26 +43,22 @@ class Penalty {
   chatroom!: number;
 }
 
-export function createPenalty(
+export async function createPenalty(
   adminId: number,
   userId: number,
   penaltyType: string,
   chatroomId: number
 ) {
   const url = "/chat/" + chatroomId + "/admin/" + adminId + "/penalty";
-  const socketUrl = baseUrl;
-  const socket = io(socketUrl);
 
   const newPenalty = new Penalty();
   newPenalty.chatroom = chatroomId;
   newPenalty.user = userId;
   newPenalty.penaltyType = penaltyType;
 
-  apiRequest(url, "post", { data: newPenalty })
+  await apiRequest(url, "post", { data: newPenalty })
     .then((response) => {
       socket.emit("checkBan", newPenalty);
-      location.reload();
-      console.log(response);
     })
     .catch((error) => {
       console.log(error);
@@ -72,39 +71,12 @@ export class Blocklist {
   blockedUser!: number;
 }
 
-export function createBlock(blocklistOwner: number, blockedUser: number) {
-  const url = "/blocklist/create";
-
-  const newBlocklist = new Blocklist();
-  newBlocklist.blocklistOwner = blocklistOwner;
-  newBlocklist.blockedUser = blockedUser;
-
-  apiRequest(url, "post", { data: newBlocklist })
-    .then((response) => {
-      location.reload();
-      console.log(response);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-}
-
-export function unBlock(blocklistOwner: number, blockedUser: number) {
-  const url =
-    "/blocklist/remove/owner/" + blocklistOwner + "/blocked/" + blockedUser;
-
-  apiRequest(url, "delete").then((response) => {
-    location.reload();
-    console.log(response);
-  });
-}
-
 class AddAdminDto {
   newAdmin!: number;
   byAdmin!: number;
 }
 
-export function makeAdmin(
+export async function makeAdmin(
   chatroomId: number,
   byAdmin: number,
   newAdmin: number
@@ -115,9 +87,9 @@ export function makeAdmin(
   admin.byAdmin = byAdmin;
   admin.newAdmin = newAdmin;
 
-  apiRequest(url, "put", { data: admin })
+  await apiRequest(url, "put", { data: admin })
     .then((response) => {
-      location.reload();
+      socket.emit("newUserState");
       console.log(response);
     })
     .catch((error) => {
@@ -125,7 +97,7 @@ export function makeAdmin(
     });
 }
 
-export function deleteAdmin(
+export async function deleteAdmin(
   chatroomId: number,
   adminId: number,
   toDeleteId: number
@@ -133,9 +105,9 @@ export function deleteAdmin(
   const url =
     "/chat/" + chatroomId + "/admin/" + adminId + "/delete/admin/" + toDeleteId;
 
-  apiRequest(url, "delete")
+  await apiRequest(url, "delete")
     .then((response) => {
-      location.reload();
+      socket.emit("newUserState");
       console.log(response);
     })
     .catch((error) => {
@@ -148,7 +120,7 @@ class SwapOwnerDto {
   newOwner!: number;
 }
 
-export function swapOwner(
+export async function swapOwner(
   chatroomId: number,
   oldOwner: number,
   newOwner: number
@@ -159,9 +131,9 @@ export function swapOwner(
   owner.oldOwner = oldOwner;
   owner.newOwner = newOwner;
 
-  apiRequest(url, "put", { data: owner })
+  await apiRequest(url, "put", { data: owner })
     .then((response) => {
-      location.reload();
+      socket.emit("newUserState");
       console.log(response);
     })
     .catch((error) => {
@@ -213,6 +185,11 @@ export async function isOwner(
   return false;
 }
 
+export class KickedAUserDto {
+  chatroomId!: number;
+  userId!: number;
+}
+
 export async function kickUser(
   chatroomId: number,
   adminId: number,
@@ -220,10 +197,13 @@ export async function kickUser(
 ) {
   const url =
     "/chat/" + chatroomId + "/admin/" + adminId + "/delete/user/" + toDeleteId;
+
   await apiRequest(url, "delete")
     .then((response) => {
-      location.reload();
-      console.log(response);
+      const kickedAUserDto = new KickedAUserDto();
+      kickedAUserDto.chatroomId = chatroomId;
+      kickedAUserDto.userId = toDeleteId;
+      socket.emit("kickUser", kickedAUserDto);
     })
     .catch((err) => {
       console.log(err);

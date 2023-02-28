@@ -164,11 +164,12 @@ export class ChatController {
   ): Promise<Penalty | undefined> {
     try {
       isCurrentUser(user.id, adminId);
-      return this.chatroomService.createPenalty(
+      const returnResult = await this.chatroomService.createPenalty(
         chatroomId,
         adminId,
         createPenaltyDto,
       );
+      return returnResult;
     } catch (err) {
       console.error(err);
     }
