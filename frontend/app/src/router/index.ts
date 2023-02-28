@@ -18,6 +18,11 @@ router.beforeEach(async (to, from) => {
     console.log("User not authenticated, pushing to login");
     return { name: "login" };
   }
+  // checks if user's player name still has to be set (new account)
+  if (userStore.user.playerName === null && to.name != "home") {
+    console.log("Player name not set, pushing to home");
+    return { name: "home" };
+  }
 });
 
 export default router;
