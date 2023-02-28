@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Logger,
   Param,
   ParseIntPipe,
   Post,
@@ -20,6 +21,8 @@ import { TokenType } from "./token-payload.interface";
 
 @Controller("auth")
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private readonly authService: AuthService) {}
 
   @Get("login")
@@ -111,8 +114,7 @@ export class AuthController {
     return user;
   }
 
-  // @Post("logout")
-  @Get("logout") // temporary for testing in browser, TODO: change later
+  @Post("logout")
   @UseGuards(JwtAuthGuard)
   async logout(
     @Res({ passthrough: true }) response: Response,

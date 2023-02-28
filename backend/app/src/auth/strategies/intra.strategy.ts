@@ -30,7 +30,6 @@ export class IntraStrategy extends PassportStrategy(Strategy) {
     console.log("Attempting to validate user according to IntraStrategy");
     const createUser = {
       intraId: profile.id,
-      password: "password", // TODO: remove once 42Auth implemented
     };
 
     const user = await this.authService.validateUser(createUser);
