@@ -82,7 +82,6 @@ export const useUserStore = defineStore("user", {
     async retrieveCurrentUserData() {
       console.log("[DEBUG] retrieveUserData");
       try {
-        // const res = await apiRequest(`/auth/status`, "get");
         const res = await apiRequest(`/user/current`, "get");
         this.user.id = res.data.id;
         this.user.playerName = res.data.playerName;

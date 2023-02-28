@@ -50,9 +50,10 @@ export class UserController {
 
   /* retrieves current user from jwt auth cookie */
   @Get("current")
-  @UseGuards(PartialJwtGuard)
+  @UseGuards(JwtAuthGuard)
   getCurrentUser(@currentUser() user: User) {
-    console.log("Retrieving details of current user: ", user.id);
+    this.logger.log(`Retrieving details of current user: ${user.id}`);
+    console.log("User: ", user);
     // JwtAuthGuard already calls userService.findUserById
     // so we don't call it again.
     return user;
