@@ -23,7 +23,6 @@ export const useUserStore = defineStore("user", {
   //     id: 0,
   //     intraId: "",
   //     playerName: null,
-  //     // password: "password", // TODO: remove
   //     // messages: [],
   //     twoFA: false,
   //     avatarId: null,
@@ -51,7 +50,7 @@ export const useUserStore = defineStore("user", {
     async logOut() {
       console.log("[DEBUG] logOut");
       if (this.authenticated) {
-        await apiRequest(`/auth/logout`, "get") // TODO: change method to POST later
+        await apiRequest(`/auth/logout`, "post")
           // .then(() => {
           //   this.authenticated = false;
           //   console.log("User logged out");
@@ -70,13 +69,6 @@ export const useUserStore = defineStore("user", {
       console.log("[DEBUG] checkAuthStatus");
       await apiRequest(`/auth/status`, "get")
         .then(async (response) => {
-          // console.log("res.data", response.data);
-          // if (response.data === "SETUP") {
-          //   await PlayerNamePopup;
-          // } else if (response.data === "2FA") {
-          //   console.log("2FA auth needed");
-          // }
-          // await this.logIn();
           this.authenticated = true;
           console.log("User is authenticated");
         })
@@ -90,7 +82,6 @@ export const useUserStore = defineStore("user", {
     async retrieveCurrentUserData() {
       console.log("[DEBUG] retrieveUserData");
       try {
-        // const res = await apiRequest(`/auth/status`, "get");
         const res = await apiRequest(`/user/current`, "get");
         this.user.id = res.data.id;
         this.user.playerName = res.data.playerName;
@@ -112,7 +103,7 @@ export const useUserStore = defineStore("user", {
           data: { playerName: newPlayerName, twoFAEnabled: twoFA },
         });
         this.retrieveCurrentUserData();
-        alert("Your account settings succesfully updated");
+        alert("Your account settings were succesfully updated!");
       } catch (error) {
         this.handleError(error as AxiosError);
       }
