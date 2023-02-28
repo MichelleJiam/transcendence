@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-container">
+  <div class="flex-container box-styling">
     <h2>Achievements</h2>
     <div class="achievement-container">
       <div v-for="achievement in achievements" :key="achievement.id">
@@ -33,19 +33,15 @@ let showDescription: number | null = null;
 .flex-container {
 	display: flex;
 	flex-direction: column;
-
+  width: 375px;
+  
 	padding: 20px;
-
-	background-color: var(--box-background-color);
-	box-shadow: var(--box-shadow);
-	border: var(--border);
-	border-radius: var(--border-radius);
 }
 
 h2 {
   font-size: 50px;
   margin-bottom: 20px;
-  color: var(--primary-color);
+  /* color: var(--primary-color); */
 }
 
 .achievement-container {

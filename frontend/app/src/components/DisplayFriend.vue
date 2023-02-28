@@ -1,7 +1,7 @@
 <template>
-  <div class="container">
+  <div class="container box-styling">
     <h3>Friends</h3>
-    <ul class="list-group">
+    <ul class="list-elements">
       <p v-if="store.isLoading">Loading...</p>
       <li v-for="friend in friendList" :key="friend.id">
         <span><img :src="friend.avatarUrl" alt="Avatar" class="avatar" /></span>
@@ -15,7 +15,7 @@
               : { 'background-color': 'orange' },
           ]"
         ></span>
-        <span>{{ friend.playerName }}</span>
+        <span class="player-name">{{ friend.playerName }}</span>
         <button class="unfriend" @click="unfriend(friend)">Unfriend</button>
       </li>
     </ul>
@@ -51,32 +51,17 @@ async function unfriend(player: User) {
 
 <style scoped>
 .container {
-  margin-top: 20px;
   width: 50%;
-  max-height: 505px;
-  min-height: 505px;
   overflow-y: scroll;
-  box-shadow: rgba(0, 0, 0, 10) 0px 1px 4px;
 }
 
-.container h3 {
-  margin: 20px;
+h3 {
+  margin-top: 20px;
 }
-
-.list-group {
-  list-style: none;
+.player-name {
+  font-size: 18px;
+  font-family: var(--arcade-font);
 }
-
-.list-group li {
-  padding: 1em;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 95px;
-  background-color: #3d2c2c;
-  margin: 10px 30px 10px 10px;
-}
-
 .avatar {
   vertical-align: middle;
   width: 50px;
@@ -91,6 +76,10 @@ async function unfriend(player: User) {
   background: orange;
 }
 
+button {
+  padding: 3px;
+  font-size: 18px;
+}
 .pending button:hover,
 button:active {
   background: #ff1818;
@@ -103,13 +92,5 @@ button:active {
 
 :disabled {
   cursor: progress;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #39ff14;
 }
 </style>

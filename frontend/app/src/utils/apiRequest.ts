@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const baseUrl = "http://localhost:3000";
+export const baseUrl = "http://localhost:3000";
+export const frontendUrl = "http://localhost:5173";
 axios.defaults.withCredentials = true; // allows auth cookies to be passed to backend
 
 interface ConfigOptions {
