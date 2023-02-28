@@ -14,6 +14,7 @@ defineProps({
 
 <style scoped>
 .avatar {
+  object-fit: cover;
   width: 300px;
   height: 300px;
   border-radius: 50%;
