@@ -57,7 +57,7 @@ const gameHistory = [
 .stats-container {
 	display: flex;
 	flex-direction: column;
-	height: 700px;
+	height: 640px;
 	width: 375px;
 	padding: 20px;
 
