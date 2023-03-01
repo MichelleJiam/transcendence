@@ -52,7 +52,7 @@
           </button>
           <button
             v-if="
-              isUserAdmin == true &&
+              (isUserAdmin == true || isUserOwner == true) &&
               member.isOwner == false &&
               member.id != userId
             "
@@ -62,7 +62,7 @@
           </button>
           <button
             v-if="
-              isUserAdmin == true &&
+              (isUserAdmin == true || isUserOwner == true) &&
               member.isOwner == false &&
               member.id != userId
             "
@@ -72,7 +72,7 @@
           </button>
           <button
             v-if="
-              isUserAdmin == true &&
+              (isUserAdmin == true || isUserOwner == true) &&
               member.isOwner == false &&
               member.id != userId
             "
@@ -82,7 +82,7 @@
           </button>
           <button
             v-if="
-              isUserAdmin == true &&
+              (isUserAdmin == true || isUserOwner == true) &&
               member.isAdmin == false &&
               member.id != userId
             "
@@ -138,7 +138,7 @@ onBeforeMount(async () => {
   const isUserBannedUrl =
     "/penalty/chatroom/" + chatroomId + "/user/" + userId + "/banned";
   apiRequest(isUserBannedUrl, "get").then((response) => {
-    console.log("are you banned? ", response);
+    console.log("are you banned? ", response.data);
     if (response.data == true) {
       alert("You are unable to join this chat.");
       window.location.href = "/chat";
@@ -165,8 +165,6 @@ onMounted(async () => {
         socket.emit("newUserState");
       })
       .catch((err) => {
-        // alert("You are unable to join this chat.");
-        // window.location.href = "/chat";
         console.error(err);
       });
   }
@@ -223,17 +221,17 @@ async function setup(): Promise<void> {
   const adminUrl = "/chat/" + chatroomId + "/is_admin/" + userId;
   // *** check if current user is Owner
   await apiRequest(ownerUrl, "get").then((response) => {
-    isUserOwner.value = response.data; // returns the response data into the users variable which can then be used in the template
+    isUserOwner.value = response.data;
   });
 
   // *** check if current user is Admin
   await apiRequest(adminUrl, "get").then((response) => {
-    isUserAdmin.value = response.data; // returns the response data into the users variable which can then be used in the template
+    isUserAdmin.value = response.data;
   });
 
   // *** GET chatroom data and add user to member list if not in there yet
   await apiRequest(backendurlChatName, "get").then(async (response) => {
-    chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
+    chatRoomInfo.value = response.data;
     ownerName =
       response.data.owner.playerName ??
       "unnamedPlayer" + response.data.owner.id;
@@ -270,10 +268,9 @@ function createBlock(blocklistOwner: number, blockedUser: number) {
     .then((response) => {
       getBlocklist();
       location.reload();
-      console.log(response);
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     });
 }
 
@@ -283,7 +280,6 @@ function unBlock(blocklistOwner: number, blockedUser: number) {
 
   apiRequest(url, "delete").then((response) => {
     location.reload();
-    console.log(response);
   });
 }
 </script>

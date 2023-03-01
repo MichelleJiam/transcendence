@@ -83,13 +83,13 @@ import GetSingleChatroomMessages from "@/components/chat/single_chatroom/message
 import LeaveChat from "@/components/chat/single_chatroom/LeaveChat.vue";
 import PostMessages from "@/components/chat/single_chatroom/message/PostMessages.vue";
 import { useUserStore } from "@/stores/UserStore";
-import apiRequest, { baseUrl } from "@/utils/apiRequest";
-import { ref, onMounted } from "vue";
+import apiRequest, { baseUrl, frontendUrl } from "@/utils/apiRequest";
+import { ref, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import PasswordModal from "@/components/chat/single_chatroom/PasswordModal.vue";
 
 const route = useRoute();
-const routeUrl = baseUrl + route.path;
+const routeUrl = frontendUrl + route.path;
 const chatroomId = route.params.id;
 const chatRoomInfo = ref([]);
 const showModal = ref<boolean>(false);
@@ -117,16 +117,21 @@ function outCopy() {
   copyUrlText.value = "Copy to Clipboard";
 }
 
-onMounted(async () => {
-  await apiRequest(backendurlChatName, "get").then((response) => {
-    chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
-    if (chatRoomInfo.value.owner.id == userStore.user.id)
-      isCurrentUserOwner.value = true;
-    if (chatRoomInfo.value.type === "private") isPrivate.value = true;
-    if (chatRoomInfo.value.type === "password") isPassword.value = true;
-    if (chatRoomInfo.value.type === "DM") isDM.value = true;
-    showPassword.value = true;
-  });
+onBeforeMount(async () => {
+  await apiRequest(backendurlChatName, "get")
+    .then((response) => {
+      chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
+      if (chatRoomInfo.value.owner.id == userStore.user.id)
+        isCurrentUserOwner.value = true;
+      if (chatRoomInfo.value.type === "private") isPrivate.value = true;
+      if (chatRoomInfo.value.type === "password") isPassword.value = true;
+      if (chatRoomInfo.value.type === "DM") isDM.value = true;
+      showPassword.value = true;
+    })
+    .catch((err) => {
+      alert("This chat no longer exists.");
+      window.location.href = "/chat";
+    });
 });
 </script>
 

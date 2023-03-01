@@ -124,7 +124,6 @@ export class PenaltyService {
     userId: number,
   ): Promise<boolean> {
     const foundBan = await this.findBan(chatroomId, userId);
-    console.log("found bans:", foundBan);
     if (foundBan) {
       for (const i of foundBan) {
         const foundBan = i.time;
