@@ -3,7 +3,7 @@
     <h2>Owner of the chat</h2>
     <div class="roles">{{ ownerName }} 👑</div>
     <h2>Admins of the chat</h2>
-    <div class="roles">
+    <div v-if="chatRoomInfo.type != 'DM'" class="roles">
       <div v-for="admin in chatRoomInfo.admin" :key="chatRoomInfo.admin.id">
         <p>
           {{ admin.playerName }}
@@ -39,7 +39,11 @@
           {{ member.playerName }} <span v-if="member.isOwner == true">👑</span>
           <br />
           <button
-            v-if="member.id != userId && inBlocklist(member.id) == false"
+            v-if="
+              member.id != userId &&
+              inBlocklist(member.id) == false &&
+              chatRoomInfo.type != 'DM'
+            "
             @click="createBlock(userId, member.id)"
           >
             block
@@ -54,7 +58,8 @@
             v-if="
               (isUserAdmin == true || isUserOwner == true) &&
               member.isOwner == false &&
-              member.id != userId
+              member.id != userId &&
+              chatRoomInfo.type != 'DM'
             "
             @click="createPenalty(userId, member.id, mute, chatRoomInfo.id)"
           >
@@ -64,7 +69,8 @@
             v-if="
               (isUserAdmin == true || isUserOwner == true) &&
               member.isOwner == false &&
-              member.id != userId
+              member.id != userId &&
+              chatRoomInfo.type != 'DM'
             "
             @click="createPenalty(userId, member.id, ban, chatRoomInfo.id)"
           >
@@ -74,7 +80,8 @@
             v-if="
               (isUserAdmin == true || isUserOwner == true) &&
               member.isOwner == false &&
-              member.id != userId
+              member.id != userId &&
+              chatRoomInfo.type != 'DM'
             "
             @click="kickUser(chatroomId, userId, member.id)"
           >
@@ -84,12 +91,16 @@
             v-if="
               (isUserAdmin == true || isUserOwner == true) &&
               member.isAdmin == false &&
-              member.id != userId
+              member.id != userId &&
+              chatRoomInfo.type != 'DM'
             "
             @click="makeAdmin(chatRoomInfo.id, userId, member.id)"
           >
             make admin
           </button>
+          <span v-if="member.id != userId && chatRoomInfo.type != 'DM'"
+            ><br /><CreateDMButton :other-player="member.id"></CreateDMButton>
+          </span>
         </p>
       </div>
     </div>
@@ -114,6 +125,11 @@ import { ref, onMounted, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
 import { io } from "socket.io-client";
+import CreateDMButton from "../chat_main/CreateDMButton.vue";
+
+const props = defineProps({
+  showContent: Boolean,
+});
 
 const userStore = useUserStore();
 const userId = userStore.user.id;
@@ -134,18 +150,6 @@ const blocklist = ref([]);
 const socketUrl = baseUrl + "/penalty";
 const socket = io(socketUrl);
 
-onBeforeMount(async () => {
-  const isUserBannedUrl =
-    "/penalty/chatroom/" + chatroomId + "/user/" + userId + "/banned";
-  apiRequest(isUserBannedUrl, "get").then((response) => {
-    console.log("are you banned? ", response.data);
-    if (response.data == true) {
-      alert("You are unable to join this chat.");
-      window.location.href = "/chat";
-    }
-  });
-});
-
 onMounted(async () => {
   // *** setup view
   setup();
@@ -153,6 +157,7 @@ onMounted(async () => {
   getBlocklist();
 
   if (
+    props.showContent == true &&
     (await isMember(chatroomId, userStore.user.id)) == false &&
     chatRoomInfo.value.type != "password"
   ) {
@@ -266,7 +271,6 @@ function createBlock(blocklistOwner: number, blockedUser: number) {
 
   apiRequest(url, "post", { data: newBlocklist })
     .then((response) => {
-      getBlocklist();
       location.reload();
     })
     .catch((error) => {

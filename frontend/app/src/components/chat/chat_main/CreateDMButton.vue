@@ -5,8 +5,7 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/UserStore";
 import { CreateDMDto } from "@/components/chat/chatUtils";
-import { useRoute } from "vue-router";
-import apiRequest, { baseUrl } from "@/utils/apiRequest";
+import apiRequest from "@/utils/apiRequest";
 import { ref } from "vue";
 
 // maybe you can use a prop for this?
@@ -15,43 +14,45 @@ const props = defineProps({
 });
 
 const userStore = useUserStore();
-const route = useRoute();
-const otherUserName = String(route.params.username); // assuming: /:username
+const otherUserName = ref();
 const createDM = new CreateDMDto();
 createDM.user = userStore.user.id;
-createDM.chatroomName =
-  userStore.user.playerName + " " + otherUserName + " DMs";
 
-// const otherUser = ref();
-
-function createDMDto() {
-  if (props.otherPlayer != undefined) createDM.otherUser = props.otherPlayer;
-  apiRequest("/chat/create", "post", { data: createDM })
-    .then((response) => {
-      console.log(response);
-      location.href = "/chat/" + response.data.id;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  // const url = baseUrl + "/user/player/" + otherUserName;
-  // apiRequest(url, "get")
-  //   .then((response) => {
-  //     otherUser.value = response.data;
-  //     createDM.otherUser = otherUser.value.id;
-  //     console.log(createDM);
-  //     apiRequest("/chat/create", "post", { data: createDM })
-  //       .then((response) => {
-  //         console.log("/chat/", response.data.id);
-  //         //   location.href = "/chat/" + response.data.id;
-  //         console.log(response);
-  //       })
-  //       .catch((err) => {
-  //         console.log(err);
-  //       });
-  //   })
-  //   .catch((err) => {
-  //     console.error(err);
-  //   });
+async function createDMDto() {
+  if (props.otherPlayer != undefined) {
+    createDM.otherUser = props.otherPlayer;
+    await apiRequest(
+      "/chat/DM/" + createDM.user + "/" + createDM.otherUser,
+      "get"
+    )
+      .then(async (response) => {
+        if (response.data.id != undefined) {
+          location.href = "/chat/" + response.data.id;
+          return;
+        } else {
+          const findOtherPlayerNameUrl = "/user/" + props.otherPlayer;
+          await apiRequest(findOtherPlayerNameUrl, "get")
+            .then(async (response) => {
+              otherUserName.value = response.data;
+              createDM.chatroomName =
+                userStore.user.playerName +
+                " and " +
+                otherUserName.value.playerName +
+                " DMs";
+              await apiRequest("/chat/create", "post", { data: createDM })
+                .then((response) => {
+                  console.log(response);
+                  location.href = "/chat/" + response.data.id;
+                  return;
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+            })
+            .catch((err) => console.error(err));
+        }
+      })
+      .catch((err) => console.error(err));
+  }
 }
 </script>
