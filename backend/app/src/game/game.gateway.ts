@@ -6,6 +6,7 @@ import {
   ConnectedSocket,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import { Game } from "./entities/game.entity";
 import { GameService } from "./game.service";
 import { GameRoom } from "./pong.types";
 
@@ -23,11 +24,15 @@ export class GameGateway {
   constructor(private readonly gameService: GameService) {}
 
   handleConnection(client: Socket) {
-    console.log(client.id, " connected");
+    console.log("GameGateway: ", client.id, " connected");
   }
 
-  handleDisconnect(client: Socket) {
-    console.log(client.id, " disconnected");
+  async handleDisconnect(client: Socket) {
+    console.log("GameGateway: ", client.id, " disconnected");
+    const leftGame = await this.gameService.findGameFromPlayerSocket(client.id);
+    if (leftGame != null) {
+      this.playerLeft(leftGame);
+    }
   }
 
   @SubscribeMessage("drawGame")
@@ -109,12 +114,6 @@ export class GameGateway {
     );
   }
 
-  @SubscribeMessage("leaveRoom")
-  leaveRoom(@ConnectedSocket() client: Socket, @MessageBody() gameId: string) {
-    client.leave(gameId);
-    console.log(client.id, " left room: ", gameId);
-  }
-
   @SubscribeMessage("movePaddleUp")
   movePaddleUp(@MessageBody() gameRoom: GameRoom) {
     let y: number;
@@ -161,6 +160,12 @@ export class GameGateway {
     }
   }
 
+  @SubscribeMessage("leftGamePage")
+  async playerLeft(@MessageBody() gameRoom: GameRoom) {
+    console.log("A player left the game");
+    console.log("Game state: ", gameRoom.state);
+  }
+
   @SubscribeMessage("endGame")
   async endGame(@MessageBody() gameRoom: GameRoom) {
     console.log("endGame");
@@ -182,6 +187,12 @@ export class GameGateway {
     }
   }
 
+  @SubscribeMessage("leaveRoom")
+  leaveRoom(@ConnectedSocket() client: Socket, @MessageBody() gameId: string) {
+    client.leave(gameId);
+    console.log(client.id, " left room: ", gameId);
+  }
+
   // async moveBall(gameRoom: GameRoom) {
   @SubscribeMessage("moveBall")
   moveBall(@MessageBody() gameRoom: GameRoom) {
@@ -192,7 +203,7 @@ export class GameGateway {
       x * gameRoom.view.width + gameRoom.ball.moveX >
       gameRoom.view.width -
         gameRoom.ball.radius -
-        gameRoom.playerTwo.paddle.width * 2 -
+        gameRoom.playerTwo.paddle.width * 2 - // why * 2 here but not line 218?
         gameRoom.playerTwo.paddle.offset
     ) {
       if (
