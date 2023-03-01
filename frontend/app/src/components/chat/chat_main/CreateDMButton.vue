@@ -1,5 +1,5 @@
 <template>
-  <section><button @click="createDMDto()">create DM</button></section>
+  <section><button @click="createDMDto()">Send DM</button></section>
 </template>
 
 <script setup lang="ts">

@@ -32,6 +32,13 @@ export class UserService {
     return this.userRepository.save(newUser);
   }
 
+  async findUserByPlayerName(playerName: string) {
+    const foundUser = this.userRepository.findOneBy({
+      playerName: playerName,
+    });
+    return foundUser;
+  }
+
   async findUserByIntraId(intraId: string) {
     const foundUser = this.userRepository.findOneBy({
       intraId: intraId,
