@@ -37,6 +37,7 @@ import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import { onMounted } from "vue";
 import type { Game, GameRoom } from "../components/game/pong.types";
+import type { AxiosResponse } from "axios";
 // import { useUserStore } from "@/stores/UserStore";
 
 const State = {
@@ -55,20 +56,6 @@ const game = ref({} as GameRoom);
 const activeGames = ref(Array<Game>());
 game.value.state = State.READY;
 
-async function gameOver(gameRoom: GameRoom) {
-  game.value.state = State.READY;
-  socket.emit("leaveRoom", gameRoom.id);
-  joined.value = false;
-  console.log(id, "has left room ", gameRoom.id);
-  await apiRequest(`/game`, "put", { data: gameRoom });
-  socket.emit("updateActiveGames");
-  // clear all gameRoom values somehow? Is that needed?
-}
-
-socket.on("disconnecting", (socket) => {
-  socket.emit("socketRooms", socket.rooms);
-});
-
 onBeforeMount(async () => {
   socket.on("disconnect", () => {
     console.log(socket.id + " disconnected from frontend");
@@ -83,59 +70,32 @@ onMounted(async () => {
     // `/match/${id.value}`,
     `/match/${id}`,
     "delete"
-  ); /* protection if user refreshes; removes them from queue */
+  ) /* protection if user refreshes; removes them from queue */
+    .catch((err) => {
+      console.log("Something went wrong with deleting the match: ", err);
+    });
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
 });
 
 onUnmounted(async () => {
-  console.log("unmounted");
+  console.log("GamePage unmounted");
+  socket.emit("leftGamePage", game.value);
   // await apiRequest(`/match/${id.value}`, "delete");
-  await apiRequest(`/match/${id}`, "delete");
+  await apiRequest(`/match/${id}`, "delete").catch((err) => {
+    console.log("Something went wrong with deleting the match: ", err);
+  });
+});
+
+// not used?
+socket.on("disconnecting", (socket) => {
+  socket.emit("socketRooms", socket.rooms);
 });
 
 socket.on("updateActiveGames", () => {
   getActiveGames();
 });
-
-async function getActiveGames() {
-  const res = await apiRequest(`/game/active`, "get");
-  activeGames.value = res.data;
-}
-
-async function watchGame(gameId: number) {
-  const res = await apiRequest(`/game/${gameId}`, "get");
-
-  game.value.id = res.data.id;
-  game.value.player = 0;
-  game.value.playerOne = {
-    id: res.data.playerOne,
-    socket: res.data.playerOneSocket,
-    score: res.data.playerOneScore,
-    paddle: {
-      height: 0,
-      width: 0,
-      y: 0,
-      offset: 0,
-    },
-  };
-  game.value.playerTwo = {
-    id: res.data.playerTwo,
-    socket: res.data.playerTwoSocket,
-    score: res.data.playerTwoScore,
-    paddle: {
-      height: 0,
-      width: 0,
-      y: 0,
-      offset: 0,
-    },
-  };
-  socket.emit("watchGame", game.value); /* adds them to gameRoom */
-  console.log(id, " has joined room ", gameId, " as a WATCHER");
-  game.value.state = State.PLAYING;
-  joined.value = true;
-}
 
 socket.on("addPlayerOne", (gameRoom: GameRoom) => {
   if (joined.value == false && game.value.state == State.WAITING) {
@@ -148,42 +108,85 @@ socket.on("addPlayerOne", (gameRoom: GameRoom) => {
   }
 });
 
+async function getActiveGames() {
+  const res = await apiRequest(`/game/active`, "get");
+  activeGames.value = res.data;
+}
+
+async function watchGame(gameId: number) {
+  const res = await apiRequest(`/game/${gameId}`, "get");
+  fillGameRoomObject(res, 0);
+  socket.emit("watchGame", game.value); /* adds them to gameRoom */
+  console.log(id, " has joined room ", gameId, " as a WATCHER");
+  game.value.state = State.PLAYING;
+  joined.value = true;
+}
+
 const startGame = async () => {
   // const res = await apiRequest(`/match/${id.value}`, "get");
   const res = await apiRequest(`/match/${id}`, "get");
+  // if no matchups available at the moment
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
   } else {
-    game.value.id = res.data.id;
-    game.value.player = 2;
-    game.value.playerOne = {
-      id: res.data.playerOne,
-      socket: "",
-      score: 0,
-      paddle: {
-        height: 0,
-        width: 0,
-        y: 0,
-        offset: 0,
-      },
-    };
-    game.value.playerTwo = {
-      id: res.data.playerTwo,
-      socket: "",
-      score: 0,
-      paddle: {
-        height: 0,
-        width: 0,
-        y: 0,
-        offset: 0,
-      },
-    };
+    // else if a matchup has been found
+    fillGameRoomObject(res, 2);
     game.value.state = State.PLAYING;
     socket.emit("joinRoom", game.value);
     console.log(id, " has joined room ", game.value.id, " as PLAYER 2");
     joined.value = true;
   }
 };
+
+async function gameOver(gameRoom: GameRoom) {
+  game.value.state = State.READY;
+  socket.emit("leaveRoom", gameRoom.id);
+  joined.value = false;
+  console.log(id, "has left room ", gameRoom.id);
+  await apiRequest(`/game`, "put", { data: gameRoom });
+  socket.emit("updateActiveGames");
+  // clear all gameRoom values somehow? Is that needed?
+}
+
+function fillPlayerObject(
+  playerNumber: number,
+  playerSocket: string,
+  score: number
+) {
+  return {
+    id: playerNumber,
+    socket: playerSocket,
+    score: score,
+    paddle: {
+      height: 0,
+      width: 0,
+      y: 0,
+      offset: 0,
+    },
+  };
+}
+
+function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
+  game.value.id = res.data.id;
+  game.value.player = playerNumber;
+  // if current user is a Watcher
+  if (playerNumber === 0) {
+    game.value.playerOne = fillPlayerObject(
+      res.data.playerOne,
+      res.data.playerOneSocket,
+      res.data.playerOneScore
+    );
+    game.value.playerTwo = fillPlayerObject(
+      res.data.playerTwo,
+      res.data.playerTwoSocket,
+      res.data.playerTwoScore
+    );
+  } else {
+    // else is player 2 joining a match
+    game.value.playerOne = fillPlayerObject(res.data.playerOne, "", 0);
+    game.value.playerTwo = fillPlayerObject(res.data.playerTwo, "", 0);
+  }
+}
 </script>
 
 <style scoped>
