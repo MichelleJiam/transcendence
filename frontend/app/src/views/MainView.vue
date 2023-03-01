@@ -5,7 +5,11 @@
       class="playername-popup"
     ></PlayerNamePopup>
     <div id="display-content">
-      <div class="username">
+      <div v-if="route.params.playerName != undefined" class="username">
+        <AvatarDisplay class="avatar" :src="otherPlayerInfo?.avatarUrl" />
+        <h1>{{ otherPlayerInfo?.playerName }}</h1>
+      </div>
+      <div v-else class="username">
         <AvatarDisplay class="avatar" :src="userStore.user.avatarUrl" />
         <h1>{{ userStore.user.playerName }}</h1>
       </div>
@@ -14,10 +18,14 @@
       <UserAchiements class="user-achievements"></UserAchiements>
       <!-- add in a vif if its your own page you see padle bords, if
       someone elses page you see the buttons to DM or Add as friend -->
-      <div class="homepage-buttons box-styling">
+      <div
+        v-if="route.params.playerName != undefined"
+        class="homepage-buttons box-styling"
+      >
         <FriendButton class="friend-button"></FriendButton>
-        <button>dm player</button>
+        <CreateDMButton :other-player="otherPlayerInfo?.id"></CreateDMButton>
       </div>
+      <div v-else>🏓🏓🏓🏓🏓🏓🏓</div>
     </div>
   </main>
   <div :class="{ overlay: showPopup }"></div>
@@ -30,10 +38,16 @@ import GameHistory from "@/components/GameHistory.vue";
 import UserAchiements from "@/components/UserAchiements.vue";
 import AvatarDisplay from "@/components/AvatarDisplay.vue";
 import FriendButton from "@/components/FriendButton.vue";
-import { onMounted, computed } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useUserStore } from "@/stores/UserStore";
+import CreateDMButton from "@/components/chat/chat_main/CreateDMButton.vue";
+import { useRoute } from "vue-router";
+import apiRequest from "@/utils/apiRequest";
 
 const userStore = useUserStore();
+const route = useRoute();
+const isOtherPlayerPage = ref<boolean>(false);
+const otherPlayerInfo = ref();
 
 const showPopup = computed(() => {
   return userStore.user.playerName == null;
@@ -43,11 +57,26 @@ onMounted(async () => {
   // refresh userStore data
   await userStore.retrieveCurrentUserData();
   await userStore.getAvatar();
+  if (route.params.playerName != undefined) {
+    console.log("is a different player");
+    isOtherPlayerPage.value = true;
+    await apiRequest("/user/player/" + route.params.playerName, "get")
+      .then(async (response) => {
+        console.log(response);
+        otherPlayerInfo.value = response.data;
+        await apiRequest("/user/" + otherPlayerInfo.value.id + "/avatar", "get")
+          .then(
+            (response) =>
+              (otherPlayerInfo.value["avatarUrl"] = response.config.url)
+          )
+          .catch((err) => console.error(err));
+      })
+      .catch((err) => console.error("an error occured: ", err));
+  }
 });
 </script>
 
 <style scoped>
-
 #display-content {
   width: auto;
   height: auto;
@@ -73,8 +102,8 @@ onMounted(async () => {
 }
 .homepage-buttons {
   grid-area: buttons;
-	padding: 20px;
-	width: 375px;
+  padding: 20px;
+  width: 375px;
   display: flex;
   justify-content: space-between;
 }
@@ -113,17 +142,18 @@ h1 {
   height: 100%;
 }
 
-@media (max-width: 1100px){
+@media (max-width: 1100px) {
   #display-content {
     flex-direction: column;
     overflow-y: scroll;
     width: 700px;
     height: 80%;
     grid-template:
-    "username"
-    "buttons"
-    "stats"
-    "gamehistory"
-    "achievements";
+      "username"
+      "buttons"
+      "stats"
+      "gamehistory"
+      "achievements";
   }
 }
+</style>

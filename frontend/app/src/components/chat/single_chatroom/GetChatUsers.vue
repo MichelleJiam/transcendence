@@ -3,7 +3,7 @@
     <h2>Owner of the chat</h2>
     <div class="roles">{{ ownerName }} 👑</div>
     <h2>Admins of the chat</h2>
-    <div class="roles">
+    <div v-if="chatRoomInfo.type != 'DM'" class="roles">
       <div v-for="admin in chatRoomInfo.admin" :key="chatRoomInfo.admin.id">
         <p>
           {{ admin.playerName }}
@@ -39,7 +39,11 @@
           {{ member.playerName }} <span v-if="member.isOwner == true">👑</span>
           <br />
           <button
-            v-if="member.id != userId && inBlocklist(member.id) == false"
+            v-if="
+              member.id != userId &&
+              inBlocklist(member.id) == false &&
+              chatRoomInfo.type != 'DM'
+            "
             @click="createBlock(userId, member.id)"
           >
             block
@@ -52,9 +56,10 @@
           </button>
           <button
             v-if="
-              isUserAdmin == true &&
+              (isUserAdmin == true || isUserOwner == true) &&
               member.isOwner == false &&
-              member.id != userId
+              member.id != userId &&
+              chatRoomInfo.type != 'DM'
             "
             @click="createPenalty(userId, member.id, mute, chatRoomInfo.id)"
           >
@@ -62,9 +67,10 @@
           </button>
           <button
             v-if="
-              isUserAdmin == true &&
+              (isUserAdmin == true || isUserOwner == true) &&
               member.isOwner == false &&
-              member.id != userId
+              member.id != userId &&
+              chatRoomInfo.type != 'DM'
             "
             @click="createPenalty(userId, member.id, ban, chatRoomInfo.id)"
           >
@@ -72,9 +78,10 @@
           </button>
           <button
             v-if="
-              isUserAdmin == true &&
+              (isUserAdmin == true || isUserOwner == true) &&
               member.isOwner == false &&
-              member.id != userId
+              member.id != userId &&
+              chatRoomInfo.type != 'DM'
             "
             @click="kickUser(chatroomId, userId, member.id)"
           >
@@ -82,14 +89,18 @@
           </button>
           <button
             v-if="
-              isUserAdmin == true &&
+              (isUserAdmin == true || isUserOwner == true) &&
               member.isAdmin == false &&
-              member.id != userId
+              member.id != userId &&
+              chatRoomInfo.type != 'DM'
             "
             @click="makeAdmin(chatRoomInfo.id, userId, member.id)"
           >
             make admin
           </button>
+          <!-- <span v-if="member.id != userId && chatRoomInfo.type != 'DM'"
+            ><br /><CreateDMButton :other-player="member.id"></CreateDMButton>
+          </span> -->
         </p>
       </div>
     </div>
@@ -97,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import apiRequest from "@/utils/apiRequest";
+import apiRequest, { baseUrl } from "@/utils/apiRequest";
 import {
   createPenalty,
   makeAdmin,
@@ -113,6 +124,12 @@ import {
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
+import { io } from "socket.io-client";
+import CreateDMButton from "../chat_main/CreateDMButton.vue";
+
+const props = defineProps({
+  showContent: Boolean,
+});
 
 const userStore = useUserStore();
 const userId = userStore.user.id;
@@ -129,6 +146,113 @@ const chatRoomInfo = ref([]);
 const isUserOwner = ref();
 const isUserAdmin = ref();
 const blocklist = ref([]);
+
+const socketUrl = baseUrl + "/penalty";
+const socket = io(socketUrl);
+
+onMounted(async () => {
+  // *** setup view
+  await setup();
+  // *** Get user's blocklist
+  await getBlocklist();
+
+  if (
+    props.showContent == true &&
+    (await isMember(chatroomId, userStore.user.id)) == false &&
+    chatRoomInfo.value.type != "password"
+  ) {
+    const addMemberUrl = "/chat/" + chatroomId + "/add/member";
+    const addMemberDto = new AddMemberDto();
+    addMemberDto.member = userStore.user.id;
+    await apiRequest(addMemberUrl, "put", { data: addMemberDto })
+      .then((response) => {
+        chatRoomInfo.value = response.data;
+        socket.emit("newUserState");
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
+
+  // *** auto kick people if banned
+  socket.on("gotBanned", async (response) => {
+    if (
+      response.user == userStore.user.id &&
+      chatroomId == response.chatroom &&
+      response.penaltyType == "ban"
+    ) {
+      alert("Sorry, you've been banned, you can rejoin the chat in 2 minutes.");
+      window.location.href = "/chat";
+    } else {
+      if (
+        response.user == userStore.user.id &&
+        chatroomId == response.chatroom &&
+        response.penaltyType == "mute"
+      ) {
+        alert("You've been muted, you can reply again in 2 minutes.");
+      }
+      await setup();
+    }
+  });
+
+  socket.on("userUpdate", async () => {
+    await setup();
+  });
+
+  socket.on("kickedAUser", async (response) => {
+    if (
+      response.userId == userStore.user.id &&
+      chatroomId == response.chatroomId
+    ) {
+      alert("Sorry, you've been kicked from the chat.");
+      console.log("You've been kicked");
+      window.location.href = "/chat";
+    } else await setup();
+  });
+});
+
+async function getBlocklist() {
+  await apiRequest(backendBlocklist, "get")
+    .then((response) => {
+      blocklist.value = response.data;
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+}
+
+async function setup(): Promise<void> {
+  const ownerUrl = "/chat/" + chatroomId + "/is_owner/" + userId;
+  const adminUrl = "/chat/" + chatroomId + "/is_admin/" + userId;
+
+  // *** GET chatroom data and add user to member list if not in there yet
+  await apiRequest(backendurlChatName, "get").then(async (response) => {
+    chatRoomInfo.value = response.data;
+    ownerName =
+      response.data.owner.playerName ??
+      "unnamedPlayer" + response.data.owner.id;
+    for (const member of chatRoomInfo.value.member) {
+      member["isOwner"] = await isOwner(chatroomId, member.id);
+      member["isAdmin"] = await isAdmin(chatroomId, member.id);
+      member.playerName = member.playerName ?? "unnamedPlayer" + member.id;
+    }
+    for (const admin of chatRoomInfo.value.admin) {
+      admin["isOwner"] = await isOwner(chatroomId, admin.id);
+      admin["isAdmin"] = await isAdmin(chatroomId, admin.id);
+      admin.playerName = admin.playerName ?? "unnamedPlayer" + admin.id;
+    }
+  });
+
+  // *** check if current user is Owner
+  await apiRequest(ownerUrl, "get").then((response) => {
+    isUserOwner.value = response.data;
+  });
+
+  // *** check if current user is Admin
+  await apiRequest(adminUrl, "get").then((response) => {
+    isUserAdmin.value = response.data;
+  });
+}
 
 function inBlocklist(userId: number) {
   for (const entry of blocklist.value) {
@@ -148,16 +272,10 @@ function createBlock(blocklistOwner: number, blockedUser: number) {
 
   apiRequest(url, "post", { data: newBlocklist })
     .then((response) => {
-      const newBlocklistEntry = new Blocklist();
-      newBlocklistEntry.id = response.data.id;
-      newBlocklistEntry.blockedUser = response.data.blockedUser;
-      newBlocklistEntry.blocklistOwner = response.data.blocklistOwner;
-      blocklist.value.push(newBlocklistEntry);
       location.reload();
-      console.log(response);
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     });
 }
 
@@ -165,58 +283,12 @@ function unBlock(blocklistOwner: number, blockedUser: number) {
   const url =
     "/blocklist/remove/owner/" + blocklistOwner + "/blocked/" + blockedUser;
 
-  apiRequest(url, "delete").then((response) => {
-    location.reload();
-    console.log(response);
-  });
-}
-
-onMounted(async () => {
-  const ownerUrl = "/chat/" + chatroomId + "/is_owner/" + userId;
-  const adminUrl = "/chat/" + chatroomId + "/is_admin/" + userId;
-  await apiRequest(ownerUrl, "get").then((response) => {
-    isUserOwner.value = response.data; // returns the response data into the users variable which can then be used in the template
-  });
-  await apiRequest(adminUrl, "get").then((response) => {
-    isUserAdmin.value = response.data; // returns the response data into the users variable which can then be used in the template
-  });
-  await apiRequest(backendurlChatName, "get").then(async (response) => {
-    chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
-    ownerName =
-      response.data.owner.playerName ??
-      "unnamedPlayer" + response.data.owner.id;
-    for (const member of chatRoomInfo.value.member) {
-      member["isOwner"] = await isOwner(chatroomId, member.id);
-      member["isAdmin"] = await isAdmin(chatroomId, member.id);
-      member.playerName = member.playerName ?? "unnamedPlayer" + member.id;
-    }
-    for (const admin of chatRoomInfo.value.admin) {
-      admin["isOwner"] = await isOwner(chatroomId, admin.id);
-      admin["isAdmin"] = await isAdmin(chatroomId, admin.id);
-      admin.playerName = admin.playerName ?? "unnamedPlayer" + admin.id;
-    }
-    if (
-      (await isMember(chatroomId, userStore.user.id)) == false &&
-      chatRoomInfo.value.type != "password"
-    ) {
-      const addMemberUrl = "/chat/" + chatroomId + "/add/member";
-      const addMemberDto = new AddMemberDto();
-      addMemberDto.member = userStore.user.id;
-      await apiRequest(addMemberUrl, "put", { data: addMemberDto }).then(
-        (response) => {
-          chatRoomInfo.value = response.data;
-        }
-      );
-    }
-  });
-  await apiRequest(backendBlocklist, "get")
+  apiRequest(url, "delete")
     .then((response) => {
-      blocklist.value = response.data;
+      location.reload();
     })
-    .catch((err) => {
-      console.log(err);
-    });
-});
+    .catch((err) => console.error(err));
+}
 </script>
 <style scoped>
 button {
