@@ -40,7 +40,7 @@
             Update player name
           </button>
         </form>
-        <form class="account-settings">
+        <form class="twofa-settings">
           <label class="two-fa-settings-label" for="player-name">2FA</label>
           <InputCheckbox
             id="twoFactorAuthentication"
@@ -148,29 +148,30 @@ function validPlayerName(playerName: string) {
   flex-direction: column;
   justify-content: space-around;
   gap: 10px;
-  flex-basis: 650px;
+  /* flex-basis: 650px; */
 }
 
 .account-settings {
   display: grid;
   justify-items: left;
-  row-gap: 10px;
+  row-gap: 5px;
   grid-template-areas:
     "name-label inputfield"
-    "fa-label checkbox"
     "validate validate"
     "button button";
 }
 
-/* h1 {
-  font-size: 4.5em;
-} */
+.twofa-settings {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
 
 h2 {
   font-size: 2.5em;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
-
 .two-fa-settings-label {
   grid-area: fa-label;
   font-family: "ArcadeClassic", sans-serif;
@@ -190,7 +191,6 @@ h2 {
   width: 100%;
   height: 100%;
 }
-
 .account-settings-button {
   grid-area: button;
   justify-self: stretch;
@@ -200,7 +200,6 @@ h2 {
   justify-self: end;
   grid-area: checkbox;
 }
-
 .account-settings-input {
   font-size: 18px;
   grid-area: inputfield;
@@ -215,13 +214,16 @@ h2 {
   color: var(--primary-color);
 }
 
-@media (max-width: 1100px) {
-  #display-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 600px;
+form {
+  padding: 10px;
 }
 
+@media (max-width: 1100px) {
+  #display-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 600px;
+  }
 }
 </style>
