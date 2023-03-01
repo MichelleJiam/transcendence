@@ -489,6 +489,7 @@ export class ChatService {
         (await this.chatMethod.hasMultipleMembersInChatroom(chatroomId)) == true
       ) {
         swapOwner(chatroom, chatroom.member[1]);
+        addAdmin(chatroom, chatroom.member[1]);
       } else {
         this.deleteChatroom(chatroomId);
       }
