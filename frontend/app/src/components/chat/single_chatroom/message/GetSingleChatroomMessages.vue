@@ -78,7 +78,7 @@ onMounted(async () => {
       blocklist.value = response.data;
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
     });
 
   socket.on("recMessage", (message) => {

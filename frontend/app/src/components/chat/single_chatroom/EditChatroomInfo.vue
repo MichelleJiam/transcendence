@@ -78,11 +78,11 @@ function editChat(adminId: number) {
   const url = "/chat/" + chatroomId + "/admin/" + adminId + "/update/info";
   apiRequest(url, "put", { data: updateChatroomDto })
     .then((response) => {
-      console.log(response);
       location.reload();
     }) // axios throws errors for non 2xx responses by default!
     .catch((error) => {
-      alert(error);
+      console.error(error);
+      alert("Unable to update chat info");
     });
 }
 </script>

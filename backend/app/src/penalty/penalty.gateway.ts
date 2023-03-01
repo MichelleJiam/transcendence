@@ -41,7 +41,7 @@ export class PenaltyGateway
       console.log(payload);
       this.server.emit("gotBanned", payload);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 

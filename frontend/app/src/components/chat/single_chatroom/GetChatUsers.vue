@@ -121,7 +121,7 @@ import {
   kickUser,
   Blocklist,
 } from "../chatUtils";
-import { ref, onMounted, onBeforeMount } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
 import { io } from "socket.io-client";
@@ -217,7 +217,7 @@ async function getBlocklist() {
       blocklist.value = response.data;
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
     });
 }
 
@@ -282,9 +282,11 @@ function unBlock(blocklistOwner: number, blockedUser: number) {
   const url =
     "/blocklist/remove/owner/" + blocklistOwner + "/blocked/" + blockedUser;
 
-  apiRequest(url, "delete").then((response) => {
-    location.reload();
-  });
+  apiRequest(url, "delete")
+    .then((response) => {
+      location.reload();
+    })
+    .catch((err) => console.error(err));
 }
 </script>
 <style scoped>

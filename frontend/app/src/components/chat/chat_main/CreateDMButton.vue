@@ -46,7 +46,7 @@ async function createDMDto() {
                   return;
                 })
                 .catch((err) => {
-                  console.log(err);
+                  console.error(err);
                 });
             })
             .catch((err) => console.error(err));

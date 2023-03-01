@@ -61,7 +61,7 @@ export async function createPenalty(
       if (response.data) socket.emit("checkBan", newPenalty);
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     });
 }
 
@@ -90,10 +90,9 @@ export async function makeAdmin(
   await apiRequest(url, "put", { data: admin })
     .then((response) => {
       socket.emit("newUserState");
-      console.log(response);
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     });
 }
 
@@ -108,10 +107,9 @@ export async function deleteAdmin(
   await apiRequest(url, "delete")
     .then((response) => {
       socket.emit("newUserState");
-      console.log(response);
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     });
 }
 
@@ -134,10 +132,9 @@ export async function swapOwner(
   await apiRequest(url, "put", { data: owner })
     .then((response) => {
       socket.emit("newUserState");
-      console.log(response);
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     });
 }
 
@@ -206,7 +203,7 @@ export async function kickUser(
       socket.emit("kickUser", kickedAUserDto);
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
     });
 }
 
@@ -216,7 +213,6 @@ export async function buildUserPageUrl(userId: number) {
 
   await apiRequest(url, "get")
     .then((response) => {
-      console.log(response);
       userData.value = response.data;
       console.log("/user/" + userData.value.playerName);
       // location.href = "/user/" + userData.value.playerName;
