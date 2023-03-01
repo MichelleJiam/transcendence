@@ -53,7 +53,7 @@ export class ChatController {
     try {
       return this.chatroomService.getChatroomInfoById(id);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -99,7 +99,7 @@ export class ChatController {
         userId,
       );
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -145,7 +145,7 @@ export class ChatController {
       isCurrentUser(user.id, createChatroomDto.user);
       return this.chatroomService.createChatroom(createChatroomDto);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -193,7 +193,7 @@ export class ChatController {
       // check if user is not banned from chat
       return this.chatroomService.addMemberToChatroom(chatroomId, addMemberDto);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -211,7 +211,7 @@ export class ChatController {
       // check if user is not banned from chat
       return this.chatroomService.addAdminToChatroom(chatroomId, addAdminDto);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -230,7 +230,7 @@ export class ChatController {
         swapOwnerDto,
       );
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -252,7 +252,7 @@ export class ChatController {
         updateChatroomDto,
       );
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -268,7 +268,7 @@ export class ChatController {
       isCurrentUser(user.id, adminId);
       return this.chatroomService.kickUser(chatroomId, adminId, userId);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -288,7 +288,7 @@ export class ChatController {
         toDeleteId,
       );
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -302,7 +302,7 @@ export class ChatController {
       isCurrentUser(user.id, userId);
       return this.chatroomService.leaveChatroom(chatroomId, userId);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 }
