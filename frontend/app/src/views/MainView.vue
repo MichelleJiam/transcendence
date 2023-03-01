@@ -33,6 +33,7 @@ const showPopup = computed(() => {
 onMounted(async () => {
   // refresh userStore data
   await userStore.retrieveCurrentUserData();
+  await userStore.getAvatar();
 });
 </script>
 
