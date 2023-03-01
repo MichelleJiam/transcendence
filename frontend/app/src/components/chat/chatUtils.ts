@@ -1,5 +1,9 @@
-import apiRequest from "@/utils/apiRequest";
+import apiRequest, { baseUrl } from "@/utils/apiRequest";
+import { io } from "socket.io-client";
 import { ref } from "vue";
+
+const socketUrl = baseUrl + "/penalty";
+const socket = io(socketUrl);
 
 export class UpdateChatroomDto {
   type?: string;
@@ -10,6 +14,13 @@ export class UpdateChatroomDto {
 export class AddMemberDto {
   member!: number;
   password?: string;
+}
+
+export class CreateDMDto {
+  type = "DM";
+  chatroomName!: string;
+  user!: number;
+  otherUser!: number;
 }
 
 export class SendMessageDto {
@@ -32,27 +43,25 @@ class Penalty {
   chatroom!: number;
 }
 
-export function createPenalty(
+export async function createPenalty(
   adminId: number,
   userId: number,
   penaltyType: string,
   chatroomId: number
 ) {
   const url = "/chat/" + chatroomId + "/admin/" + adminId + "/penalty";
-  console.log(url);
 
   const newPenalty = new Penalty();
   newPenalty.chatroom = chatroomId;
   newPenalty.user = userId;
   newPenalty.penaltyType = penaltyType;
 
-  apiRequest(url, "post", { data: newPenalty })
+  await apiRequest(url, "post", { data: newPenalty })
     .then((response) => {
-      location.reload();
-      console.log(response);
+      if (response.data) socket.emit("checkBan", newPenalty);
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     });
 }
 
@@ -62,39 +71,12 @@ export class Blocklist {
   blockedUser!: number;
 }
 
-export function createBlock(blocklistOwner: number, blockedUser: number) {
-  const url = "/blocklist/create";
-
-  const newBlocklist = new Blocklist();
-  newBlocklist.blocklistOwner = blocklistOwner;
-  newBlocklist.blockedUser = blockedUser;
-
-  apiRequest(url, "post", { data: newBlocklist })
-    .then((response) => {
-      location.reload();
-      console.log(response);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-}
-
-export function unBlock(blocklistOwner: number, blockedUser: number) {
-  const url =
-    "/blocklist/remove/owner/" + blocklistOwner + "/blocked/" + blockedUser;
-
-  apiRequest(url, "delete").then((response) => {
-    location.reload();
-    console.log(response);
-  });
-}
-
 class AddAdminDto {
   newAdmin!: number;
   byAdmin!: number;
 }
 
-export function makeAdmin(
+export async function makeAdmin(
   chatroomId: number,
   byAdmin: number,
   newAdmin: number
@@ -105,17 +87,16 @@ export function makeAdmin(
   admin.byAdmin = byAdmin;
   admin.newAdmin = newAdmin;
 
-  apiRequest(url, "put", { data: admin })
+  await apiRequest(url, "put", { data: admin })
     .then((response) => {
-      location.reload();
-      console.log(response);
+      socket.emit("newUserState");
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     });
 }
 
-export function deleteAdmin(
+export async function deleteAdmin(
   chatroomId: number,
   adminId: number,
   toDeleteId: number
@@ -123,13 +104,12 @@ export function deleteAdmin(
   const url =
     "/chat/" + chatroomId + "/admin/" + adminId + "/delete/admin/" + toDeleteId;
 
-  apiRequest(url, "delete")
+  await apiRequest(url, "delete")
     .then((response) => {
-      location.reload();
-      console.log(response);
+      socket.emit("newUserState");
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     });
 }
 
@@ -138,7 +118,7 @@ class SwapOwnerDto {
   newOwner!: number;
 }
 
-export function swapOwner(
+export async function swapOwner(
   chatroomId: number,
   oldOwner: number,
   newOwner: number
@@ -149,13 +129,12 @@ export function swapOwner(
   owner.oldOwner = oldOwner;
   owner.newOwner = newOwner;
 
-  apiRequest(url, "put", { data: owner })
+  await apiRequest(url, "put", { data: owner })
     .then((response) => {
-      location.reload();
-      console.log(response);
+      socket.emit("newUserState");
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     });
 }
 
@@ -203,6 +182,11 @@ export async function isOwner(
   return false;
 }
 
+export class KickedAUserDto {
+  chatroomId!: number;
+  userId!: number;
+}
+
 export async function kickUser(
   chatroomId: number,
   adminId: number,
@@ -210,12 +194,28 @@ export async function kickUser(
 ) {
   const url =
     "/chat/" + chatroomId + "/admin/" + adminId + "/delete/user/" + toDeleteId;
+
   await apiRequest(url, "delete")
     .then((response) => {
-      location.reload();
-      console.log(response);
+      const kickedAUserDto = new KickedAUserDto();
+      kickedAUserDto.chatroomId = chatroomId;
+      kickedAUserDto.userId = toDeleteId;
+      socket.emit("kickUser", kickedAUserDto);
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
     });
+}
+
+export async function buildUserPageUrl(userId: number) {
+  const url = "/user/" + userId;
+  const userData = ref();
+
+  await apiRequest(url, "get")
+    .then((response) => {
+      userData.value = response.data;
+      console.log("/user/" + userData.value.playerName);
+      // location.href = "/user/" + userData.value.playerName;
+    })
+    .catch((err) => console.error(err));
 }

@@ -66,11 +66,11 @@ export class UserController {
     return this.userService.findUserById(id);
   }
 
-  /* localhost:3000/user/{an+id}/messages - show all messages by specified user */
-  // @Get(":id/messages")
-  // getUserMessages(@Param("id", ParseIntPipe) id: number) {
-  //   return this.userService.getUserMessages(id);
-  // }
+  @Get("player/:playerName")
+  @UseGuards(JwtAuthGuard)
+  findUserByPlayerName(@Param("playerName") playerName: string) {
+    return this.userService.findUserByPlayerName(playerName);
+  }
 
   /* deletes the user based on the id given when a delete request is made */
   @Delete(":id")

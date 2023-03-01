@@ -1,10 +1,21 @@
 <template>
   <main>
-    <div id="display-content">
+    <div v-if="showContent == true" id="display-content">
       <div class="row">
         <div class="header">
           <h2>{{ chatRoomInfo.chatroomName }}</h2>
-          <span v-if="isPrivate == true">we're in a private chat!</span>
+          <span v-if="isDM == true"> invite to game here </span>
+          <span v-if="isPrivate == true">
+            <input id="link" class="linkurl" type="text" :value="routeUrl" />
+            <div class="tooltip">
+              <button class="copy" @click="copyUrl()" @mouseout="outCopy()">
+                <span id="myTooltip" class="tooltiptext">
+                  {{ copyUrlText }}</span
+                >
+                Copy
+              </button>
+            </div>
+          </span>
           <span v-if="isPassword == true">
             <Teleport to="body">
               <!-- use the modal component, pass in the prop -->
@@ -35,7 +46,7 @@
         <div class="columnright">
           <suspense>
             <template #default>
-              <GetChatUsers></GetChatUsers>
+              <GetChatUsers :show-content="showContent"></GetChatUsers>
             </template>
             <template #fallback><p>loading...</p></template>
           </suspense>
@@ -47,7 +58,7 @@
         </div>
         <div class="leave settings">
           <button
-            v-if="isCurrentUserOwner == true"
+            v-if="isCurrentUserOwner == true && chatRoomInfo.type != 'DM'"
             id="show-modal"
             @click="showModal = true"
           >
@@ -72,12 +83,13 @@ import GetSingleChatroomMessages from "@/components/chat/single_chatroom/message
 import LeaveChat from "@/components/chat/single_chatroom/LeaveChat.vue";
 import PostMessages from "@/components/chat/single_chatroom/message/PostMessages.vue";
 import { useUserStore } from "@/stores/UserStore";
-import apiRequest from "@/utils/apiRequest";
-import { ref, onMounted } from "vue";
+import apiRequest, { frontendUrl } from "@/utils/apiRequest";
+import { ref, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import PasswordModal from "@/components/chat/single_chatroom/PasswordModal.vue";
 
 const route = useRoute();
+const routeUrl = frontendUrl + route.path;
 const chatroomId = route.params.id;
 const chatRoomInfo = ref([]);
 const showModal = ref<boolean>(false);
@@ -86,23 +98,76 @@ const userStore = useUserStore();
 const isCurrentUserOwner = ref<boolean>(false);
 const isPrivate = ref<boolean>(false);
 const isPassword = ref<boolean>(false);
+const isDM = ref<boolean>(false);
+const showContent = ref<boolean>(false);
 
 const backendurlChatName = "/chat/" + chatroomId;
+
+const copyUrlText = ref<string>("Copy to clipboard");
 
 function close() {
   showModal.value = false;
 }
 
-onMounted(async () => {
-  await apiRequest(backendurlChatName, "get").then((response) => {
-    chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
-    if (chatRoomInfo.value.owner.id == userStore.user.id)
-      isCurrentUserOwner.value = true;
-    if (chatRoomInfo.value.type === "private") isPrivate.value = true;
-    if (chatRoomInfo.value.type === "password") isPassword.value = true;
-    showPassword.value = true;
-  });
+function copyUrl() {
+  navigator.clipboard.writeText(routeUrl);
+  copyUrlText.value = "Copied: " + routeUrl;
+}
+
+function outCopy() {
+  copyUrlText.value = "Copy to Clipboard";
+}
+
+onBeforeMount(async () => {
+  const isUserBannedUrl =
+    "/penalty/chatroom/" +
+    chatroomId +
+    "/user/" +
+    userStore.user.id +
+    "/banned";
+  await apiRequest(isUserBannedUrl, "get")
+    .then(async (response) => {
+      console.log("are you banned? ", response.data);
+      if (response.data == true) {
+        alert("You are unable to join this chat.");
+        window.location.href = "/chat";
+      } else {
+        await setup();
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+    });
 });
+
+async function setup() {
+  await apiRequest(backendurlChatName, "get")
+    .then((response) => {
+      chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
+      if (chatRoomInfo.value.owner.id == userStore.user.id)
+        isCurrentUserOwner.value = true;
+      if (chatRoomInfo.value.type === "private") isPrivate.value = true;
+      if (chatRoomInfo.value.type === "password") isPassword.value = true;
+      if (chatRoomInfo.value.type === "DM") isDM.value = true;
+      showPassword.value = true;
+      if (response.data.type === "DM") {
+        for (const member of response.data.member) {
+          if (member.id == userStore.user.id) {
+            showContent.value = true;
+            return;
+          }
+        }
+        alert("You don't have access to this DM.");
+        window.location.href = "/chat";
+      } else {
+        showContent.value = true;
+      }
+    })
+    .catch((err) => {
+      alert("This chat does not exists.");
+      window.location.href = "/chat";
+    });
+}
 </script>
 
 <style scoped>
@@ -110,6 +175,18 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
+.linkurl {
+  height: 1rem;
+  width: 20rem;
+  font-size: 1rem;
+}
+
+.copy {
+  height: 2rem;
+  width: 4rem;
+  font-size: 1rem;
+  margin-left: 0.5rem;
+}
 .header {
   float: left;
   width: 70%;
@@ -170,5 +247,43 @@ onMounted(async () => {
 <style scoped>
 h2 {
   font-size: 3rem;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 20rem;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 1rem;
+  padding: 1rem;
+  position: absolute;
+  z-index: 1;
+  bottom: 150%;
+  left: 50%;
+  margin-left: -4rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 4.5rem; /* little arrow thingie */
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
 }
 </style>
