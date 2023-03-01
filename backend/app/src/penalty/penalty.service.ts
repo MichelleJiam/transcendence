@@ -187,9 +187,7 @@ export class PenaltyService {
   ): Promise<Penalty> {
     if (validatePenaltyDto(createPenaltyDto) === true) {
       const newPenalty = createPenaltyEntity(chatroom, user, createPenaltyDto);
-      const returnStatement = await this.penaltyRepository.save(newPenalty);
-      console.log("find new Ban: ", await this.findBan(chatroom.id, user.id));
-      return returnStatement;
+      return await this.penaltyRepository.save(newPenalty);
     }
     throw new HttpException("Incorrect Penalty Type.", HttpStatus.BAD_REQUEST);
   }

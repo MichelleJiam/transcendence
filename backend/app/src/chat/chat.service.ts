@@ -207,6 +207,54 @@ export class ChatService {
     return chatrooms;
   }
 
+  async findDMChatroom(
+    userOne: number,
+    userTwo: number,
+  ): Promise<Chatroom | null> {
+    const chatroomsUserOne = await this.chatroomRepository.find({
+      relations: {
+        member: true,
+      },
+      where: {
+        type: "DM",
+        member: {
+          id: userOne,
+        },
+      },
+      select: {
+        member: {
+          id: true,
+        },
+      },
+    });
+    const chatroomsUserTwo = await this.chatroomRepository.find({
+      relations: {
+        member: true,
+      },
+      where: {
+        type: "DM",
+        member: {
+          id: userTwo,
+        },
+      },
+      select: {
+        member: {
+          id: true,
+        },
+      },
+    });
+    if (chatroomsUserOne && chatroomsUserTwo) {
+      for (const chatroomUserOne of chatroomsUserOne) {
+        for (const chatroomUsertwo of chatroomsUserTwo) {
+          if (chatroomUsertwo.id == chatroomUserOne.id) {
+            return chatroomUserOne;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   async isAdminOfChatroom(
     chatroomId: number,
     adminId: number,
@@ -240,6 +288,7 @@ export class ChatService {
       } else {
         userTwo = undefined;
       }
+      console.log("in createChatroom:", userTwo);
       const chatroom = createChatroomEntity(createChatroomDto, user, userTwo);
       const newChatroom = this.chatroomRepository.create(chatroom);
       return await this.chatroomRepository.save(newChatroom);
@@ -312,12 +361,11 @@ export class ChatService {
         createPenaltyDto.chatroom,
       );
       const userPenalty = await this.chatMethod.getUser(createPenaltyDto.user);
-      const result = await this.penaltyService.createPenalty(
+      return await this.penaltyService.createPenalty(
         chatroom,
         userPenalty,
         createPenaltyDto,
       );
-      return result;
     }
     throw new HttpException("Unable to make penalty.", HttpStatus.BAD_REQUEST);
   }

@@ -1,6 +1,6 @@
 <template>
   <main>
-    <div id="display-content">
+    <div v-if="showContent == true" id="display-content">
       <div class="row">
         <div class="header">
           <h2>{{ chatRoomInfo.chatroomName }}</h2>
@@ -46,7 +46,7 @@
         <div class="columnright">
           <suspense>
             <template #default>
-              <GetChatUsers></GetChatUsers>
+              <GetChatUsers :show-content="showContent"></GetChatUsers>
             </template>
             <template #fallback><p>loading...</p></template>
           </suspense>
@@ -58,7 +58,7 @@
         </div>
         <div class="leave settings">
           <button
-            v-if="isCurrentUserOwner == true"
+            v-if="isCurrentUserOwner == true && chatRoomInfo.type != 'DM'"
             id="show-modal"
             @click="showModal = true"
           >
@@ -83,7 +83,7 @@ import GetSingleChatroomMessages from "@/components/chat/single_chatroom/message
 import LeaveChat from "@/components/chat/single_chatroom/LeaveChat.vue";
 import PostMessages from "@/components/chat/single_chatroom/message/PostMessages.vue";
 import { useUserStore } from "@/stores/UserStore";
-import apiRequest, { baseUrl, frontendUrl } from "@/utils/apiRequest";
+import apiRequest, { frontendUrl } from "@/utils/apiRequest";
 import { ref, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import PasswordModal from "@/components/chat/single_chatroom/PasswordModal.vue";
@@ -99,6 +99,7 @@ const isCurrentUserOwner = ref<boolean>(false);
 const isPrivate = ref<boolean>(false);
 const isPassword = ref<boolean>(false);
 const isDM = ref<boolean>(false);
+const showContent = ref<boolean>(false);
 
 const backendurlChatName = "/chat/" + chatroomId;
 
@@ -118,6 +119,28 @@ function outCopy() {
 }
 
 onBeforeMount(async () => {
+  const isUserBannedUrl =
+    "/penalty/chatroom/" +
+    chatroomId +
+    "/user/" +
+    userStore.user.id +
+    "/banned";
+  await apiRequest(isUserBannedUrl, "get")
+    .then(async (response) => {
+      console.log("are you banned? ", response.data);
+      if (response.data == true) {
+        alert("You are unable to join this chat.");
+        window.location.href = "/chat";
+      } else {
+        await setup();
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+async function setup() {
   await apiRequest(backendurlChatName, "get")
     .then((response) => {
       chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
@@ -127,12 +150,24 @@ onBeforeMount(async () => {
       if (chatRoomInfo.value.type === "password") isPassword.value = true;
       if (chatRoomInfo.value.type === "DM") isDM.value = true;
       showPassword.value = true;
+      if (response.data.type === "DM") {
+        for (const member of response.data.member) {
+          if (member.id == userStore.user.id) {
+            showContent.value = true;
+            return;
+          }
+        }
+        alert("You don't have access to this DM.");
+        window.location.href = "/chat";
+      } else {
+        showContent.value = true;
+      }
     })
     .catch((err) => {
-      alert("This chat no longer exists.");
+      alert("This chat does not exists.");
       window.location.href = "/chat";
     });
-});
+}
 </script>
 
 <style scoped>

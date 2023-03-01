@@ -71,6 +71,14 @@ export class ChatController {
     return this.chatroomService.getChatroomByType(type);
   }
 
+  @Get("DM/:userOne/:userTwo")
+  async findDMChatroom(
+    @Param("userOne", ParseIntPipe) userOne: number,
+    @Param("userTwo", ParseIntPipe) userTwo: number,
+  ): Promise<Chatroom | null> {
+    return this.chatroomService.findDMChatroom(userOne, userTwo);
+  }
+
   @Get(":chatroomId/messages")
   async getMessagesFromChatroom(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
@@ -164,12 +172,11 @@ export class ChatController {
   ): Promise<Penalty | undefined> {
     try {
       isCurrentUser(user.id, adminId);
-      const returnResult = await this.chatroomService.createPenalty(
+      return await this.chatroomService.createPenalty(
         chatroomId,
         adminId,
         createPenaltyDto,
       );
-      return returnResult;
     } catch (err) {
       console.error(err);
     }
