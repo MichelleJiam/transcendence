@@ -31,7 +31,10 @@ export class GameGateway {
     console.log("GameGateway: ", client.id, " disconnected");
     const leftGame = await this.gameService.findGameFromPlayerSocket(client.id);
     if (leftGame != null) {
-      this.playerLeft(leftGame);
+      // this.playerLeft(leftGame);
+      console.log("Player left game ", leftGame.id);
+    } else {
+      console.log("No active games were left");
     }
   }
 
@@ -160,7 +163,7 @@ export class GameGateway {
     }
   }
 
-  @SubscribeMessage("leftGamePage")
+  @SubscribeMessage("playerLeft")
   async playerLeft(@MessageBody() gameRoom: GameRoom) {
     console.log("A player left the game");
     console.log("Game state: ", gameRoom.state);

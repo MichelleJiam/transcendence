@@ -81,7 +81,7 @@ onMounted(async () => {
 
 onUnmounted(async () => {
   console.log("GamePage unmounted");
-  socket.emit("leftGamePage", game.value);
+  socket.emit("playerLeft", game.value);
   // await apiRequest(`/match/${id.value}`, "delete");
   await apiRequest(`/match/${id}`, "delete").catch((err) => {
     console.log("Something went wrong with deleting the match: ", err);

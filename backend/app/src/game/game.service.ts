@@ -45,13 +45,13 @@ export class GameService {
 
   async findGameFromPlayerSocket(playerSocket: string) {
     const foundGame = await this.gameRepository
-      .createQueryBuilder()
-      .where("state = playing")
+      .createQueryBuilder("game")
+      .where("game.state = :playing", { playing: "playing" })
       .andWhere(
         new Brackets((qb: WhereExpressionBuilder) => {
-          qb.where("playerOneSocket = playerSocket").orWhere(
-            "playerTwoSocket = playerSocket",
-          );
+          qb.where("game.playerOneSocket = :playerSocket", {
+            playerSocket,
+          }).orWhere("game.playerTwoSocket = :playerSocket", { playerSocket });
         }),
       );
     return await foundGame.getOne();
