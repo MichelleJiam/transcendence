@@ -9,7 +9,7 @@ import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { PenaltyService } from "./penalty.service";
 
 @Controller("penalty")
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class PenaltyController {
   constructor(private readonly penaltyService: PenaltyService) {}
 

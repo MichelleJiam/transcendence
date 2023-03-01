@@ -98,9 +98,9 @@
           >
             make admin
           </button>
-          <span v-if="member.id != userId && chatRoomInfo.type != 'DM'"
+          <!-- <span v-if="member.id != userId && chatRoomInfo.type != 'DM'"
             ><br /><CreateDMButton :other-player="member.id"></CreateDMButton>
-          </span>
+          </span> -->
         </p>
       </div>
     </div>
@@ -152,9 +152,9 @@ const socket = io(socketUrl);
 
 onMounted(async () => {
   // *** setup view
-  setup();
+  await setup();
   // *** Get user's blocklist
-  getBlocklist();
+  await getBlocklist();
 
   if (
     props.showContent == true &&
@@ -175,7 +175,7 @@ onMounted(async () => {
   }
 
   // *** auto kick people if banned
-  socket.on("gotBanned", (response) => {
+  socket.on("gotBanned", async (response) => {
     if (
       response.user == userStore.user.id &&
       chatroomId == response.chatroom &&
@@ -191,15 +191,15 @@ onMounted(async () => {
       ) {
         alert("You've been muted, you can reply again in 2 minutes.");
       }
-      setup();
+      await setup();
     }
   });
 
-  socket.on("userUpdate", () => {
-    setup();
+  socket.on("userUpdate", async () => {
+    await setup();
   });
 
-  socket.on("kickedAUser", (response) => {
+  socket.on("kickedAUser", async (response) => {
     if (
       response.userId == userStore.user.id &&
       chatroomId == response.chatroomId
@@ -207,7 +207,7 @@ onMounted(async () => {
       alert("Sorry, you've been kicked from the chat.");
       console.log("You've been kicked");
       window.location.href = "/chat";
-    } else setup();
+    } else await setup();
   });
 });
 
@@ -224,15 +224,6 @@ async function getBlocklist() {
 async function setup(): Promise<void> {
   const ownerUrl = "/chat/" + chatroomId + "/is_owner/" + userId;
   const adminUrl = "/chat/" + chatroomId + "/is_admin/" + userId;
-  // *** check if current user is Owner
-  await apiRequest(ownerUrl, "get").then((response) => {
-    isUserOwner.value = response.data;
-  });
-
-  // *** check if current user is Admin
-  await apiRequest(adminUrl, "get").then((response) => {
-    isUserAdmin.value = response.data;
-  });
 
   // *** GET chatroom data and add user to member list if not in there yet
   await apiRequest(backendurlChatName, "get").then(async (response) => {
@@ -250,6 +241,16 @@ async function setup(): Promise<void> {
       admin["isAdmin"] = await isAdmin(chatroomId, admin.id);
       admin.playerName = admin.playerName ?? "unnamedPlayer" + admin.id;
     }
+  });
+
+  // *** check if current user is Owner
+  await apiRequest(ownerUrl, "get").then((response) => {
+    isUserOwner.value = response.data;
+  });
+
+  // *** check if current user is Admin
+  await apiRequest(adminUrl, "get").then((response) => {
+    isUserAdmin.value = response.data;
   });
 }
 
