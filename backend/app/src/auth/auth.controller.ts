@@ -60,7 +60,7 @@ export class AuthController {
   // gets cookie just to test routes, does not create user in db
   @Get("test_login")
   async testLogin(@Res({ passthrough: true }) response: Response) {
-    const authCookie = this.authService.getCookieWithJwtToken(0); // assigns special id 0
+    const authCookie = this.authService.getCookieWithJwtToken(1); // assigns id 1
     response.setHeader("Set-Cookie", authCookie);
     console.log("testLogin: Set access_token cookie");
     response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
