@@ -5,11 +5,19 @@
       class="playername-popup"
     ></PlayerNamePopup>
     <div id="display-content">
-      <h1 class="username">{{ userStore.user.playerName }}</h1>
-      <AvatarDisplay class="avatar" :src="userStore.user.avatarUrl" />
+      <div class="username">
+        <AvatarDisplay class="avatar" :src="userStore.user.avatarUrl" />
+        <h1>{{ userStore.user.playerName }}</h1>
+      </div>
       <WinsLosses class="wins-losses"></WinsLosses>
       <GameHistory class="game-history"></GameHistory>
       <UserAchiements class="user-achievements"></UserAchiements>
+      <!-- add in a vif if its your own page you see padle bords, if
+      someone elses page you see the buttons to DM or Add as friend -->
+      <div class="homepage-buttons box-styling">
+        <FriendButton class="friend-button"></FriendButton>
+        <button>dm player</button>
+      </div>
     </div>
   </main>
   <div :class="{ overlay: showPopup }"></div>
@@ -21,6 +29,7 @@ import WinsLosses from "@/components/WinsLosses.vue";
 import GameHistory from "@/components/GameHistory.vue";
 import UserAchiements from "@/components/UserAchiements.vue";
 import AvatarDisplay from "@/components/AvatarDisplay.vue";
+import FriendButton from "@/components/FriendButton.vue";
 import { onMounted, computed } from "vue";
 import { useUserStore } from "@/stores/UserStore";
 
@@ -33,23 +42,41 @@ const showPopup = computed(() => {
 onMounted(async () => {
   // refresh userStore data
   await userStore.retrieveCurrentUserData();
+  await userStore.getAvatar();
 });
 </script>
 
 <style scoped>
 
 #display-content {
+  width: auto;
+  height: auto;
   display: grid;
   gap: 20px;
   justify-items: center;
   align-items: center;
   grid-template:
-    "avatar  username"
+    "username username"
+    "gamehistory buttons"
     "gamehistory stats"
     "gamehistory achievements";
 }
 .username {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 30px;
+
   grid-area: username;
+  /* justify-self: center; */
+  font-size: 8em;
+}
+.homepage-buttons {
+  grid-area: buttons;
+	padding: 20px;
+	width: 375px;
+  display: flex;
+  justify-content: space-between;
 }
 .wins-losses {
   grid-area: stats;
@@ -60,12 +87,17 @@ onMounted(async () => {
 .user-achievements {
   grid-area: achievements;
 }
-
-h1 {
-  font-size: 10rem;
-  color: white;
+.avatar {
+  height: 100px;
+  width: 100px;
+  border: 5px solid white;
+  /* white for offline, green for online, purple for in a game 
+  add a hover function on the avatar image to show the status of the color */
 }
 
+h1 {
+  font-size: 9rem;
+}
 /* CSS for the playername pop up */
 .playername-popup {
   position: absolute;
@@ -76,20 +108,22 @@ h1 {
   top: 0;
   left: 0;
   background: rgba(0, 0, 0, 0.8);
-  /* background-color: pink; */
   z-index: 1;
   width: 100%;
   height: 100%;
-  /* display: none; */
 }
 
-/* @media (max-width: 1100px){
+@media (max-width: 1100px){
   #display-content {
-    display: flex;
     flex-direction: column;
-    overflow: scroll;
+    overflow-y: scroll;
     width: 700px;
+    height: 80%;
+    grid-template:
+    "username"
+    "buttons"
+    "stats"
+    "gamehistory"
+    "achievements";
   }
-} */
-
-</style>
+}
