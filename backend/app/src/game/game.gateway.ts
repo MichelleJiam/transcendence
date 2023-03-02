@@ -38,15 +38,6 @@ export class GameGateway {
     }
   }
 
-  // DRAWING FUNCTIONS
-
-  @SubscribeMessage("drawGame")
-  drawGame(@MessageBody() gameRoom: GameRoom) {
-    this.server.to(gameRoom.id).emit("drawcanvas");
-  }
-
-  // START GAME
-
   @SubscribeMessage("countdown")
   async countdown(@MessageBody() gameRoom: GameRoom) {
     let count = 3;
@@ -57,9 +48,8 @@ export class GameGateway {
         clearInterval(timeout);
         this.map.set(
           gameRoom.id,
-          setInterval(async () => {
+          setInterval(() => {
             this.server.to(gameRoom.id).emit("drawCanvas");
-            // this.moveBall(gameRoom);
           }, 8),
         );
       }
@@ -100,16 +90,17 @@ export class GameGateway {
     console.log(client.id, " joined room: ", client.rooms);
     if (gameRoom.player == 2) {
       this.server.emit("addPlayerOne", gameRoom);
+      this.updateActiveGames();
     }
   }
 
   @SubscribeMessage("updateActiveGames")
-  async updateActiveGames() {
+  updateActiveGames() {
     this.server.emit("updateActiveGames");
   }
 
   @SubscribeMessage("watchGame")
-  async watchGame(
+  watchGame(
     @ConnectedSocket() client: Socket,
     @MessageBody() gameRoom: GameRoom,
   ) {
@@ -179,24 +170,36 @@ export class GameGateway {
   }
 
   @SubscribeMessage("endGame")
-  async endGame(@MessageBody() gameRoom: GameRoom) {
+  async endGame(
+    @MessageBody() gameRoomId: string,
+    playerOneScore: number,
+    playerTwoScore: number,
+    winner: number,
+  ) {
     console.log("endGame");
-    this.server.to(gameRoom.id).emit("endGame", gameRoom);
+    this.server
+      .to(gameRoomId)
+      .emit("endGame", playerOneScore, playerTwoScore, winner);
   }
 
   // rename to checkScore
   async endMatch(gameRoom: GameRoom) {
+    clearInterval(this.map.get(gameRoom.id));
+    this.map.delete(gameRoom.id);
     if (gameRoom.winner == 1) gameRoom.playerOne.score++;
     else gameRoom.playerTwo.score++;
     this.server
       .to(gameRoom.id)
       .emit("updateScore", gameRoom.playerOne.score, gameRoom.playerTwo.score);
     if (gameRoom.playerOne.score === 3 || gameRoom.playerTwo.score === 3) {
-      await this.endGame(gameRoom);
+      await this.endGame(
+        gameRoom.id,
+        gameRoom.playerOne.score,
+        gameRoom.playerTwo.score,
+        gameRoom.winner,
+      );
     } else {
-      if (gameRoom.winner == 1)
-        this.server.to(gameRoom.id).emit("resetBall", 1);
-      else this.server.to(gameRoom.id).emit("resetBall", -1);
+      this.server.to(gameRoom.id).emit("resetBall", gameRoom.ball.moveX);
     }
   }
 
@@ -206,7 +209,7 @@ export class GameGateway {
     console.log("GameGateway | ", client.id, " left room ", gameId);
   }
 
-  // async moveBall(gameRoom: GameRoom) {
+  /* Swaan will add comments here */
   @SubscribeMessage("moveBall")
   moveBall(@MessageBody() gameRoom: GameRoom) {
     const x = gameRoom.ball.x / gameRoom.view.width;
@@ -229,12 +232,8 @@ export class GameGateway {
       ) {
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
       } else {
-        gameRoom.ball.moveX = -gameRoom.ball.moveX;
         gameRoom.winner = 1;
-        clearInterval(this.map.get(gameRoom.id));
-        this.map.delete(gameRoom.id);
-        this.endMatch(gameRoom);
-        return;
+        return this.endMatch(gameRoom);
       }
     } else if (
       x * gameRoom.view.width + gameRoom.ball.moveX <
@@ -252,12 +251,8 @@ export class GameGateway {
       ) {
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
       } else {
-        gameRoom.ball.moveX = -gameRoom.ball.moveX;
         gameRoom.winner = 2;
-        clearInterval(this.map.get(gameRoom.id));
-        this.map.delete(gameRoom.id);
-        this.endMatch(gameRoom);
-        return;
+        return this.endMatch(gameRoom);
       }
     }
     if (
