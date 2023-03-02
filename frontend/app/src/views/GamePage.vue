@@ -32,10 +32,9 @@
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
 import apiRequest from "../utils/apiRequest";
-import { onBeforeMount, onUnmounted, ref } from "vue";
+import { onBeforeMount, onUnmounted, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
-import { onMounted } from "vue";
 import type { Game, GameRoom } from "../components/game/pong.types";
 import type { AxiosResponse } from "axios";
 // import { useUserStore } from "@/stores/UserStore";
@@ -112,17 +111,11 @@ socket.on("addPlayerOne", (gameRoom: GameRoom) => {
 async function getActiveGames() {
   const res = await apiRequest(`/game/active`, "get");
   activeGames.value = res.data;
-  for (let i = 0; i < activeGames.value.length; i++) {
-    const playerOne = await apiRequest(
-      `/user/${activeGames.value[i].playerOne}`,
-      "get"
-    );
-    activeGames.value[i].playerOneName = playerOne.data.playerName;
-    const playerTwo = await apiRequest(
-      `/user/${activeGames.value[i].playerTwo}`,
-      "get"
-    );
-    activeGames.value[i].playerTwoName = playerTwo.data.playerName;
+  for (const element of activeGames.value) {
+    const playerOne = await apiRequest(`/user/${element.playerOne}`, "get");
+    element.playerOneName = playerOne.data.playerName;
+    const playerTwo = await apiRequest(`/user/${element.playerTwo}`, "get");
+    element.playerTwoName = playerTwo.data.playerName;
   }
 }
 
@@ -159,7 +152,6 @@ async function gameOver(gameRoom: GameRoom) {
   console.log("GamePage | ", id, " left room ", gameRoom.id);
   await apiRequest(`/game`, "put", { data: gameRoom });
   socket.emit("updateActiveGames");
-  // clear all gameRoom values somehow? Is that needed?
 }
 
 function fillPlayerObject(
