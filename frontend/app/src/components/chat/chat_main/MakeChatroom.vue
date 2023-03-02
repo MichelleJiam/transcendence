@@ -47,32 +47,37 @@ import { ref } from "vue";
 
 const userStore = useUserStore();
 const chatName = ref<string>("");
-const chatPassword = ref<string>();
+const chatPassword = ref<string>("");
 const chatType = ref<string>("public");
 
 const postChatData = new PostChatDto();
 postChatData.user = userStore.user.id;
 
-function createChat() {
+async function createChat() {
   if (!chatName.value == null || chatName.value.trim() === "") {
     console.log("Chat must be named");
     alert("Chat must be named");
+    return;
+  } else if (
+    chatType.value == "password" &&
+    (!chatPassword?.value == undefined || chatPassword?.value.trim() === "")
+  ) {
+    console.log("Password required for password chat");
+    alert("Password required for password chat");
     return;
   } else {
     postChatData.chatroomName = chatName.value;
     postChatData.type = chatType.value;
     postChatData.password = chatPassword.value;
-    apiRequest("/chat/create", "post", { data: postChatData })
+    await apiRequest("/chat/create", "post", { data: postChatData })
       .then((response) => {
         location.reload();
         console.log(response);
-      }) // axios throws errors for non 2xx responses by default!
+      })
       .catch((error) => {
         console.error(error);
-        alert("Sorry! something went wrong.");
-        location.reload();
       });
-    chatName.value = "default chat name";
+    chatName.value = "";
     chatPassword.value = "";
   }
 }
