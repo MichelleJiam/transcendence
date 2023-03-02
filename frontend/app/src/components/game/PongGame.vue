@@ -69,25 +69,6 @@ function initCanvas() {
   };
 }
 
-props.socket.on("resetBall", (ballX: number) => {
-  if (ballX < 0) {
-    ballX = gameRoom.view.width - gameRoom.view.width / 4;
-  } else {
-    ballX = gameRoom.view.width / 4;
-  }
-  gameRoom.ball = {
-    radius: gameRoom.view.width * 0.014,
-    x: ballX,
-    y: gameRoom.view.height / 2,
-    moveX: (gameRoom.view.width * 0.014) / 5,
-    moveY: -((gameRoom.view.width * 0.014) / 5),
-  };
-  gameRoom.ball.moveX = -gameRoom.ball.moveX;
-  if (gameRoom.player == 1) {
-    props.socket.emit("countdown", gameRoom);
-  }
-});
-
 function initGame() {
   gameRoom = {
     id: props.game.id,
@@ -208,6 +189,27 @@ props.socket.on("movePaddleTwoDown", (MoveY: number) => {
   gameRoom.playerTwo.paddle.y = MoveY * gameRoom.view.height;
 });
 
+props.socket.on("resetBall", (ballMoveX: number) => {
+  let ballX: number;
+
+  if (ballMoveX < 0) {
+    ballX = gameRoom.view.width - gameRoom.view.width / 4;
+  } else {
+    ballX = gameRoom.view.width / 4;
+  }
+  gameRoom.ball = {
+    radius: gameRoom.view.width * 0.014,
+    x: ballX,
+    y: gameRoom.view.height / 2,
+    moveX: (gameRoom.view.width * 0.014) / 5,
+    moveY: -((gameRoom.view.width * 0.014) / 5),
+  };
+  if (ballMoveX < 0) gameRoom.ball.moveX = -gameRoom.ball.moveX;
+  if (gameRoom.player == 1) {
+    props.socket.emit("countdown", gameRoom);
+  }
+});
+
 /****************
  * KEY HANDLERS *
  ****************/
@@ -241,8 +243,6 @@ props.socket.on("drawCountdown", (count: number) => {
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
 });
 
-/* try having the canvas elements here
-- then in different function stemming from moveBall call a function that drawsBall and Paddles*/
 props.socket.on("drawCanvas", () => {
   ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();
@@ -252,6 +252,7 @@ props.socket.on("drawCanvas", () => {
   drawBall();
   determineKeyStrokes();
   drawPaddles();
+  drawBall();
 });
 
 async function drawScoreboard(playerOneScore: number, playerTwoScore: number) {
