@@ -1,16 +1,21 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserSettingsDto } from "./dto/update-user-settings.dto";
 import { User } from "./user.entity";
 import { AvatarService } from "src/avatar/avatar.service";
+import { AchievementService } from "src/achievement/achievement.service";
+import { Achievement } from "src/achievement/achievement.entity";
+import { Achievements } from "src/achievement/achievement";
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly avatarService: AvatarService,
+    private readonly achievementService: AchievementService,
   ) {}
 
   getAllUsers() {
@@ -81,6 +86,11 @@ export class UserService {
   }
 
   async updateUser(id: number, settings: UpdateUserSettingsDto) {
+    this.logger.log("Hit the updateUser route");
+    if (settings.twoFAEnabled)
+      await this.addAchievement(id, Achievements.TWOFA);
+    if (await this.checkPlayerNameAchievement(id, settings.playerName))
+      await this.addAchievement(id, Achievements.NAME);
     return await this.userRepository.update(id, settings);
   }
 
@@ -96,5 +106,53 @@ export class UserService {
 
   async setTwoFactorSecret(secret: string, id: number) {
     return this.userRepository.update(id, { twoFASecret: secret });
+  }
+
+  /* achievements */
+
+  async addAchievement(userId: number, achievementId: number) {
+    this.logger.log("Hit the addAchievement route");
+    await this.achievementService.addSingleAchievement(achievementId);
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ["achievements"],
+    });
+    if (user) {
+      if (
+        user.achievements.find(
+          (achievement: Achievement) => achievement.id === achievementId,
+        )
+      ) {
+        this.logger.log("Achievement does already exist");
+        return;
+      }
+      const achievement = await this.achievementService.getAchievementById(
+        achievementId,
+      );
+      if (achievement) {
+        user.achievements.push(achievement);
+        this.logger.log("Achievement added");
+        return await this.userRepository.save(user);
+      }
+    } else this.logger.debug("User not found");
+  }
+
+  async getAchievements(userId: number) {
+    this.logger.log("Hit the getAchievements route");
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ["achievements"],
+    });
+    if (user) {
+      return user.achievements;
+    }
+  }
+
+  async checkPlayerNameAchievement(id: number, playerName: string) {
+    const user = await this.findUserById(id);
+    if (user) {
+      if (user.playerName === null || user.playerName === playerName) return 0;
+    }
+    return 1;
   }
 }

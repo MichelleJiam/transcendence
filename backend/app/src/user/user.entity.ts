@@ -113,14 +113,11 @@ export class User {
 
   /* achievements */
 
-  @ManyToMany(() => Achievement)
+  @ManyToMany(
+    () => Achievement,
+    (achievement: Achievement) => achievement.users,
+    { onUpdate: "CASCADE" },
+  )
   @JoinTable()
   achievements!: Achievement[];
-
-  // @ManyToMany(
-  //   () => Achievement,
-  //   (achievementType: Achievement) => achievementType.users,
-  // )
-  // @JoinTable()
-  // achievements!: Achievement[];
 }

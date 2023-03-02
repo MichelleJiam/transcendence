@@ -10,27 +10,15 @@ export class AchievementController {
   @Get()
   async getAllAchievements() {
     this.logger.log("Hit the getAllAchievements route");
-    return "Hello from achievement";
+    const achievements = await this.achievementService.getAllAchievements();
+    if (achievements.length === 0)
+      this.logger.debug("There are no achievements in the database");
+    return achievements;
   }
 
   @Post()
-  async addAchievement(id: number) {
-    this.logger.log("Hit the addAchievement route");
-    return this.achievementService.addAchievement(id);
+  async addAllAchievements() {
+    this.logger.log("Hit the addAllAchievements route");
+    return await this.achievementService.addAllAchievements();
   }
 }
-
-/*
-
-On fontend:
-
-"New Achievement Unlocked! [achievement name] [achievement icon]" 
-
-On backend:
-
-If achievement is not in the list of achievements: add achievement
-
-Add achievement to user (automatically?)
-Add user to achievement (automatically?)
-
-*/

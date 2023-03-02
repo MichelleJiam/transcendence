@@ -9,9 +9,11 @@ export enum Achievements {
   WON,
   LOST,
   TWOFA,
+  NAME,
+  TEST,
 }
 
-export const achievementTypes: Achievement[] = [
+export const achievements: Achievement[] = [
   {
     id: Achievements.AVATAR,
     name: "The Avatar Makeover",
@@ -20,17 +22,26 @@ export const achievementTypes: Achievement[] = [
   {
     id: Achievements.WON,
     name: "Newbie Crusher",
-    description: "First win! It's all downhill from here, folks!",
+    description: "First win",
   },
   {
     id: Achievements.LOST,
     name: "The Duke of Defeat",
-    description:
-      "First lost! Bow down to their excellence in underachievement!",
+    description: "First lost",
   },
   {
     id: Achievements.TWOFA,
     name: "Fort Knox",
-    description: "2FA enabled. Good luck cracking this account, hackers!",
+    description: "2FA enabled",
+  },
+  {
+    id: Achievements.NAME,
+    name: "New Player Name",
+    description: "New Player Name",
+  },
+  {
+    id: Achievements.TEST,
+    name: "test",
+    description: "hello",
   },
 ];
