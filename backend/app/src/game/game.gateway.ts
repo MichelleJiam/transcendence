@@ -46,7 +46,7 @@ export class GameGateway {
         );
       }
       count--;
-    }, 1000);
+    }, 750);
   }
 
   @SubscribeMessage("drawScoreboard")
@@ -80,16 +80,17 @@ export class GameGateway {
     console.log(client.id, " joined room: ", client.rooms);
     if (gameRoom.player == 2) {
       this.server.emit("addPlayerOne", gameRoom);
+      this.updateActiveGames();
     }
   }
 
   @SubscribeMessage("updateActiveGames")
-  async updateActiveGames() {
+  updateActiveGames() {
     this.server.emit("updateActiveGames");
   }
 
   @SubscribeMessage("watchGame")
-  async watchGame(
+  watchGame(
     @ConnectedSocket() client: Socket,
     @MessageBody() gameRoom: GameRoom,
   ) {
@@ -156,9 +157,16 @@ export class GameGateway {
   }
 
   @SubscribeMessage("endGame")
-  async endGame(@MessageBody() gameRoom: GameRoom) {
+  async endGame(
+    @MessageBody() gameRoomId: string,
+    playerOneScore: number,
+    playerTwoScore: number,
+    winner: number,
+  ) {
     console.log("endGame");
-    this.server.to(gameRoom.id).emit("endGame", gameRoom);
+    this.server
+      .to(gameRoomId)
+      .emit("endGame", playerOneScore, playerTwoScore, winner);
   }
 
   async endMatch(gameRoom: GameRoom) {
@@ -170,12 +178,18 @@ export class GameGateway {
       .to(gameRoom.id)
       .emit("updateScore", gameRoom.playerOne.score, gameRoom.playerTwo.score);
     if (gameRoom.playerOne.score === 3 || gameRoom.playerTwo.score === 3) {
-      await this.endGame(gameRoom);
+      await this.endGame(
+        gameRoom.id,
+        gameRoom.playerOne.score,
+        gameRoom.playerTwo.score,
+        gameRoom.winner,
+      );
     } else {
       this.server.to(gameRoom.id).emit("resetBall", gameRoom.ball.moveX);
     }
   }
 
+  /* Swaan will add comments here */
   @SubscribeMessage("moveBall")
   moveBall(@MessageBody() gameRoom: GameRoom) {
     const x = gameRoom.ball.x / gameRoom.view.width;
