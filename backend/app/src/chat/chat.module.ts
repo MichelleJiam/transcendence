@@ -1,5 +1,7 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { Achievement } from "src/achievement/achievement.entity";
+import { AchievementService } from "src/achievement/achievement.service";
 import { Avatar } from "src/avatar/avatar.entity";
 import { AvatarService } from "src/avatar/avatar.service";
 import { Blocklist } from "src/blocklist/blocklist.entity";
@@ -25,6 +27,7 @@ import { ChatService } from "./chat.service";
       Avatar,
       Penalty,
       Blocklist,
+      Achievement,
     ]),
   ],
   controllers: [ChatController],
@@ -37,6 +40,7 @@ import { ChatService } from "./chat.service";
     UserService,
     MessageService,
     AvatarService,
+    AchievementService,
   ],
 })
 export class ChatModule {}

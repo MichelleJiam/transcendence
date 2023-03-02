@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { User } from "src/user/user.entity";
+import { Column, Entity, ManyToMany, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class Achievement {
@@ -11,8 +12,10 @@ export class Achievement {
   @Column({ nullable: false })
   description!: string;
 
-  // @ManyToMany(() => User, (user: User) => user.achievements)
-  // users!: User[];
+  @ManyToMany(() => User, (user: User) => user.achievements, {
+    onUpdate: "CASCADE",
+  })
+  users!: User[];
 }
 
 /*
