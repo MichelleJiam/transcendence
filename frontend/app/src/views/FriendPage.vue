@@ -1,41 +1,49 @@
 <template>
   <main>
     <div id="display-content">
-      <Suspense>
-        <template #default> <AllUsersFriend :userid="userId" /> </template>
-        <template #fallback><p>loading...</p></template>
-      </Suspense>
-      <Suspense>
-        <template #default> <DisplayPending :userid="userId" /> </template>
-        <template #fallback><p>loading...</p></template>
-      </Suspense>
-      <Suspense>
-        <template #default> <DisplayFriend :userid="userId" /> </template>
-        <template #fallback><p>loading...</p></template>
-      </Suspense>
+      <h1><span id="username">{{userStore.user.playerName}}</span>'s friendlist</h1>
+      <div id="friend-boxes">
+        <Suspense class="friend-box">
+          <template #default>
+            <AllUsersFriend :userid="userStore.user.id" />
+          </template>
+          <template #fallback><p>loading...</p></template>
+        </Suspense>
+        <Suspense class="friend-box">
+          <template #default>
+            <DisplayPending :userid="userStore.user.id" />
+          </template>
+          <template #fallback><p>loading...</p></template>
+        </Suspense>
+        <Suspense class="friend-box">
+          <template #default>
+            <DisplayFriend :userid="userStore.user.id" />
+          </template>
+          <template #fallback><p>loading...</p></template>
+        </Suspense>
+      </div>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
 import { onBeforeMount } from "vue";
-import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import AllUsersFriend from "@/components/AllUsersFriend.vue";
 import DisplayPending from "@/components/DisplayPending.vue";
 import DisplayFriend from "@/components/DisplayFriend.vue";
 import { useFriendStore } from "@/stores/FriendStore";
+import { useUserStore } from "@/stores/UserStore";
 
-const store = useFriendStore();
+const friendStore = useFriendStore();
+const userStore = useUserStore();
 const socket = io("http://localhost:3000/friend");
-const route = useRoute();
-const userId = route.params.id as string;
 
 onBeforeMount(async () => {
   socket.on("connect", () => {
     console.log(
       socket.id + " user",
-      userId,
+      userStore.user.id,
       "connected to socket on FriendPage"
     );
   });
@@ -46,32 +54,60 @@ onBeforeMount(async () => {
  *************************/
 
 socket.on("friendRequest", async (data) => {
-  if (data.target == userId) {
-    await store.updateUserList(userId);
+  if (data.target == userStore.user.id) {
+    await friendStore.updateUserList(userStore.user.id);
   }
 });
 
 socket.on("requestAccepted", async (data) => {
-  if (data.source == userId) {
-    await store.updateUserList(userId);
+  if (data.source == userStore.user.id) {
+    await friendStore.updateUserList(userStore.user.id);
   }
 });
 
 socket.on("unfriend", async (data) => {
-  if (data.target == userId || data.source == userId) {
-    await store.updateUserList(userId);
+  if (data.target == userStore.user.id || data.source == userStore.user.id) {
+    await friendStore.updateUserList(userStore.user.id);
   }
 });
 </script>
 
 <style scoped>
-h1 {
-  margin-bottom: 50px;
+
+#display-content {
+  height: 1000px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-button:disabled,
-button[disabled] {
-  background-color: #ffa500;
-  cursor: not-allowed;
+#friend-boxes {
+  display: flex;
+  gap: 20px;
+  overflow-y: scroll;
 }
+
+.friend-box {
+  border: 2px solid pink;
+}
+
+#username {
+  color: var(--primary-color);
+}
+
+@media (max-width: 1100px) {
+#display-content {
+  height: 100%;
+}
+ #friend-boxes {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+  }
+  #friend-boxes > * {
+    width: 100%;
+    height: 33%;
+  }
+}
+
 </style>

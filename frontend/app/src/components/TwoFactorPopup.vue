@@ -2,48 +2,31 @@
   <form>
     <button class="exit-button" @click.prevent="cancelTwoFA">X</button>
     <h2>2FA Registration</h2>
-    <img :src="qrCode" />
-    <br />
+    <p>Scan me with your authenticator app!</p>
+    <img :src="qrCode" class="qr-code" />
+    <!-- <qrcode-vue :value="qrCode" :margin="2" /> -->
     <form class="token-box" @submit.prevent="validateToken">
-      <p>Enter the code shown in your authenticator app:</p>
+      <p>Enter the 6-digit code shown in your authenticator app:</p>
       <input v-model="token" type="text" name="token" />
+      <span class="validate-message">{{ validationMessage }}</span>
       <button type="submit" name="button">validate</button>
     </form>
-    <p>{{ validationMessage }}</p>
   </form>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import InputText from "@/components/InputText.vue";
 import apiRequest from "@/utils/apiRequest";
 
 const token = ref<string>("");
-const qrCode = ref("");
-let validationMessage = "";
-const emit = defineEmits(["uncheck"]);
+const qrCode = ref();
+const validationMessage = ref<string>("");
+const emit = defineEmits(["uncheck", "close-popup"]);
 
 onMounted(async () => {
-  console.log("mounting 2fa popup");
-  await apiRequest(`/2fa/register`, "post", {
-    data: { responseType: "blob" },
-  })
-    .then(async (response) => {
-      console.log("response: ", response.data);
-      const blob = new Blob([response.data], {
-        type: response.headers["content-type"],
-      });
-      qrCode.value = URL.createObjectURL(blob);
-      // let newImg = document.createElement("img");
-      // const blob = new Blob([response.data], {
-      //   type: response.headers["content-type"],
-      // });
-      // let url = URL.createObjectURL(blob);
-      // newImg.onload = () => {
-      // 	URL.revokeObjectURL(url);
-      // }
-      // newImg.src = url;
-      console.log("qr value: ", qrCode.value);
+  await apiRequest(`/2fa/register`, "post")
+    .then((response) => {
+      qrCode.value = response.data;
     })
     .catch((err) => {
       console.log("Unable to get 2FA QR code: ", err);
@@ -52,13 +35,14 @@ onMounted(async () => {
 
 async function validateToken() {
   await apiRequest(`/2fa/enable`, "post", {
-    data: { twoFactorAuthCode: token },
+    data: { twoFactorAuthCode: token.value },
   })
     .then(() => {
       alert("Two factor authentication successfully enabled!");
+      emit("close-popup");
     })
     .catch((err) => {
-      validationMessage = "Wrong two factor authentication code";
+      validationMessage.value = "Wrong two factor authentication code";
       console.log("Something went wrong with 2FA enabling: ", err);
     });
 }
@@ -74,6 +58,7 @@ form {
   flex-direction: column;
   gap: 30px;
   width: 70%;
+  max-width: 750px;
   text-align: left;
 }
 .exit-button {
@@ -85,6 +70,15 @@ form {
   margin: 10px;
 }
 .token-box {
+  align-self: center;
+}
+.validate-message {
+  align-self: center;
+  color: var(--validation-color);
+}
+.qr-code {
+  width: 40%;
+  height: 40%;
   align-self: center;
 }
 button {
@@ -99,5 +93,6 @@ p {
   margin-bottom: 20px;
   font-size: 20px;
   margin: 20px;
+  align-self: center;
 }
 </style>

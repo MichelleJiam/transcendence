@@ -11,7 +11,6 @@ import type { Keys, GameRoom, Canvas } from "./pong.types";
 import { Socket } from "socket.io-client";
 
 const props = defineProps({
-  // id: { type: Number, required: true },
   id: { type: String, required: true },
   game: { type: Object as PropType<GameRoom>, required: true },
   socket: { type: Socket, required: true },
@@ -135,18 +134,18 @@ async function gameOver() {
   emit("game-over", gameRoom);
 }
 
-props.socket.on("endGame", (winnerGameRoom: GameRoom) => {
-  ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
-  drawCenterLine();
-  drawBorderLines();
-  drawPaddles();
-  drawScoreboard(
-    winnerGameRoom.playerOne.score,
-    winnerGameRoom.playerTwo.score
-  );
-  drawGameOver(winnerGameRoom.winner);
-  gameOver();
-});
+props.socket.on(
+  "endGame",
+  (playerOneScore: number, playerTwoScore: number, winner: number) => {
+    ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
+    drawCenterLine();
+    drawBorderLines();
+    drawPaddles();
+    drawScoreboard(playerOneScore, playerTwoScore);
+    drawGameOver(winner);
+    gameOver();
+  }
+);
 
 /********************
  * UPDATE GAME ROOM *

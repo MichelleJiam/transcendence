@@ -66,6 +66,7 @@ export function createChatroomEntity(
     chatroom.member.push(userTwo);
     chatroom.admin.push(userTwo);
   }
+  console.log("in createChatroomEntity: ", chatroom);
   return chatroom;
 }
 

@@ -32,6 +32,13 @@ export class UserService {
     return this.userRepository.save(newUser);
   }
 
+  async findUserByPlayerName(playerName: string) {
+    const foundUser = this.userRepository.findOneBy({
+      playerName: playerName,
+    });
+    return foundUser;
+  }
+
   async findUserByIntraId(intraId: string) {
     const foundUser = this.userRepository.findOneBy({
       intraId: intraId,
@@ -51,6 +58,20 @@ export class UserService {
     // }
     return foundUser;
   }
+
+  // async findUserByPlayerName(playerName: string) {
+  //   const foundUser = this.userRepository.findOne({
+  //     where: {
+  //       playerName: playerName,
+  //     },
+  //     select: {
+  //       id: true,
+  //       playerName: true,
+  //     },
+  //   });
+
+  //   return foundUser;
+  // }
 
   async deleteUser(id: number) {
     const deleteResponse = await this.userRepository.delete(id);
