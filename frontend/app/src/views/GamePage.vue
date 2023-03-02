@@ -3,12 +3,10 @@
     <div id="display-content">
       <div v-if="game.state == State.READY" class="my-btn">
         <button @click="startGame">PLAY GAME</button>
-        <button>SELECT MODE</button>
-        <PongMain />
-        <p>Watch</p>
         <div v-for="activeGame in activeGames" :key="activeGame.id">
-          <button @click="watchGame(activeGame.id)">
-            {{ activeGame.playerOne }} vs. {{ activeGame.playerTwo }}
+          <button class="my-small-btn" @click="watchGame(activeGame.id)">
+            {{ activeGame.playerOneName }} vs.
+            {{ activeGame.playerTwoName }}
           </button>
         </div>
       </div>
@@ -30,7 +28,6 @@
 <script setup lang="ts">
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
-import PongMain from "../components/game/PongMain.vue";
 import apiRequest from "../utils/apiRequest";
 import { onBeforeMount, onUnmounted, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -62,7 +59,7 @@ async function gameOver(gameRoom: GameRoom) {
   console.log(id, "has left room ", gameRoom.id);
   await apiRequest(`/game`, "put", { data: gameRoom });
   socket.emit("updateActiveGames");
-  // clear all gameRoom values somehow?
+  // clear all gameRoom values somehow? Is that needed?
 }
 
 socket.on("disconnecting", (socket) => {
@@ -102,6 +99,18 @@ socket.on("updateActiveGames", () => {
 async function getActiveGames() {
   const res = await apiRequest(`/game/active`, "get");
   activeGames.value = res.data;
+  for (let i = 0; i < activeGames.value.length; i++) {
+    const playerOne = await apiRequest(
+      `/user/${activeGames.value[i].playerOne}`,
+      "get"
+    );
+    activeGames.value[i].playerOneName = playerOne.data.playerName;
+    const playerTwo = await apiRequest(
+      `/user/${activeGames.value[i].playerTwo}`,
+      "get"
+    );
+    activeGames.value[i].playerTwoName = playerTwo.data.playerName;
+  }
 }
 
 async function watchGame(gameId: number) {
@@ -110,7 +119,7 @@ async function watchGame(gameId: number) {
   game.value.id = res.data.id;
   game.value.player = 0;
   game.value.playerOne = {
-    id: res.data.playerOne,
+    id: res.data.playerOne.id,
     socket: res.data.playerOneSocket,
     score: res.data.playerOneScore,
     paddle: {
@@ -121,7 +130,7 @@ async function watchGame(gameId: number) {
     },
   };
   game.value.playerTwo = {
-    id: res.data.playerTwo,
+    id: res.data.playerTwo.id,
     socket: res.data.playerTwoSocket,
     score: res.data.playerTwoScore,
     paddle: {
@@ -154,6 +163,7 @@ const startGame = async () => {
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
   } else {
+    console.log("gameAfterCreation: ", res.data);
     game.value.id = res.data.id;
     game.value.player = 2;
     game.value.playerOne = {
@@ -198,7 +208,7 @@ p {
   font-size: 6vw;
 }
 
-button {
+/* button {
   height: 10%;
   width: 20%;
   background: #1c1b1b;
@@ -210,14 +220,49 @@ button {
   text-align: center;
   border: 2px #302d2d solid;
   display: block, center;
-}
+} */
 button:hover {
   color: #39ff14;
   background-color: #1c1b1b;
 }
-.loader {
+button {
   height: 50%;
   width: 100%;
+  background: #1c1b1b;
+  color: white;
+  font-family: "ArcadeClassic", sans-serif;
+  font-size: 10vw;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+  border: 2px #302d2d solid;
+  display: block;
+}
+/* button:hover {
+  color: #39ff14;
+} */
+.my-btn {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.my-small-btn {
+  height: 100%;
+  width: 50%;
+  background: #1c1b1b;
+  color: white;
+  font-family: "ArcadeClassic", sans-serif;
+  font-size: 2vw;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+  border: 2px #302d2d solid;
+  display: block, center;
+}
+.loader {
+  height: 50%;
+  width: 50%;
   display: block;
 }
 </style>
