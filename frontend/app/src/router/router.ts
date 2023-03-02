@@ -41,6 +41,7 @@ const routes: {
   { path: "/friends", component: FriendPage },
   { path: "/:pathMatch(.*)*", component: NotFound },
   { path: "/2fa", component: TwoFAPage, name: "2fa" },
+  { path: "/404", component: NotFound },
 ];
 
 export default routes;

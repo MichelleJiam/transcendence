@@ -4,7 +4,14 @@
       <div class="row">
         <div class="header">
           <h2>{{ chatRoomInfo.chatroomName }}</h2>
-          <span v-if="isDM == true"> invite to game here </span>
+          <span v-if="isDM == true">
+            <suspense>
+              <template #default>
+                <InviteToGame :player-two="DMMemberTwo"></InviteToGame>
+              </template>
+              <template #fallback><p>loading...</p></template>
+            </suspense>
+          </span>
           <span v-if="isPrivate == true">
             <input id="link" class="linkurl" type="text" :value="routeUrl" />
             <div class="tooltip">
@@ -87,6 +94,7 @@ import apiRequest, { frontendUrl } from "@/utils/apiRequest";
 import { ref, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
 import PasswordModal from "@/components/chat/single_chatroom/PasswordModal.vue";
+import InviteToGame from "@/components/chat/single_chatroom/InviteToGame.vue";
 
 const route = useRoute();
 const routeUrl = frontendUrl + route.path;
@@ -100,6 +108,9 @@ const isPrivate = ref<boolean>(false);
 const isPassword = ref<boolean>(false);
 const isDM = ref<boolean>(false);
 const showContent = ref<boolean>(false);
+
+// for DM, in order to create the invite to game button
+const DMMemberTwo = ref<number>();
 
 const backendurlChatName = "/chat/" + chatroomId;
 
@@ -154,9 +165,11 @@ async function setup() {
         for (const member of response.data.member) {
           if (member.id == userStore.user.id) {
             showContent.value = true;
-            return;
+          } else {
+            DMMemberTwo.value = member.id;
           }
         }
+        if (showContent.value == true) return;
         alert("You don't have access to this DM.");
         window.location.href = "/chat";
       } else {
