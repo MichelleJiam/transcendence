@@ -1,13 +1,7 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Match } from "./entities/match.entity";
-import { UserService } from "src/user/user.service";
 import { GameService } from "src/game/game.service";
 import { CreateMatchDto } from "./dto/create-match.dto";
 import { CreateGameDto } from "src/game/dto/create-game.dto";
@@ -19,7 +13,6 @@ export class MatchService {
   constructor(
     @InjectRepository(Match)
     private readonly matchRepository: Repository<Match>,
-    private readonly userService: UserService,
     private readonly gameService: GameService,
   ) {}
 
@@ -27,32 +20,36 @@ export class MatchService {
     return await this.matchRepository.find({});
   }
 
-  async findMatch(id: number) {
-    if ((await this.userService.findUserById(id)) == null) {
-      this.logger.debug("unable to match, user does not exist");
-      throw new NotFoundException();
-    }
+  async findPlayerInMatchQueue(userId: number) {
+    const match = await this.matchRepository.findOne({
+      where: {
+        playerId: userId,
+      },
+    });
+    return match;
+  }
+
+  async findOpponentToPlayGame(id: number) {
     const match = await this.matchRepository.find({
       take: 1,
     });
     if (match.length === 0) {
       const createMatchDto = new CreateMatchDto();
       createMatchDto.playerId = id;
-      this.create(createMatchDto).catch(() => {
+      this.addToMatchQueue(createMatchDto).catch(() => {
         this.logger.debug("error while creating match in create()");
-        throw new BadRequestException();
       });
       return null;
     } else {
       if (match[0].playerId == id) {
         this.logger.debug("cannot match player with themself");
+        /* is this even possible and do we want to throw if it does happen? */
         throw new BadRequestException();
       }
       return await this.createGame(match[0].playerId, id);
     }
   }
 
-  /* abstracted this into own method that takes two ids */
   async createGame(playerOneId: number, playerTwoId: number) {
     const createGameDto = new CreateGameDto();
     createGameDto.playerOne = playerOneId;
@@ -66,13 +63,7 @@ export class MatchService {
     return game;
   }
 
-  async create(createMatchDto: CreateMatchDto) {
-    if (
-      (await this.userService.findUserById(createMatchDto.playerId)) == null
-    ) {
-      this.logger.debug("unable to add user to match, user does not exist");
-      throw new NotFoundException();
-    }
+  async addToMatchQueue(createMatchDto: CreateMatchDto) {
     if (
       (await this.matchRepository.findOne({
         where: {
@@ -83,7 +74,7 @@ export class MatchService {
       this.logger.debug(
         "unable to add user to queue, user already exists in queue",
       );
-      throw new BadRequestException();
+      return null;
     }
     const newPlayer = await this.matchRepository.save(createMatchDto);
     return newPlayer;

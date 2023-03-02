@@ -3,11 +3,14 @@
     <div id="display-content">
       <div v-if="game.state == State.READY" class="my-btn">
         <button @click="startGame">PLAY GAME</button>
-        <div v-for="activeGame in activeGames" :key="activeGame.id">
-          <button class="my-small-btn" @click="watchGame(activeGame.id)">
-            {{ activeGame.playerOneName }} vs.
-            {{ activeGame.playerTwoName }}
-          </button>
+        <div class="watch-games">
+          WATCH LIVE!
+          <div v-for="activeGame in activeGames" :key="activeGame.id">
+            <button class="my-small-btn" @click="watchGame(activeGame.id)">
+              {{ activeGame.playerOneName }} vs.
+              {{ activeGame.playerTwoName }}
+            </button>
+          </div>
         </div>
       </div>
       <div v-else-if="game.state == State.WAITING" class="loader">
@@ -59,7 +62,6 @@ async function gameOver(gameRoom: GameRoom) {
   console.log(id, "has left room ", gameRoom.id);
   await apiRequest(`/game`, "put", { data: gameRoom });
   socket.emit("updateActiveGames");
-  // clear all gameRoom values somehow? Is that needed?
 }
 
 socket.on("disconnecting", (socket) => {
@@ -80,7 +82,7 @@ onMounted(async () => {
     // `/match/${id.value}`,
     `/match/${id}`,
     "delete"
-  ); /* protection if user refreshes; removes them from queue */
+  ); /* protection if user refreshes; removes them from queue - Michelle will remove */
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
@@ -114,6 +116,7 @@ async function getActiveGames() {
 }
 
 async function watchGame(gameId: number) {
+  // const res = await apiRequest(`/game/${gameId}`, "get");
   const res = await apiRequest(`/game/${gameId}`, "get");
 
   game.value.id = res.data.id;
@@ -153,17 +156,15 @@ socket.on("addPlayerOne", (gameRoom: GameRoom) => {
     socket.emit("joinRoom", game.value);
     joined.value = true;
     console.log(id, "has joined room ", game.value.id, " as PLAYER 1");
-    socket.emit("updateActiveGames");
   }
 });
 
 const startGame = async () => {
   // const res = await apiRequest(`/match/${id.value}`, "get");
-  const res = await apiRequest(`/match/${id}`, "get");
+  const res = await apiRequest(`/match/play/${id}`, "get");
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
   } else {
-    console.log("gameAfterCreation: ", res.data);
     game.value.id = res.data.id;
     game.value.player = 2;
     game.value.playerOne = {
@@ -208,19 +209,6 @@ p {
   font-size: 6vw;
 }
 
-/* button {
-  height: 10%;
-  width: 20%;
-  background: #1c1b1b;
-  color: white;
-  font-family: "ArcadeClassic", sans-serif;
-  font-size: 2vw;
-  cursor: pointer;
-  border-radius: 5px;
-  text-align: center;
-  border: 2px #302d2d solid;
-  display: block, center;
-} */
 button:hover {
   color: #39ff14;
   background-color: #1c1b1b;
@@ -237,10 +225,9 @@ button {
   text-align: center;
   border: 2px #302d2d solid;
   display: block;
+  word-spacing: 3vw;
 }
-/* button:hover {
-  color: #39ff14;
-} */
+
 .my-btn {
   height: 100%;
   display: flex;
@@ -264,5 +251,19 @@ button {
   height: 50%;
   width: 50%;
   display: block;
+}
+.watch-games {
+  height: 50%;
+  width: 100%;
+  background: #1c1b1b;
+  color: white;
+  font-family: "ArcadeClassic", sans-serif;
+  font-size: 6vw;
+  padding-top: 5%;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+  display: block;
+  word-spacing: 3vw;
 }
 </style>
