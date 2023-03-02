@@ -11,12 +11,15 @@ import {
   Logger,
   NotFoundException,
   BadRequestException,
+  UseGuards,
 } from "@nestjs/common";
 import { GameService } from "./game.service";
 import { CreateGameDto } from "./dto/create-game.dto";
 import { GameRoom } from "./pong.types";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 
 @Controller("game")
+@UseGuards(JwtAuthGuard)
 export class GameController {
   private readonly logger = new Logger(GameController.name);
 
@@ -68,7 +71,7 @@ export class GameController {
   }
 
   @Delete(":id")
-  @HttpCode(204) /* code for no content used for removing a resource */
+  @HttpCode(204)
   async remove(@Param("id", ParseIntPipe) id: number) {
     await this.gameService.remove(id);
   }

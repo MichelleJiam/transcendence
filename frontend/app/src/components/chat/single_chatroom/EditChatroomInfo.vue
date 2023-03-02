@@ -13,8 +13,12 @@
           <slot name="body">
             <form @submit.prevent="editChat(userStore.user.id)">
               <div>
-                select type of chat:<br />
-                <label for="type">Choose a chat type:</label>
+                <label>select type of chat:</label>
+              </div>
+              <div>
+                <label for="type" class="modal-text padding"
+                  >Choose a chat type:</label
+                ><br />
                 <select id="type" v-model="updateChatroomDto.type" name="type">
                   <option value="public" selected>public</option>
                   <option value="private">private</option>
@@ -22,19 +26,24 @@
                 </select>
               </div>
               <div>
-                <label for="chatroomName">Name the chat:</label>
+                <label for="chatroomName" class="modal-text"
+                  >Name the chat:</label
+                ><br />
                 <input
                   id="chatroomName"
                   v-model="updateChatroomDto.chatroomName"
                   type="text"
+                  class="modal-text padding"
                 />
               </div>
               <div>
-                <label for="password">Update password:</label>
+                <label for="password" class="modal-text">Update password:</label
+                ><br />
                 <input
                   id="password"
                   v-model="updateChatroomDto.password"
                   type="text"
+                  class="modal-text padding"
                 />
               </div>
               <button>Update chat</button>
@@ -43,7 +52,7 @@
         </div>
 
         <div class="modal-footer">
-          <slot name="footer"> default footer </slot>
+          <slot name="footer"></slot>
         </div>
       </div>
     </div>
@@ -69,16 +78,24 @@ function editChat(adminId: number) {
   const url = "/chat/" + chatroomId + "/admin/" + adminId + "/update/info";
   apiRequest(url, "put", { data: updateChatroomDto })
     .then((response) => {
-      console.log(response);
       location.reload();
     }) // axios throws errors for non 2xx responses by default!
     .catch((error) => {
-      alert(error);
+      console.error(error);
+      alert("Unable to update chat info");
     });
 }
 </script>
 
 <style>
+.modal-text {
+  font-size: 1.5rem;
+}
+
+.padding {
+  margin: 0.5rem;
+}
+
 .modal-mask {
   position: fixed;
   z-index: 9998;

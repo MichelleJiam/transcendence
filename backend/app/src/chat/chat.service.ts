@@ -34,7 +34,6 @@ import { Penalty } from "src/penalty/penalty.entity";
 import { BlocklistService } from "src/blocklist/blocklist.service";
 import { filterMessages } from "src/blocklist/blocklist.method";
 import { ChatGateway } from "./chat.gateway";
-import { Socket } from "dgram";
 
 @Injectable()
 export class ChatService {
@@ -61,8 +60,6 @@ export class ChatService {
         message: true,
         owner: true,
         admin: true,
-        member: true,
-        penalty: true,
       },
       select: {
         id: true,
@@ -80,14 +77,6 @@ export class ChatService {
           id: true,
           playerName: true,
         },
-        penalty: {
-          penaltyType: true,
-          user: {
-            id: true,
-            playerName: true,
-          },
-        },
-        message: true,
       },
     });
     return foundChats;
@@ -100,7 +89,6 @@ export class ChatService {
         owner: true,
         admin: true,
         member: true,
-        penalty: true,
       },
       where: {
         id: id,
@@ -121,14 +109,6 @@ export class ChatService {
           id: true,
           playerName: true,
         },
-        penalty: {
-          penaltyType: true,
-          user: {
-            id: true,
-            playerName: true,
-          },
-        },
-        message: true,
       },
     });
     if (!chatroom) {
@@ -177,14 +157,11 @@ export class ChatService {
   async getChatroomsOfUser(userId: number): Promise<Chatroom[]> {
     const chatrooms = await this.chatroomRepository.find({
       order: {
-        id: "asc",
+        id: "desc",
       },
       relations: {
-        message: true,
         owner: true,
-        admin: true,
         member: true,
-        penalty: true,
       },
       where: {
         member: {
@@ -199,22 +176,6 @@ export class ChatService {
           id: true,
           playerName: true,
         },
-        admin: {
-          id: true,
-          playerName: true,
-        },
-        member: {
-          id: true,
-          playerName: true,
-        },
-        penalty: {
-          penaltyType: true,
-          user: {
-            id: true,
-            playerName: true,
-          },
-        },
-        message: true,
       },
       cache: true,
     });
@@ -227,11 +188,7 @@ export class ChatService {
         id: "asc",
       },
       relations: {
-        message: true,
         owner: true,
-        admin: true,
-        member: true,
-        penalty: true,
       },
       where: {
         type: type,
@@ -244,26 +201,58 @@ export class ChatService {
           id: true,
           playerName: true,
         },
-        admin: {
-          id: true,
-          playerName: true,
-        },
-        member: {
-          id: true,
-          playerName: true,
-        },
-        penalty: {
-          penaltyType: true,
-          user: {
-            id: true,
-            playerName: true,
-          },
-        },
-        message: true,
       },
       cache: true,
     });
     return chatrooms;
+  }
+
+  async findDMChatroom(
+    userOne: number,
+    userTwo: number,
+  ): Promise<Chatroom | null> {
+    const chatroomsUserOne = await this.chatroomRepository.find({
+      relations: {
+        member: true,
+      },
+      where: {
+        type: "DM",
+        member: {
+          id: userOne,
+        },
+      },
+      select: {
+        member: {
+          id: true,
+        },
+      },
+    });
+    const chatroomsUserTwo = await this.chatroomRepository.find({
+      relations: {
+        member: true,
+      },
+      where: {
+        type: "DM",
+        member: {
+          id: userTwo,
+        },
+      },
+      select: {
+        member: {
+          id: true,
+        },
+      },
+    });
+    if (chatroomsUserOne && chatroomsUserTwo) {
+      for (const chatroomUserOne of chatroomsUserOne) {
+        for (const chatroomUsertwo of chatroomsUserTwo) {
+          if (chatroomUsertwo.id == chatroomUserOne.id) {
+            return chatroomUserOne;
+          }
+        }
+      }
+    }
+    return null;
   }
 
   async isAdminOfChatroom(
@@ -299,9 +288,10 @@ export class ChatService {
       } else {
         userTwo = undefined;
       }
+      console.log("in createChatroom:", userTwo);
       const chatroom = createChatroomEntity(createChatroomDto, user, userTwo);
       const newChatroom = this.chatroomRepository.create(chatroom);
-      return this.chatroomRepository.save(newChatroom);
+      return await this.chatroomRepository.save(newChatroom);
     }
     throw new HttpException(
       "Unable to create chatroom",
@@ -327,7 +317,7 @@ export class ChatService {
         createMessageDto.chatroomId,
       );
       const user = await this.chatMethod.getUser(createMessageDto.userId);
-      return this.messageService.create(createMessageDto, chatroom, user);
+      return await this.messageService.create(createMessageDto, chatroom, user);
     }
     throw new HttpException(
       "You do not have permission to send messages here.",
@@ -347,14 +337,31 @@ export class ChatService {
         createPenaltyDto,
       )) == true
     ) {
+      if (
+        createPenaltyDto.penaltyType === "ban" &&
+        (await this.penaltyService.isBannedFromChatroom(
+          chatroomId,
+          createPenaltyDto.user,
+        )) == true
+      ) {
+        throw new HttpException("Already banned.", HttpStatus.BAD_REQUEST);
+      } else if (
+        createPenaltyDto.penaltyType === "mute" &&
+        (await this.penaltyService.isMutedFromChatroom(
+          chatroomId,
+          createPenaltyDto.user,
+        )) == true
+      ) {
+        throw new HttpException("Already muted.", HttpStatus.BAD_REQUEST);
+      }
+      if (createPenaltyDto.penaltyType === "ban") {
+        this.deleteUserFromChatroom(chatroomId, createPenaltyDto.user);
+      }
       const chatroom = await this.getChatroomInfoById(
         createPenaltyDto.chatroom,
       );
       const userPenalty = await this.chatMethod.getUser(createPenaltyDto.user);
-      if (createPenaltyDto.penaltyType === "ban") {
-        this.deleteUserFromChatroom(chatroomId, createPenaltyDto.user);
-      }
-      return this.penaltyService.createPenalty(
+      return await this.penaltyService.createPenalty(
         chatroom,
         userPenalty,
         createPenaltyDto,
@@ -530,6 +537,7 @@ export class ChatService {
         (await this.chatMethod.hasMultipleMembersInChatroom(chatroomId)) == true
       ) {
         swapOwner(chatroom, chatroom.member[1]);
+        addAdmin(chatroom, chatroom.member[1]);
       } else {
         this.deleteChatroom(chatroomId);
       }

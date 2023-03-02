@@ -6,11 +6,15 @@
 
 <script setup lang="ts">
 import { useUserStore } from "@/stores/UserStore";
-import apiRequest, { frontendUrl } from "@/utils/apiRequest";
+import apiRequest, { baseUrl, frontendUrl } from "@/utils/apiRequest";
+import { io } from "socket.io-client";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 const chatroomId = route.params.id;
+
+const socketUrl = baseUrl + "/penalty";
+const socket = io(socketUrl);
 
 const userStore = useUserStore();
 const backendUrl =
@@ -18,8 +22,9 @@ const backendUrl =
 
 async function leaveChatroom() {
   await apiRequest(backendUrl, "delete").then((response) => {
-    window.location.href = frontendUrl + "/chat";
     console.log(response);
+    socket.emit("newUserState");
+    window.location.href = frontendUrl + "/chat";
   });
 }
 </script>
