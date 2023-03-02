@@ -31,17 +31,21 @@ export class GameGateway {
     console.log("GameGateway: ", client.id, " disconnected");
     const leftGame = await this.gameService.findGameFromPlayerSocket(client.id);
     if (leftGame != null) {
-      // this.playerLeft(leftGame);
+      // this.someoneLeft(leftGame);
       console.log("Player left game ", leftGame.id);
     } else {
       console.log("No active games were left");
     }
   }
 
+  // DRAWING FUNCTIONS
+
   @SubscribeMessage("drawGame")
   drawGame(@MessageBody() gameRoom: GameRoom) {
     this.server.to(gameRoom.id).emit("drawcanvas");
   }
+
+  // START GAME
 
   @SubscribeMessage("countdown")
   async countdown(@MessageBody() gameRoom: GameRoom) {
@@ -62,6 +66,8 @@ export class GameGateway {
       count--;
     }, 750);
   }
+
+  // END GAME
 
   @SubscribeMessage("drawScoreboard")
   drawScoreboard(
@@ -163,10 +169,13 @@ export class GameGateway {
     }
   }
 
-  @SubscribeMessage("playerLeft")
-  async playerLeft(@MessageBody() gameRoom: GameRoom) {
-    console.log("A player left the game");
+  @SubscribeMessage("someoneLeft")
+  async someoneLeft(@MessageBody() gameRoom: GameRoom) {
+    console.log("Someone left the game");
     console.log("Game state: ", gameRoom.state);
+    if (gameRoom.player === 0) {
+      // this.leaveRoom;
+    }
   }
 
   @SubscribeMessage("endGame")
@@ -175,6 +184,7 @@ export class GameGateway {
     this.server.to(gameRoom.id).emit("endGame", gameRoom);
   }
 
+  // rename to checkScore
   async endMatch(gameRoom: GameRoom) {
     if (gameRoom.winner == 1) gameRoom.playerOne.score++;
     else gameRoom.playerTwo.score++;
@@ -193,7 +203,7 @@ export class GameGateway {
   @SubscribeMessage("leaveRoom")
   leaveRoom(@ConnectedSocket() client: Socket, @MessageBody() gameId: string) {
     client.leave(gameId);
-    console.log(client.id, " left room: ", gameId);
+    console.log("GameGateway | ", client.id, " left room ", gameId);
   }
 
   // async moveBall(gameRoom: GameRoom) {

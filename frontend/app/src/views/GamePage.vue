@@ -66,14 +66,14 @@ onBeforeMount(async () => {
 onMounted(async () => {
   // await userStore.retrieveCurrentUserData();
   // id.value = userStore.user.id;
-  await apiRequest(
-    // `/match/${id.value}`,
-    `/match/${id}`,
-    "delete"
-  ) /* protection if user refreshes; removes them from queue */
-    .catch((err) => {
-      console.log("Something went wrong with deleting the match: ", err);
-    });
+  // await apiRequest(
+  //   // `/match/${id.value}`,
+  //   `/match/${id}`,
+  //   "delete"
+  // ) /* protection if user refreshes; removes them from queue */
+  //   .catch((err) => {
+  //     console.log("Something went wrong with deleting the match: ", err);
+  //   });
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
@@ -81,17 +81,19 @@ onMounted(async () => {
 
 onUnmounted(async () => {
   console.log("GamePage unmounted");
-  socket.emit("playerLeft", game.value);
+  if (game.value.state === State.PLAYING) {
+    socket.emit("someoneLeft", game.value);
+  }
   // await apiRequest(`/match/${id.value}`, "delete");
   await apiRequest(`/match/${id}`, "delete").catch((err) => {
     console.log("Something went wrong with deleting the match: ", err);
   });
 });
 
-// not used?
-socket.on("disconnecting", (socket) => {
-  socket.emit("socketRooms", socket.rooms);
-});
+// // not used?
+// socket.on("disconnecting", (socket) => {
+//   socket.emit("socketRooms", socket.rooms);
+// });
 
 socket.on("updateActiveGames", () => {
   getActiveGames();
@@ -142,7 +144,7 @@ async function gameOver(gameRoom: GameRoom) {
   game.value.state = State.READY;
   socket.emit("leaveRoom", gameRoom.id);
   joined.value = false;
-  console.log(id, "has left room ", gameRoom.id);
+  console.log("GamePage | ", id, " left room ", gameRoom.id);
   await apiRequest(`/game`, "put", { data: gameRoom });
   socket.emit("updateActiveGames");
   // clear all gameRoom values somehow? Is that needed?
