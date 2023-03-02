@@ -3,13 +3,14 @@
     <div id="display-content">
       <div v-if="game.state == State.READY" class="my-btn">
         <button @click="startGame">PLAY GAME</button>
-        <button>SELECT MODE</button>
-        <PongMain />
-        <p>Watch</p>
-        <div v-for="activeGame in activeGames" :key="activeGame.id">
-          <button @click="watchGame(activeGame.id)">
-            {{ activeGame.playerOne }} vs. {{ activeGame.playerTwo }}
-          </button>
+        <div class="watch-games">
+          WATCH LIVE!
+          <div v-for="activeGame in activeGames" :key="activeGame.id">
+            <button class="my-small-btn" @click="watchGame(activeGame.id)">
+              {{ activeGame.playerOneName }} vs.
+              {{ activeGame.playerTwoName }}
+            </button>
+          </div>
         </div>
       </div>
       <div v-else-if="game.state == State.WAITING" class="loader">
@@ -30,7 +31,6 @@
 <script setup lang="ts">
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
-import PongMain from "../components/game/PongMain.vue";
 import apiRequest from "../utils/apiRequest";
 import { onBeforeMount, onUnmounted, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -106,16 +106,28 @@ socket.on("addPlayerOne", (gameRoom: GameRoom) => {
     socket.emit("joinRoom", game.value);
     joined.value = true;
     console.log(id, "has joined room ", game.value.id, " as PLAYER 1");
-    socket.emit("updateActiveGames");
   }
 });
 
 async function getActiveGames() {
   const res = await apiRequest(`/game/active`, "get");
   activeGames.value = res.data;
+  for (let i = 0; i < activeGames.value.length; i++) {
+    const playerOne = await apiRequest(
+      `/user/${activeGames.value[i].playerOne}`,
+      "get"
+    );
+    activeGames.value[i].playerOneName = playerOne.data.playerName;
+    const playerTwo = await apiRequest(
+      `/user/${activeGames.value[i].playerTwo}`,
+      "get"
+    );
+    activeGames.value[i].playerTwoName = playerTwo.data.playerName;
+  }
 }
 
 async function watchGame(gameId: number) {
+  // const res = await apiRequest(`/game/${gameId}`, "get");
   const res = await apiRequest(`/game/${gameId}`, "get");
   fillGameRoomObject(res, 0);
   socket.emit("watchGame", game.value); /* adds them to gameRoom */
@@ -203,9 +215,34 @@ p {
   font-size: 6vw;
 }
 
+button:hover {
+  color: #39ff14;
+  background-color: #1c1b1b;
+}
 button {
-  height: 10%;
-  width: 20%;
+  height: 50%;
+  width: 100%;
+  background: #1c1b1b;
+  color: white;
+  font-family: "ArcadeClassic", sans-serif;
+  font-size: 10vw;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+  border: 2px #302d2d solid;
+  display: block;
+  word-spacing: 3vw;
+}
+
+.my-btn {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.my-small-btn {
+  height: 100%;
+  width: 50%;
   background: #1c1b1b;
   color: white;
   font-family: "ArcadeClassic", sans-serif;
@@ -216,13 +253,23 @@ button {
   border: 2px #302d2d solid;
   display: block, center;
 }
-button:hover {
-  color: #39ff14;
-  background-color: #1c1b1b;
-}
 .loader {
   height: 50%;
   width: 50%;
   display: block;
+}
+.watch-games {
+  height: 50%;
+  width: 100%;
+  background: #1c1b1b;
+  color: white;
+  font-family: "ArcadeClassic", sans-serif;
+  font-size: 6vw;
+  padding-top: 5%;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+  display: block;
+  word-spacing: 3vw;
 }
 </style>

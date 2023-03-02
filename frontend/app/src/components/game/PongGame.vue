@@ -11,7 +11,6 @@ import type { Keys, GameRoom, Canvas } from "./pong.types";
 import { Socket } from "socket.io-client";
 
 const props = defineProps({
-  // id: { type: Number, required: true },
   id: { type: String, required: true },
   game: { type: Object as PropType<GameRoom>, required: true },
   socket: { type: Socket, required: true },
@@ -68,25 +67,6 @@ function initCanvas() {
     borderLines: canvas.height * 0.024,
   };
 }
-
-props.socket.on("resetBall", (ballX: number) => {
-  if (ballX < 0) {
-    ballX = gameRoom.view.width - gameRoom.view.width / 4;
-  } else {
-    ballX = gameRoom.view.width / 4;
-  }
-  gameRoom.ball = {
-    radius: gameRoom.view.width * 0.014,
-    x: ballX,
-    y: gameRoom.view.height / 2,
-    moveX: (gameRoom.view.width * 0.014) / 5,
-    moveY: -((gameRoom.view.width * 0.014) / 5),
-  };
-  gameRoom.ball.moveX = -gameRoom.ball.moveX;
-  if (gameRoom.player == 1) {
-    props.socket.emit("countdown", gameRoom);
-  }
-});
 
 function initGame() {
   gameRoom = {
@@ -154,18 +134,18 @@ async function gameOver() {
   emit("game-over", gameRoom);
 }
 
-props.socket.on("endGame", (winnerGameRoom: GameRoom) => {
-  ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
-  drawCenterLine();
-  drawBorderLines();
-  drawPaddles();
-  drawScoreboard(
-    winnerGameRoom.playerOne.score,
-    winnerGameRoom.playerTwo.score
-  );
-  drawGameOver(winnerGameRoom.winner);
-  gameOver();
-});
+props.socket.on(
+  "endGame",
+  (playerOneScore: number, playerTwoScore: number, winner: number) => {
+    ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
+    drawCenterLine();
+    drawBorderLines();
+    drawPaddles();
+    drawScoreboard(playerOneScore, playerTwoScore);
+    drawGameOver(winner);
+    gameOver();
+  }
+);
 
 /********************
  * UPDATE GAME ROOM *
@@ -208,6 +188,27 @@ props.socket.on("movePaddleTwoDown", (MoveY: number) => {
   gameRoom.playerTwo.paddle.y = MoveY * gameRoom.view.height;
 });
 
+props.socket.on("resetBall", (ballMoveX: number) => {
+  let ballX: number;
+
+  if (ballMoveX < 0) {
+    ballX = gameRoom.view.width - gameRoom.view.width / 4;
+  } else {
+    ballX = gameRoom.view.width / 4;
+  }
+  gameRoom.ball = {
+    radius: gameRoom.view.width * 0.014,
+    x: ballX,
+    y: gameRoom.view.height / 2,
+    moveX: (gameRoom.view.width * 0.014) / 5,
+    moveY: -((gameRoom.view.width * 0.014) / 5),
+  };
+  if (ballMoveX < 0) gameRoom.ball.moveX = -gameRoom.ball.moveX;
+  if (gameRoom.player == 1) {
+    props.socket.emit("countdown", gameRoom);
+  }
+});
+
 /****************
  * KEY HANDLERS *
  ****************/
@@ -241,8 +242,6 @@ props.socket.on("drawCountdown", (count: number) => {
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
 });
 
-/* try having the canvas elements here
-- then in different function stemming from moveBall call a function that drawsBall and Paddles*/
 props.socket.on("drawCanvas", () => {
   ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();
@@ -252,6 +251,7 @@ props.socket.on("drawCanvas", () => {
   drawBall();
   determineKeyStrokes();
   drawPaddles();
+  drawBall();
 });
 
 async function drawScoreboard(playerOneScore: number, playerTwoScore: number) {

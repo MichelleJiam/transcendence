@@ -1,20 +1,23 @@
 import {
   Controller,
-  Post,
   Get,
   Param,
   ParseIntPipe,
   Delete,
   HttpCode,
-  Body,
   Logger,
   NotFoundException,
   BadRequestException,
+  UseGuards,
+  Post,
+  Body,
 } from "@nestjs/common";
 import { MatchService } from "./match.service";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { CreateMatchDto } from "./dto/create-match.dto";
 
 @Controller("match")
+@UseGuards(JwtAuthGuard)
 export class MatchController {
   private readonly logger = new Logger(MatchController.name);
   constructor(private readonly matchService: MatchService) {}
@@ -26,13 +29,19 @@ export class MatchController {
     return matches;
   }
 
+  @Get(":userId")
+  async findPlayerInMatchQueue(@Param("userId", ParseIntPipe) userId: number) {
+    return await this.matchService.findPlayerInMatchQueue(userId);
+  }
+
   /* curl http://localhost:3000/match/:id */
-  /* returns null if no one in queue */
-  @Get(":id")
-  async findMatch(@Param("id", ParseIntPipe) id: number) {
-    const game = await this.matchService.findMatch(id).catch(() => {
-      throw new BadRequestException("error while trying to create match");
-    });
+  @Get("/play/:userId")
+  async findOpponentToPlayGame(@Param("userId", ParseIntPipe) userId: number) {
+    const game = await this.matchService
+      .findOpponentToPlayGame(userId)
+      .catch(() => {
+        throw new BadRequestException("error while trying to create match");
+      });
     return game;
   }
 
@@ -40,9 +49,11 @@ export class MatchController {
   /* method not currently used */
   @Post()
   async create(@Body() createMatchDto: CreateMatchDto) {
-    const match = await this.matchService.create(createMatchDto).catch(() => {
-      throw new BadRequestException("unable to add player to match queue");
-    });
+    const match = await this.matchService
+      .addToMatchQueue(createMatchDto)
+      .catch(() => {
+        throw new BadRequestException("unable to add player to match queue");
+      });
     return match;
   }
 
