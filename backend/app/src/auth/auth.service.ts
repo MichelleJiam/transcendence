@@ -4,6 +4,7 @@ import {
   ExecutionContext,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
@@ -13,6 +14,7 @@ import { TokenPayload, TokenType } from "./token-payload.interface";
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
@@ -41,8 +43,7 @@ export class AuthService {
     const payload: TokenPayload = { sub: id, type };
     const accessToken = this.jwtService.sign(payload);
 
-    console.log("Signed token for user: ", id);
-    console.log("Token: ", accessToken);
+    this.logger.log(`Signed JWT token for user: ${id}`);
     return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${process.env.JWT_EXPIRATION}`;
   }
 
@@ -78,7 +79,7 @@ export class AuthService {
       existingUser = await this.registerUser(user);
     }
 
-    console.log("Validated user: ", existingUser.intraId);
+    this.logger.log(`Validated user: ${existingUser.intraId}`);
 
     return existingUser;
   }
@@ -91,7 +92,7 @@ export class AuthService {
       throw new ConflictException("Intra ID already in tied to player account");
     }
 
-    console.log("Creating user: ", user);
+    this.logger.log(`Creating user: ${user}`);
     return await this.userService.create(user);
   }
 

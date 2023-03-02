@@ -16,6 +16,7 @@ import { ChatService } from "./chat.service";
   cors: {
     origin: "*",
   },
+  namespace: "chat",
 })
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -33,8 +34,12 @@ export class ChatGateway
     client: Socket,
     payload: CreateMessageDto,
   ): Promise<void> {
-    const message = await this.chatService.postMessageToChatroom(payload);
-    this.server.emit("recMessage", message);
+    try {
+      const message = await this.chatService.postMessageToChatroom(payload);
+      this.server.emit("recMessage", message);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   afterInit(server: Server) {
