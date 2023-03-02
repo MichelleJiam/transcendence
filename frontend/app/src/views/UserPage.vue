@@ -1,9 +1,10 @@
 <template>
   <main>
     <TwoFactorPopup
-      v-if="showTwoFAPopup()"
+      v-if="showTwoFAPopup"
       class="two-fa-popup"
       @uncheck="uncheckTwoFACheckbox"
+      @close-popup="toggleTwoFAPopup(false)"
     ></TwoFactorPopup>
     <div id="display-content">
       <div class="user-info">
@@ -31,26 +32,28 @@
           <span class="validate-message"
             ><i>{{ message }}</i></span
           >
+          <button
+            class="account-settings-button"
+            :disabled="isDisabled"
+            @click.prevent="updatePlayerName"
+          >
+            Update player name
+          </button>
+        </form>
+        <form class="twofa-settings">
           <label class="two-fa-settings-label" for="player-name">2FA</label>
           <InputCheckbox
             id="twoFactorAuthentication"
             v-model:checked="twoFactorAuthentication"
             class="account-settings-checkbox"
             label="2FA"
+            @change="checkForTwoFAPopup()"
           />
-
-          <button
-            class="account-settings-button"
-            :disabled="isDisabled"
-            @click.prevent="submitAccountSettings"
-          >
-            Update account settings
-          </button>
         </form>
       </div>
     </div>
   </main>
-  <div :class="{ overlay: showTwoFAPopup() }"></div>
+  <div :class="{ overlay: showTwoFAPopup }"></div>
 </template>
 
 <script setup lang="ts">
@@ -61,8 +64,10 @@ import AvatarUpload from "@/components/AvatarUpload.vue";
 import { ref, onMounted, watch } from "vue";
 import { useUserStore } from "@/stores/UserStore";
 import TwoFactorPopup from "@/components/TwoFactorPopup.vue";
+import apiRequest from "@/utils/apiRequest";
 
 const twoFactorAuthentication = ref<boolean>();
+const showTwoFAPopup = ref<boolean>(false);
 const playerName = ref<string>("");
 const isDisabled = ref<boolean>();
 let message = "";
@@ -77,17 +82,28 @@ onMounted(async () => {
   await store.getAvatar();
 });
 
-function showTwoFAPopup() {
-  console.log("show popup? ", twoFactorAuthentication.value);
-  return twoFactorAuthentication.value === true;
+async function checkForTwoFAPopup() {
+  if (twoFactorAuthentication.value === true) {
+    toggleTwoFAPopup(true);
+  } else {
+    toggleTwoFAPopup(false);
+    await apiRequest(`/2fa/disable`, "post");
+    alert("Two factor authentication has been disabled");
+    console.log("2FA disabled");
+  }
 }
 
-function submitAccountSettings() {
+function toggleTwoFAPopup(newState: boolean) {
+  showTwoFAPopup.value = newState;
+}
+
+function updatePlayerName() {
   store.updateAccountSettings(playerName.value, twoFactorAuthentication.value);
 }
 
 function uncheckTwoFACheckbox() {
   twoFactorAuthentication.value = false;
+  toggleTwoFAPopup(false);
 }
 /*  client-Side input validation */
 
@@ -131,30 +147,31 @@ function validPlayerName(playerName: string) {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-
-  flex-basis: 650px;
+  gap: 10px;
+  /* flex-basis: 650px; */
 }
 
 .account-settings {
   display: grid;
   justify-items: left;
-  row-gap: 10px;
+  row-gap: 5px;
   grid-template-areas:
     "name-label inputfield"
-    "fa-label checkbox"
     "validate validate"
     "button button";
 }
 
-h1 {
-  font-size: 4.5em;
+.twofa-settings {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 h2 {
   font-size: 2.5em;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
-
 .two-fa-settings-label {
   grid-area: fa-label;
   font-family: "ArcadeClassic", sans-serif;
@@ -170,13 +187,10 @@ h2 {
   top: 0;
   left: 0;
   background: rgba(0, 0, 0, 0.8);
-  /* background-color: pink; */
   z-index: 1;
   width: 100%;
   height: 100%;
-  /* display: none; */
 }
-
 .account-settings-button {
   grid-area: button;
   justify-self: stretch;
@@ -186,7 +200,6 @@ h2 {
   justify-self: end;
   grid-area: checkbox;
 }
-
 .account-settings-input {
   font-size: 18px;
   grid-area: inputfield;
@@ -201,14 +214,16 @@ h2 {
   color: var(--primary-color);
 }
 
-@media (max-width: 1100px) {
-  #display-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  /* height: auto; */
-  width: 600px;
+form {
+  padding: 10px;
 }
 
+@media (max-width: 1100px) {
+  #display-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 600px;
+  }
 }
 </style>

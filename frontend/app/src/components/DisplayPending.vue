@@ -1,14 +1,14 @@
 <template>
-  <div class="container">
+  <div class="container box-styling">
     <h3>Pending requests</h3>
-    <ul class="list-group">
+    <ul class="list-elements">
       <div>
         <p v-if="store.isLoading">Loading...</p>
         <li v-for="pending in pendingList" :key="pending.id">
           <span
             ><img :src="pending.avatarUrl" alt="Avatar" class="avatar"
           /></span>
-          <span>{{ pending.playerName }}</span>
+          <span class="player-name">{{ pending.playerName }}</span>
           <div v-if="Number(userid) == pending.relation?.target">
             <button style="margin-right: 20px" @click="acceptRequest(pending)">
               Accept
@@ -70,44 +70,25 @@ async function denyRequest(player: User) {
 
 <style scoped>
 .container {
-  margin-top: 20px;
   width: 50%;
-  max-height: 505px;
-  min-height: 505px;
   overflow-y: scroll;
-  box-shadow: rgba(0, 0, 0, 10) 0px 1px 4px;
 }
 
 .container h3 {
   margin: 20px;
 }
 
-.list-group {
-  list-style: none;
+.player-name {
+  font-size: 18px;
+  font-family: var(--arcade-font);
 }
 
-.list-group li {
-  padding: 1em;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 95px;
-  background-color: #3d2c2c;
-  margin: 10px 30px 10px 10px;
+button {
+  padding: 3px;
+  font-size: 18px;
 }
-
 .avatar {
-  vertical-align: middle;
   width: 50px;
   height: 50px;
-  border-radius: 50%;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #39ff14;
 }
 </style>

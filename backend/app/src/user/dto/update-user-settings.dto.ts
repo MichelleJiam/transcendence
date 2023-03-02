@@ -1,4 +1,10 @@
-import { IsBoolean, IsNotEmpty, IsString, Length } from "class-validator";
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+} from "class-validator";
 
 export class UpdateUserSettingsDto {
   @IsString()
@@ -9,6 +15,9 @@ export class UpdateUserSettingsDto {
   @IsBoolean()
   @IsNotEmpty({ message: "twoFAEnabled value can not be empty" })
   twoFAEnabled!: boolean;
+
+  @IsOptional()
+  twoFASecret?: string | undefined;
 }
 
 // can we extend from another DTO? check lecture 13: the update payload
