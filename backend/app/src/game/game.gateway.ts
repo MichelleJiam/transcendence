@@ -30,11 +30,6 @@ export class GameGateway {
     console.log(client.id, " disconnected");
   }
 
-  @SubscribeMessage("drawGame")
-  drawGame(@MessageBody() gameRoom: GameRoom) {
-    this.server.to(gameRoom.id).emit("drawcanvas");
-  }
-
   @SubscribeMessage("countdown")
   async countdown(@MessageBody() gameRoom: GameRoom) {
     let count = 3;
@@ -45,14 +40,13 @@ export class GameGateway {
         clearInterval(timeout);
         this.map.set(
           gameRoom.id,
-          setInterval(async () => {
+          setInterval(() => {
             this.server.to(gameRoom.id).emit("drawCanvas");
-            this.moveBall(gameRoom);
           }, 8),
         );
       }
       count--;
-    }, 750);
+    }, 1000);
   }
 
   @SubscribeMessage("drawScoreboard")
@@ -168,6 +162,8 @@ export class GameGateway {
   }
 
   async endMatch(gameRoom: GameRoom) {
+    clearInterval(this.map.get(gameRoom.id));
+    this.map.delete(gameRoom.id);
     if (gameRoom.winner == 1) gameRoom.playerOne.score++;
     else gameRoom.playerTwo.score++;
     this.server
@@ -176,13 +172,12 @@ export class GameGateway {
     if (gameRoom.playerOne.score === 3 || gameRoom.playerTwo.score === 3) {
       await this.endGame(gameRoom);
     } else {
-      if (gameRoom.winner == 1)
-        this.server.to(gameRoom.id).emit("resetBall", 1);
-      else this.server.to(gameRoom.id).emit("resetBall", -1);
+      this.server.to(gameRoom.id).emit("resetBall", gameRoom.ball.moveX);
     }
   }
 
-  async moveBall(gameRoom: GameRoom) {
+  @SubscribeMessage("moveBall")
+  moveBall(@MessageBody() gameRoom: GameRoom) {
     const x = gameRoom.ball.x / gameRoom.view.width;
     const y = gameRoom.ball.y / gameRoom.view.height;
 
@@ -201,16 +196,10 @@ export class GameGateway {
             gameRoom.playerTwo.paddle.height +
             gameRoom.ball.radius
       ) {
-        console.log("right paddle hit");
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
       } else {
-        console.log("right paddle missed");
-        gameRoom.ball.moveX = -gameRoom.ball.moveX;
         gameRoom.winner = 1;
-        clearInterval(this.map.get(gameRoom.id));
-        this.map.delete(gameRoom.id);
-        await this.endMatch(gameRoom);
-        return;
+        return this.endMatch(gameRoom);
       }
     } else if (
       x * gameRoom.view.width + gameRoom.ball.moveX <
@@ -226,29 +215,21 @@ export class GameGateway {
             gameRoom.playerOne.paddle.height +
             gameRoom.ball.radius
       ) {
-        console.log("left paddle hit");
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
       } else {
-        console.log("left paddle missed");
-        gameRoom.ball.moveX = -gameRoom.ball.moveX;
         gameRoom.winner = 2;
-        clearInterval(this.map.get(gameRoom.id));
-        this.map.delete(gameRoom.id);
-        await this.endMatch(gameRoom);
-        return;
+        return this.endMatch(gameRoom);
       }
     }
     if (
       y * gameRoom.view.height + gameRoom.ball.moveY <
       gameRoom.ball.radius + gameRoom.view.offset - gameRoom.view.borderLines
     ) {
-      console.log("top hit");
       gameRoom.ball.moveY = -gameRoom.ball.moveY;
     } else if (
       y * gameRoom.view.height + gameRoom.ball.moveY >
       gameRoom.view.height - gameRoom.ball.radius - gameRoom.view.offset
     ) {
-      console.log("bottom hit");
       gameRoom.ball.moveY = -gameRoom.ball.moveY;
     }
     gameRoom.ball.x += gameRoom.ball.moveX;
@@ -259,6 +240,8 @@ export class GameGateway {
         "drawBall",
         gameRoom.ball.x / gameRoom.view.width,
         gameRoom.ball.y / gameRoom.view.height,
+        gameRoom.ball.moveX,
+        gameRoom.ball.moveY,
       );
   }
 }
