@@ -48,18 +48,22 @@ export class MatchService {
         this.logger.debug("cannot match player with themself");
         throw new BadRequestException();
       }
-      /* abstract to different method that takes two ids */
-      const createGameDto = new CreateGameDto();
-      createGameDto.playerOne = match[0].playerId;
-      createGameDto.playerTwo = id;
-      createGameDto.state = "playing";
-      const game = await this.gameService.create(createGameDto).catch(() => {
-        this.logger.debug("error in getMatch while trying to create new game");
-        throw new BadRequestException();
-      });
-      this.remove(match[0].playerId);
-      return game;
+      return await this.createGame(match[0].playerId, id);
     }
+  }
+
+  /* abstracted this into own method that takes two ids */
+  async createGame(playerOneId: number, playerTwoId: number) {
+    const createGameDto = new CreateGameDto();
+    createGameDto.playerOne = playerOneId;
+    createGameDto.playerTwo = playerTwoId;
+    createGameDto.state = "playing";
+    const game = await this.gameService.create(createGameDto).catch(() => {
+      this.logger.debug("error in getMatch while trying to create new game");
+      throw new BadRequestException();
+    });
+    this.remove(playerOneId);
+    return game;
   }
 
   async create(createMatchDto: CreateMatchDto) {
