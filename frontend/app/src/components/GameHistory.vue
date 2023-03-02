@@ -1,12 +1,12 @@
 <template>
-	<div class="stats-container">
+	<div class="stats-container box-styling">
 		<h2>Game History</h2>
 		<!-- a div with all game history in formation -->
 		<div class="winner-loser">
 			<h3 class="winner-title">WINNER</h3>
 			<h3 class="loser-title">LOSER</h3>
 		</div>
-		<div class="gamehistory-list">
+		<div class="gamehistory-list list-elements">
 			<li v-for="item in gameHistory">
 				<div class="winner">{{ item.winner }}</div>
 				<div class="loser">{{ item.loser }}</div>
@@ -57,14 +57,14 @@ const gameHistory = [
 .stats-container {
 	display: flex;
 	flex-direction: column;
-	height: 700px;
+	height: 640px;
 	width: 375px;
 	padding: 20px;
 
-	background-color: var(--box-background-color);
+	/* background-color: var(--box-background-color);
 	box-shadow: var(--box-shadow);
 	border: var(--border);
-	border-radius: var(--border-radius);
+	border-radius: var(--border-radius); */
 }
 .winner-loser {
 	display: flex;
@@ -81,20 +81,9 @@ const gameHistory = [
 }
 .gamehistory-list {
 	font-family: var(--arcade-font);
-	font-weight: lighter;
 	font-size: 1.3rem;
 	overflow: scroll;
 	overflow-x: hidden;
-}
-.gamehistory-list li {
-	display: flex;
-	justify-content: space-between;
-	padding: 10px;
-	background-color: #2b2929b6;
-	padding-left: 20px;
-	padding-right: 20px;
-	margin: 2px;
-	border-radius: 4px;
 }
 
 span:first-child{
@@ -103,7 +92,6 @@ span:first-child{
 
 h2 {
 	font-size: 50px;
-	/* color: var(--primary-color); */
 }
 
 </style>

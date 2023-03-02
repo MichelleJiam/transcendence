@@ -23,10 +23,10 @@ import { useRoute } from "vue-router";
 import { ref } from "vue";
 import { SendMessageDto } from "../../chatUtils";
 
-const socketUrl = baseUrl;
 const route = useRoute();
 const chatroomId = route.params.id;
 const userStore = useUserStore();
+const socketUrl = baseUrl + "/chat";
 const socket = io(socketUrl);
 
 const messageBody = ref<string>();

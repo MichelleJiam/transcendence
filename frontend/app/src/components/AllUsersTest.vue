@@ -4,7 +4,6 @@
     <div class="container">
       <div class="row">
         <div class="col-sm"><b>Name</b></div>
-        <div class="col-sm"><b>Password</b></div>
         <div class="col-sm"><b>Email</b></div>
         <br />
         <br />
@@ -12,7 +11,6 @@
       <div v-if="users.length > 0">
         <div v-for="user in users" :key="user.id" class="row">
           <div class="col-sm">{{ user.username }}</div>
-          <div class="col-sm">{{ user.password }}</div>
           <div class="col-sm">{{ user.email }}</div>
           <hr />
         </div>
@@ -28,7 +26,6 @@
 type User = {
   id: string;
   username: string;
-  password: string;
   email: string;
 };
 export default {

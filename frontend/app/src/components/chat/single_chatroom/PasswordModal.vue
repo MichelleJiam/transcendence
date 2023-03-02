@@ -26,7 +26,7 @@
         </div>
 
         <div class="modal-footer">
-          <slot name="footer"> default footer </slot>
+          <slot name="footer"> </slot>
         </div>
       </div>
     </div>
@@ -56,10 +56,10 @@ function enterChat(memberId: number) {
   addMemberDto.member = memberId;
   addMemberDto.password = givenPassword.value;
   apiRequest(url, "put", { data: addMemberDto })
-    .then(() => {
+    .then((response) => {
       rightPassword.value = true;
     }) // axios throws errors for non 2xx responses by default!
-    .catch(() => {
+    .catch((err) => {
       alert("Bad password!");
       givenPassword.value = "";
     });
