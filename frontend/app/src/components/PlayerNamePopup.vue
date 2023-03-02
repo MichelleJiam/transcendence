@@ -1,5 +1,5 @@
 <template>
-  <form @keydown.enter="setPlayerName">
+  <div class="form box-styling">
     <button class="exit-button" @click.prevent="cancelLogin">X</button>
     <h2>Hey there,</h2>
     <p>
@@ -24,7 +24,7 @@
     <span class="validate-message">{{ message }}</span>
     <button @click.prevent="setPlayerName">Submit</button>
     <!-- <button @click.prevent="setPlayerName">→</button> -->
-  </form>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -38,7 +38,6 @@ const playerName = ref<string>("");
 let message = "";
 
 function setPlayerName() {
-  console.log("goes in setplayername");
   userStore.updateAccountSettings(
     playerName.value,
     userStore.user.twoFAEnabled
@@ -72,11 +71,12 @@ function validPlayerName(playerName: string) {
 </script>
 
 <style scoped>
-form {
+.form {
   display: flex;
   flex-direction: column;
   gap: 10px;
   width: 550px;
+  padding: 20px;
   text-align: left;
 }
 

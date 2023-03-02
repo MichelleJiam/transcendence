@@ -4,7 +4,12 @@
       <div v-if="inBlocklist(msg.userId.id) == false" class="chat-message-box">
         <div class="row">
           <div class="playerName">
-            <b>{{ msg.userId.playerName }}</b>
+            <button
+              class="playerNameUrl"
+              @click="buildUserPageUrl(msg.userId.id)"
+            >
+              <b>{{ msg.userId.playerName }}</b>
+            </button>
           </div>
           <div class="dateTime">
             <i style="font-size: 12px"
@@ -29,8 +34,9 @@ import { convertDateTime } from "@/utils/dateTime";
 import { io } from "socket.io-client";
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { buildUserPageUrl } from "../../chatUtils";
 
-const socketUrl = baseUrl;
+const socketUrl = baseUrl + "/chat";
 
 const socket = io(socketUrl);
 
@@ -72,15 +78,17 @@ onMounted(async () => {
       blocklist.value = response.data;
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
     });
 
   socket.on("recMessage", (message) => {
-    message.userId.playerName =
-      message.userId.playerName ?? "unnamedPlayer" + message.userId.id;
-    const dateTime = new Date(message.createdAt);
-    message["formattedCreatedAt"] = convertDateTime(dateTime);
-    messages.value.push(message);
+    if (message.chatroomId.id == chatroomId) {
+      message.userId.playerName =
+        message.userId.playerName ?? "unnamedPlayer" + message.userId.id;
+      const dateTime = new Date(message.createdAt);
+      message["formattedCreatedAt"] = convertDateTime(dateTime);
+      messages.value.push(message);
+    }
   });
 });
 </script>
@@ -100,6 +108,13 @@ onMounted(async () => {
 .playerName {
   float: left;
   width: 24%;
+}
+
+.playerNameUrl {
+  font-family: sans-serif;
+  background: #00000000;
+  color: white;
+  font-size: 1rem;
 }
 
 .dateTime {

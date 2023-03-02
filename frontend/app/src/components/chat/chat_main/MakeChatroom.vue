@@ -68,7 +68,9 @@ function createChat() {
         console.log(response);
       }) // axios throws errors for non 2xx responses by default!
       .catch((error) => {
-        alert(error);
+        console.error(error);
+        alert("Sorry! something went wrong.");
+        location.reload();
       });
     chatName.value = "default chat name";
     chatPassword.value = "";

@@ -55,7 +55,6 @@ export class PenaltyService {
       where: {
         time: LessThanOrEqual(fiveMinutesAgo),
       },
-      cache: true,
     });
     return foundPenalties;
   }
@@ -84,7 +83,6 @@ export class PenaltyService {
         time: true,
         id: true,
       },
-      cache: true,
     });
     return foundPenalties;
   }
@@ -117,7 +115,6 @@ export class PenaltyService {
         time: true,
         id: true,
       },
-      cache: true,
     });
     return foundBan;
   }
@@ -190,7 +187,7 @@ export class PenaltyService {
   ): Promise<Penalty> {
     if (validatePenaltyDto(createPenaltyDto) === true) {
       const newPenalty = createPenaltyEntity(chatroom, user, createPenaltyDto);
-      return this.penaltyRepository.save(newPenalty);
+      return await this.penaltyRepository.save(newPenalty);
     }
     throw new HttpException("Incorrect Penalty Type.", HttpStatus.BAD_REQUEST);
   }

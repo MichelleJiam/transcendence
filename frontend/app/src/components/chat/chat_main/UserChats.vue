@@ -24,15 +24,19 @@ const memberOfUrl = "/chat/user/" + userStore.user.id;
 
 const userChats = ref([]);
 onMounted(() => {
-  apiRequest(memberOfUrl, "get").then((response) => {
-    userChats.value = response.data;
-    for (const link of userChats.value) {
-      const linkUrl = frontendUrl + "/chat/" + link.id;
-      link["linkUrl"] = linkUrl;
-      link.owner.playerName =
-        link.owner.playerName ?? "namelessPlayer" + link.owner.id;
-    }
-  });
+  apiRequest(memberOfUrl, "get")
+    .then((response) => {
+      userChats.value = response.data;
+      for (const link of userChats.value) {
+        const linkUrl = frontendUrl + "/chat/" + link.id;
+        link["linkUrl"] = linkUrl;
+        link.owner.playerName =
+          link.owner.playerName ?? "namelessPlayer" + link.owner.id;
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+    });
 });
 </script>
 <style scoped>
