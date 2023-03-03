@@ -148,7 +148,7 @@ async function gameOver(gameRoom: GameRoom) {
   joined.value = false;
   console.log("GamePage | ", id, " left room ", gameRoom.id);
   await apiRequest(`/game`, "put", { data: gameRoom });
-  socket.emit("updateActiveGames");
+  await getActiveGames();
 }
 
 function fillPlayerObject(
