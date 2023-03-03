@@ -6,7 +6,6 @@ import {
   ConnectedSocket,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { Game } from "./entities/game.entity";
 import { GameService } from "./game.service";
 import { GameRoom } from "./pong.types";
 
@@ -87,7 +86,7 @@ export class GameGateway {
   async countdown(@MessageBody() gameRoom: GameRoom) {
     let count = 3;
     const timeout = setInterval(() => {
-      console.log("gameRoom.player ", gameRoom.player, " count ", count);
+      // console.log("gameRoom.player ", gameRoom.player, " count ", count);
       this.server.to(gameRoom.id).emit("drawCountdown", count);
       if (count < 0) {
         clearInterval(timeout);
@@ -148,7 +147,7 @@ export class GameGateway {
     playerTwoScore: number,
     winner: number,
   ) {
-    console.log("endGame");
+    // console.log("endGame");
     this.server
       .to(gameRoomId)
       .emit("endGame", playerOneScore, playerTwoScore, winner);
@@ -219,7 +218,7 @@ export class GameGateway {
       this.server.to(gameRoom.id).emit("movePaddleTwoDown", y);
     }
   }
-  
+
   @SubscribeMessage("moveBall")
   moveBall(@MessageBody() gameRoom: GameRoom) {
     if (
@@ -236,10 +235,10 @@ export class GameGateway {
             gameRoom.playerTwo.paddle.height +
             gameRoom.ball.radius
       ) {
-        console.log("right paddle hit");
+        // console.log("right paddle hit");
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
       } else {
-        console.log("right side hit");
+        // console.log("right side hit");
         gameRoom.winner = 1;
         return this.checkScore(gameRoom);
       }
@@ -256,10 +255,10 @@ export class GameGateway {
             gameRoom.playerOne.paddle.height +
             gameRoom.ball.radius
       ) {
-        console.log("left paddle hit");
+        // console.log("left paddle hit");
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
       } else {
-        console.log("left side hit");
+        // console.log("left side hit");
         gameRoom.winner = 2;
         return this.checkScore(gameRoom);
       }
@@ -275,7 +274,7 @@ export class GameGateway {
       gameRoom.ball.y + gameRoom.ball.moveY >
         gameRoom.view.height - gameRoom.view.offset - gameRoom.view.borderLines
     ) {
-      gameRoom.ball.moveY = -gameRoom.ball.moveY; // same result as if block?
+      gameRoom.ball.moveY = -gameRoom.ball.moveY;
     }
     gameRoom.ball.x += gameRoom.ball.moveX;
     gameRoom.ball.y += gameRoom.ball.moveY;

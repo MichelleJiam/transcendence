@@ -19,18 +19,12 @@ import { AchievementService } from "src/achievement/achievement.service";
   imports: [
     forwardRef(() => AuthModule),
     TypeOrmModule.forFeature([
-      
       User,
-     
       Message,
-     
       Avatar,
       Game,
-     
       Chatroom,
-     
       Blocklist,
-    ,
       Achievement,
     ]),
     JwtModule.registerAsync({
