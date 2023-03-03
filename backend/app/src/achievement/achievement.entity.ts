@@ -10,7 +10,7 @@ export class Achievement {
   name!: string;
 
   @Column({ nullable: false })
-  description!: string;
+  icon!: string;
 
   @ManyToMany(() => User, (user: User) => user.achievements, {
     onUpdate: "CASCADE",
