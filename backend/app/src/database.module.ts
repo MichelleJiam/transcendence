@@ -25,23 +25,15 @@ import { Achievement } from "./achievement/achievement.entity";
         password: configService.get("POSTGRES_PASSWORD"),
         database: configService.get("POSTGRES_DB"),
         entities: [
-          
           User,
-         
           Message,
-         
           Avatar,
           Game,
           Match,
-         
           Friend,
-         
           Chatroom,
-         
           Penalty,
-         
           Blocklist,
-        ,
           Achievement,
         ],
         synchronize: true /* automatically updates database schema */,
