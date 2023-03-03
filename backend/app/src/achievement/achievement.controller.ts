@@ -7,6 +7,7 @@ export class AchievementController {
 
   constructor(private achievementService: AchievementService) {}
 
+  /* development */
   @Get()
   async getAllAchievements() {
     this.logger.log("Hit the getAllAchievements route");
@@ -16,6 +17,7 @@ export class AchievementController {
     return achievements;
   }
 
+  /* development */
   @Post()
   async addAllAchievements() {
     this.logger.log("Hit the addAllAchievements route");

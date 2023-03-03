@@ -15,7 +15,10 @@
       </div>
       <WinsLosses class="wins-losses"></WinsLosses>
       <GameHistory class="game-history"></GameHistory>
-      <UserAchiements class="user-achievements"></UserAchiements>
+      <UserAchiements
+        class="user-achievements"
+        :chievs="userStore.achievements"
+      ></UserAchiements>
       <!-- add in a vif if its your own page you see padle bords, if
       someone elses page you see the buttons to DM or Add as friend -->
       <div
@@ -57,6 +60,7 @@ onMounted(async () => {
   // refresh userStore data
   await userStore.retrieveCurrentUserData();
   await userStore.getAvatar();
+  await userStore.getAchievements();
   if (route.params.playerName != undefined) {
     console.log("is a different player");
     isOtherPlayerPage.value = true;

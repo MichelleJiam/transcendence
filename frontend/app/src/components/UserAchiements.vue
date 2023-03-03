@@ -3,39 +3,75 @@
     <h2>Achievements</h2>
     <div class="achievement-container">
       <div v-for="achievement in achievements" :key="achievement.id">
-        <font-awesome class="font-awesome" :icon="achievement.icon" @mouseenter="showDescription = achievement.id" @mouseleave="showDescription = null" />
-        <p class="achievement-text" :class="{ active: showDescription === achievement.id }">{{ achievement.text }}</p>
+        <font-awesome
+          class="font-awesome"
+          :style="[
+            achievementEarned(achievement.id)
+              ? { opacity: 1 }
+              : { opacity: 0.1 },
+          ]"
+          :icon="achievement.icon"
+        />
+        <p
+          class="achievement-text"
+          :class="{ active: showDescription === achievement.id }"
+        >
+          {{ achievement.name }}
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { faPenToSquare, faGamepad, faTableTennisPaddleBall, faFileImage, faTrophy, faComment, faThumbsDown, faHelmetSafety, faMedal } from '@fortawesome/free-solid-svg-icons';
+import {
+  faPenToSquare,
+  faGamepad,
+  faTableTennisPaddleBall,
+  faFileImage,
+  faTrophy,
+  faThumbsDown,
+  faHelmetSafety,
+  faMedal,
+} from "@fortawesome/free-solid-svg-icons";
 
+type Achievement = {
+  id: number;
+  name: string;
+  icon: string;
+};
+
+const props = defineProps({
+  chievs: { type: Array<Achievement>, required: true },
+});
 
 const achievements = [
-  { id: 1, icon: faPenToSquare, text: 'Edited player name' },
-  { id: 2, icon: faGamepad, text: 'Played first game' },
-  { id: 3, icon: faTableTennisPaddleBall, text: 'Played 5 games' },
-  { id: 4, icon: faFileImage, text: 'Edited avatar' },
-  { id: 5, icon: faTrophy, text: 'Won first game' },
-  { id: 6, icon: faComment, text: 'Sent a chat message' },
-  { id: 7, icon: faThumbsDown, text: 'Lost your first game' },
-  { id: 8, icon: faHelmetSafety, text: 'Enabled 2FA' },
-  { id: 9, icon: faMedal, text: 'Won 5 games' },
+  { id: 0, icon: faFileImage, name: "Updated Avatar" },
+  { id: 1, icon: faTrophy, name: "Won First Game" },
+  { id: 2, icon: faThumbsDown, name: "Lost First Game" },
+  { id: 3, icon: faHelmetSafety, name: "Enabled 2FA" },
+  { id: 4, icon: faPenToSquare, name: "Updated Player Name" },
+  { id: 5, icon: faGamepad, name: "Played First Game" },
+  { id: 6, icon: faTableTennisPaddleBall, name: "Played 5 Games" },
+  { id: 8, icon: faMedal, name: "Won 5 games" },
 ];
 
-let showDescription: number | null = null;
+function achievementEarned(id: number) {
+  if (props.chievs.find((achievement: Achievement) => achievement.id === id))
+    return 1;
+  return 0;
+}
+
+const showDescription: number | null = null;
 </script>
 
 <style scoped>
 .flex-container {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
   width: 375px;
-  
-	padding: 20px;
+
+  padding: 20px;
 }
 
 h2 {
@@ -45,29 +81,26 @@ h2 {
 }
 
 .achievement-container {
-	position: relative;
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
-	justify-items: center;
-	align-items: center;
-	row-gap: 20px;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  justify-items: center;
+  align-items: center;
+  row-gap: 20px;
 }
 .font-awesome {
-	font-size: 75px;
-	opacity: .6;
-	margin: 0;
+  font-size: 75px;
+  opacity: 0.1;
+  margin: 0;
 }
 
-.achievement-earned {
-  opacity: 1;
-}
 .achievement-text {
-	position: absolute;
-	display: none;
-	background-color: grey;
-	padding: 5px;
-	border-radius: 5px;
-	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+  position: absolute;
+  display: none;
+  background-color: grey;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
 }
 .font-awesome:hover + .achievement-text {
   display: block;

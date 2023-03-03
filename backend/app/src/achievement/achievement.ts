@@ -1,7 +1,7 @@
 interface Achievement {
   id: number;
+  icon: string;
   name: string;
-  description: string;
 }
 
 export enum Achievements {
@@ -10,38 +10,32 @@ export enum Achievements {
   LOST,
   TWOFA,
   NAME,
-  TEST,
 }
 
 export const achievements: Achievement[] = [
   {
     id: Achievements.AVATAR,
-    name: "The Avatar Makeover",
-    description: "Who knew a digital glow-up could be so rewarding!",
+    icon: "faFileImage",
+    name: "Updated Avatar",
   },
   {
     id: Achievements.WON,
-    name: "Newbie Crusher",
-    description: "First win",
+    icon: "faTrophy",
+    name: "Won First Game",
   },
   {
     id: Achievements.LOST,
-    name: "The Duke of Defeat",
-    description: "First lost",
+    icon: "faThumbsDown",
+    name: "Lost First Game",
   },
   {
     id: Achievements.TWOFA,
-    name: "Fort Knox",
-    description: "2FA enabled",
+    icon: "faHelmetSafety",
+    name: "Enabled 2FA",
   },
   {
     id: Achievements.NAME,
-    name: "New Player Name",
-    description: "New Player Name",
-  },
-  {
-    id: Achievements.TEST,
-    name: "test",
-    description: "hello",
+    icon: "faPenToSquare",
+    name: "Updated Player Name",
   },
 ];
