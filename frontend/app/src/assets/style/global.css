@@ -22,8 +22,10 @@ nav {
 }
 
 div #display-content {
-  height: 80%;
-  width: 85%;
+  position: absolute;
+  max-height: 94vh;
+  max-width: 85%;
+  overflow-y: scroll;
   background: #1c1b1b;
   text-align: center;
   border: 2px #302d2d solid;
@@ -58,6 +60,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow-y: scroll;
 }
 
 button {
@@ -138,9 +141,9 @@ a:hover {
 
 .box-styling {
   background-color: var(--box-background-color);
-	box-shadow: var(--box-shadow);
-	border: var(--border);
-	border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  border: var(--border);
+  border-radius: var(--border-radius);
 }
 
 .chat-message-box {
@@ -166,14 +169,14 @@ li {
 /* class to add to a list or div to add for all list items */
 .list-elements li {
   display: flex;
-	justify-content: space-between;
+  justify-content: space-between;
   align-items: center;
-	padding: 10px;
-	background-color: #2b2929b6;
-	padding-left: 20px;
-	padding-right: 20px;
-	margin: 2px;
-	border-radius: 4px;
+  padding: 10px;
+  background-color: #2b2929b6;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin: 2px;
+  border-radius: 4px;
 }
 
 /* scroll bar styling */

@@ -1,17 +1,19 @@
 <template>
-  <form>
-    <label for="avatar">Avatar</label>
-    <div class="inputfield">
-      <input
-        type="file"
-        accept="image/x-png,image/gif,image/jpeg"
-        @change="onFileSelected"
-      />
+  <div class="box-styling">
+    <div class="avatar-upload">
+      <label for="avatar">Avatar</label>
+      <div class="inputfield">
+        <input
+          type="file"
+          accept="image/x-png,image/gif,image/jpeg"
+          @change="onFileSelected"
+        />
+      </div>
     </div>
     <button :disabled="isDisabledAvatar" @click="submitAvatar">
       Update avatar
     </button>
-  </form>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -44,27 +46,30 @@ async function submitAvatar() {
 </script>
 
 <style scoped>
-form {
-  display: grid;
-  row-gap: 10px;
-  grid-template-areas:
+.box-styling {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 10px;
+  /* row-gap: 10px; */
+  /* grid-template-areas:
     "name-label inputfield"
-    "button button";
+    "button button"; */
 }
 
-label {
-  grid-area: name-label;
-  justify-self: start;
+.avatar-upload {
+  display: flex;
+  justify-content: space-between;
 }
-
-.inputfield {
+.avatar-upload .inputfield {
   display: inline-block;
-  margin-right: 0;
-  grid-area: inputfield;
-  justify-self: end;
+  /* margin-right: 0; */
+  /* grid-area: inputfield; */
+  /* justify-self: end; */
 }
 
 button {
-  grid-area: button;
+  /* grid-area: button; */
+  justify-self: stretch;
 }
 </style>
