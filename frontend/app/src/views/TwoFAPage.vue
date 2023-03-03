@@ -2,7 +2,11 @@
   <main>
     <div id="display-content">
       <h1>2FA Code <br />Required</h1>
-      <img class="picture" src="../assets/images/cat_door_security.gif" />
+      <img
+        class="picture"
+        src="../assets/images/cat_door_security.gif"
+        alt="Cat stopping dog from entering door"
+      />
       <p>Please enter the 6-digit code from your authenticator app.</p>
       <label for="authCode">Authenticator Code</label>
       <InputText

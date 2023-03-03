@@ -20,7 +20,9 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
 
-  // PASSWORD
+  /************
+   * PASSWORD *
+   ************/
 
   // Hashes `password` for security, using 10 salt rounds for efficiency.
   public async hashPassword(password: string): Promise<string> {
@@ -35,7 +37,9 @@ export class AuthService {
     return await bcrypt.compare(receivedPassword, hashedPassword);
   }
 
-  // AUTH
+  /********
+   * AUTH *
+   ********/
 
   // Returns Authentication cookie with JWT access token as value.
   // Enabling httpOnly option makes cookie inaccessible to clientside JS and therefore XSS attacks.
@@ -95,6 +99,4 @@ export class AuthService {
     this.logger.log(`Creating user: ${user}`);
     return await this.userService.create(user);
   }
-
-  // twofactor methods
 }
