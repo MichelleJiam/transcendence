@@ -1,7 +1,10 @@
 <template>
   <main>
     <div id="display-content">
-      <h1><span id="username">{{userStore.user.playerName}}</span>'s friendlist</h1>
+      <h1>
+        <span id="username">{{ userStore.user.playerName }}</span
+        >'s friendlist
+      </h1>
       <div id="friend-boxes">
         <Suspense class="friend-box">
           <template #default>
@@ -73,7 +76,6 @@ socket.on("unfriend", async (data) => {
 </script>
 
 <style scoped>
-
 #display-content {
   height: 1000px;
   display: flex;
@@ -96,10 +98,10 @@ socket.on("unfriend", async (data) => {
 }
 
 @media (max-width: 1100px) {
-#display-content {
-  height: 100%;
-}
- #friend-boxes {
+  #display-content {
+    height: 100%;
+  }
+  #friend-boxes {
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
@@ -109,5 +111,4 @@ socket.on("unfriend", async (data) => {
     height: 33%;
   }
 }
-
 </style>

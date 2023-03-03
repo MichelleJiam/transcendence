@@ -5,7 +5,6 @@ import { CreateChatroomDto } from "./dto/create-chat.dto";
 import { UpdateChatroomDto } from "./dto/update-chat.dto";
 
 export function validateChatroomType(type: string): boolean {
-  console.log(type);
   if (
     type !== "public" &&
     type !== "password" &&
@@ -66,7 +65,6 @@ export function createChatroomEntity(
     chatroom.member.push(userTwo);
     chatroom.admin.push(userTwo);
   }
-  console.log("in createChatroomEntity: ", chatroom);
   return chatroom;
 }
 

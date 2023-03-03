@@ -4,7 +4,13 @@
       v-show="showPopup"
       class="playername-popup"
     ></PlayerNamePopup>
-    <div id="display-content">
+    <div
+      v-if="
+        route.params.playerName == undefined ||
+        (route.params.playerName != undefined && isOtherPlayer == true)
+      "
+      id="display-content"
+    >
       <div v-if="route.params.playerName != undefined" class="username">
         <AvatarDisplay class="avatar" :src="otherPlayerInfo?.avatarUrl" />
         <h1>{{ otherPlayerInfo?.playerName }}</h1>
@@ -15,7 +21,10 @@
       </div>
       <WinsLosses class="wins-losses"></WinsLosses>
       <GameHistory class="game-history"></GameHistory>
-      <UserAchiements class="user-achievements"></UserAchiements>
+      <UserAchiements
+        class="user-achievements"
+        :chievs="userStore.achievements"
+      ></UserAchiements>
       <!-- add in a vif if its your own page you see padle bords, if
       someone elses page you see the buttons to DM or Add as friend -->
       <div
@@ -25,8 +34,9 @@
         <FriendButton class="friend-button"></FriendButton>
         <CreateDMButton :other-player="otherPlayerInfo?.id"></CreateDMButton>
       </div>
-      <div v-else>🏓🏓🏓🏓🏓🏓🏓</div>
+      <div v-else class="homepage-buttons box-styling">🏓🏓🏓🏓🏓🏓🏓</div>
     </div>
+    <div v-else>User Not Found</div>
   </main>
   <div :class="{ overlay: showPopup }"></div>
 </template>
@@ -38,7 +48,7 @@ import GameHistory from "@/components/GameHistory.vue";
 import UserAchiements from "@/components/UserAchiements.vue";
 import AvatarDisplay from "@/components/AvatarDisplay.vue";
 import FriendButton from "@/components/FriendButton.vue";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, onBeforeMount, computed } from "vue";
 import { useUserStore } from "@/stores/UserStore";
 import CreateDMButton from "@/components/chat/chat_main/CreateDMButton.vue";
 import { useRoute } from "vue-router";
@@ -46,33 +56,49 @@ import apiRequest from "@/utils/apiRequest";
 
 const userStore = useUserStore();
 const route = useRoute();
-const isOtherPlayerPage = ref<boolean>(false);
 const otherPlayerInfo = ref();
+const isOtherPlayer = ref<boolean>(false);
 
 const showPopup = computed(() => {
   return userStore.user.playerName == null;
+});
+
+onBeforeMount(async () => {
+  if (route.params.playerName != undefined) {
+    console.log("is a different player");
+    await apiRequest("/user/player/" + route.params.playerName, "get")
+      .then(async (response) => {
+        if (response.data != undefined) {
+          otherPlayerInfo.value = response.data;
+          if (otherPlayerInfo.value.id != undefined) {
+            isOtherPlayer.value = true;
+            await apiRequest(
+              "/user/" + otherPlayerInfo.value.id + "/avatar",
+              "get"
+            )
+              .then(
+                (response) =>
+                  (otherPlayerInfo.value["avatarUrl"] = response.config.url)
+              )
+              .catch((err) => {
+                isOtherPlayer.value = false;
+                console.error(err);
+              });
+          }
+        }
+      })
+      .catch((err) => {
+        isOtherPlayer.value = false;
+        console.error("an error occured: ", err);
+      });
+  }
 });
 
 onMounted(async () => {
   // refresh userStore data
   await userStore.retrieveCurrentUserData();
   await userStore.getAvatar();
-  if (route.params.playerName != undefined) {
-    console.log("is a different player");
-    isOtherPlayerPage.value = true;
-    await apiRequest("/user/player/" + route.params.playerName, "get")
-      .then(async (response) => {
-        console.log(response);
-        otherPlayerInfo.value = response.data;
-        await apiRequest("/user/" + otherPlayerInfo.value.id + "/avatar", "get")
-          .then(
-            (response) =>
-              (otherPlayerInfo.value["avatarUrl"] = response.config.url)
-          )
-          .catch((err) => console.error(err));
-      })
-      .catch((err) => console.error("an error occured: ", err));
-  }
+  await userStore.getAchievements();
 });
 </script>
 
