@@ -36,6 +36,7 @@ export class GameGateway {
     } else {
       console.log("No active games were left");
     }
+    // handle watcher & player in queu leaving
   }
 
   @SubscribeMessage("updateActiveGames")
@@ -46,6 +47,21 @@ export class GameGateway {
   /**************
    * GAME START *
    **************/
+
+  @SubscribeMessage("watchGame")
+  watchGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() gameRoom: GameRoom,
+  ) {
+    client.join(gameRoom.id);
+    console.log(
+      client.id,
+      " joined room ",
+      gameRoom.id,
+      " as WATCHER",
+      client.rooms,
+    );
+  }
 
   @SubscribeMessage("joinRoom")
   async joinRoom(
@@ -84,21 +100,6 @@ export class GameGateway {
       }
       count--;
     }, 750);
-  }
-
-  @SubscribeMessage("watchGame")
-  watchGame(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() gameRoom: GameRoom,
-  ) {
-    client.join(gameRoom.id);
-    console.log(
-      client.id,
-      " joined room ",
-      gameRoom.id,
-      " as WATCHER",
-      client.rooms,
-    );
   }
 
   /************
@@ -159,6 +160,7 @@ export class GameGateway {
     console.log("Game state: ", gameRoom.state);
     if (gameRoom.player === 0) {
       // this.leaveRoom;
+      console.log("A watcher left the room");
     }
   }
 
@@ -228,7 +230,7 @@ export class GameGateway {
       x * gameRoom.view.width + gameRoom.ball.moveX >
       gameRoom.view.width -
         gameRoom.ball.radius -
-        gameRoom.playerTwo.paddle.width * 2 - // why * 2 here but not line 218?
+        gameRoom.playerTwo.paddle.width * 2 -
         gameRoom.playerTwo.paddle.offset
     ) {
       if (
@@ -273,7 +275,7 @@ export class GameGateway {
       y * gameRoom.view.height + gameRoom.ball.moveY >
       gameRoom.view.height - gameRoom.ball.radius - gameRoom.view.offset
     ) {
-      gameRoom.ball.moveY = -gameRoom.ball.moveY;
+      gameRoom.ball.moveY = -gameRoom.ball.moveY; // same result as if block?
     }
     gameRoom.ball.x += gameRoom.ball.moveX;
     gameRoom.ball.y += gameRoom.ball.moveY;

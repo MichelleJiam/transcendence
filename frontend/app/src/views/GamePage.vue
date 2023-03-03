@@ -69,10 +69,7 @@ onMounted(async () => {
   //   // `/match/${id.value}`,
   //   `/match/${id}`,
   //   "delete"
-  // ) /* protection if user refreshes; removes them from queue */
-  //   .catch((err) => {
-  //     console.log("Something went wrong with deleting the match: ", err);
-  //   });
+  // ); /* protection if user refreshes; removes them from queue */
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
@@ -98,16 +95,6 @@ socket.on("updateActiveGames", () => {
   getActiveGames();
 });
 
-socket.on("addPlayerOne", (gameRoom: GameRoom) => {
-  if (joined.value == false && game.value.state == State.WAITING) {
-    game.value = gameRoom;
-    game.value.player = 1;
-    socket.emit("joinRoom", game.value);
-    joined.value = true;
-    console.log(id, "has joined room ", game.value.id, " as PLAYER 1");
-  }
-});
-
 async function getActiveGames() {
   const res = await apiRequest(`/game/active`, "get");
   activeGames.value = res.data;
@@ -131,7 +118,7 @@ async function watchGame(gameId: number) {
 
 const startGame = async () => {
   // const res = await apiRequest(`/match/${id.value}`, "get");
-  const res = await apiRequest(`/match/${id}`, "get");
+  const res = await apiRequest(`/match/play/${id}`, "get");
   // if no matchups available at the moment
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
@@ -144,6 +131,16 @@ const startGame = async () => {
     joined.value = true;
   }
 };
+
+socket.on("addPlayerOne", (gameRoom: GameRoom) => {
+  if (joined.value == false && game.value.state == State.WAITING) {
+    game.value = gameRoom;
+    game.value.player = 1;
+    socket.emit("joinRoom", game.value);
+    joined.value = true;
+    console.log(id, "has joined room ", game.value.id, " as PLAYER 1");
+  }
+});
 
 async function gameOver(gameRoom: GameRoom) {
   game.value.state = State.READY;
