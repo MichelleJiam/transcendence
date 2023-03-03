@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Brackets, Repository, WhereExpressionBuilder } from "typeorm";
 import { Game } from "./entities/game.entity";
 import { UserService } from "src/user/user.service";
 import { CreateGameDto } from "./dto/create-game.dto";
@@ -41,6 +41,20 @@ export class GameService {
       },
     });
     return game;
+  }
+
+  async findGameFromPlayerSocket(playerSocket: string) {
+    const foundGame = await this.gameRepository
+      .createQueryBuilder("game")
+      .where("game.state = :playing", { playing: "playing" })
+      .andWhere(
+        new Brackets((qb: WhereExpressionBuilder) => {
+          qb.where("game.playerOneSocket = :playerSocket", {
+            playerSocket,
+          }).orWhere("game.playerTwoSocket = :playerSocket", { playerSocket });
+        }),
+      );
+    return await foundGame.getOne();
   }
 
   async create(createGameDto: CreateGameDto) {
