@@ -34,7 +34,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  console.log("unmounted");
+  console.log("PongGame unmounted");
   // if (gameRoom.player == 0) {
   //   props.socket.emit("leaveRoom", gameRoom.id);
   // }

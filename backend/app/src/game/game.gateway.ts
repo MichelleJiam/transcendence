@@ -6,6 +6,7 @@ import {
   ConnectedSocket,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import { Game } from "./entities/game.entity";
 import { GameService } from "./game.service";
 import { GameRoom } from "./pong.types";
 
@@ -23,45 +24,43 @@ export class GameGateway {
   constructor(private readonly gameService: GameService) {}
 
   handleConnection(client: Socket) {
-    console.log(client.id, " connected");
+    console.log("GameGateway: ", client.id, " connected");
   }
 
-  handleDisconnect(client: Socket) {
-    console.log(client.id, " disconnected");
+  async handleDisconnect(client: Socket) {
+    console.log("GameGateway: ", client.id, " disconnected");
+    const leftGame = await this.gameService.findGameFromPlayerSocket(client.id);
+    if (leftGame != null) {
+      // this.someoneLeft(leftGame);
+      console.log("Player left game ", leftGame.id);
+    } else {
+      console.log("No active games were left");
+    }
+    // handle watcher & player in queu leaving
   }
 
-  @SubscribeMessage("countdown")
-  async countdown(@MessageBody() gameRoom: GameRoom) {
-    let count = 3;
-    const timeout = setInterval(() => {
-      console.log("gameRoom.player ", gameRoom.player, " count ", count);
-      this.server.to(gameRoom.id).emit("drawCountdown", count);
-      if (count < 0) {
-        clearInterval(timeout);
-        this.map.set(
-          gameRoom.id,
-          setInterval(() => {
-            this.server.to(gameRoom.id).emit("drawCanvas");
-          }, 8),
-        );
-      }
-      count--;
-    }, 750);
+  @SubscribeMessage("updateActiveGames")
+  updateActiveGames() {
+    this.server.emit("updateActiveGames");
   }
 
-  @SubscribeMessage("drawScoreboard")
-  drawScoreboard(
+  /**************
+   * GAME START *
+   **************/
+
+  @SubscribeMessage("watchGame")
+  watchGame(
     @ConnectedSocket() client: Socket,
-    @MessageBody() winnerGame: GameRoom,
+    @MessageBody() gameRoom: GameRoom,
   ) {
-    this.server
-      .to(winnerGame.id)
-      .emit(
-        "drawScoreboard",
-        winnerGame.playerOne.score,
-        winnerGame.playerTwo.score,
-        winnerGame.winner,
-      );
+    client.join(gameRoom.id);
+    console.log(
+      client.id,
+      " joined room ",
+      gameRoom.id,
+      " as WATCHER",
+      client.rooms,
+    );
   }
 
   @SubscribeMessage("joinRoom")
@@ -84,31 +83,96 @@ export class GameGateway {
     }
   }
 
-  @SubscribeMessage("updateActiveGames")
-  updateActiveGames() {
-    this.server.emit("updateActiveGames");
+  @SubscribeMessage("countdown")
+  async countdown(@MessageBody() gameRoom: GameRoom) {
+    let count = 3;
+    const timeout = setInterval(() => {
+      console.log("gameRoom.player ", gameRoom.player, " count ", count);
+      this.server.to(gameRoom.id).emit("drawCountdown", count);
+      if (count < 0) {
+        clearInterval(timeout);
+        this.map.set(
+          gameRoom.id,
+          setInterval(() => {
+            this.server.to(gameRoom.id).emit("drawCanvas");
+          }, 8),
+        );
+      }
+      count--;
+    }, 750);
   }
 
-  @SubscribeMessage("watchGame")
-  watchGame(
+  /************
+   * GAME END *
+   ************/
+
+  @SubscribeMessage("drawScoreboard")
+  drawScoreboard(
     @ConnectedSocket() client: Socket,
-    @MessageBody() gameRoom: GameRoom,
+    @MessageBody() winnerGame: GameRoom,
   ) {
-    client.join(gameRoom.id);
-    console.log(
-      client.id,
-      " joined room ",
-      gameRoom.id,
-      " as WATCHER",
-      client.rooms,
-    );
+    this.server
+      .to(winnerGame.id)
+      .emit(
+        "drawScoreboard",
+        winnerGame.playerOne.score,
+        winnerGame.playerTwo.score,
+        winnerGame.winner,
+      );
+  }
+
+  async checkScore(gameRoom: GameRoom) {
+    clearInterval(this.map.get(gameRoom.id));
+    this.map.delete(gameRoom.id);
+    if (gameRoom.winner == 1) gameRoom.playerOne.score++;
+    else gameRoom.playerTwo.score++;
+    this.server
+      .to(gameRoom.id)
+      .emit("updateScore", gameRoom.playerOne.score, gameRoom.playerTwo.score);
+    if (gameRoom.playerOne.score === 3 || gameRoom.playerTwo.score === 3) {
+      await this.endGame(
+        gameRoom.id,
+        gameRoom.playerOne.score,
+        gameRoom.playerTwo.score,
+        gameRoom.winner,
+      );
+    } else {
+      this.server.to(gameRoom.id).emit("resetBall", gameRoom.ball.moveX);
+    }
+  }
+
+  @SubscribeMessage("endGame")
+  async endGame(
+    @MessageBody() gameRoomId: string,
+    playerOneScore: number,
+    playerTwoScore: number,
+    winner: number,
+  ) {
+    console.log("endGame");
+    this.server
+      .to(gameRoomId)
+      .emit("endGame", playerOneScore, playerTwoScore, winner);
+  }
+
+  @SubscribeMessage("someoneLeft")
+  async someoneLeft(@MessageBody() gameRoom: GameRoom) {
+    console.log("Someone left the game");
+    console.log("Game state: ", gameRoom.state);
+    if (gameRoom.player === 0) {
+      // this.leaveRoom;
+      console.log("A watcher left the room");
+    }
   }
 
   @SubscribeMessage("leaveRoom")
   leaveRoom(@ConnectedSocket() client: Socket, @MessageBody() gameId: string) {
     client.leave(gameId);
-    console.log(client.id, " left room: ", gameId);
+    console.log("GameGateway | ", client.id, " left room ", gameId);
   }
+
+  /************
+   * MOVEMENT *
+   ************/
 
   @SubscribeMessage("movePaddleUp")
   movePaddleUp(@MessageBody() gameRoom: GameRoom) {
@@ -156,39 +220,6 @@ export class GameGateway {
     }
   }
 
-  @SubscribeMessage("endGame")
-  async endGame(
-    @MessageBody() gameRoomId: string,
-    playerOneScore: number,
-    playerTwoScore: number,
-    winner: number,
-  ) {
-    console.log("endGame");
-    this.server
-      .to(gameRoomId)
-      .emit("endGame", playerOneScore, playerTwoScore, winner);
-  }
-
-  async endMatch(gameRoom: GameRoom) {
-    clearInterval(this.map.get(gameRoom.id));
-    this.map.delete(gameRoom.id);
-    if (gameRoom.winner == 1) gameRoom.playerOne.score++;
-    else gameRoom.playerTwo.score++;
-    this.server
-      .to(gameRoom.id)
-      .emit("updateScore", gameRoom.playerOne.score, gameRoom.playerTwo.score);
-    if (gameRoom.playerOne.score === 3 || gameRoom.playerTwo.score === 3) {
-      await this.endGame(
-        gameRoom.id,
-        gameRoom.playerOne.score,
-        gameRoom.playerTwo.score,
-        gameRoom.winner,
-      );
-    } else {
-      this.server.to(gameRoom.id).emit("resetBall", gameRoom.ball.moveX);
-    }
-  }
-
   /* Swaan will add comments here */
   @SubscribeMessage("moveBall")
   moveBall(@MessageBody() gameRoom: GameRoom) {
@@ -213,7 +244,7 @@ export class GameGateway {
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
       } else {
         gameRoom.winner = 1;
-        return this.endMatch(gameRoom);
+        return this.checkScore(gameRoom);
       }
     } else if (
       x * gameRoom.view.width + gameRoom.ball.moveX <
@@ -232,7 +263,7 @@ export class GameGateway {
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
       } else {
         gameRoom.winner = 2;
-        return this.endMatch(gameRoom);
+        return this.checkScore(gameRoom);
       }
     }
     if (
@@ -244,7 +275,7 @@ export class GameGateway {
       y * gameRoom.view.height + gameRoom.ball.moveY >
       gameRoom.view.height - gameRoom.ball.radius - gameRoom.view.offset
     ) {
-      gameRoom.ball.moveY = -gameRoom.ball.moveY;
+      gameRoom.ball.moveY = -gameRoom.ball.moveY; // same result as if block?
     }
     gameRoom.ball.x += gameRoom.ball.moveX;
     gameRoom.ball.y += gameRoom.ball.moveY;
