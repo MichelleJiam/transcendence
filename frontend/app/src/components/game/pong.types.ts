@@ -58,3 +58,13 @@ export interface Keys {
   up: boolean;
   down: boolean;
 }
+
+export interface Colors {
+  paddle: string;
+  borderLines: string;
+  centerLine: string;
+  canvas: string;
+  ball: string;
+  scoreBoard: string;
+  countDown: string;
+}

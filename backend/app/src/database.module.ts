@@ -10,6 +10,7 @@ import { Chatroom } from "./chat/chat.entity";
 import { Penalty } from "./penalty/penalty.entity";
 import { Blocklist } from "./blocklist/blocklist.entity";
 import { Friend } from "./friend/friend.entity";
+import { Achievement } from "./achievement/achievement.entity";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { Friend } from "./friend/friend.entity";
           Chatroom,
           Penalty,
           Blocklist,
+          Achievement,
         ],
         synchronize: true /* automatically updates database schema */,
       }),

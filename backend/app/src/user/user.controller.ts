@@ -31,8 +31,8 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { Readable } from "typeorm/platform/PlatformTools";
 import { RequestUser } from "./request-user.interface";
 import { User } from "./user.entity";
-import PartialJwtGuard from "src/auth/guards/partial-jwt.guard";
 import { QueryFailedError } from "typeorm";
+import { Achievements } from "src/achievement/achievement";
 // the code for each function can be found in:
 // user.service.ts
 
@@ -135,6 +135,7 @@ export class UserController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     // delete avatar before posting a new one
+    if (file) await this.userService.addAchievement(id, Achievements.AVATAR);
     file.filename = "avatar" + "-" + id + "-" + Date.now();
     return this.userService.addAvatar(id, file.buffer, file.filename);
   }
@@ -175,6 +176,13 @@ export class UserController {
         }
       }
     }
+  }
+
+  /* achievements */
+
+  @Get(":id/achievements")
+  async getAchievements(@Param("id", ParseIntPipe) id: number) {
+    return await this.userService.getAchievements(id);
   }
 }
 export { RequestUser };

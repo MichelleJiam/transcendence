@@ -1,12 +1,12 @@
 <template>
   <main>
     <div id="display-content">
-      <div v-if="game.state == State.READY" class="my-btn">
+      <div v-if="game.state == State.READY" class="btn">
         <button @click="startGame">PLAY GAME</button>
         <div class="watch-games">
           WATCH LIVE!
           <div v-for="activeGame in activeGames" :key="activeGame.id">
-            <button class="my-small-btn" @click="watchGame(activeGame.id)">
+            <button class="small-btn" @click="watchGame(activeGame.id)">
               {{ activeGame.playerOneName }} vs.
               {{ activeGame.playerTwoName }}
             </button>
@@ -115,7 +115,7 @@ async function watchGame(gameId: number) {
 }
 
 const startGame = async () => {
-  // const res = await apiRequest(`/match/${id.value}`, "get");
+  // const res = await apiRequest(`/match/play/${id.value}`, "get");
   const res = await apiRequest(`/match/play/${id}`, "get");
   // if no matchups available at the moment
   if (res.data.id == undefined) {
@@ -145,7 +145,7 @@ async function gameOver(gameRoom: GameRoom) {
   resetGameState();
   console.log("GamePage | ", id, " left room ", gameRoom.id);
   await apiRequest(`/game`, "put", { data: gameRoom });
-  socket.emit("updateActiveGames");
+  await getActiveGames();
 }
 
 socket.on("forfeit", () => {
@@ -249,13 +249,13 @@ button {
   word-spacing: 3vw;
 }
 
-.my-btn {
+.btn {
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
-.my-small-btn {
+.small-btn {
   height: 100%;
   width: 50%;
   background: #1c1b1b;
