@@ -32,11 +32,11 @@
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
 import apiRequest from "../utils/apiRequest";
-import { onBeforeMount, onUnmounted, ref } from "vue";
+import { onBeforeMount, onUnmounted, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
-import { onMounted } from "vue";
 import type { Game, GameRoom } from "../components/game/pong.types";
+import type { AxiosResponse } from "axios";
 // import { useUserStore } from "@/stores/UserStore";
 
 const State = {
@@ -55,19 +55,6 @@ const game = ref({} as GameRoom);
 const activeGames = ref(Array<Game>());
 game.value.state = State.READY;
 
-async function gameOver(gameRoom: GameRoom) {
-  game.value.state = State.READY;
-  socket.emit("leaveRoom", gameRoom.id);
-  joined.value = false;
-  console.log(id, "has left room ", gameRoom.id);
-  await apiRequest(`/game`, "put", { data: gameRoom });
-  socket.emit("updateActiveGames");
-}
-
-socket.on("disconnecting", (socket) => {
-  socket.emit("socketRooms", socket.rooms);
-});
-
 onBeforeMount(async () => {
   socket.on("disconnect", () => {
     console.log(socket.id + " disconnected from frontend");
@@ -78,21 +65,31 @@ onBeforeMount(async () => {
 onMounted(async () => {
   // await userStore.retrieveCurrentUserData();
   // id.value = userStore.user.id;
-  await apiRequest(
-    // `/match/${id.value}`,
-    `/match/${id}`,
-    "delete"
-  ); /* protection if user refreshes; removes them from queue - Michelle will remove */
+  // await apiRequest(
+  //   // `/match/${id.value}`,
+  //   `/match/${id}`,
+  //   "delete"
+  // ); /* protection if user refreshes; removes them from queue */
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
 });
 
 onUnmounted(async () => {
-  console.log("unmounted");
+  console.log("GamePage unmounted");
+  if (game.value.state === State.PLAYING) {
+    socket.emit("someoneLeft", game.value);
+  }
   // await apiRequest(`/match/${id.value}`, "delete");
-  await apiRequest(`/match/${id}`, "delete");
+  await apiRequest(`/match/${id}`, "delete").catch((err) => {
+    console.log("Something went wrong with deleting the match: ", err);
+  });
 });
+
+// // not used?
+// socket.on("disconnecting", (socket) => {
+//   socket.emit("socketRooms", socket.rooms);
+// });
 
 socket.on("updateActiveGames", () => {
   getActiveGames();
@@ -101,53 +98,39 @@ socket.on("updateActiveGames", () => {
 async function getActiveGames() {
   const res = await apiRequest(`/game/active`, "get");
   activeGames.value = res.data;
-  for (let i = 0; i < activeGames.value.length; i++) {
-    const playerOne = await apiRequest(
-      `/user/${activeGames.value[i].playerOne}`,
-      "get"
-    );
-    activeGames.value[i].playerOneName = playerOne.data.playerName;
-    const playerTwo = await apiRequest(
-      `/user/${activeGames.value[i].playerTwo}`,
-      "get"
-    );
-    activeGames.value[i].playerTwoName = playerTwo.data.playerName;
+  for (const element of activeGames.value) {
+    const playerOne = await apiRequest(`/user/${element.playerOne}`, "get");
+    element.playerOneName = playerOne.data.playerName;
+    const playerTwo = await apiRequest(`/user/${element.playerTwo}`, "get");
+    element.playerTwoName = playerTwo.data.playerName;
   }
 }
 
 async function watchGame(gameId: number) {
   // const res = await apiRequest(`/game/${gameId}`, "get");
   const res = await apiRequest(`/game/${gameId}`, "get");
-
-  game.value.id = res.data.id;
-  game.value.player = 0;
-  game.value.playerOne = {
-    id: res.data.playerOne.id,
-    socket: res.data.playerOneSocket,
-    score: res.data.playerOneScore,
-    paddle: {
-      height: 0,
-      width: 0,
-      y: 0,
-      offset: 0,
-    },
-  };
-  game.value.playerTwo = {
-    id: res.data.playerTwo.id,
-    socket: res.data.playerTwoSocket,
-    score: res.data.playerTwoScore,
-    paddle: {
-      height: 0,
-      width: 0,
-      y: 0,
-      offset: 0,
-    },
-  };
+  fillGameRoomObject(res, 0);
   socket.emit("watchGame", game.value); /* adds them to gameRoom */
   console.log(id, " has joined room ", gameId, " as a WATCHER");
   game.value.state = State.PLAYING;
   joined.value = true;
 }
+
+const startGame = async () => {
+  // const res = await apiRequest(`/match/play/${id.value}`, "get");
+  const res = await apiRequest(`/match/play/${id}`, "get");
+  // if no matchups available at the moment
+  if (res.data.id == undefined) {
+    game.value.state = State.WAITING;
+  } else {
+    // else if a matchup has been found
+    fillGameRoomObject(res, 2);
+    game.value.state = State.PLAYING;
+    socket.emit("joinRoom", game.value);
+    console.log(id, " has joined room ", game.value.id, " as PLAYER 2");
+    joined.value = true;
+  }
+};
 
 socket.on("addPlayerOne", (gameRoom: GameRoom) => {
   if (joined.value == false && game.value.state == State.WAITING) {
@@ -159,42 +142,54 @@ socket.on("addPlayerOne", (gameRoom: GameRoom) => {
   }
 });
 
-const startGame = async () => {
-  // const res = await apiRequest(`/match/play/${id.value}`, "get");
-  const res = await apiRequest(`/match/play/${id}`, "get");
-  if (res.data.id == undefined) {
-    game.value.state = State.WAITING;
+async function gameOver(gameRoom: GameRoom) {
+  game.value.state = State.READY;
+  socket.emit("leaveRoom", gameRoom.id);
+  joined.value = false;
+  console.log("GamePage | ", id, " left room ", gameRoom.id);
+  await apiRequest(`/game`, "put", { data: gameRoom });
+  socket.emit("updateActiveGames");
+}
+
+function fillPlayerObject(
+  playerNumber: number,
+  playerSocket: string,
+  score: number
+) {
+  return {
+    id: playerNumber,
+    socket: playerSocket,
+    score: score,
+    paddle: {
+      height: 0,
+      width: 0,
+      y: 0,
+      offset: 0,
+    },
+  };
+}
+
+function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
+  game.value.id = res.data.id;
+  game.value.player = playerNumber;
+  // if current user is a Watcher
+  if (playerNumber === 0) {
+    game.value.playerOne = fillPlayerObject(
+      res.data.playerOne,
+      res.data.playerOneSocket,
+      res.data.playerOneScore
+    );
+    game.value.playerTwo = fillPlayerObject(
+      res.data.playerTwo,
+      res.data.playerTwoSocket,
+      res.data.playerTwoScore
+    );
   } else {
-    game.value.id = res.data.id;
-    game.value.player = 2;
-    game.value.playerOne = {
-      id: res.data.playerOne,
-      socket: "",
-      score: 0,
-      paddle: {
-        height: 0,
-        width: 0,
-        y: 0,
-        offset: 0,
-      },
-    };
-    game.value.playerTwo = {
-      id: res.data.playerTwo,
-      socket: "",
-      score: 0,
-      paddle: {
-        height: 0,
-        width: 0,
-        y: 0,
-        offset: 0,
-      },
-    };
-    game.value.state = State.PLAYING;
-    socket.emit("joinRoom", game.value);
-    console.log(id, " has joined room ", game.value.id, " as PLAYER 2");
-    joined.value = true;
+    // else is player 2 joining a match
+    game.value.playerOne = fillPlayerObject(res.data.playerOne, "", 0);
+    game.value.playerTwo = fillPlayerObject(res.data.playerTwo, "", 0);
   }
-};
+}
 </script>
 
 <style scoped>
