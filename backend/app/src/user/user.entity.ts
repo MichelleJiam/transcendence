@@ -1,6 +1,7 @@
 import { Chatroom } from "src/chat/chat.entity";
 import { Message } from "src/message/message.entity";
 import { Avatar } from "src/avatar/avatar.entity";
+import { Game } from "src/game/entities/game.entity"
 
 export enum UserStatus {
   ONLINE = "online",
@@ -110,6 +111,20 @@ export class User {
 
   @OneToMany(() => Friend, (friend: Friend) => friend.target)
   target!: Friend[]; // array of relations where the user is the target (receiver of friend request)
+
+  @JoinColumn()
+  @OneToMany(() => Game, (games: Game) => games.winnerId, {
+    eager: true,
+    nullable: true,
+  })
+  public wins!: Game[];
+
+  @JoinColumn()
+  @OneToMany(() => Game, (games: Game) => games.loserId, {
+    eager: true,
+    nullable: true,
+  })
+  public losses!: Game[];
 
   /* achievements */
 
