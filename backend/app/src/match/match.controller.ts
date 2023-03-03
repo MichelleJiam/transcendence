@@ -61,6 +61,7 @@ export class MatchController {
   @Delete(":id")
   @HttpCode(204)
   async remove(@Param("id", ParseIntPipe) id: number) {
+    console.log("Removing player ", id, " from match queue");
     await this.matchService.remove(id).catch(() => {
       this.logger.debug("match does not exist, unable to delete");
       throw new NotFoundException("match does not exist, unable to delete");
