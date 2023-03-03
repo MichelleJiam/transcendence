@@ -38,7 +38,7 @@ export class ChatGateway
       const message = await this.chatService.postMessageToChatroom(payload);
       this.server.emit("recMessage", message);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
