@@ -34,6 +34,7 @@ import { Penalty } from "src/penalty/penalty.entity";
 import { BlocklistService } from "src/blocklist/blocklist.service";
 import { filterMessages } from "src/blocklist/blocklist.method";
 import { ChatGateway } from "./chat.gateway";
+import { AuthService } from "src/auth/auth.service";
 
 @Injectable()
 export class ChatService {
@@ -48,6 +49,7 @@ export class ChatService {
     private readonly chatMethod: ChatMethod,
     private readonly penaltyService: PenaltyService,
     private readonly blocklistService: BlocklistService,
+    private readonly authService: AuthService,
   ) {}
 
   // GETTERS
@@ -117,7 +119,7 @@ export class ChatService {
     return chatroom;
   }
 
-  async getChatroomPassword(id: number): Promise<Chatroom> {
+  async getChatroomPassword(id: number): Promise<string> {
     const chatroom = await this.chatroomRepository.findOne({
       where: {
         id: id,
@@ -129,7 +131,7 @@ export class ChatService {
     if (!chatroom) {
       throw new HttpException("Chatroom not found", HttpStatus.NOT_FOUND);
     }
-    return chatroom;
+    return chatroom.password;
   }
 
   async getMessagesFromChatroom(chatroomId: number): Promise<Message[]> {
@@ -288,7 +290,12 @@ export class ChatService {
       } else {
         userTwo = undefined;
       }
-      console.log("in createChatroom:", userTwo);
+      if (createChatroomDto.type == "password") {
+        const hashedPassword = await this.authService.hashPassword(
+          createChatroomDto.password,
+        );
+        createChatroomDto.password = hashedPassword;
+      }
       const chatroom = createChatroomEntity(createChatroomDto, user, userTwo);
       const newChatroom = this.chatroomRepository.create(chatroom);
       return await this.chatroomRepository.save(newChatroom);
@@ -378,8 +385,13 @@ export class ChatService {
     const chatroom = await this.getChatroomInfoById(chatroomId);
     if (chatroom.type === "password") {
       const password = await this.getChatroomPassword(chatroomId);
-      if (password.password !== addMemberDto.password) {
-        console.log(addMemberDto.password);
+      if (
+        addMemberDto.password != undefined &&
+        (await this.authService.checkPassword(
+          addMemberDto.password,
+          password,
+        )) == false
+      ) {
         throw new HttpException("Incorrect password", HttpStatus.BAD_REQUEST);
       }
     }

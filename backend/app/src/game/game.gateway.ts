@@ -6,7 +6,6 @@ import {
   ConnectedSocket,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { Game } from "./entities/game.entity";
 import { GameService } from "./game.service";
 import { GameRoom } from "./pong.types";
 
@@ -90,7 +89,7 @@ export class GameGateway {
   async countdown(@MessageBody() gameRoom: GameRoom) {
     let count = 3;
     const timeout = setInterval(() => {
-      console.log("gameRoom.player ", gameRoom.player, " count ", count);
+      // console.log("gameRoom.player ", gameRoom.player, " count ", count);
       this.server.to(gameRoom.id).emit("drawCountdown", count);
       if (count < 0) {
         clearInterval(timeout);
@@ -152,7 +151,7 @@ export class GameGateway {
     playerTwoScore: number,
     winner: number,
   ) {
-    console.log("endGame");
+    // console.log("endGame");
     this.server
       .to(gameRoomId)
       .emit("endGame", playerOneScore, playerTwoScore, winner);
@@ -254,60 +253,60 @@ export class GameGateway {
     }
   }
 
-  /* Swaan will add comments here */
   @SubscribeMessage("moveBall")
   moveBall(@MessageBody() gameRoom: GameRoom) {
-    const x = gameRoom.ball.x / gameRoom.view.width;
-    const y = gameRoom.ball.y / gameRoom.view.height;
-
     if (
-      x * gameRoom.view.width + gameRoom.ball.moveX >
+      gameRoom.ball.x + gameRoom.ball.moveX >
       gameRoom.view.width -
-        gameRoom.ball.radius -
-        gameRoom.playerTwo.paddle.width * 2 -
-        gameRoom.playerTwo.paddle.offset
+        gameRoom.playerTwo.paddle.width -
+        gameRoom.playerTwo.paddle.offset -
+        gameRoom.ball.radius * 2
     ) {
       if (
-        y * gameRoom.view.height >
-          gameRoom.playerTwo.paddle.y - gameRoom.ball.radius &&
+        gameRoom.ball.y > gameRoom.playerTwo.paddle.y - gameRoom.ball.radius &&
         gameRoom.ball.y <
           gameRoom.playerTwo.paddle.y +
             gameRoom.playerTwo.paddle.height +
             gameRoom.ball.radius
       ) {
+        // console.log("right paddle hit");
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
       } else {
+        // console.log("right side hit");
         gameRoom.winner = 1;
         return this.checkScore(gameRoom);
       }
     } else if (
-      x * gameRoom.view.width + gameRoom.ball.moveX <
+      gameRoom.ball.x + gameRoom.ball.moveX <
       gameRoom.ball.radius +
         gameRoom.playerTwo.paddle.width +
         gameRoom.playerTwo.paddle.offset
     ) {
       if (
-        y * gameRoom.view.height >
-          gameRoom.playerOne.paddle.y - gameRoom.ball.radius &&
-        y * gameRoom.view.height <
+        gameRoom.ball.y > gameRoom.playerOne.paddle.y - gameRoom.ball.radius &&
+        gameRoom.ball.y <
           gameRoom.playerOne.paddle.y +
             gameRoom.playerOne.paddle.height +
             gameRoom.ball.radius
       ) {
+        // console.log("left paddle hit");
         gameRoom.ball.moveX = -gameRoom.ball.moveX;
       } else {
+        // console.log("left side hit");
         gameRoom.winner = 2;
         return this.checkScore(gameRoom);
       }
     }
+    /* 
+        if height + proposed ball move will hit the top OR
+        if height + proposed ball move will hit bottom
+        - reverse direction of ball
+    */
     if (
-      y * gameRoom.view.height + gameRoom.ball.moveY <
-      gameRoom.ball.radius + gameRoom.view.offset - gameRoom.view.borderLines
-    ) {
-      gameRoom.ball.moveY = -gameRoom.ball.moveY;
-    } else if (
-      y * gameRoom.view.height + gameRoom.ball.moveY >
-      gameRoom.view.height - gameRoom.ball.radius - gameRoom.view.offset
+      gameRoom.ball.y + gameRoom.ball.moveY + gameRoom.ball.radius <
+        gameRoom.view.offset + gameRoom.view.borderLines ||
+      gameRoom.ball.y + gameRoom.ball.moveY >
+        gameRoom.view.height - gameRoom.view.offset - gameRoom.view.borderLines
     ) {
       gameRoom.ball.moveY = -gameRoom.ball.moveY;
     }

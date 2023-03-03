@@ -15,6 +15,7 @@ import { PenaltyDelete } from "./penalty/penalty.scheduler";
 import { AuthModule } from "./auth/auth.module";
 import { MatchModule } from "./match/match.module";
 import { FriendModule } from "./friend/friend.module";
+import { AchievementModule } from "./achievement/achievement.module";
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { FriendModule } from "./friend/friend.module";
     DatabaseModule,
     AuthModule,
     TwoFactorModule,
+    AchievementModule,
   ],
   controllers: [AppController],
   providers: [AppService, PenaltyDelete],
