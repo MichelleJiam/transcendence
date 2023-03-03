@@ -136,14 +136,14 @@ async function gameOver() {
 
 props.socket.on(
   "endGame",
-  (playerOneScore: number, playerTwoScore: number, winner: number) => {
+  async (playerOneScore: number, playerTwoScore: number, winner: number) => {
     ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
     drawCenterLine();
     drawBorderLines();
     drawPaddles();
     drawScoreboard(playerOneScore, playerTwoScore);
     drawGameOver(winner);
-    gameOver();
+    await gameOver();
   }
 );
 

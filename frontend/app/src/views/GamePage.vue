@@ -75,21 +75,19 @@ onMounted(async () => {
   });
 });
 
+// Triggered on navigate away
 onUnmounted(async () => {
   console.log("GamePage unmounted");
+  // If a watcher or player navigates away during an active game
   if (game.value.state === State.PLAYING) {
-    socket.emit("someoneLeft", game.value);
+    socket.emit("activeGameLeft", game.value);
   }
-  // await apiRequest(`/match/${id.value}`, "delete");
-  await apiRequest(`/match/${id}`, "delete").catch((err) => {
-    console.log("Something went wrong with deleting the match: ", err);
-  });
+  // if a player in queue navigates away
+  else if (game.value.state === State.WAITING) {
+    removePlayerFromMatchQueue();
+  }
+  resetGameState();
 });
-
-// // not used?
-// socket.on("disconnecting", (socket) => {
-//   socket.emit("socketRooms", socket.rooms);
-// });
 
 socket.on("updateActiveGames", () => {
   getActiveGames();
@@ -98,11 +96,11 @@ socket.on("updateActiveGames", () => {
 async function getActiveGames() {
   const res = await apiRequest(`/game/active`, "get");
   activeGames.value = res.data;
-  for (const element of activeGames.value) {
-    const playerOne = await apiRequest(`/user/${element.playerOne}`, "get");
-    element.playerOneName = playerOne.data.playerName;
-    const playerTwo = await apiRequest(`/user/${element.playerTwo}`, "get");
-    element.playerTwoName = playerTwo.data.playerName;
+  for (const game of activeGames.value) {
+    const playerOne = await apiRequest(`/user/${game.playerOne}`, "get");
+    game.playerOneName = playerOne.data.playerName;
+    const playerTwo = await apiRequest(`/user/${game.playerTwo}`, "get");
+    game.playerTwoName = playerTwo.data.playerName;
   }
 }
 
@@ -143,12 +141,40 @@ socket.on("addPlayerOne", (gameRoom: GameRoom) => {
 });
 
 async function gameOver(gameRoom: GameRoom) {
-  game.value.state = State.READY;
   socket.emit("leaveRoom", gameRoom.id);
-  joined.value = false;
+  resetGameState();
   console.log("GamePage | ", id, " left room ", gameRoom.id);
   await apiRequest(`/game`, "put", { data: gameRoom });
   socket.emit("updateActiveGames");
+}
+
+socket.on("forfeit", () => {
+  console.log("forfeit socket");
+  socket.emit("forfeitGame", game.value);
+});
+
+// Used by GameGateway::handleDisconnect when a watcher or queued player
+// disconnects.
+socket.on("disconnection", () => {
+  // if disconnected user was in match queue
+  if (game.value.state === State.WAITING) {
+    removePlayerFromMatchQueue();
+  }
+  resetGameState();
+});
+
+async function removePlayerFromMatchQueue() {
+  await apiRequest(`/match/${id}`, "delete").catch((err) => {
+    console.log(
+      "Something went wrong with deleting the player from match queue: ",
+      err
+    );
+  });
+}
+
+function resetGameState() {
+  game.value.state = State.READY;
+  joined.value = false;
 }
 
 function fillPlayerObject(

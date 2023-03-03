@@ -27,16 +27,19 @@ export class GameGateway {
     console.log("GameGateway: ", client.id, " connected");
   }
 
+  // Triggered on window close or refresh.
+  // No need to leave rooms as sockets leave all the channels they were part
+  // of automatically on disconnection.
   async handleDisconnect(client: Socket) {
     console.log("GameGateway: ", client.id, " disconnected");
     const leftGame = await this.gameService.findGameFromPlayerSocket(client.id);
     if (leftGame != null) {
-      // this.someoneLeft(leftGame);
       console.log("Player left game ", leftGame.id);
+      this.server.emit("forfeit");
     } else {
-      console.log("No active games were left");
+      console.log("No active games being played were left");
+      this.server.emit("disconnection");
     }
-    // handle watcher & player in queu leaving
   }
 
   @SubscribeMessage("updateActiveGames")
@@ -143,6 +146,7 @@ export class GameGateway {
 
   @SubscribeMessage("endGame")
   async endGame(
+    // change back to taking GameRoom object?
     @MessageBody() gameRoomId: string,
     playerOneScore: number,
     playerTwoScore: number,
@@ -154,14 +158,44 @@ export class GameGateway {
       .emit("endGame", playerOneScore, playerTwoScore, winner);
   }
 
-  @SubscribeMessage("someoneLeft")
-  async someoneLeft(@MessageBody() gameRoom: GameRoom) {
-    console.log("Someone left the game");
-    console.log("Game state: ", gameRoom.state);
-    if (gameRoom.player === 0) {
-      // this.leaveRoom;
-      console.log("A watcher left the room");
+  @SubscribeMessage("forfeitGame")
+  async forfeitGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() gameRoom: GameRoom,
+  ) {
+    console.log("Forfeiting game");
+    clearInterval(this.map.get(gameRoom.id));
+    this.map.delete(gameRoom.id);
+    if (gameRoom.player === 1) {
+      gameRoom.playerOne.score = 0;
+      gameRoom.winner = 2;
+    } else {
+      gameRoom.playerTwo.score = 0;
+      gameRoom.winner = 1;
     }
+    this.server
+      .to(gameRoom.id)
+      .emit("updateScore", gameRoom.playerOne.score, gameRoom.playerTwo.score);
+    await this.endGame(
+      gameRoom.id,
+      gameRoom.playerOne.score,
+      gameRoom.playerTwo.score,
+      gameRoom.winner,
+    );
+  }
+
+  @SubscribeMessage("activeGameLeft")
+  async activeGameLeft(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() gameRoom: GameRoom,
+  ) {
+    if (gameRoom.player === 0) {
+      console.log("A watcher left");
+    } else {
+      console.log("A player left game: ", gameRoom.id);
+      await this.forfeitGame(client, gameRoom);
+    }
+    this.leaveRoom(client, gameRoom.id);
   }
 
   @SubscribeMessage("leaveRoom")
@@ -275,7 +309,7 @@ export class GameGateway {
       y * gameRoom.view.height + gameRoom.ball.moveY >
       gameRoom.view.height - gameRoom.ball.radius - gameRoom.view.offset
     ) {
-      gameRoom.ball.moveY = -gameRoom.ball.moveY; // same result as if block?
+      gameRoom.ball.moveY = -gameRoom.ball.moveY;
     }
     gameRoom.ball.x += gameRoom.ball.moveX;
     gameRoom.ball.y += gameRoom.ball.moveY;
