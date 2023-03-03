@@ -4,6 +4,8 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { User } from "./user/user.entity";
 import { Message } from "./message/message.entity";
 import { Avatar } from "./avatar/avatar.entity";
+import { Game } from "./game/entities/game.entity";
+import { Match } from "./match/entities/match.entity";
 import { Chatroom } from "./chat/chat.entity";
 import { Penalty } from "./penalty/penalty.entity";
 import { Blocklist } from "./blocklist/blocklist.entity";
@@ -26,13 +28,15 @@ import { Achievement } from "./achievement/achievement.entity";
           User,
           Message,
           Avatar,
+          Game,
+          Match,
           Friend,
           Chatroom,
           Penalty,
           Blocklist,
           Achievement,
         ],
-        synchronize: true,
+        synchronize: true /* automatically updates database schema */,
       }),
     }),
   ],

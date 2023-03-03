@@ -90,7 +90,6 @@ h2 {
   margin: 20px;
 }
 p {
-  margin-bottom: 20px;
   font-size: 20px;
   margin: 20px;
   align-self: center;
