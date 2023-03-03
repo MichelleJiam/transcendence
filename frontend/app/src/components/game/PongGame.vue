@@ -1,5 +1,6 @@
 <template>
   <div id="display-content">
+    <button @click="colorMode">COLOR MODE</button>
     <canvas id="canvas" ref="game"></canvas>
   </div>
 </template>
@@ -7,7 +8,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from "vue";
 import type { PropType } from "vue";
-import type { Keys, GameRoom, Canvas } from "./pong.types";
+import type { Keys, GameRoom, Canvas, Colors } from "./pong.types";
 import { Socket } from "socket.io-client";
 
 const props = defineProps({
@@ -20,6 +21,7 @@ let view: Canvas;
 let ctx: CanvasRenderingContext2D;
 let key: Keys;
 let gameRoom: GameRoom;
+let color: Colors;
 
 onMounted(() => {
   console.log("onMounted");
@@ -63,8 +65,17 @@ function initCanvas() {
   view = {
     width: canvas.width,
     height: canvas.height,
-    offset: canvas.height * 0.018,
+    offset: canvas.height * 0.02,
     borderLines: canvas.height * 0.024,
+  };
+  color = {
+    paddle: "#FFFFFF",
+    borderLines: "#FFFFFF",
+    centerLine: "#FFFFFF",
+    canvas: "#000000",
+    ball: "FFFFFF",
+    scoreBoard: "#39ff14",
+    countDown: "#39ff14",
   };
 }
 
@@ -137,7 +148,8 @@ async function gameOver() {
 props.socket.on(
   "endGame",
   (playerOneScore: number, playerTwoScore: number, winner: number) => {
-    ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
+    ctx.fillStyle = color.canvas;
+    ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
     drawCenterLine();
     drawBorderLines();
     drawPaddles();
@@ -229,12 +241,27 @@ function keyUpHandler(e: KeyboardEvent) {
   }
 }
 
+/**************
+ * COLOR MODE *
+ *************/
+
+function colorMode() {
+  color.canvas = "pink";
+  color.borderLines = "white";
+  color.centerLine = "white";
+  color.paddle = "yellow";
+  color.ball = "white";
+  color.scoreBoard = "aqua";
+  color.countDown = "aqua";
+}
+
 /*********************
  * DRAWING FUNCTIONS *
  *********************/
 
 props.socket.on("drawCountdown", (count: number) => {
-  ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
+  ctx.fillStyle = color.canvas;
+  ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawBorderLines();
   drawCountdownCenterLine();
   drawPaddles();
@@ -243,7 +270,8 @@ props.socket.on("drawCountdown", (count: number) => {
 });
 
 props.socket.on("drawCanvas", () => {
-  ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
+  ctx.fillStyle = color.canvas;
+  ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();
   drawBorderLines();
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
@@ -257,7 +285,7 @@ props.socket.on("drawCanvas", () => {
 async function drawScoreboard(playerOneScore: number, playerTwoScore: number) {
   ctx.beginPath();
   ctx.font = gameRoom.view.width * 0.07 + "px ArcadeClassic";
-  ctx.fillStyle = "#39ff14";
+  ctx.fillStyle = color.scoreBoard;
   ctx.fillText(
     playerOneScore.toString(),
     gameRoom.view.width / 2 - gameRoom.view.width / 16,
@@ -280,7 +308,7 @@ async function drawCenterLine() {
     gameRoom.view.width / 2,
     gameRoom.view.height - gameRoom.view.height * 0.05
   );
-  ctx.strokeStyle = "#FFFFFF";
+  ctx.strokeStyle = color.centerLine;
   ctx.stroke();
   ctx.closePath();
 }
@@ -289,47 +317,23 @@ async function drawBorderLines() {
   ctx.beginPath();
   ctx.setLineDash([0]);
   ctx.lineWidth = gameRoom.view.borderLines;
-  ctx.moveTo(gameRoom.view.width * 0.006, gameRoom.view.height * 0.018);
+  ctx.moveTo(gameRoom.view.width * 0.006, gameRoom.view.offset);
   ctx.lineTo(
     gameRoom.view.width - gameRoom.view.width * 0.006,
-    gameRoom.view.height * 0.018
+    gameRoom.view.offset
   );
   ctx.moveTo(
     gameRoom.view.width * 0.006,
-    gameRoom.view.height - gameRoom.view.height * 0.018
+    gameRoom.view.height - gameRoom.view.offset
   );
   ctx.lineTo(
     gameRoom.view.width - gameRoom.view.width * 0.006,
-    gameRoom.view.height - gameRoom.view.height * 0.018
+    gameRoom.view.height - gameRoom.view.offset
   );
-  ctx.strokeStyle = "white";
+  ctx.strokeStyle = color.borderLines;
   ctx.stroke();
   ctx.closePath();
 }
-
-props.socket.on("drawPaddles", () => {
-  ctx.beginPath();
-  ctx.rect(
-    gameRoom.playerOne.paddle.width + gameRoom.playerOne.paddle.offset,
-    gameRoom.playerOne.paddle.y,
-    gameRoom.playerOne.paddle.width,
-    gameRoom.playerOne.paddle.height
-  );
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fill();
-  ctx.closePath();
-  ctx.beginPath();
-  ctx.rect(
-    gameRoom.view.width -
-      (gameRoom.playerTwo.paddle.width * 2 + gameRoom.playerTwo.paddle.offset),
-    gameRoom.playerTwo.paddle.y,
-    gameRoom.playerTwo.paddle.width,
-    gameRoom.playerTwo.paddle.height
-  );
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fill();
-  ctx.closePath();
-});
 
 function drawPaddles() {
   ctx.beginPath();
@@ -339,7 +343,7 @@ function drawPaddles() {
     gameRoom.playerOne.paddle.width,
     gameRoom.playerOne.paddle.height
   );
-  ctx.fillStyle = "#FFFFFF";
+  ctx.fillStyle = color.paddle;
   ctx.fill();
   ctx.closePath();
   ctx.beginPath();
@@ -350,7 +354,7 @@ function drawPaddles() {
     gameRoom.playerTwo.paddle.width,
     gameRoom.playerTwo.paddle.height
   );
-  ctx.fillStyle = "#FFFFFF";
+  ctx.fillStyle = color.paddle;
   ctx.fill();
   ctx.closePath();
 }
@@ -363,7 +367,7 @@ function drawBall() {
     gameRoom.ball.radius,
     gameRoom.ball.radius
   );
-  ctx.fillStyle = "#FFFFFF";
+  ctx.fillStyle = color.ball;
   ctx.fill();
   ctx.closePath();
 }
@@ -383,7 +387,7 @@ props.socket.on(
       gameRoom.ball.radius,
       gameRoom.ball.radius
     );
-    ctx.fillStyle = "#FFFFFF";
+    ctx.fillStyle = color.ball;
     ctx.fill();
     ctx.closePath();
   }
@@ -391,7 +395,7 @@ props.socket.on(
 
 const drawCountdown = (count: number) => {
   ctx.beginPath();
-  ctx.fillStyle = "#39ff14";
+  ctx.fillStyle = color.countDown;
   ctx.font = gameRoom.view.width * 0.1 + "px ArcadeClassic";
   ctx.textAlign = "center";
   if (count == 0) {
@@ -420,7 +424,7 @@ function drawCountdownCenterLine() {
     gameRoom.view.width / 2,
     gameRoom.view.height / 2 - gameRoom.view.height * 0.13
   );
-  ctx.strokeStyle = "#FFFFFF";
+  ctx.strokeStyle = color.centerLine;
   ctx.stroke();
   ctx.moveTo(
     gameRoom.view.width / 2,
@@ -430,7 +434,7 @@ function drawCountdownCenterLine() {
     gameRoom.view.width / 2,
     gameRoom.view.height - gameRoom.view.height * 0.05
   );
-  ctx.strokeStyle = "#FFFFFF";
+  ctx.strokeStyle = color.centerLine;
   ctx.stroke();
   ctx.closePath();
 }
@@ -473,4 +477,5 @@ canvas {
   color: white;
   display: block;
 }
+
 </style>
