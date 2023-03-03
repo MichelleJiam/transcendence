@@ -147,14 +147,9 @@ async function gameOver() {
 
 props.socket.on(
   "endGame",
-<<<<<<< HEAD
   async (playerOneScore: number, playerTwoScore: number, winner: number) => {
-    ctx.clearRect(0, 0, gameRoom.view.width, gameRoom.view.height);
-=======
-  (playerOneScore: number, playerTwoScore: number, winner: number) => {
     ctx.fillStyle = color.canvas;
     ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
->>>>>>> 6f67e4568dc4892d926f3b60d549f8da0e621260
     drawCenterLine();
     drawBorderLines();
     drawPaddles();
@@ -482,5 +477,4 @@ canvas {
   color: white;
   display: block;
 }
-
 </style>
