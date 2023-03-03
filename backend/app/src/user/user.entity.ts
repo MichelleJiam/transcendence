@@ -22,6 +22,7 @@ import {
 import { Penalty } from "src/penalty/penalty.entity";
 import { Blocklist } from "src/blocklist/blocklist.entity";
 import { Friend } from "src/friend/friend.entity";
+import { Achievement } from "src/achievement/achievement.entity";
 
 @Entity()
 export class User {
@@ -105,8 +106,18 @@ export class User {
   /* user friends */
 
   @OneToMany(() => Friend, (friend: Friend) => friend.source)
-  source!: Friend[]; // array or relations where the user is the source (sender of friend request)
+  source!: Friend[]; // array of relations where the user is the source (sender of friend request)
 
   @OneToMany(() => Friend, (friend: Friend) => friend.target)
   target!: Friend[]; // array of relations where the user is the target (receiver of friend request)
+
+  /* achievements */
+
+  @ManyToMany(
+    () => Achievement,
+    (achievement: Achievement) => achievement.users,
+    { onUpdate: "CASCADE" },
+  )
+  @JoinTable()
+  achievements!: Achievement[];
 }
