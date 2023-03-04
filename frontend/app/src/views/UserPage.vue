@@ -130,6 +130,7 @@ function validPlayerName(playerName: string) {
 #display-content {
   /* display: flex; */
   display: grid;
+  grid-template-columns: 1fr 1fr;
   justify-content: center;
   height: auto;
   width: auto;
@@ -221,7 +222,9 @@ form {
 
 @media (max-width: 1100px) {
   #display-content {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
     justify-content: center;
     width: 600px;
     height: 90%;
