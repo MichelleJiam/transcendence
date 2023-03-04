@@ -23,7 +23,9 @@ nav {
 
 div #display-content {
   position: absolute;
-  max-height: 94vh;
+  max-height: 90vh;
+  height: 80%;
+  width: 80%;
   max-width: 85%;
   overflow-y: scroll;
   background: #1c1b1b;
