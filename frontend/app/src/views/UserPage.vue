@@ -228,7 +228,6 @@ form {
     justify-content: center;
     width: 600px;
     height: 90%;
-    /* min-height: 100vh; */
   }
 }
 </style>
