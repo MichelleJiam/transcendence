@@ -37,7 +37,7 @@ const routes: {
   { path: "/stream", component: LiveStream },
   { path: "/chat", component: Chatroom },
   { path: "/chat/:id", component: SingleChatroom },
-  { path: "/user/:playerName", component: HomePage },
+  { path: "/player/:playername", component: HomePage },
   { path: "/:id/friends", component: FriendPage },
   { path: "/friends", component: FriendPage },
   { path: "/:pathMatch(.*)*", component: NotFound },

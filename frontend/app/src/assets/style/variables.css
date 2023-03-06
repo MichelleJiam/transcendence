@@ -1,17 +1,16 @@
 /* Color variables */
 
 :root {
-	--primary-color: #39ff14;
-	--primary-color-transparant: #88ff72;
-	--validation-color: #da14ff;
-	--loser-color: #BB000E;
+  --primary-color: #39ff14;
+  --primary-color-transparant: #88ff72;
+  --validation-color: #da14ff;
+  --loser-color: #bb000e;
 
+  --box-background-color: #151414e4;
 
-	--box-background-color: #151414e4;
+  --box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  --border: 2px #302d2d solid;
+  --border-radius: 4px;
 
-	--box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-	--border: 2px #302d2d solid;
-	--border-radius: 4px;
-
-	--arcade-font: "ArcadeClassic", sans-serif;
+  --arcade-font: "ArcadeClassic", sans-serif;
 }
