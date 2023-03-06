@@ -18,6 +18,7 @@ import {
   deleteFromChatroom,
   swapOwner,
   validateChatroomDto,
+  validateChatroomPasswordSet,
 } from "./chat-validators.methods";
 import { Chatroom } from "./chat.entity";
 import { ChatMethod } from "./chat.methods";
@@ -477,10 +478,11 @@ export class ChatService {
     updateChatroomDto: UpdateChatroomDto,
   ): Promise<Chatroom> {
     const chatroom = await this.getChatroomInfoById(chatroomId);
+    validateChatroomPasswordSet(updateChatroomDto.password);
     if (await this.chatMethod.isOwnerOfChatroom(adminId, chatroomId)) {
       const updateChatroom = createUpdatedChatroomEntity(
         chatroom,
-        updateChatroomDto,
+        await this.authService.hashPassword(updateChatroomDto.password),
       );
       this.chatroomRepository.save(updateChatroom);
       return updateChatroom;

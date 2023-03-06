@@ -19,14 +19,24 @@
         <AvatarDisplay class="avatar" :src="userStore.user.avatarUrl" />
         <h1>{{ userStore.user.playerName }}</h1>
       </div>
-      <WinsLosses class="wins-losses"></WinsLosses>
-      <GameHistory class="game-history"></GameHistory>
+      <WinsLosses
+        v-if="route.params.playerName != undefined"
+        class="wins-losses"
+      ></WinsLosses>
+      <!-- needs a prop to specify which player's wins/losses, this one for other users -->
+      <WinsLosses v-else class="wins-losses"></WinsLosses>
+      <!-- needs a prop to specify which player's wins/losses, this one for current user -->
+      <GameHistory
+        v-if="route.params.playerName != undefined"
+        class="game-history"
+      ></GameHistory>
+      <!-- needs a prop to specify which player's game history, this one for other users -->
+      <GameHistory v-else class="game-history"></GameHistory>
+      <!-- needs a prop to specify which player's game history, this one for current user -->
       <UserAchiements
         class="user-achievements"
         :chievs="userStore.achievements"
       ></UserAchiements>
-      <!-- add in a vif if its your own page you see padle bords, if
-      someone elses page you see the buttons to DM or Add as friend -->
       <div
         v-if="route.params.playerName != undefined"
         class="homepage-buttons box-styling"
@@ -34,7 +44,6 @@
         <FriendButton class="friend-button"></FriendButton>
         <CreateDMButton :other-player="otherPlayerInfo?.id"></CreateDMButton>
       </div>
-      <!-- <div v-else class="homepage-buttons box-styling">🏓🏓🏓🏓🏓🏓🏓</div> -->
       <div v-else class="homepage-buttons box-styling paddle-div">
         <font-awesome class="font-awesome" icon="table-tennis-paddle-ball" />
       </div>
@@ -68,10 +77,12 @@ const showPopup = computed(() => {
 
 onBeforeMount(async () => {
   if (route.params.playerName != undefined) {
+    console.log(route.params.playerName);
     console.log("is a different player");
     await apiRequest("/user/player/" + route.params.playerName, "get")
       .then(async (response) => {
-        if (response.data != undefined) {
+        console.log(response);
+        if (response.data != "") {
           otherPlayerInfo.value = response.data;
           if (otherPlayerInfo.value.id != undefined) {
             isOtherPlayer.value = true;
