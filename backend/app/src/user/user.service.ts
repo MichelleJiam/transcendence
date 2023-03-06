@@ -38,7 +38,7 @@ export class UserService {
   }
 
   async findUserByPlayerName(playerName: string) {
-    const foundUser = this.userRepository.findOneBy({
+    const foundUser = await this.userRepository.findOneBy({
       playerName: playerName,
     });
     return foundUser;

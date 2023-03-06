@@ -68,8 +68,8 @@ export class UserController {
 
   @Get("player/:playerName")
   @UseGuards(JwtAuthGuard)
-  findUserByPlayerName(@Param("playerName") playerName: string) {
-    return this.userService.findUserByPlayerName(playerName);
+  async findUserByPlayerName(@Param("playerName") playerName: string) {
+    return await this.userService.findUserByPlayerName(playerName);
   }
 
   /* deletes the user based on the id given when a delete request is made */
