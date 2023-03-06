@@ -145,6 +145,14 @@ socket.on("addPlayerOne", (gameRoom: GameRoom) => {
 });
 
 async function gameOver(gameRoom: GameRoom) {
+  console.log(
+    "GamePage.gameOver | ",
+    gameRoom.id,
+    " p1 score: ",
+    gameRoom.playerOne.score,
+    " p2 score: ",
+    gameRoom.playerTwo.score
+  );
   game.value.state = State.READY;
   socket.emit("leaveRoom", gameRoom.id);
   console.log("GamePage | ", id, " left room ", gameRoom.id);
