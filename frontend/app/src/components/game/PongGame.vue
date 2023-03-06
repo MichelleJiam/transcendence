@@ -10,6 +10,7 @@ import { onMounted, onUnmounted } from "vue";
 import type { PropType } from "vue";
 import type { Keys, GameRoom, Canvas, Colors } from "./pong.types";
 import { Socket } from "socket.io-client";
+import apiRequest from "../../utils/apiRequest";
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -17,26 +18,39 @@ const props = defineProps({
   socket: { type: Socket, required: true },
 });
 
+enum UserStatus {
+  ONLINE,
+  OFFLINE,
+  GAME,
+  MATCHMAKING,
+}
+
 let view: Canvas;
 let ctx: CanvasRenderingContext2D;
 let key: Keys;
 let gameRoom: GameRoom;
 let color: Colors;
 
-onMounted(() => {
+onMounted(async () => {
   console.log("onMounted");
   initCanvas();
   initGame();
   drawBorderLines();
   drawCenterLine();
   drawPaddles();
+  await apiRequest(`/user/${props.id}/update-status`, "put", {
+    data: { status: UserStatus.GAME },
+  });
   if (gameRoom.player == 1) {
     props.socket.emit("countdown", gameRoom);
   }
 });
 
-onUnmounted(() => {
+onUnmounted(async () => {
   console.log("PongGame unmounted");
+  await apiRequest(`/user/${props.id}/update-status`, "put", {
+    data: { status: UserStatus.ONLINE },
+  });
   // if (gameRoom.player == 0) {
   //   props.socket.emit("leaveRoom", gameRoom.id);
   // }
@@ -477,5 +491,4 @@ canvas {
   color: white;
   display: block;
 }
-
 </style>

@@ -1,13 +1,13 @@
 import { Chatroom } from "src/chat/chat.entity";
 import { Message } from "src/message/message.entity";
 import { Avatar } from "src/avatar/avatar.entity";
-import { Game } from "src/game/entities/game.entity"
+import { Game } from "src/game/entities/game.entity";
 
 export enum UserStatus {
-  ONLINE = "online",
-  OFFLINE = "offline",
-  GAME = "game",
-  MATCHMAKING = "matchmaking",
+  ONLINE,
+  OFFLINE,
+  GAME,
+  MATCHMAKING,
 }
 
 import {
@@ -98,11 +98,9 @@ export class User {
 
   @Column({
     name: "userStatus",
-    type: "enum",
-    enum: UserStatus,
     default: UserStatus.OFFLINE,
   })
-  public status!: UserStatus;
+  public status!: number;
 
   /* user friends */
 
