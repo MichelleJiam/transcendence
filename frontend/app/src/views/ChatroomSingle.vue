@@ -65,7 +65,7 @@
         </div>
         <div class="leave settings">
           <button
-            v-if="isCurrentUserOwner == true && chatRoomInfo.type != 'DM'"
+            v-if="isCurrentUserOwner == true && chatRoomInfo.type == 'password'"
             id="show-modal"
             @click="showModal = true"
           >

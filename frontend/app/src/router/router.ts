@@ -39,7 +39,7 @@ const routes: {
   { path: "/stream", component: LiveStream },
   { path: "/chat", component: Chatroom },
   { path: "/chat/:id", component: SingleChatroom },
-  { path: "/player/:playername", component: HomePage },
+  { path: "/player/:playerName", component: HomePage },
   { path: "/:id/friends", component: FriendPage },
   { path: "/friends", component: FriendPage },
   { path: "/2fa", component: TwoFAPage, name: "2fa" },
