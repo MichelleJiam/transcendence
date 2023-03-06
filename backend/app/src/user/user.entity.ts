@@ -1,7 +1,7 @@
 import { Chatroom } from "src/chat/chat.entity";
 import { Message } from "src/message/message.entity";
 import { Avatar } from "src/avatar/avatar.entity";
-import { Game } from "src/game/entities/game.entity"
+import { Game } from "src/game/entities/game.entity";
 
 export enum UserStatus {
   ONLINE = "online",
