@@ -38,7 +38,10 @@
         :chievs="userStore.achievements"
       ></UserAchiements>
       <div
-        v-if="route.params.playerName != undefined"
+        v-if="
+          route.params.playerName != undefined &&
+          route.params.playerName != userStore.user.playerName
+        "
         class="homepage-buttons box-styling"
       >
         <FriendButton class="friend-button"></FriendButton>
