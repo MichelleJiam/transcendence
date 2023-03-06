@@ -11,7 +11,13 @@
       "
       id="display-content"
     >
-      <div v-if="route.params.playerName != undefined" class="username">
+      <div
+        v-if="
+          route.params.playerName != undefined &&
+          route.params.playerName != userStore.user.playerName
+        "
+        class="username"
+      >
         <AvatarDisplay class="avatar" :src="otherPlayerInfo?.avatarUrl" />
         <h1>{{ otherPlayerInfo?.playerName }}</h1>
       </div>
@@ -80,34 +86,34 @@ const showPopup = computed(() => {
 
 onBeforeMount(async () => {
   if (route.params.playerName != undefined) {
-    console.log(route.params.playerName);
-    console.log("is a different player");
-    await apiRequest("/user/player/" + route.params.playerName, "get")
-      .then(async (response) => {
-        console.log(response);
-        if (response.data != "") {
-          otherPlayerInfo.value = response.data;
-          if (otherPlayerInfo.value.id != undefined) {
-            isOtherPlayer.value = true;
-            await apiRequest(
-              "/user/" + otherPlayerInfo.value.id + "/avatar",
-              "get"
-            )
-              .then(
-                (response) =>
-                  (otherPlayerInfo.value["avatarUrl"] = response.config.url)
+    if (route.params.playerName != userStore.user.playerName) {
+      await apiRequest("/user/player/" + route.params.playerName, "get")
+        .then(async (response) => {
+          console.log(response);
+          if (response.data != "") {
+            otherPlayerInfo.value = response.data;
+            if (otherPlayerInfo.value.id != undefined) {
+              isOtherPlayer.value = true;
+              await apiRequest(
+                "/user/" + otherPlayerInfo.value.id + "/avatar",
+                "get"
               )
-              .catch((err) => {
-                isOtherPlayer.value = false;
-                console.error(err);
-              });
+                .then(
+                  (response) =>
+                    (otherPlayerInfo.value["avatarUrl"] = response.config.url)
+                )
+                .catch((err) => {
+                  isOtherPlayer.value = false;
+                  console.error(err);
+                });
+            }
           }
-        }
-      })
-      .catch((err) => {
-        isOtherPlayer.value = false;
-        console.error("an error occured: ", err);
-      });
+        })
+        .catch((err) => {
+          isOtherPlayer.value = false;
+          console.error("an error occured: ", err);
+        });
+    } else isOtherPlayer.value = true;
   }
 });
 
