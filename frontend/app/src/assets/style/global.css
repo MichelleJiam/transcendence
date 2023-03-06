@@ -197,3 +197,20 @@ li {
 ::-webkit-scrollbar-thumb:hover {
   background: #2b2929;
 }
+
+/* horizontal scrollbar */
+::-webkit-scrollbar:horizontal {
+  height: 5px;
+}
+
+::-webkit-scrollbar-track:horizontal {
+  background: var(--box-background-color);
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  background: #2b2929b6;
+}
+
+::-webkit-scrollbar-thumb:horizontal:hover {
+  background: #2b2929;
+}

@@ -1,17 +1,16 @@
 <template>
   <div class="stats-container box-styling">
     <h2>Game History</h2>
-    <!-- a div with all game history in formation -->
     <div class="winner-loser">
       <h3 class="winner-title">WINNER</h3>
       <h3 class="loser-title">LOSER</h3>
     </div>
-    <div class="gamehistory-list list-elements">
-      <li v-for="item in gameHistory">
-        <div class="winner">{{ item.winner }}</div>
-        <div class="loser">{{ item.loser }}</div>
+    <ul class="gamehistory-list list-elements">
+      <li v-for="hist in gameHistory" :key="hist.gameid">
+        <div class="winner">{{ hist.winner }}</div>
+        <div class="loser">{{ hist.loser }}</div>
       </li>
-    </div>
+    </ul>
   </div>
 </template>
 
@@ -59,11 +58,6 @@ const gameHistory = [
   height: 640px;
   width: 375px;
   padding: 20px;
-
-  /* background-color: var(--box-background-color);
-	box-shadow: var(--box-shadow);
-	border: var(--border);
-	border-radius: var(--border-radius); */
 }
 .winner-loser {
   display: flex;

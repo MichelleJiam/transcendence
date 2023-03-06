@@ -130,7 +130,7 @@ function validPlayerName(playerName: string) {
 #display-content {
   /* display: flex; */
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
   justify-content: center;
   height: auto;
   width: auto;
