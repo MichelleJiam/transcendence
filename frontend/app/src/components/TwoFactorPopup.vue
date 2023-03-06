@@ -5,11 +5,16 @@
     <p>Scan me with your authenticator app!</p>
     <img :src="qrCode" class="qr-code" />
     <!-- <qrcode-vue :value="qrCode" :margin="2" /> -->
-    <form class="token-box" @submit.prevent="validateToken">
+    <form class="code-box" @submit.prevent="validateAuthCode">
       <p>Enter the 6-digit code shown in your authenticator app:</p>
-      <input v-model="token" type="text" name="token" />
+      <input
+        v-model="authCode"
+        type="text"
+        name="authCode"
+        autocomplete="off"
+      />
       <span class="validate-message">{{ validationMessage }}</span>
-      <button type="submit" name="button">validate</button>
+      <button type="submit">validate</button>
     </form>
   </form>
 </template>
@@ -18,7 +23,7 @@
 import { onMounted, ref } from "vue";
 import apiRequest from "@/utils/apiRequest";
 
-const token = ref<string>("");
+const authCode = ref<string>("");
 const qrCode = ref();
 const validationMessage = ref<string>("");
 const emit = defineEmits(["uncheck", "close-popup"]);
@@ -33,9 +38,9 @@ onMounted(async () => {
     });
 });
 
-async function validateToken() {
+async function validateAuthCode() {
   await apiRequest(`/2fa/enable`, "post", {
-    data: { twoFactorAuthCode: token.value },
+    data: { twoFactorAuthCode: authCode.value },
   })
     .then(() => {
       alert("Two factor authentication successfully enabled!");
@@ -47,7 +52,8 @@ async function validateToken() {
     });
 }
 
-function cancelTwoFA() {
+async function cancelTwoFA() {
+  await apiRequest(`/2fa/disable`, "post");
   emit("uncheck");
 }
 </script>
@@ -69,7 +75,7 @@ form {
   padding: 0;
   margin: 10px;
 }
-.token-box {
+.code-box {
   align-self: center;
 }
 .validate-message {
@@ -81,6 +87,12 @@ form {
   height: 40%;
   align-self: center;
 }
+/* .inputfield {
+  width: 50%;
+  max-width: 500px;
+  align-self: center;
+} */
+
 button {
   width: 100%;
 }

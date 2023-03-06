@@ -73,7 +73,7 @@ export class UserService {
     return this.avatarService.getAvatarById(id);
   }
 
-  async setTwoFactorSecret(secret: string, id: number) {
+  async setTwoFactorSecret(id: number, secret: string) {
     return this.userRepository.update(id, { twoFASecret: secret });
   }
 }
