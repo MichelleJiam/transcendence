@@ -165,6 +165,12 @@ props.socket.on(
   (playerOneScore: number, playerTwoScore: number) => {
     gameRoom.playerOne.score = playerOneScore;
     gameRoom.playerTwo.score = playerTwoScore;
+    console.log(
+      "PongGame.updateScore | p1 score: ",
+      gameRoom.playerOne.score,
+      " p2 score: ",
+      gameRoom.playerTwo.score
+    );
   }
 );
 

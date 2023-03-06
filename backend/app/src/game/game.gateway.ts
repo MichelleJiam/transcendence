@@ -30,7 +30,7 @@ export class GameGateway {
   // No need to leave rooms as sockets leave all the channels they were part
   // of automatically on disconnection.
   async handleDisconnect(client: Socket) {
-    console.log("GameGateway: ", client.id, " disconnected");
+    console.log("GameGateway: ", client.id, " disconnected"); // socket id here not same as when joining? find doesn't return anything then
     const leftGame = await this.gameService.findGameFromPlayerSocket(client.id);
     if (leftGame != null) {
       console.log("Player left game ", leftGame.id);
@@ -152,21 +152,26 @@ export class GameGateway {
     clearInterval(this.map.get(gameRoom.id));
     this.map.delete(gameRoom.id);
     if (gameRoom.player === 1) {
+      console.log("player one forfeited");
       gameRoom.playerOne.score = 0;
+      gameRoom.playerTwo.score = 3;
       gameRoom.winner = 2;
     } else {
+      console.log("player two forfeited");
       gameRoom.playerTwo.score = 0;
+      gameRoom.playerOne.score = 3;
       gameRoom.winner = 1;
     }
+    console.log(
+      "GameGateway.forfeit | p1 score: ",
+      gameRoom.playerOne.score,
+      " p2 score: ",
+      gameRoom.playerTwo.score,
+    );
     this.server
       .to(gameRoom.id)
       .emit("updateScore", gameRoom.playerOne.score, gameRoom.playerTwo.score);
-    await this.endGame(
-      gameRoom.id,
-      // gameRoom.playerOne.score,
-      // gameRoom.playerTwo.score,
-      gameRoom.winner,
-    );
+    await this.endGame(gameRoom.id, gameRoom.winner);
   }
 
   @SubscribeMessage("activeGameLeft")
@@ -180,7 +185,7 @@ export class GameGateway {
       console.log("A player left game: ", gameRoom.id);
       await this.forfeitGame(client, gameRoom);
     }
-    this.leaveRoom(client, gameRoom.id);
+    // this.leaveRoom(client, gameRoom.id);
   }
 
   @SubscribeMessage("leaveRoom")
