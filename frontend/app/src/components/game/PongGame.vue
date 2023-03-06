@@ -145,19 +145,16 @@ async function gameOver() {
   emit("game-over", gameRoom);
 }
 
-props.socket.on(
-  "endGame",
-  (playerOneScore: number, playerTwoScore: number, winner: number) => {
-    ctx.fillStyle = color.canvas;
-    ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
-    drawCenterLine();
-    drawBorderLines();
-    drawPaddles();
-    drawScoreboard(playerOneScore, playerTwoScore);
-    drawGameOver(winner);
-    gameOver();
-  }
-);
+props.socket.on("endGame", (winner: number) => {
+  ctx.fillStyle = color.canvas;
+  ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
+  drawCenterLine();
+  drawBorderLines();
+  drawPaddles();
+  drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
+  drawGameOver(winner);
+  gameOver();
+});
 
 /********************
  * UPDATE GAME ROOM *
@@ -486,4 +483,5 @@ canvas {
   flex-direction: column;
   align-items: center;
 }
+
 </style>
