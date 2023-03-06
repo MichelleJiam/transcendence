@@ -1,12 +1,19 @@
 <template>
   <main>
     <div id="display-content">
-      <div v-if="game.state == State.READY" class="btn">
-        <button @click="startGame">PLAY GAME</button>
+      <div v-if="game.state == State.READY" class="main-game">
+        <div class="start-game">
+          <button class="game-button" @click="startGame">PLAY GAME</button>
+        </div>
         <div class="watch-games">
-          WATCH LIVE!
-          <div v-for="activeGame in activeGames" :key="activeGame.id">
-            <button class="small-btn" @click="watchGame(activeGame.id)">
+          <h2>WATCH LIVE!</h2>
+          <div class="game-list">
+            <button
+              v-for="activeGame in activeGames"
+              :key="activeGame.id"
+              class="small-btn"
+              @click="watchGame(activeGame.id)"
+            >
               {{ activeGame.playerOneName }} vs.
               {{ activeGame.playerTwoName }}
             </button>
@@ -19,6 +26,7 @@
       <div v-else>
         <PongGame
           :id="id"
+          class="in-game"
           :game="game"
           :socket="socket"
           @game-over="gameOver"
@@ -188,10 +196,58 @@ function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
 </script>
 
 <style scoped>
-main {
+#display-content {
+  /* display: flex; */
+  /* height: 80%; */
+  align-items: center;
+  justify-items: center;
+}
+.main-game {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  justify-items: stretch;
+  align-items: stretch;
+  height: 100%;
+  overflow: hidden;
+}
+
+.start-game {
+  align-self: center;
+}
+
+.watch-games {
+  height: 100%;
+  overflow: scroll;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.watch-games button {
+  width: 100%;
+}
+
+.watch-games > h2 {
+  font-size: 4em;
+  word-spacing: 15px;
+}
+
+.game-list {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  gap: 10px;
+  height: 100%;
+  overflow-y: scroll;
+}
+
+.game-list > button {
+  /* TODO TOMORROW MAKE GRID */
+}
+
+.in-game {
+  align-self: center;
+  justify-self: center;
 }
 
 p {
@@ -203,57 +259,21 @@ button:hover {
   color: #39ff14;
   background-color: #1c1b1b;
 }
+
+.game-button {
+  font-size: 4em;
+}
+
 button {
-  height: 50%;
-  width: 100%;
-  background: #1c1b1b;
-  color: white;
-  font-family: "ArcadeClassic", sans-serif;
-  font-size: 10vw;
-  cursor: pointer;
-  border-radius: 5px;
-  text-align: center;
-  border: 2px #302d2d solid;
-  display: block;
+  padding-right: 30px;
+  padding-left: 30px;
+
   word-spacing: 3vw;
 }
 
-.btn {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.small-btn {
-  height: 100%;
-  width: 50%;
-  background: #1c1b1b;
-  color: white;
-  font-family: "ArcadeClassic", sans-serif;
-  font-size: 2vw;
-  cursor: pointer;
-  border-radius: 5px;
-  text-align: center;
-  border: 2px #302d2d solid;
-  display: block, center;
-}
 .loader {
   height: 50%;
   width: 50%;
   display: block;
-}
-.watch-games {
-  height: 50%;
-  width: 100%;
-  background: #1c1b1b;
-  color: white;
-  font-family: "ArcadeClassic", sans-serif;
-  font-size: 6vw;
-  padding-top: 5%;
-  cursor: pointer;
-  border-radius: 5px;
-  text-align: center;
-  display: block;
-  word-spacing: 3vw;
 }
 </style>

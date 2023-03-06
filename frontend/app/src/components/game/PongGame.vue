@@ -1,5 +1,5 @@
 <template>
-  <div id="display-content">
+  <div class="pong-div">
     <button @click="colorMode">COLOR MODE</button>
     <canvas id="canvas" ref="game"></canvas>
   </div>
@@ -23,7 +23,7 @@ let key: Keys;
 let gameRoom: GameRoom;
 let color: Colors;
 
-onMounted(() => {
+onMounted(async () => {
   console.log("onMounted");
   initCanvas();
   initGame();
@@ -468,10 +468,20 @@ function drawGameOver(winner: number) {
 </script>
 
 <style scoped>
+button {
+  margin-bottom: 15px;
+  width: 33%;
+}
 canvas {
-  height: 80%;
   width: 100%;
   color: white;
   display: block;
 }
+
+.pong-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 </style>
