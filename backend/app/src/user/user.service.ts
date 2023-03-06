@@ -8,6 +8,7 @@ import { AvatarService } from "src/avatar/avatar.service";
 import { AchievementService } from "src/achievement/achievement.service";
 import { Achievement } from "src/achievement/achievement.entity";
 import { Achievements } from "src/achievement/achievement";
+import { UpdateUserStatusDto } from "./dto/update-user-status.dto";
 
 @Injectable()
 export class UserService {
@@ -92,6 +93,22 @@ export class UserService {
     if (await this.checkPlayerNameAchievement(id, settings.playerName))
       await this.addAchievement(id, Achievements.NAME);
     return await this.userRepository.update(id, settings);
+  }
+
+  async updateUserStatus(
+    userId: number,
+    updateUserStatusDto: UpdateUserStatusDto,
+  ) {
+    this.logger.log("Hit the updateUserStatus route");
+    const user = await this.userRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({
+        status: updateUserStatusDto.status,
+      })
+      .where("id = :id", { id: userId })
+      .execute();
+    return user;
   }
 
   async addAvatar(id: number, imageBuffer: Buffer, filename: string) {

@@ -33,6 +33,7 @@ import { RequestUser } from "./request-user.interface";
 import { User } from "./user.entity";
 import { QueryFailedError } from "typeorm";
 import { Achievements } from "src/achievement/achievement";
+import { UpdateUserStatusDto } from "./dto/update-user-status.dto";
 // the code for each function can be found in:
 // user.service.ts
 
@@ -109,6 +110,25 @@ export class UserController {
       if (error instanceof QueryFailedError) this.logger.error(error.message);
       throw new HttpException(
         "Player name already exists",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Put(":id/update-status")
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  async updateUserStatus(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateUserStatusDto: UpdateUserStatusDto,
+  ) {
+    this.logger.log("Hit the updateStatus route");
+    try {
+      return await this.userService.updateUserStatus(id, updateUserStatusDto);
+    } catch (error) {
+      if (error instanceof QueryFailedError) this.logger.error(error.message);
+      throw new HttpException(
+        "Updating user status failed",
         HttpStatus.BAD_REQUEST,
       );
     }
