@@ -1,5 +1,5 @@
 <template>
-  <div id="display-content">
+  <div class="pong-div">
     <button @click="colorMode">COLOR MODE</button>
     <canvas id="canvas" ref="game"></canvas>
   </div>
@@ -23,7 +23,7 @@ let key: Keys;
 let gameRoom: GameRoom;
 let color: Colors;
 
-onMounted(() => {
+onMounted(async () => {
   console.log("onMounted");
   initCanvas();
   initGame();
@@ -145,19 +145,16 @@ async function gameOver() {
   emit("game-over", gameRoom);
 }
 
-props.socket.on(
-  "endGame",
-  async (playerOneScore: number, playerTwoScore: number, winner: number) => {
-    ctx.fillStyle = color.canvas;
-    ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
-    drawCenterLine();
-    drawBorderLines();
-    drawPaddles();
-    drawScoreboard(playerOneScore, playerTwoScore);
-    drawGameOver(winner);
-    await gameOver();
-  }
-);
+props.socket.on("endGame", (winner: number) => {
+  ctx.fillStyle = color.canvas;
+  ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
+  drawCenterLine();
+  drawBorderLines();
+  drawPaddles();
+  drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
+  drawGameOver(winner);
+  gameOver();
+});
 
 /********************
  * UPDATE GAME ROOM *
@@ -471,10 +468,19 @@ function drawGameOver(winner: number) {
 </script>
 
 <style scoped>
+button {
+  margin-bottom: 15px;
+  width: 33%;
+}
 canvas {
-  height: 80%;
   width: 100%;
   color: white;
   display: block;
+}
+
+.pong-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

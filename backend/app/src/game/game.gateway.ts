@@ -132,29 +132,15 @@ export class GameGateway {
       .to(gameRoom.id)
       .emit("updateScore", gameRoom.playerOne.score, gameRoom.playerTwo.score);
     if (gameRoom.playerOne.score === 3 || gameRoom.playerTwo.score === 3) {
-      await this.endGame(
-        gameRoom.id,
-        gameRoom.playerOne.score,
-        gameRoom.playerTwo.score,
-        gameRoom.winner,
-      );
+      await this.endGame(gameRoom.id, gameRoom.winner);
     } else {
       this.server.to(gameRoom.id).emit("resetBall", gameRoom.ball.moveX);
     }
   }
 
   @SubscribeMessage("endGame")
-  async endGame(
-    // change back to taking GameRoom object?
-    @MessageBody() gameRoomId: string,
-    playerOneScore: number,
-    playerTwoScore: number,
-    winner: number,
-  ) {
-    // console.log("endGame");
-    this.server
-      .to(gameRoomId)
-      .emit("endGame", playerOneScore, playerTwoScore, winner);
+  async endGame(@MessageBody() gameRoomId: string, winner: number) {
+    this.server.to(gameRoomId).emit("endGame", winner);
   }
 
   @SubscribeMessage("forfeitGame")
@@ -177,8 +163,8 @@ export class GameGateway {
       .emit("updateScore", gameRoom.playerOne.score, gameRoom.playerTwo.score);
     await this.endGame(
       gameRoom.id,
-      gameRoom.playerOne.score,
-      gameRoom.playerTwo.score,
+      // gameRoom.playerOne.score,
+      // gameRoom.playerTwo.score,
       gameRoom.winner,
     );
   }
