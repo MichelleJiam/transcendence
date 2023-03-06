@@ -4,7 +4,6 @@
     <h2>2FA Registration</h2>
     <p>Scan me with your authenticator app!</p>
     <img :src="qrCode" class="qr-code" />
-    <!-- <qrcode-vue :value="qrCode" :margin="2" /> -->
     <form class="code-box" @submit.prevent="validateAuthCode">
       <p>Enter the 6-digit code shown in your authenticator app:</p>
       <input
@@ -12,6 +11,7 @@
         type="text"
         name="authCode"
         autocomplete="off"
+        @click="clearInputAndMessage"
       />
       <span class="validate-message">{{ validationMessage }}</span>
       <button type="submit">validate</button>
@@ -47,9 +47,19 @@ async function validateAuthCode() {
       emit("close-popup");
     })
     .catch((err) => {
-      validationMessage.value = "Wrong two factor authentication code";
+      if (err.response.status === 401) {
+        validationMessage.value = "Wrong two factor authentication code";
+      } else {
+        validationMessage.value =
+          "Something went wrong with enabling 2FA. Please try again";
+      }
       console.log("Something went wrong with 2FA enabling: ", err);
     });
+}
+
+function clearInputAndMessage() {
+  authCode.value = "";
+  validationMessage.value = "";
 }
 
 async function cancelTwoFA() {
@@ -87,11 +97,6 @@ form {
   height: 40%;
   align-self: center;
 }
-/* .inputfield {
-  width: 50%;
-  max-width: 500px;
-  align-self: center;
-} */
 
 button {
   width: 100%;
