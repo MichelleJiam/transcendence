@@ -9,45 +9,56 @@
   <main>
     <div id="display-content">
       <h1>HIGHSCORES</h1>
-
-      <!-- <h1>HIGHSCORES</h1>
-      <ul>
-        <h2>Rank</h2>
-        <li>1</li>
-        <li>2</li>
-        <li>3</li>
-        <li>4</li>
-        <li>5</li>
-      </ul>
-      <ul>
-        <h2>Player</h2>
-        <li>12000</li>
-        <li>11001</li>
-        <li>10023</li>
-        <li>500</li>
-        <li>...</li>
-      </ul>
-      <ul>
-        <h2>Wins</h2>
-        <li>Sanni</li>
-        <li>Leonieke</li>
-        <li>Ocean</li>
-        <li>Mark</li>
-        <li>...</li>
-      </ul>
-      <ul>
-        <h2>Losses</h2>
-        <li>Sanni</li>
-        <li>Leonieke</li>
-        <li>Ocean</li>
-        <li>Mark</li>
-        <li>...</li>
-      </ul> -->
+      <div class="box-styling">
+        <ul class="leaderboard list-elements">
+          <li class="titles">
+            <div class="rank">rank</div>
+            <div class="playername">player</div>
+            <div class="rate">rate</div>
+            <div class="wins">wins</div>
+            <div class="losses">losses</div>
+          </li>
+          <li
+            v-for="rank in leaderboardDummy"
+            :key="rank.rank"
+            class="list-items"
+          >
+            <div class="rank">{{ rank.rank }}</div>
+            <div class="playername">{{ rank.playername }}</div>
+            <div class="rate">{{ rank.rate }}</div>
+            <div class="wins">{{ rank.wins }}</div>
+            <div class="losses">{{ rank.losses }}</div>
+          </li>
+        </ul>
+      </div>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
+const leaderboardDummy = [
+  { rank: 1, playername: "sanne", rate: 2000, wins: 21, losses: 2 },
+  { rank: 2, playername: "nilo", rate: 1900, wins: 12, losses: 3 },
+  { rank: 3, playername: "swaan", rate: 1700, wins: 10, losses: 2 },
+  { rank: 4, playername: "michelle", rate: 1000, wins: 19, losses: 8 },
+  { rank: 5, playername: "niks", rate: 200, wins: 0, losses: 5 },
+  // { rank: 6, playername: "sanne", rate: 2000, wins: 21, losses: 2 },
+  // { rank: 7, playername: "nilo", rate: 1900, wins: 12, losses: 3 },
+  // { rank: 8, playername: "swaan", rate: 1700, wins: 10, losses: 2 },
+  // { rank: 9, playername: "michelle", rate: 1000, wins: 19, losses: 8 },
+  // { rank: 10, playername: "niks", rate: 200, wins: 0, losses: 5 },
+  // { rank: 11, playername: "sanne", rate: 2000, wins: 21, losses: 2 },
+  // { rank: 12, playername: "nilo", rate: 1900, wins: 12, losses: 3 },
+  // { rank: 13, playername: "swaan", rate: 1700, wins: 10, losses: 2 },
+  // { rank: 14, playername: "michelle", rate: 1000, wins: 19, losses: 8 },
+  // { rank: 15, playername: "niks", rate: 200, wins: 0, losses: 5 },
+  // { rank: 16, playername: "sanne", rate: 2000, wins: 21, losses: 2 },
+  // { rank: 17, playername: "nilo", rate: 1900, wins: 12, losses: 3 },
+  // { rank: 18, playername: "swaan", rate: 1700, wins: 10, losses: 2 },
+  // { rank: 19, playername: "michelle", rate: 1000, wins: 19, losses: 8 },
+  // { rank: 20, playername: "niks", rate: 200, wins: 0, losses: 5 },
+];
+
 // query all game data from the users
 // need to have there rate (score) based on that we will order them (rank)
 // we will also need there playername
@@ -57,35 +68,25 @@
 <style scoped>
 h1 {
   font-size: 4.5em;
+  padding-bottom: 20px;
 }
-
-/* div header {
-  display: flex;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-}
-
-div h2 {
-  font-size: 2.5em;
-  width: 100%;
+.box-styling {
   /* border: 2px solid pink; */
-/* padding: 0;
-  margin: 0;
-  margin-bottom: 10px; */
-/* } */
-/* 
-ul {
-  width: 100%;
-  padding: 0;
-  font-family: "ArcadeClassic", sans-serif;
-  margin: 10px;
-} */
+  font-family: var(--arcade-font);
+}
 
-/* ul li { */
-/* font-size: 2.5em; */
-/* border: 2px solid pink; */
-/* list-style-type: none; */
-/* text-decoration: none; */
-/* } */
+.titles {
+  font-size: 26px;
+  color: var(--primary-color);
+}
+
+.list-items {
+  font-size: 22px;
+}
+
+.list-elements > li {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
 </style>

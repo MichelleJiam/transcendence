@@ -34,7 +34,10 @@
         <FriendButton class="friend-button"></FriendButton>
         <CreateDMButton :other-player="otherPlayerInfo?.id"></CreateDMButton>
       </div>
-      <div v-else class="homepage-buttons box-styling">🏓🏓🏓🏓🏓🏓🏓</div>
+      <!-- <div v-else class="homepage-buttons box-styling">🏓🏓🏓🏓🏓🏓🏓</div> -->
+      <div v-else class="homepage-buttons box-styling paddle-div">
+        <font-awesome class="font-awesome" icon="table-tennis-paddle-ball" />
+      </div>
     </div>
     <div v-else>User Not Found</div>
   </main>
@@ -148,6 +151,16 @@ onMounted(async () => {
   border: 5px solid white;
   /* white for offline, green for online, purple for in a game 
   add a hover function on the avatar image to show the status of the color */
+}
+
+.paddle-div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.font-awesome {
+  font-size: 50px;
 }
 
 h1 {
