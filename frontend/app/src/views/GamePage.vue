@@ -1,12 +1,19 @@
 <template>
   <main>
     <div id="display-content">
-      <div v-if="game.state == State.READY" class="btn">
-        <button @click="startGame">PLAY GAME</button>
+      <div v-if="game.state == State.READY" class="main-game">
+        <div class="start-game">
+          <button class="game-button" @click="startGame">PLAY GAME</button>
+        </div>
         <div class="watch-games">
-          WATCH LIVE!
-          <div v-for="activeGame in activeGames" :key="activeGame.id">
-            <button class="small-btn" @click="watchGame(activeGame.id)">
+          <h2>WATCH LIVE!</h2>
+          <div class="game-list">
+            <button
+              v-for="activeGame in activeGames"
+              :key="activeGame.id"
+              class="small-btn"
+              @click="watchGame(activeGame.id)"
+            >
               {{ activeGame.playerOneName }} vs.
               {{ activeGame.playerTwoName }}
             </button>
@@ -19,6 +26,7 @@
       <div v-else>
         <PongGame
           :id="id"
+          class="in-game"
           :game="game"
           :socket="socket"
           @game-over="gameOver"
@@ -50,7 +58,6 @@ const id = route.params.id as string;
 // const userStore = useUserStore();
 // const id = ref(0);
 const socket = io("http://localhost:3000/pong");
-const joined = ref(false);
 const game = ref({} as GameRoom);
 const activeGames = ref(Array<Game>());
 game.value.state = State.READY;
@@ -86,7 +93,7 @@ onUnmounted(async () => {
   else if (game.value.state === State.WAITING) {
     removePlayerFromMatchQueue();
   }
-  resetGameState();
+  game.value.state = State.READY;
 });
 
 socket.on("updateActiveGames", () => {
@@ -111,38 +118,35 @@ async function watchGame(gameId: number) {
   socket.emit("watchGame", game.value); /* adds them to gameRoom */
   console.log(id, " has joined room ", gameId, " as a WATCHER");
   game.value.state = State.PLAYING;
-  joined.value = true;
 }
 
 const startGame = async () => {
   // const res = await apiRequest(`/match/play/${id.value}`, "get");
   const res = await apiRequest(`/match/play/${id}`, "get");
-  // if no matchups available at the moment
+  /* if no one currently in queue */
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
   } else {
-    // else if a matchup has been found
+    /* else if opponent found */
     fillGameRoomObject(res, 2);
     game.value.state = State.PLAYING;
     socket.emit("joinRoom", game.value);
     console.log(id, " has joined room ", game.value.id, " as PLAYER 2");
-    joined.value = true;
   }
 };
 
 socket.on("addPlayerOne", (gameRoom: GameRoom) => {
-  if (joined.value == false && game.value.state == State.WAITING) {
+  if (game.value.state == State.WAITING) {
     game.value = gameRoom;
     game.value.player = 1;
     socket.emit("joinRoom", game.value);
-    joined.value = true;
     console.log(id, "has joined room ", game.value.id, " as PLAYER 1");
   }
 });
 
 async function gameOver(gameRoom: GameRoom) {
+  game.value.state = State.READY;
   socket.emit("leaveRoom", gameRoom.id);
-  resetGameState();
   console.log("GamePage | ", id, " left room ", gameRoom.id);
   await apiRequest(`/game`, "put", { data: gameRoom });
   await getActiveGames();
@@ -160,7 +164,7 @@ socket.on("disconnection", () => {
   if (game.value.state === State.WAITING) {
     removePlayerFromMatchQueue();
   }
-  resetGameState();
+  game.value.state = State.READY;
 });
 
 async function removePlayerFromMatchQueue() {
@@ -170,11 +174,6 @@ async function removePlayerFromMatchQueue() {
       err
     );
   });
-}
-
-function resetGameState() {
-  game.value.state = State.READY;
-  joined.value = false;
 }
 
 function fillPlayerObject(
@@ -198,7 +197,7 @@ function fillPlayerObject(
 function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
   game.value.id = res.data.id;
   game.value.player = playerNumber;
-  // if current user is a Watcher
+  /* if player is a watcher */
   if (playerNumber === 0) {
     game.value.playerOne = fillPlayerObject(
       res.data.playerOne,
@@ -211,7 +210,7 @@ function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
       res.data.playerTwoScore
     );
   } else {
-    // else is player 2 joining a match
+    /* else if player 2 */
     game.value.playerOne = fillPlayerObject(res.data.playerOne, "", 0);
     game.value.playerTwo = fillPlayerObject(res.data.playerTwo, "", 0);
   }
@@ -219,10 +218,58 @@ function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
 </script>
 
 <style scoped>
-main {
+#display-content {
+  /* display: flex; */
+  /* height: 80%; */
+  align-items: center;
+  justify-items: center;
+}
+.main-game {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  justify-items: stretch;
+  align-items: stretch;
+  height: 100%;
+  overflow: hidden;
+}
+
+.start-game {
+  align-self: center;
+}
+
+.watch-games {
+  height: 100%;
+  overflow: scroll;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.watch-games button {
+  width: 100%;
+}
+
+.watch-games > h2 {
+  font-size: 4em;
+  word-spacing: 15px;
+}
+
+.game-list {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  gap: 10px;
+  height: 100%;
+  overflow-y: scroll;
+}
+
+.game-list > button {
+  /* TODO TOMORROW MAKE GRID */
+}
+
+.in-game {
+  align-self: center;
+  justify-self: center;
 }
 
 p {
@@ -234,57 +281,21 @@ button:hover {
   color: #39ff14;
   background-color: #1c1b1b;
 }
+
+.game-button {
+  font-size: 4em;
+}
+
 button {
-  height: 50%;
-  width: 100%;
-  background: #1c1b1b;
-  color: white;
-  font-family: "ArcadeClassic", sans-serif;
-  font-size: 10vw;
-  cursor: pointer;
-  border-radius: 5px;
-  text-align: center;
-  border: 2px #302d2d solid;
-  display: block;
+  padding-right: 30px;
+  padding-left: 30px;
+
   word-spacing: 3vw;
 }
 
-.btn {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.small-btn {
-  height: 100%;
-  width: 50%;
-  background: #1c1b1b;
-  color: white;
-  font-family: "ArcadeClassic", sans-serif;
-  font-size: 2vw;
-  cursor: pointer;
-  border-radius: 5px;
-  text-align: center;
-  border: 2px #302d2d solid;
-  display: block, center;
-}
 .loader {
   height: 50%;
   width: 50%;
   display: block;
-}
-.watch-games {
-  height: 50%;
-  width: 100%;
-  background: #1c1b1b;
-  color: white;
-  font-family: "ArcadeClassic", sans-serif;
-  font-size: 6vw;
-  padding-top: 5%;
-  cursor: pointer;
-  border-radius: 5px;
-  text-align: center;
-  display: block;
-  word-spacing: 3vw;
 }
 </style>

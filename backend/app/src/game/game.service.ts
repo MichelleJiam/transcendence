@@ -112,6 +112,13 @@ export class GameService {
       gameRoom.playerOne.score,
       gameRoom.playerTwo.score,
     );
+    if (gameRoom.playerOne.score > gameRoom.playerTwo.score) {
+      gameRoom.winner = gameRoom.playerOne.id;
+      gameRoom.loser = gameRoom.playerTwo.id;
+    } else if (gameRoom.playerOne.score < gameRoom.playerTwo.score) {
+      gameRoom.loser = gameRoom.playerOne.id;
+      gameRoom.winner = gameRoom.playerTwo.id;
+    }
     const game = await this.gameRepository
       .createQueryBuilder()
       .update(Game)
