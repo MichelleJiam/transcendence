@@ -10,9 +10,13 @@ import { AvatarService } from "src/avatar/avatar.service";
 import { Avatar } from "src/avatar/avatar.entity";
 import { AchievementService } from "src/achievement/achievement.service";
 import { Achievement } from "src/achievement/achievement.entity";
+import { LeaderboardService } from "src/leaderboard/leaderboard.service";
+import { Leaderboard } from "src/leaderboard/leaderboard.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Friend, User, Avatar, Achievement])],
+  imports: [
+    TypeOrmModule.forFeature([Friend, User, Avatar, Achievement, Leaderboard]),
+  ],
   controllers: [FriendController],
   providers: [
     FriendService,
@@ -20,6 +24,7 @@ import { Achievement } from "src/achievement/achievement.entity";
     UserService,
     AvatarService,
     AchievementService,
+    LeaderboardService,
   ],
 })
 export class FriendModule {}

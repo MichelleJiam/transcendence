@@ -8,6 +8,7 @@ import { AvatarService } from "src/avatar/avatar.service";
 import { AchievementService } from "src/achievement/achievement.service";
 import { Achievement } from "src/achievement/achievement.entity";
 import { Achievements } from "src/achievement/achievement";
+import { LeaderboardService } from "src/leaderboard/leaderboard.service";
 
 @Injectable()
 export class UserService {
@@ -16,6 +17,7 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly avatarService: AvatarService,
     private readonly achievementService: AchievementService,
+    private readonly leaderboardService: LeaderboardService,
   ) {}
 
   getAllUsers() {
@@ -34,7 +36,9 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     const newUser = this.userRepository.create(createUserDto);
-    return this.userRepository.save(newUser);
+    const savedUser = await this.userRepository.save(newUser);
+    await this.leaderboardService.createUserForLeaderboard(savedUser);
+    return savedUser;
   }
 
   async findUserByPlayerName(playerName: string) {
@@ -63,20 +67,6 @@ export class UserService {
     // }
     return foundUser;
   }
-
-  // async findUserByPlayerName(playerName: string) {
-  //   const foundUser = this.userRepository.findOne({
-  //     where: {
-  //       playerName: playerName,
-  //     },
-  //     select: {
-  //       id: true,
-  //       playerName: true,
-  //     },
-  //   });
-
-  //   return foundUser;
-  // }
 
   async deleteUser(id: number) {
     const deleteResponse = await this.userRepository.delete(id);
