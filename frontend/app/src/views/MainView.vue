@@ -89,7 +89,6 @@ onBeforeMount(async () => {
     if (route.params.playerName != userStore.user.playerName) {
       await apiRequest("/user/player/" + route.params.playerName, "get")
         .then(async (response) => {
-          console.log(response);
           if (response.data != "") {
             otherPlayerInfo.value = response.data;
             if (otherPlayerInfo.value.id != undefined) {
