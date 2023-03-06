@@ -24,6 +24,7 @@ import { Penalty } from "src/penalty/penalty.entity";
 import { Blocklist } from "src/blocklist/blocklist.entity";
 import { Friend } from "src/friend/friend.entity";
 import { Achievement } from "src/achievement/achievement.entity";
+import { Leaderboard } from "src/leaderboard/leaderboard.entity";
 
 @Entity()
 export class User {
@@ -77,6 +78,11 @@ export class User {
   public chatroomAdmin!: Chatroom[];
 
   // relationships for chat END
+
+  // leaderboard relationship
+  @OneToOne(() => Leaderboard, (leaderboard: Leaderboard) => leaderboard.user)
+  @JoinColumn()
+  public leaderboard!: Leaderboard;
 
   @Column({
     type: "boolean",
