@@ -7,7 +7,6 @@ export enum UserStatus {
   ONLINE,
   OFFLINE,
   GAME,
-  MATCHMAKING,
 }
 
 import {

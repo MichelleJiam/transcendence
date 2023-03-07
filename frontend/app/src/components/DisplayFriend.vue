@@ -30,7 +30,6 @@ enum UserStatus {
   ONLINE,
   OFFLINE,
   GAME,
-  MATCHMAKING,
 }
 
 const store = useFriendStore();

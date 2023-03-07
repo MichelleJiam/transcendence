@@ -111,6 +111,10 @@ export class UserController {
     }
   }
 
+  /*********
+   * status *
+   *********/
+
   @Put(":id/update-status")
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)

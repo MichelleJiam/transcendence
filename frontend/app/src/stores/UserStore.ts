@@ -8,7 +8,7 @@ interface PublicProfile {
   playerName: string;
   status: string;
   avatarId: number;
-  avatarUrl: string;
+  avatarUrl: string | undefined;
 }
 
 interface UserProfile extends PublicProfile {
@@ -138,7 +138,7 @@ export const useUserStore = defineStore("user", {
       console.log("[DEBUG] getAvatar() in UserStore.ts");
       try {
         const res = await apiRequest(`/user/${this.user.id}/avatar`, "get");
-        if (this.user.avatarUrl) this.user.avatarUrl = res.config.url as string;
+        this.user.avatarUrl = res.config.url;
       } catch (error) {
         console.log(`[DEBUG] error in getAvatar(): ${error}`);
       }

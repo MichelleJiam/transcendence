@@ -133,6 +133,7 @@ export class UserService {
   }
 
   async getDefaultAvatar(res: Response) {
+    this.logger.log("Hit the getDefaultAvatar route");
     res.header("Content-Type", "image");
     res.header("Content-Disposition", `inline; filename="default-avatar.jpg"`);
     const defaultAvatar = createReadStream(
@@ -142,6 +143,7 @@ export class UserService {
   }
 
   async getAvatarById(id: number, res: Response) {
+    this.logger.log("Hit the getAvatarById route");
     const file = await this.avatarService.getAvatarById(id);
     res.header("Content-Type", "image");
     res.header("Content-Disposition", `inline; filename="${file.filename}"`);
