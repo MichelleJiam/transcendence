@@ -142,33 +142,3 @@ export class GameService {
     await this.gameRepository.delete(gameId);
   }
 }
-
-/* USED WHEN LOSER AND WINNER WERE RELATIONS OF TYPE USER */
-// async update(updateGameDto: UpdateGameDto) {
-//   if (updateGameDto.id !== undefined) {
-//     if ((await this.findOne(updateGameDto.id)) == null) {
-//       this.logger.debug("game does not exist, unable to update");
-//       throw new NotFoundException(
-//         "Unable to update game because game does not exist",
-//       );
-//     }
-//     await this.gameRepository.update(updateGameDto.id, updateGameDto);
-
-//     await this.gameRepository
-//       .createQueryBuilder()
-//       .relation(Game, "loserId")
-//       .of(updateGameDto.id)
-//       .set(updateGameDto.loserId);
-
-//     await this.gameRepository
-//       .createQueryBuilder()
-//       .relation(Game, "winnerId")
-//       .of(updateGameDto.id)
-//       .set(updateGameDto.winnerId);
-
-//     return this.findOne(updateGameDto.id);
-//   }
-//   throw new NotFoundException(
-//     "Unable to update game because no data received from dto",
-//   );
-// }

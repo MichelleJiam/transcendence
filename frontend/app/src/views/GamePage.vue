@@ -41,11 +41,11 @@ import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue"
 import PongGame from "../components/game/PongGame.vue";
 import apiRequest from "../utils/apiRequest";
 import { onBeforeMount, onUnmounted, ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+// import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import type { Game, GameRoom } from "../components/game/pong.types";
 import type { AxiosResponse } from "axios";
-// import { useUserStore } from "@/stores/UserStore";
+import { useUserStore } from "@/stores/UserStore";
 
 const State = {
   READY: 0,
@@ -53,10 +53,10 @@ const State = {
   PLAYING: 2,
 };
 
-const route = useRoute();
-const id = route.params.id as string;
-// const userStore = useUserStore();
-// const id = ref(0);
+// const route = useRoute();
+// const id = route.params.id as string;
+const userStore = useUserStore();
+const id = ref(0);
 const socket = io("http://localhost:3000/pong");
 const game = ref({} as GameRoom);
 const activeGames = ref(Array<Game>());
@@ -70,8 +70,9 @@ onBeforeMount(async () => {
 });
 
 onMounted(async () => {
-  // await userStore.retrieveCurrentUserData();
-  // id.value = userStore.user.id;
+  await userStore.retrieveCurrentUserData();
+  id.value = userStore.user.id;
+  console.log("id ", id.value);
   // await apiRequest(
   //   // `/match/${id.value}`,
   //   `/match/${id}`,
@@ -80,6 +81,7 @@ onMounted(async () => {
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
+  // query the db for playerId in waiting state
 });
 
 onUnmounted(async () => {
@@ -87,10 +89,12 @@ onUnmounted(async () => {
   if (game.value.state === State.PLAYING) {
     socket.emit("someoneLeft", game.value);
   }
-  // await apiRequest(`/match/${id.value}`, "delete");
-  await apiRequest(`/match/${id}`, "delete").catch((err) => {
+  await apiRequest(`/match/${id.value}`, "delete").catch((err) => {
     console.log("Something went wrong with deleting the match: ", err);
   });
+  // await apiRequest(`/match/${id}`, "delete").catch((err) => {
+  //   console.log("Something went wrong with deleting the match: ", err);
+  // });
 });
 
 // // not used?
@@ -123,8 +127,8 @@ async function watchGame(gameId: number) {
 }
 
 const startGame = async () => {
-  // const res = await apiRequest(`/match/play/${id.value}`, "get");
-  const res = await apiRequest(`/match/play/${id}`, "get");
+  const res = await apiRequest(`/match/play/${id.value}`, "get");
+  // const res = await apiRequest(`/match/play/${id}`, "get");
   /* if no one currently in queue */
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
