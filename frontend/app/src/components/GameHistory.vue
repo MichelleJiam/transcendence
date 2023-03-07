@@ -15,6 +15,20 @@
 </template>
 
 <script setup lang="ts">
+import apiRequest from '@/utils/apiRequest';
+import { ref, onMounted } from 'vue';
+
+const props = defineProps({
+  userId: Number,
+})
+
+const player1 = ref<string>("");
+const player2 = ref<string>("");
+
+onMounted(async() => {
+  // await apiRequest("/game/" + porps.userId, "get")
+})
+
 // change this for a call to the back end with all the games
 // where is current player has played in this call should return
 // an array with all the game objects
@@ -27,27 +41,27 @@ const gameHistory = [
   { gameid: 5, winner: "tes", loser: "sanneeee" },
   { gameid: 6, winner: "sanne", loser: "test3" },
   { gameid: 7, winner: "sanne", loser: "test5" },
-  { gameid: 8, winner: "sanne", loser: "test1" },
-  { gameid: 9, winner: "sanne", loser: "test2" },
-  { gameid: 10, winner: "test1", loser: "sanne" },
-  { gameid: 11, winner: "sanne", loser: "test4" },
-  { gameid: 12, winner: "test2", loser: "sanne" },
-  { gameid: 13, winner: "sanne", loser: "test3" },
-  { gameid: 14, winner: "sanne", loser: "test5" },
-  { gameid: 15, winner: "sanne", loser: "test1" },
-  { gameid: 16, winner: "sanne", loser: "test2" },
-  { gameid: 17, winner: "test1", loser: "sanne" },
-  { gameid: 18, winner: "sanne", loser: "test4" },
-  { gameid: 19, winner: "test2", loser: "sanne" },
-  { gameid: 20, winner: "sanne", loser: "test3" },
-  { gameid: 21, winner: "sanne", loser: "test5" },
-  { gameid: 22, winner: "sanne", loser: "test1" },
-  { gameid: 23, winner: "sanne", loser: "test2" },
-  { gameid: 24, winner: "t1estxz1", loser: "sanne" },
-  { gameid: 25, winner: "sanne", loser: "test4" },
-  { gameid: 26, winner: "test2", loser: "sanne" },
-  { gameid: 27, winner: "sanne", loser: "test3" },
-  { gameid: 28, winner: "sanne", loser: "test5" },
+  // { gameid: 8, winner: "sanne", loser: "test1" },
+  // { gameid: 9, winner: "sanne", loser: "test2" },
+  // { gameid: 10, winner: "test1", loser: "sanne" },
+  // { gameid: 11, winner: "sanne", loser: "test4" },
+  // { gameid: 12, winner: "test2", loser: "sanne" },
+  // { gameid: 13, winner: "sanne", loser: "test3" },
+  // { gameid: 14, winner: "sanne", loser: "test5" },
+  // { gameid: 15, winner: "sanne", loser: "test1" },
+  // { gameid: 16, winner: "sanne", loser: "test2" },
+  // { gameid: 17, winner: "test1", loser: "sanne" },
+  // { gameid: 18, winner: "sanne", loser: "test4" },
+  // { gameid: 19, winner: "test2", loser: "sanne" },
+  // { gameid: 20, winner: "sanne", loser: "test3" },
+  // { gameid: 21, winner: "sanne", loser: "test5" },
+  // { gameid: 22, winner: "sanne", loser: "test1" },
+  // { gameid: 23, winner: "sanne", loser: "test2" },
+  // { gameid: 24, winner: "t1estxz1", loser: "sanne" },
+  // { gameid: 25, winner: "sanne", loser: "test4" },
+  // { gameid: 26, winner: "test2", loser: "sanne" },
+  // { gameid: 27, winner: "sanne", loser: "test3" },
+  // { gameid: 28, winner: "sanne", loser: "test5" },
 ];
 </script>
 
