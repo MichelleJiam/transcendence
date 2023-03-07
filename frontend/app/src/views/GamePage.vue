@@ -81,7 +81,9 @@ onMounted(async () => {
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
-  // query the db for playerId in waiting state
+  const dmGame = await apiRequest(`${id.value}/dm`, "get");
+  console.log("dmGame ", dmGame);
+  // query the db for playerId in db state
 });
 
 onUnmounted(async () => {

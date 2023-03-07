@@ -112,12 +112,11 @@ onMounted(async () => {
     ) {
       // do whatever you need to accept the game here;
       console.log("PlayerTwo accepted your game request");
-      // socket.emit("StartDMGame", payload);
-      // const createGameDto = new CreateGameDto();
-      // createGameDto.playerOne = payload.playerOne;
-      // createGameDto.playerTwo = payload.playerTwo;
-      // await apiRequest(baseUrl + "/game", "post", { data: createGameDto });
-      // window.location.href = "/game";
+      const createGameDto = new CreateGameDto();
+      createGameDto.playerOne = payload.playerOne;
+      createGameDto.playerTwo = payload.playerTwo;
+      await apiRequest(baseUrl + "/game", "post", { data: createGameDto });
+      window.location.href = "/game";
       inviteReceived.value = false;
     }
   });
