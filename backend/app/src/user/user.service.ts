@@ -47,7 +47,7 @@ export class UserService {
   }
 
   async findUserByPlayerName(playerName: string) {
-    const foundUser = this.userRepository.findOneBy({
+    const foundUser = await this.userRepository.findOneBy({
       playerName: playerName,
     });
     return foundUser;
@@ -134,7 +134,7 @@ export class UserService {
     }
   }
 
-  async setTwoFactorSecret(secret: string, id: number) {
+  async setTwoFactorSecret(id: number, secret: string) {
     return this.userRepository.update(id, { twoFASecret: secret });
   }
 
