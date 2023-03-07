@@ -128,10 +128,12 @@ export const useUserStore = defineStore("user", {
         await apiRequest(`/user/${this.user.id}/avatar`, "post", {
           data: formData,
         });
+        location.reload();
       } catch (error) {
         console.log(`[DEBUG] error in updateAvatar(): ${error}`);
       }
     },
+
     async getAvatar() {
       console.log("[DEBUG] getAvatar() in UserStore.ts");
       try {
