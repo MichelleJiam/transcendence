@@ -41,3 +41,8 @@ export interface GameRoom {
   view: Canvas;
   state: number;
 }
+
+export interface GameWithPlayer {
+  game: Game | null;
+  playerNum: number;
+}

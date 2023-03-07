@@ -7,7 +7,7 @@ import {
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { GameService } from "./game.service";
-import { GameRoom } from "./pong.types";
+import { GameRoom, GameWithPlayer } from "./pong.types";
 
 // by default will listen to same port http is listening on
 @WebSocketGateway({
@@ -31,10 +31,11 @@ export class GameGateway {
   // of automatically on disconnection.
   async handleDisconnect(client: Socket) {
     console.log("GameGateway: ", client.id, " disconnected"); // socket id here not same as when joining? find doesn't return anything then
-    const leftGame = await this.gameService.findGameFromPlayerSocket(client.id);
-    if (leftGame !== null) {
-      console.log("Player left game ", leftGame.id);
-      this.server.emit("playerForfeited", client.id);
+    const leftGame: GameWithPlayer =
+      await this.gameService.findGameFromPlayerSocket(client.id);
+    if (leftGame.game !== null) {
+      console.log("Player left game ", leftGame.game?.id);
+      this.server.emit("playerForfeited", leftGame.playerNum);
     } else {
       console.log("No active games being played were left");
       this.server.emit("disconnection");
@@ -164,12 +165,6 @@ export class GameGateway {
       this.gameService.remove(Number(gameRoom.id));
     } else {
       this.gameService.handleForfeit(gameRoom);
-      console.log(
-        "GameGateway.forfeit | p1 score: ",
-        gameRoom.playerOne.score,
-        " p2 score: ",
-        gameRoom.playerTwo.score,
-      );
       this.server
         .to(gameRoom.id)
         .emit(
@@ -177,8 +172,10 @@ export class GameGateway {
           gameRoom.playerOne.score,
           gameRoom.playerTwo.score,
         );
-      // fixes active game list on disconnecting player side
+      // updates active game list on disconnecting player side
       this.gameService.update(gameRoom);
+      // updates active game list on lobby user
+      this.updateActiveGames();
       this.endGame(gameRoom.id, gameRoom.winner);
     }
   }
@@ -192,7 +189,9 @@ export class GameGateway {
       console.log("A watcher left");
     } else {
       console.log("A player left game: ", gameRoom.id);
-      this.server.emit("playerForfeited", client.id);
+      const disconnectedPlayer =
+        gameRoom.playerOne.socket === client.id ? 1 : 2;
+      this.server.emit("playerForfeited", disconnectedPlayer);
     }
     // this.leaveRoom(client, gameRoom.id);
   }
