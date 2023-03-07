@@ -13,7 +13,7 @@ import { Socket } from "socket.io-client";
 import apiRequest from "../../utils/apiRequest";
 
 const props = defineProps({
-  id: { type: String, required: true },
+  id: { type: Number, required: true },
   game: { type: Object as PropType<GameRoom>, required: true },
   socket: { type: Socket, required: true },
 });
