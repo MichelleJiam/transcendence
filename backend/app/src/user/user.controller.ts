@@ -179,10 +179,13 @@ export class UserController {
     } else this.logger.debug("User not found");
   }
 
-  /* achievements */
+  /***************
+   * achievements *
+   ***************/
 
   @Get(":id/achievements")
   async getAchievements(@Param("id", ParseIntPipe) id: number) {
+    this.logger.log("Hit the getAchievements route");
     return await this.userService.getAchievements(id);
   }
 }

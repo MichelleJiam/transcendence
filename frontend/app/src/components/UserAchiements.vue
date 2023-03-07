@@ -33,6 +33,7 @@ import {
   faThumbsDown,
   faHelmetSafety,
   faMedal,
+  faSadTear,
 } from "@fortawesome/free-solid-svg-icons";
 
 type Achievement = {
@@ -54,8 +55,8 @@ const achievements = [
   { id: 5, icon: faGamepad, name: "Played First Game" },
   { id: 6, icon: faTableTennisPaddleBall, name: "Played 5 Games" },
   { id: 8, icon: faMedal, name: "Won 5 games" },
+  { id: 9, icon: faSadTear, name: "Lost 5 games" },
 ];
-
 function achievementEarned(id: number) {
   if (props.chievs.find((achievement: Achievement) => achievement.id === id))
     return 1;
