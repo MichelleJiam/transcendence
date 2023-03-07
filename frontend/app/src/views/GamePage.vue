@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
-import apiRequest from "../utils/apiRequest";
+import apiRequest, { baseUrl } from "../utils/apiRequest";
 import { onBeforeMount, onUnmounted, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
@@ -57,7 +57,7 @@ const route = useRoute();
 const id = route.params.id as string;
 // const userStore = useUserStore();
 // const id = ref(0);
-const socket = io("http://localhost:3000/pong");
+const socket = io(baseUrl + "/pong");
 const game = ref({} as GameRoom);
 const activeGames = ref(Array<Game>());
 game.value.state = State.READY;

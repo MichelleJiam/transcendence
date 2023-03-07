@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import apiRequest, { baseUrl } from "@/utils/apiRequest";
+import apiRequest from "@/utils/apiRequest";
 import { ref, onMounted } from "vue";
 const props = defineProps({
   userId: Number,
