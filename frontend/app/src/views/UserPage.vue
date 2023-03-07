@@ -131,7 +131,9 @@ function validPlayerName(playerName: string) {
 
 <style scoped>
 #display-content {
-  display: flex;
+  /* display: flex; */
+  display: grid;
+  grid-template-columns: 1fr 2fr;
   justify-content: center;
   height: auto;
   width: auto;
@@ -185,7 +187,7 @@ h2 {
   position: absolute;
   z-index: 2;
 }
-.overlay {
+/* .overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -193,7 +195,7 @@ h2 {
   z-index: 1;
   width: 100%;
   height: 100%;
-}
+} */
 .account-settings-button {
   grid-area: button;
   justify-self: stretch;
@@ -223,10 +225,12 @@ form {
 
 @media (max-width: 1100px) {
   #display-content {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
     justify-content: center;
     width: 600px;
+    height: 90%;
   }
 }
 </style>

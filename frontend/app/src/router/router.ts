@@ -7,8 +7,10 @@ import LiveStream from "../views/LiveStream.vue";
 import Chatroom from "../views/ChatroomMainPage.vue";
 import SingleChatroom from "../views/ChatroomSingle.vue";
 import NotFound from "../views/NotFound.vue";
+import NotAuthorized from "../views/NotAuthorized.vue"
 import FriendPage from "../views/FriendPage.vue";
 import TwoFAPage from "@/views/TwoFAPage.vue";
+import GenericError from "@/views/GenericError.vue"
 import type { Component } from "vue";
 
 const routes: {
@@ -37,12 +39,14 @@ const routes: {
   { path: "/stream", component: LiveStream },
   { path: "/chat", component: Chatroom },
   { path: "/chat/:id", component: SingleChatroom },
-  { path: "/player/:playername", component: HomePage },
+  { path: "/player/:playerName", component: HomePage },
   { path: "/:id/friends", component: FriendPage },
   { path: "/friends", component: FriendPage },
-  { path: "/:pathMatch(.*)*", component: NotFound },
   { path: "/2fa", component: TwoFAPage, name: "2fa" },
   { path: "/404", component: NotFound },
+  { path: "/401", component: NotAuthorized },
+  { path: "/error", component: GenericError},
+  { path: "/:pathMatch(.*)*", component: NotFound },
 ];
 
 export default routes;
