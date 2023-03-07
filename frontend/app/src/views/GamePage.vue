@@ -45,7 +45,7 @@ import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import type { Game, GameRoom } from "../components/game/pong.types";
 import type { AxiosResponse } from "axios";
-// import { useUserStore } from "@/stores/UserStore";
+import { useUserStore } from "@/stores/UserStore";
 
 const State = {
   READY: 0,
@@ -53,15 +53,16 @@ const State = {
   PLAYING: 2,
 };
 
-const route = useRoute();
-const id = route.params.id as string;
-// const userStore = useUserStore();
-// const id = ref(0);
+// const route = useRoute();
+// const id = route.params.id as string;
+const userStore = useUserStore();
+const id = ref(0);
 const socket = io("http://localhost:3000/pong");
 const game = ref({} as GameRoom);
 const activeGames = ref(Array<Game>());
 game.value.state = State.READY;
 
+// remove?
 onBeforeMount(async () => {
   socket.on("disconnect", () => {
     console.log(socket.id + " disconnected from frontend");
@@ -70,16 +71,18 @@ onBeforeMount(async () => {
 });
 
 onMounted(async () => {
-  // await userStore.retrieveCurrentUserData();
-  // id.value = userStore.user.id;
+  await userStore.retrieveCurrentUserData();
+  id.value = userStore.user.id;
   // await apiRequest(
   //   // `/match/${id.value}`,
   //   `/match/${id}`,
   //   "delete"
   // ); /* protection if user refreshes; removes them from queue */
+  console.log("GamePage.onMounted");
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
+  await getActiveGames();
 });
 
 // Triggered on navigate away
@@ -96,11 +99,12 @@ onUnmounted(async () => {
   game.value.state = State.READY;
 });
 
-socket.on("updateActiveGames", () => {
-  getActiveGames();
+socket.on("updateActiveGames", async () => {
+  await getActiveGames();
 });
 
 async function getActiveGames() {
+  console.log("getting active games");
   const res = await apiRequest(`/game/active`, "get");
   activeGames.value = res.data;
   for (const game of activeGames.value) {
@@ -114,15 +118,21 @@ async function getActiveGames() {
 async function watchGame(gameId: number) {
   // const res = await apiRequest(`/game/${gameId}`, "get");
   const res = await apiRequest(`/game/${gameId}`, "get");
+  console.log("watchGame | retrieved game state: ", res.data.state);
+  if (res.data.state !== "playing") {
+    alert("This game has already ended");
+    window.location.reload();
+    return;
+  }
   fillGameRoomObject(res, 0);
   socket.emit("watchGame", game.value); /* adds them to gameRoom */
-  console.log(id, " has joined room ", gameId, " as a WATCHER");
+  console.log(id.value, " has joined room ", gameId, " as a WATCHER");
   game.value.state = State.PLAYING;
 }
 
 const startGame = async () => {
   // const res = await apiRequest(`/match/play/${id.value}`, "get");
-  const res = await apiRequest(`/match/play/${id}`, "get");
+  const res = await apiRequest(`/match/play/${id.value}`, "get");
   /* if no one currently in queue */
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
@@ -130,17 +140,22 @@ const startGame = async () => {
     /* else if opponent found */
     fillGameRoomObject(res, 2);
     game.value.state = State.PLAYING;
-    socket.emit("joinRoom", game.value);
-    console.log(id, " has joined room ", game.value.id, " as PLAYER 2");
+    await socket.emit("joinRoom", game.value);
+    console.log(id.value, " has joined room ", game.value.id, " as PLAYER 2");
   }
 };
 
-socket.on("addPlayerOne", (gameRoom: GameRoom) => {
+socket.on("savePlayerSockets", (gameRoom: GameRoom) => {
+  game.value.playerOne.socket = gameRoom.playerOne.socket;
+  game.value.playerTwo.socket = gameRoom.playerTwo.socket;
+});
+
+socket.on("addPlayerOne", async (gameRoom: GameRoom) => {
   if (game.value.state == State.WAITING) {
     game.value = gameRoom;
     game.value.player = 1;
-    socket.emit("joinRoom", game.value);
-    console.log(id, "has joined room ", game.value.id, " as PLAYER 1");
+    await socket.emit("joinRoom", game.value);
+    console.log(id.value, "has joined room ", game.value.id, " as PLAYER 1");
   }
 });
 
@@ -155,14 +170,42 @@ async function gameOver(gameRoom: GameRoom) {
   );
   game.value.state = State.READY;
   socket.emit("leaveRoom", gameRoom.id);
-  console.log("GamePage | ", id, " left room ", gameRoom.id);
-  await apiRequest(`/game`, "put", { data: gameRoom });
+  console.log("GamePage | ", id.value, " left room ", gameRoom.id);
+  // can fail if both players disconnected and game was deleted
+  await apiRequest(`/game`, "put", { data: gameRoom }).catch((err) => {
+    console.log("Something went wrong with updating with game result: ", err);
+  });
   await getActiveGames();
 }
 
-socket.on("forfeit", () => {
-  console.log("forfeit socket");
+socket.on("playerForfeited", (disconnectedSocket: string) => {
+  // console.log(
+  //   "playerForfeited | p1 socket: ",
+  //   game.value.playerOne.socket,
+  //   " p2 socket: ",
+  //   game.value.playerTwo.socket
+  // );
+  if (
+    game.value.playerOne.socket &&
+    game.value.playerOne.socket === disconnectedSocket
+  ) {
+    console.log("Player 1 with socket ", disconnectedSocket, " forfeited");
+    game.value.playerOne.disconnected = true;
+  } else if (
+    game.value.playerTwo.socket &&
+    game.value.playerTwo.socket === disconnectedSocket
+  ) {
+    console.log("Player 2 with socket ", disconnectedSocket, " forfeited");
+    game.value.playerTwo.disconnected = true;
+  } else {
+    console.error("Could not detect which player disconnected");
+    return;
+  }
   socket.emit("forfeitGame", game.value);
+});
+
+socket.on("endGameWithoutRender", () => {
+  gameOver(game.value);
 });
 
 // Used by GameGateway::handleDisconnect when a watcher or queued player
@@ -172,11 +215,14 @@ socket.on("disconnection", () => {
   if (game.value.state === State.WAITING) {
     removePlayerFromMatchQueue();
   }
-  game.value.state = State.READY;
+  // if disconnected user was an observer
+  else if (game.value.player === 0) {
+    game.value.state = State.READY;
+  }
 });
 
 async function removePlayerFromMatchQueue() {
-  await apiRequest(`/match/${id}`, "delete").catch((err) => {
+  await apiRequest(`/match/${id.value}`, "delete").catch((err) => {
     console.log(
       "Something went wrong with deleting the player from match queue: ",
       err
@@ -199,6 +245,7 @@ function fillPlayerObject(
       y: 0,
       offset: 0,
     },
+    disconnected: false,
   };
 }
 

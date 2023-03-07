@@ -32,9 +32,9 @@ export class GameGateway {
   async handleDisconnect(client: Socket) {
     console.log("GameGateway: ", client.id, " disconnected"); // socket id here not same as when joining? find doesn't return anything then
     const leftGame = await this.gameService.findGameFromPlayerSocket(client.id);
-    if (leftGame != null) {
+    if (leftGame !== null) {
       console.log("Player left game ", leftGame.id);
-      this.server.emit("forfeit");
+      this.server.emit("playerForfeited", client.id);
     } else {
       console.log("No active games being played were left");
       this.server.emit("disconnection");
@@ -78,10 +78,18 @@ export class GameGateway {
       await this.gameService.updateSocket(gameRoom);
     }
     client.join(gameRoom.id);
-    console.log(client.id, " joined room: ", client.rooms);
-    if (gameRoom.player == 2) {
+    console.log(
+      client.id,
+      " joined room: ",
+      client.rooms,
+      " as player ",
+      gameRoom.player,
+    );
+    if (gameRoom.player === 2) {
       this.server.emit("addPlayerOne", gameRoom);
       this.updateActiveGames();
+    } else if (gameRoom.player === 1) {
+      this.server.emit("savePlayerSockets", gameRoom);
     }
   }
 
@@ -151,27 +159,28 @@ export class GameGateway {
     console.log("Forfeiting game");
     clearInterval(this.map.get(gameRoom.id));
     this.map.delete(gameRoom.id);
-    if (gameRoom.player === 1) {
-      console.log("player one forfeited");
-      gameRoom.playerOne.score = 0;
-      gameRoom.playerTwo.score = 3;
-      gameRoom.winner = 2;
+    if (this.gameService.bothPlayersDisconnected(gameRoom)) {
+      console.log("Both players disconnected");
+      this.gameService.remove(Number(gameRoom.id));
     } else {
-      console.log("player two forfeited");
-      gameRoom.playerTwo.score = 0;
-      gameRoom.playerOne.score = 3;
-      gameRoom.winner = 1;
+      this.gameService.handleForfeit(gameRoom);
+      console.log(
+        "GameGateway.forfeit | p1 score: ",
+        gameRoom.playerOne.score,
+        " p2 score: ",
+        gameRoom.playerTwo.score,
+      );
+      this.server
+        .to(gameRoom.id)
+        .emit(
+          "updateScore",
+          gameRoom.playerOne.score,
+          gameRoom.playerTwo.score,
+        );
+      // fixes active game list on disconnecting player side
+      this.gameService.update(gameRoom);
+      this.endGame(gameRoom.id, gameRoom.winner);
     }
-    console.log(
-      "GameGateway.forfeit | p1 score: ",
-      gameRoom.playerOne.score,
-      " p2 score: ",
-      gameRoom.playerTwo.score,
-    );
-    this.server
-      .to(gameRoom.id)
-      .emit("updateScore", gameRoom.playerOne.score, gameRoom.playerTwo.score);
-    await this.endGame(gameRoom.id, gameRoom.winner);
   }
 
   @SubscribeMessage("activeGameLeft")
@@ -183,7 +192,7 @@ export class GameGateway {
       console.log("A watcher left");
     } else {
       console.log("A player left game: ", gameRoom.id);
-      await this.forfeitGame(client, gameRoom);
+      this.server.emit("playerForfeited", client.id);
     }
     // this.leaveRoom(client, gameRoom.id);
   }

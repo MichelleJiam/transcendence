@@ -1,3 +1,5 @@
+import { Game } from "./entities/game.entity";
+
 export interface Canvas {
   width: number;
   height: number;
@@ -25,6 +27,7 @@ export interface Player {
   socket: string;
   score: number;
   paddle: Paddle;
+  disconnected: boolean;
 }
 
 export interface GameRoom {
