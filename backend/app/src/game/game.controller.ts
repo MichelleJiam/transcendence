@@ -53,6 +53,11 @@ export class GameController {
     }
   }
 
+  @Get(":id/dm")
+  async findGameFromDm(@Param("id", ParseIntPipe) id: number) {
+    return await this.gameService.findGameFromDm(id);
+  }
+
   @Post()
   async create(@Body() createGameDto: CreateGameDto) {
     const game = await this.gameService.create(createGameDto).catch(() => {

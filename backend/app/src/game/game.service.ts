@@ -44,7 +44,7 @@ export class GameService {
   }
 
   async findGameFromPlayerSocket(playerSocket: string) {
-    const foundGame = await this.gameRepository
+    const foundGame = this.gameRepository
       .createQueryBuilder("game")
       .where("game.state = :playing", { playing: "playing" })
       .andWhere(
@@ -55,6 +55,16 @@ export class GameService {
         }),
       );
     return await foundGame.getOne();
+  }
+
+  async findGameFromDm(id: number) {
+    return await this.gameRepository
+      .createQueryBuilder("game")
+      .where(
+        "game.state = :dm AND (game.playerOne = :playerOneId OR game.playerTwo = :playerTwoId)",
+        { dm: "dm", playerOneId: id, playerTwoId: id },
+      )
+      .execute();
   }
 
   async create(createGameDto: CreateGameDto) {
