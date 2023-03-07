@@ -121,22 +121,26 @@ export const useUserStore = defineStore("user", {
      *********/
 
     async updateAvatar(selectedFile: File) {
+      console.log("[DEBUG] updateAvatar() in UserStore.ts");
       try {
         const formData = new FormData();
         formData.append("file", selectedFile);
         await apiRequest(`/user/${this.user.id}/avatar`, "post", {
           data: formData,
         });
+        location.reload();
       } catch (error) {
-        console.log(`Error in updateAvatar(): ${error}`);
+        console.log(`[DEBUG] error in updateAvatar(): ${error}`);
       }
     },
+
     async getAvatar() {
+      console.log("[DEBUG] getAvatar() in UserStore.ts");
       try {
         const res = await apiRequest(`/user/${this.user.id}/avatar`, "get");
         this.user.avatarUrl = res.config.url;
       } catch (error) {
-        console.log(`Error in getAvatar(): ${error}`);
+        console.log(`[DEBUG] error in getAvatar(): ${error}`);
       }
     },
 

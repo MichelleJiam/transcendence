@@ -29,19 +29,24 @@ const isDisabledAvatar = ref<boolean>(true);
 const avatar: Avatar = {};
 
 async function onFileSelected(e: Event) {
+  console.log("[DEBUG] onFileSelected() in AvatarUpload.vue");
   const target = e.target as HTMLInputElement;
   if (target.files) {
+    if (target.files[0].size > 1000000) {
+      alert("File can not be larger than 1mb");
+      target.value = "";
+      return;
+    }
     avatar.selectedFile = target.files[0];
   }
-  // validate file before disabling the button
-  // implement option for setting back the default avatar?
   isDisabledAvatar.value = false;
 }
 
 async function submitAvatar() {
+  console.log("[DEBUG] submitAvatar() in AvatarUpload.vue");
   if (avatar.selectedFile) {
-    store.updateAvatar(avatar.selectedFile);
-  }
+    await store.updateAvatar(avatar.selectedFile);
+  } else console.log("[DEBUG] No file selected");
 }
 </script>
 
