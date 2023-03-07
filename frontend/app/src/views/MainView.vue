@@ -28,9 +28,14 @@
       <WinsLosses
         v-if="route.params.playerName != undefined"
         class="wins-losses"
+        :user-id="otherPlayerInfo.id"
       ></WinsLosses>
       <!-- needs a prop to specify which player's wins/losses, this one for other users -->
-      <WinsLosses v-else class="wins-losses"></WinsLosses>
+      <WinsLosses
+        v-else
+        :user-id="userStore.user.id"
+        class="wins-losses"
+      ></WinsLosses>
       <!-- needs a prop to specify which player's wins/losses, this one for current user -->
       <GameHistory
         v-if="route.params.playerName != undefined"

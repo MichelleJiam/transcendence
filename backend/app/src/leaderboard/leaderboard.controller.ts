@@ -1,17 +1,19 @@
 import {
   Controller,
-  Post,
   Get,
   Body,
   Put,
   ParseIntPipe,
   Param,
+  UseGuards,
 } from "@nestjs/common";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { UpdateLeaderboardUserDto } from "./dto/update-leaderboard-user.dto";
 import { Leaderboard } from "./leaderboard.entity";
 import { LeaderboardService } from "./leaderboard.service";
 
 @Controller("leaderboard")
+@UseGuards(JwtAuthGuard)
 export class LeaderboardController {
   constructor(private readonly leaderboardService: LeaderboardService) {}
 
