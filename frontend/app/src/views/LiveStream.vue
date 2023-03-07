@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { Game, GameRoom } from "../components/game/pong.types";
-import apiRequest from "../utils/apiRequest";
+import apiRequest, { baseUrl } from "../utils/apiRequest";
 import { io } from "socket.io-client";
 // import PongGame from "../components/game/PongGame.vue";
 
@@ -37,7 +37,7 @@ const State = {
 
 const activeGames = ref(Array<Game>());
 const game = ref({} as GameRoom);
-const socket = io("http://localhost:3000/pong");
+const socket = io(baseUrl + "/pong");
 game.value.state = State.READY;
 
 async function gameOver(gameRoom: GameRoom) {

@@ -164,6 +164,13 @@ a:hover {
   padding: 0.3rem;
 }
 
+.playerNameUrl {
+  font-family: sans-serif;
+  background: #00000000;
+  color: white;
+  font-size: 1rem;
+}
+
 li {
   list-style: none;
 }
