@@ -125,6 +125,13 @@ input {
   transition: all 0.2s ease;
 }
 
+select {
+ border: none;
+ border-radius: 4px;
+ padding: 5px 10px;
+}
+
+
 form {
   background: #151414e4;
   text-align: center;

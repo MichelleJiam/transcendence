@@ -5,6 +5,7 @@
       <label for="type"
         ><span class="formText">Choose a chat type:</span></label
       >
+      <br />
       <select id="type" v-model="chatType" name="type" class="inputStyle">
         <option value="public" selected>public</option>
         <option value="private">private</option>
@@ -83,6 +84,10 @@ async function createChat() {
 }
 </script>
 <style scoped>
+
+* {
+  word-spacing: .2rem;
+}
 .formText {
   font-size: 1rem;
 }
