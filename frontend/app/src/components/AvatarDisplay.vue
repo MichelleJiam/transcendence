@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 defineProps({
-  src: { type: String, required: true },
+  src: { type: String },
 });
 </script>
 

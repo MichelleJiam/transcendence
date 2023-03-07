@@ -8,9 +8,9 @@
         <span
           class="dot"
           :style="[
-            friend.status === 'offline'
+            friend.status === UserStatus.OFFLINE
               ? { 'background-color': 'red' }
-              : friend.status === 'online'
+              : friend.status === UserStatus.ONLINE
               ? { 'background-color': 'green' }
               : { 'background-color': 'orange' },
           ]"
@@ -25,6 +25,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useFriendStore, type User } from "@/stores/FriendStore";
+
+enum UserStatus {
+  ONLINE,
+  OFFLINE,
+  GAME,
+}
 
 const store = useFriendStore();
 

@@ -13,6 +13,7 @@ import { AvatarService } from "src/avatar/avatar.service";
 import { AchievementService } from "src/achievement/achievement.service";
 import { Achievement } from "src/achievement/achievement.entity";
 import { Achievements } from "src/achievement/achievement";
+import { UpdateUserStatusDto } from "./dto/update-user-status.dto";
 import { Response } from "express";
 import { createReadStream } from "fs";
 import { join } from "path";
@@ -103,6 +104,22 @@ export class UserService {
     return await this.userRepository.update(id, settings);
   }
 
+  async updateUserStatus(
+    userId: number,
+    updateUserStatusDto: UpdateUserStatusDto,
+  ) {
+    this.logger.log("Hit the updateUserStatus route");
+    const user = await this.userRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({
+        status: updateUserStatusDto.status,
+      })
+      .where("id = :id", { id: userId })
+      .execute();
+    return user;
+  }
+
   /*********
    * avatar *
    *********/
@@ -116,6 +133,7 @@ export class UserService {
   }
 
   async getDefaultAvatar(res: Response) {
+    this.logger.log("Hit the getDefaultAvatar route");
     res.header("Content-Type", "image");
     res.header("Content-Disposition", `inline; filename="default-avatar.jpg"`);
     const defaultAvatar = createReadStream(
@@ -125,6 +143,7 @@ export class UserService {
   }
 
   async getAvatarById(id: number, res: Response) {
+    this.logger.log("Hit the getAvatarById route");
     const file = await this.avatarService.getAvatarById(id);
     res.header("Content-Type", "image");
     res.header("Content-Disposition", `inline; filename="${file.filename}"`);
