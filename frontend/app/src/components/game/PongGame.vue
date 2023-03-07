@@ -22,7 +22,6 @@ enum UserStatus {
   ONLINE,
   OFFLINE,
   GAME,
-  MATCHMAKING,
 }
 
 let view: Canvas;
