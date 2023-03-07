@@ -157,7 +157,9 @@ export class UserService {
     return this.userRepository.update(id, { twoFASecret: secret });
   }
 
-  /* achievements */
+  /***************
+   * achievements *
+   ***************/
 
   async addAchievement(userId: number, achievementId: number) {
     this.logger.log("Hit the addAchievement route");
@@ -188,6 +190,7 @@ export class UserService {
 
   async getAchievements(userId: number) {
     this.logger.log("Hit the getAchievements route");
+    await this.getGameAchievements(userId);
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ["achievements"],
@@ -203,5 +206,27 @@ export class UserService {
       if (user.playerName === null || user.playerName === playerName) return 0;
     }
     return 1;
+  }
+
+  async getGameAchievements(userId: number) {
+    this.logger.log("Hit the getGameAchievements route");
+    const user = await this.findUserById(userId);
+    if (user) {
+      if (
+        (user.wins.length === 1 && user.losses.length === 0) ||
+        (user.losses.length === 1 && user.wins.length === 0)
+      )
+        await this.addAchievement(userId, Achievements.FIRST);
+      if (user.wins.length === 1)
+        await this.addAchievement(userId, Achievements.WON);
+      if (user.losses.length === 1)
+        await this.addAchievement(userId, Achievements.LOST);
+      if (user.wins.length + user.losses.length === 5)
+        await this.addAchievement(userId, Achievements.PLAYFIVE);
+      if (user.wins.length === 5)
+        await this.addAchievement(userId, Achievements.WONFIVE);
+      if (user.losses.length === 5)
+        await this.addAchievement(userId, Achievements.LOSTFIVE);
+    }
   }
 }
