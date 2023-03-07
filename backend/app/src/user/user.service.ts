@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  StreamableFile,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -9,6 +14,10 @@ import { AchievementService } from "src/achievement/achievement.service";
 import { Achievement } from "src/achievement/achievement.entity";
 import { Achievements } from "src/achievement/achievement";
 import { UpdateUserStatusDto } from "./dto/update-user-status.dto";
+import { Response } from "express";
+import { createReadStream } from "fs";
+import { join } from "path";
+import { Readable } from "typeorm/platform/PlatformTools";
 
 @Injectable()
 export class UserService {
@@ -39,7 +48,7 @@ export class UserService {
   }
 
   async findUserByPlayerName(playerName: string) {
-    const foundUser = this.userRepository.findOneBy({
+    const foundUser = await this.userRepository.findOneBy({
       playerName: playerName,
     });
     return foundUser;
@@ -111,17 +120,38 @@ export class UserService {
     return user;
   }
 
+  /*********
+   * avatar *
+   *********/
+
   async addAvatar(id: number, imageBuffer: Buffer, filename: string) {
     const avatar = await this.avatarService.uploadAvatar(imageBuffer, filename);
-    await this.userRepository.update(id, { avatarId: avatar.id });
+    await this.userRepository.update(id, {
+      avatarId: avatar.id,
+    });
     return avatar;
   }
 
-  async getAvatarById(id: number) {
-    return this.avatarService.getAvatarById(id);
+  async getDefaultAvatar(res: Response) {
+    res.header("Content-Type", "image");
+    res.header("Content-Disposition", `inline; filename="default-avatar.jpg"`);
+    const defaultAvatar = createReadStream(
+      join(process.cwd(), "src/assets/default-avatar.png"),
+    );
+    return new StreamableFile(defaultAvatar);
   }
 
-  async setTwoFactorSecret(secret: string, id: number) {
+  async getAvatarById(id: number, res: Response) {
+    const file = await this.avatarService.getAvatarById(id);
+    res.header("Content-Type", "image");
+    res.header("Content-Disposition", `inline; filename="${file.filename}"`);
+    if (file.data) {
+      const stream = Readable.from(file.data);
+      return new StreamableFile(stream);
+    }
+  }
+
+  async setTwoFactorSecret(id: number, secret: string) {
     return this.userRepository.update(id, { twoFASecret: secret });
   }
 

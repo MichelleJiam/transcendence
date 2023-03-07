@@ -87,6 +87,8 @@ socket.on("unfriend", async (data) => {
   display: flex;
   gap: 20px;
   overflow-y: scroll;
+  align-items: stretch;
+  height: 100%;
 }
 
 .friend-box {
@@ -105,6 +107,7 @@ socket.on("unfriend", async (data) => {
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
+    min-height: 200px;
   }
   #friend-boxes > * {
     width: 100%;
