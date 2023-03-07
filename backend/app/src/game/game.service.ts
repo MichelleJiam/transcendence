@@ -9,7 +9,7 @@ import { Brackets, Repository, WhereExpressionBuilder } from "typeorm";
 import { Game } from "./entities/game.entity";
 import { UserService } from "src/user/user.service";
 import { CreateGameDto } from "./dto/create-game.dto";
-import { GameRoom } from "./pong.types";
+import { GameRoom, GameWithPlayer } from "./pong.types";
 
 @Injectable()
 export class GameService {
@@ -44,6 +44,7 @@ export class GameService {
   }
 
   async findGameFromPlayerSocket(playerSocket: string) {
+    let playerNum = 0;
     const foundGame = await this.gameRepository
       .createQueryBuilder("game")
       .where("game.state = :playing", { playing: "playing" })
@@ -55,7 +56,12 @@ export class GameService {
         }),
       )
       .getOne();
-    return foundGame;
+
+    if (foundGame) {
+      playerNum = foundGame.playerOneSocket === playerSocket ? 1 : 2;
+    }
+
+    return { game: foundGame, playerNum: playerNum };
   }
 
   async create(createGameDto: CreateGameDto) {
@@ -142,6 +148,14 @@ export class GameService {
     }
     await this.gameRepository.delete(gameId);
   }
+
+  // setPlayerAsDisconnected(gameRoom: GameRoom, disconnectedPlayer: number) {
+  //   if (disconnectedPlayer === 1) {
+  //     gameRoom.playerOne.disconnected = true;
+  //   } else if (disconnectedPlayer === 2) {
+  //     gameRoom.playerTwo.disconnected = true;
+  //   }
+  // }
 
   bothPlayersDisconnected(gameRoom: GameRoom) {
     return gameRoom.playerOne.disconnected && gameRoom.playerTwo.disconnected;

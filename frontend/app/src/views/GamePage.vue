@@ -146,8 +146,10 @@ const startGame = async () => {
 };
 
 socket.on("savePlayerSockets", (gameRoom: GameRoom) => {
-  game.value.playerOne.socket = gameRoom.playerOne.socket;
-  game.value.playerTwo.socket = gameRoom.playerTwo.socket;
+  if (game.value.state === State.PLAYING) {
+    game.value.playerOne.socket = gameRoom.playerOne.socket;
+    game.value.playerTwo.socket = gameRoom.playerTwo.socket;
+  }
 });
 
 socket.on("addPlayerOne", async (gameRoom: GameRoom) => {
@@ -178,34 +180,25 @@ async function gameOver(gameRoom: GameRoom) {
   await getActiveGames();
 }
 
-socket.on("playerForfeited", (disconnectedSocket: string) => {
+socket.on("playerForfeited", async (disconnectedPlayer: number) => {
   // console.log(
   //   "playerForfeited | p1 socket: ",
   //   game.value.playerOne.socket,
   //   " p2 socket: ",
   //   game.value.playerTwo.socket
   // );
-  if (
-    game.value.playerOne.socket &&
-    game.value.playerOne.socket === disconnectedSocket
-  ) {
-    console.log("Player 1 with socket ", disconnectedSocket, " forfeited");
-    game.value.playerOne.disconnected = true;
-  } else if (
-    game.value.playerTwo.socket &&
-    game.value.playerTwo.socket === disconnectedSocket
-  ) {
-    console.log("Player 2 with socket ", disconnectedSocket, " forfeited");
-    game.value.playerTwo.disconnected = true;
-  } else {
-    console.error("Could not detect which player disconnected");
+  // if user is not actively watching game
+  if (game.value.state !== State.PLAYING) {
     return;
   }
+  if (disconnectedPlayer === 1) {
+    console.log("Player 1 forfeited");
+    game.value.playerOne.disconnected = true;
+  } else {
+    console.log("Player 2 forfeited");
+    game.value.playerTwo.disconnected = true;
+  }
   socket.emit("forfeitGame", game.value);
-});
-
-socket.on("endGameWithoutRender", () => {
-  gameOver(game.value);
 });
 
 // Used by GameGateway::handleDisconnect when a watcher or queued player
