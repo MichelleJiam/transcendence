@@ -11,11 +11,12 @@ import { ChatModule } from "./chat/chat.module";
 import * as Joi from "joi";
 import { PenaltyModule } from "./penalty/penalty.module";
 import { BlocklistModule } from "./blocklist/blocklist.module";
-import { PenaltyDelete } from "./penalty/penalty.scheduler";
 import { AuthModule } from "./auth/auth.module";
 import { MatchModule } from "./match/match.module";
 import { FriendModule } from "./friend/friend.module";
 import { AchievementModule } from "./achievement/achievement.module";
+import { LeaderboardModule } from "./leaderboard/leaderboard.module";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AchievementModule } from "./achievement/achievement.module";
     PenaltyModule,
     BlocklistModule,
     FriendModule,
+    LeaderboardModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
@@ -40,8 +42,9 @@ import { AchievementModule } from "./achievement/achievement.module";
     AuthModule,
     TwoFactorModule,
     AchievementModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService, PenaltyDelete],
+  providers: [AppService],
 })
 export class AppModule {}

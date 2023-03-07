@@ -105,24 +105,15 @@ export function addMember(chatroom: Chatroom, newMember: User): Chatroom {
 
 export function createUpdatedChatroomEntity(
   chatroom: Chatroom,
-  updateChatroomDto: UpdateChatroomDto,
+  password: string,
 ): Chatroom {
-  if (updateChatroomDto.type !== undefined) {
-    chatroom.type = updateChatroomDto.type;
-    if (updateChatroomDto.type === "password") {
-      if (updateChatroomDto.password === undefined) {
-        throw new HttpException(
-          "password type chat must have a password",
-          HttpStatus.BAD_REQUEST,
-        );
-      } else {
-        validateChatroomPasswordSet(updateChatroomDto.password);
-        chatroom.password = updateChatroomDto.password;
-      }
-    }
-  }
-  if (updateChatroomDto.chatroomName !== undefined) {
-    chatroom.chatroomName = updateChatroomDto.chatroomName;
+  if (password === undefined) {
+    throw new HttpException(
+      "password type chat must have a password",
+      HttpStatus.BAD_REQUEST,
+    );
+  } else {
+    chatroom.password = password;
   }
   return chatroom;
 }

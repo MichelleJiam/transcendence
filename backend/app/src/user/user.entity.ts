@@ -4,10 +4,9 @@ import { Avatar } from "src/avatar/avatar.entity";
 import { Game } from "src/game/entities/game.entity";
 
 export enum UserStatus {
-  ONLINE = "online",
-  OFFLINE = "offline",
-  GAME = "game",
-  MATCHMAKING = "matchmaking",
+  ONLINE,
+  OFFLINE,
+  GAME,
 }
 
 import {
@@ -24,6 +23,7 @@ import { Penalty } from "src/penalty/penalty.entity";
 import { Blocklist } from "src/blocklist/blocklist.entity";
 import { Friend } from "src/friend/friend.entity";
 import { Achievement } from "src/achievement/achievement.entity";
+import { Leaderboard } from "src/leaderboard/leaderboard.entity";
 
 @Entity()
 export class User {
@@ -78,6 +78,11 @@ export class User {
 
   // relationships for chat END
 
+  // leaderboard relationship
+  @OneToOne(() => Leaderboard, (leaderboard: Leaderboard) => leaderboard.user)
+  @JoinColumn()
+  public leaderboard!: Leaderboard;
+
   @Column({
     type: "boolean",
     default: false,
@@ -98,11 +103,9 @@ export class User {
 
   @Column({
     name: "userStatus",
-    type: "enum",
-    enum: UserStatus,
     default: UserStatus.OFFLINE,
   })
-  public status!: UserStatus;
+  public status!: number;
 
   /* user friends */
 
@@ -114,14 +117,14 @@ export class User {
 
   @JoinColumn()
   @OneToMany(() => Game, (games: Game) => games.winnerId, {
-    eager: true,
+    // eager: true,
     nullable: true,
   })
   public wins!: Game[];
 
   @JoinColumn()
   @OneToMany(() => Game, (games: Game) => games.loserId, {
-    eager: true,
+    // eager: true,
     nullable: true,
   })
   public losses!: Game[];

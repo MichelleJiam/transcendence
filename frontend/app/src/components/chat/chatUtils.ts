@@ -6,9 +6,7 @@ const socketUrl = baseUrl + "/penalty";
 const socket = io(socketUrl);
 
 export class UpdateChatroomDto {
-  type?: string;
-  chatroomName?: string;
-  password?: string;
+  password!: string;
 }
 
 export class AddMemberDto {
@@ -214,8 +212,8 @@ export async function buildUserPageUrl(userId: number) {
   await apiRequest(url, "get")
     .then((response) => {
       userData.value = response.data;
-      console.log("/user/" + userData.value.playerName);
-      // location.href = "/user/" + userData.value.playerName;
+      console.log("/player/" + userData.value.playerName);
+      location.href = "/player/" + userData.value.playerName;
     })
     .catch((err) => console.error(err));
 }

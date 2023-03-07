@@ -11,7 +11,13 @@
       "
       id="display-content"
     >
-      <div v-if="route.params.playerName != undefined" class="username">
+      <div
+        v-if="
+          route.params.playerName != undefined &&
+          route.params.playerName != userStore.user.playerName
+        "
+        class="username"
+      >
         <AvatarDisplay class="avatar" :src="otherPlayerInfo?.avatarUrl" />
         <h1>{{ otherPlayerInfo?.playerName }}</h1>
       </div>
@@ -19,22 +25,45 @@
         <AvatarDisplay class="avatar" :src="userStore.user.avatarUrl" />
         <h1>{{ userStore.user.playerName }}</h1>
       </div>
-      <WinsLosses class="wins-losses"></WinsLosses>
-      <GameHistory class="game-history"></GameHistory>
+      <WinsLosses
+        v-if="
+          route.params.playerName != undefined &&
+          route.params.playerName != userStore.user.playerName
+        "
+        class="wins-losses"
+        :user-id="otherPlayerInfo.id"
+      ></WinsLosses>
+      <!-- needs a prop to specify which player's wins/losses, this one for other users -->
+      <WinsLosses
+        v-else
+        :user-id="userStore.user.id"
+        class="wins-losses"
+      ></WinsLosses>
+      <!-- needs a prop to specify which player's wins/losses, this one for current user -->
+      <GameHistory
+        v-if="
+          route.params.playerName != undefined &&
+          route.params.playerName != userStore.user.playerName
+        "
+        class="game-history"
+      ></GameHistory>
+      <!-- needs a prop to specify which player's game history, this one for other users -->
+      <GameHistory v-else class="game-history"></GameHistory>
+      <!-- needs a prop to specify which player's game history, this one for current user -->
       <UserAchiements
         class="user-achievements"
         :chievs="userStore.achievements"
       ></UserAchiements>
-      <!-- add in a vif if its your own page you see padle bords, if
-      someone elses page you see the buttons to DM or Add as friend -->
       <div
-        v-if="route.params.playerName != undefined"
+        v-if="
+          route.params.playerName != undefined &&
+          route.params.playerName != userStore.user.playerName
+        "
         class="homepage-buttons box-styling"
       >
         <FriendButton class="friend-button"></FriendButton>
         <CreateDMButton :other-player="otherPlayerInfo?.id"></CreateDMButton>
       </div>
-      <!-- <div v-else class="homepage-buttons box-styling">🏓🏓🏓🏓🏓🏓🏓</div> -->
       <div v-else class="homepage-buttons box-styling paddle-div">
         <font-awesome class="font-awesome" icon="table-tennis-paddle-ball" />
       </div>
@@ -68,32 +97,33 @@ const showPopup = computed(() => {
 
 onBeforeMount(async () => {
   if (route.params.playerName != undefined) {
-    console.log("is a different player");
-    await apiRequest("/user/player/" + route.params.playerName, "get")
-      .then(async (response) => {
-        if (response.data != undefined) {
-          otherPlayerInfo.value = response.data;
-          if (otherPlayerInfo.value.id != undefined) {
-            isOtherPlayer.value = true;
-            await apiRequest(
-              "/user/" + otherPlayerInfo.value.id + "/avatar",
-              "get"
-            )
-              .then(
-                (response) =>
-                  (otherPlayerInfo.value["avatarUrl"] = response.config.url)
+    if (route.params.playerName != userStore.user.playerName) {
+      await apiRequest("/user/player/" + route.params.playerName, "get")
+        .then(async (response) => {
+          if (response.data != "") {
+            otherPlayerInfo.value = response.data;
+            if (otherPlayerInfo.value.id != undefined) {
+              isOtherPlayer.value = true;
+              await apiRequest(
+                "/user/" + otherPlayerInfo.value.id + "/avatar",
+                "get"
               )
-              .catch((err) => {
-                isOtherPlayer.value = false;
-                console.error(err);
-              });
+                .then(
+                  (response) =>
+                    (otherPlayerInfo.value["avatarUrl"] = response.config.url)
+                )
+                .catch((err) => {
+                  isOtherPlayer.value = false;
+                  console.error(err);
+                });
+            }
           }
-        }
-      })
-      .catch((err) => {
-        isOtherPlayer.value = false;
-        console.error("an error occured: ", err);
-      });
+        })
+        .catch((err) => {
+          isOtherPlayer.value = false;
+          console.error("an error occured: ", err);
+        });
+    } else isOtherPlayer.value = true;
   }
 });
 
