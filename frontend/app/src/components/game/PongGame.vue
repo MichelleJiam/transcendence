@@ -12,7 +12,6 @@ import type { Keys, GameRoom, Canvas, Colors } from "./pong.types";
 import { Socket } from "socket.io-client";
 
 const props = defineProps({
-  id: { type: String, required: true },
   game: { type: Object as PropType<GameRoom>, required: true },
   socket: { type: Socket, required: true },
 });
@@ -95,6 +94,7 @@ function initGame() {
         y: (view.height - view.height * 0.24) / 2,
         offset: view.width * 0.0026,
       },
+      disconnected: false,
     },
     playerTwo: {
       id: props.game.playerTwo.id,
@@ -106,6 +106,7 @@ function initGame() {
         y: (view.height - view.height * 0.24) / 2,
         offset: view.width * 0.0026,
       },
+      disconnected: false,
     },
     ball: {
       radius: view.width * 0.014,
@@ -146,6 +147,7 @@ async function gameOver() {
 }
 
 props.socket.on("endGame", (winner: number) => {
+  console.log("PongGame.endGame");
   ctx.fillStyle = color.canvas;
   ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();

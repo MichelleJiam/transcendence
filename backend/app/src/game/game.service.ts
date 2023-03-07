@@ -53,8 +53,9 @@ export class GameService {
             playerSocket,
           }).orWhere("game.playerTwoSocket = :playerSocket", { playerSocket });
         }),
-      );
-    return await foundGame.getOne();
+      )
+      .getOne();
+    return foundGame;
   }
 
   async create(createGameDto: CreateGameDto) {
@@ -140,6 +141,24 @@ export class GameService {
       throw new NotFoundException("game does not exist, unable to delete");
     }
     await this.gameRepository.delete(gameId);
+  }
+
+  bothPlayersDisconnected(gameRoom: GameRoom) {
+    return gameRoom.playerOne.disconnected && gameRoom.playerTwo.disconnected;
+  }
+
+  handleForfeit(gameRoom: GameRoom) {
+    if (gameRoom.playerOne.disconnected) {
+      console.log("player one forfeited");
+      gameRoom.playerOne.score = 0;
+      gameRoom.playerTwo.score = 3;
+      gameRoom.winner = 2;
+    } else {
+      console.log("player two forfeited");
+      gameRoom.playerTwo.score = 0;
+      gameRoom.playerOne.score = 3;
+      gameRoom.winner = 1;
+    }
   }
 }
 

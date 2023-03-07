@@ -17,6 +17,7 @@ export interface Player {
   socket: string;
   score: number;
   paddle: Paddle;
+  disconnected: boolean;
 }
 
 export interface Ball {
