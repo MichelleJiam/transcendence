@@ -1,24 +1,36 @@
 <template>
   <nav>
-    <ul class="navbar" :class="{notactive: !menuOpen}">
+    <ul class="navbar" :class="{ notactive: !menuOpen }">
       <li @click="closeMenu"><router-link to="/">Home</router-link></li>
-      <li @click="closeMenu"><router-link :to="{name:'account', params: {id: useUserStore.$id}}">Account</router-link></li>
+      <li @click="closeMenu">
+        <router-link :to="{ name: 'account', params: { id: useUserStore.$id } }"
+          >Account</router-link
+        >
+      </li>
       <li @click="closeMenu"><router-link to="/game">Game</router-link></li>
-      <li @click="closeMenu"><router-link to="/leaderboard">Leaderboard</router-link></li>
+      <li @click="closeMenu">
+        <router-link to="/leaderboard">Leaderboard</router-link>
+      </li>
       <li @click="closeMenu"><router-link to="/chat">Chat</router-link></li>
       <li @click="closeMenu"><router-link to="/stream">Live</router-link></li>
-      <li @click="closeMenu"><router-link to="/friends">Friends</router-link></li>
-      <li @click="closeMenu"><router-link to="/login" @click="userStore.logOut()" class="logout-text">Logout</router-link></li>
+      <li @click="closeMenu">
+        <router-link to="/friends">Friends</router-link>
+      </li>
+      <li @click="closeMenu">
+        <router-link to="/login" @click="userStore.logOut()" class="logout-text"
+          >Logout</router-link
+        >
+      </li>
     </ul>
     <div class="buttons">
-      <button class="menu-icon" @click="openMenu"> 
-        <font-awesome class="font-awesome" icon="bars"/>
+      <button class="menu-icon" @click="openMenu">
+        <font-awesome class="font-awesome" icon="bars" />
       </button>
       <button class="logout-icon" @click="userStore.logOut()">
-        <font-awesome class="font-awesome logout-icon" icon="sign-out"/>
+        <font-awesome class="font-awesome logout-icon" icon="sign-out" />
       </button>
     </div>
-    <div :class="{overlay: menuOpen}"></div>
+    <div :class="{ overlay: menuOpen }"></div>
   </nav>
 </template>
 
@@ -30,21 +42,21 @@ let menuOpen = ref(false);
 let windowWidth = ref(window.innerWidth);
 
 onMounted(() => {
-    window.onresize = () => {
-      windowWidth.value = window.innerWidth;
-      console.log(windowWidth.value);
-  }
-})
+  window.onresize = () => {
+    windowWidth.value = window.innerWidth;
+    console.log(windowWidth.value);
+  };
+});
 
 watchEffect(() => {
   if (windowWidth.value >= 1100 && menuOpen.value == true) {
     menuOpen.value = false;
   }
-})
+});
 
 function openMenu() {
   menuOpen.value = !menuOpen.value;
-  console.log(menuOpen.value)
+  console.log(menuOpen.value);
 }
 
 function closeMenu() {
@@ -52,11 +64,10 @@ function closeMenu() {
     menuOpen.value = false;
   }
 }
-
 </script>
 
 <style scoped>
-.overlay {
+/* .overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -64,7 +75,7 @@ function closeMenu() {
   z-index: 2;
   width: 100%;
   height: 100%;
-}
+} */
 nav {
   position: fixed;
   top: 0;
@@ -125,15 +136,15 @@ li {
     display: block;
   }
   .navbar {
-    position: absolute;
-    top: 0;
-    padding-top: 50%;
-    width: 100%;
+    width: 100vw;
+    height: 100vh;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     z-index: 99;
     font-size: 1.5rem;
     row-gap: 1rem;
+    background: rgba(0, 0, 0, 0.85);
   }
 
   .notactive {
