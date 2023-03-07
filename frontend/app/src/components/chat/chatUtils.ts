@@ -205,25 +205,6 @@ export async function kickUser(
     });
 }
 
-async function buildUserPageUrlString(userId: number): Promise<string> {
-  const url = "/user/" + userId;
-  const userData = ref();
-
-  await apiRequest(url, "get")
-    .then((response) => {
-      userData.value = response.data;
-      console.log("/player/" + userData.value.playerName);
-      return "/player/" + userData.value.playerName;
-    })
-    .catch((err) => console.error(err));
-  return "/player/unknown";
-}
-
-export async function UserPageUrlString(userId: number): Promise<string> {
-  const string = await buildUserPageUrlString(userId);
-  return String(string);
-}
-
 export async function buildUserPageUrl(userId: number) {
   const url = "/user/" + userId;
   const userData = ref();

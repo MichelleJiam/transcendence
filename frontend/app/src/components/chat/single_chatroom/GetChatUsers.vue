@@ -8,10 +8,10 @@
     <div v-if="chatRoomInfo.type != 'DM'" class="roles">
       <div v-for="admin in chatRoomInfo.admin" :key="chatRoomInfo.admin.id">
         <p>
-          <button class="playerNameUrl" @click="buildUserPageUrl(admin.id)">
+          <a :href="'/player/' + admin.playerName">
             {{ admin.playerName }}
             <span v-if="admin.isOwner == true">👑</span>
-          </button>
+          </a>
           <br />
           <button
             v-if="
@@ -40,10 +40,10 @@
     <div class="roles">
       <div v-for="member in chatRoomInfo.member" :key="chatRoomInfo.member.id">
         <p>
-          <button class="playerNameUrl" @click="buildUserPageUrl(member.id)">
+          <a :href="'/player/' + member.playerName">
             {{ member.playerName }}
             <span v-if="member.isOwner == true">👑</span>
-          </button>
+          </a>
           <br />
           <button
             v-if="
@@ -127,8 +127,6 @@ import {
   AddMemberDto,
   kickUser,
   Blocklist,
-  buildUserPageUrl,
-  UserPageUrlString,
 } from "../chatUtils";
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
@@ -299,6 +297,9 @@ function unBlock(blocklistOwner: number, blockedUser: number) {
 }
 </script>
 <style scoped>
+a:link {
+  text-decoration: none;
+}
 button {
   width: 14%;
   height: 2%;
