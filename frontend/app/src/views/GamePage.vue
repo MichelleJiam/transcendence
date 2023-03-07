@@ -1,11 +1,21 @@
 <template>
   <main>
     <div id="display-content">
-      <div v-if="game.state == State.READY" class="main-game">
+      <div
+        v-if="game.state == State.READY"
+        class="main-game"
+        :class="{ active: noGames }"
+      >
         <div class="start-game">
-          <button class="game-button" @click="startGame">PLAY GAME</button>
+          <button
+            class="game-button"
+            :class="{ activebutton: noGames }"
+            @click="startGame"
+          >
+            PLAY GAME
+          </button>
         </div>
-        <div class="watch-games">
+        <div class="watch-games" :class="{ nolive: noGames }">
           <h2>WATCH LIVE!</h2>
           <div class="game-list">
             <button
@@ -14,8 +24,11 @@
               class="small-btn"
               @click="watchGame(activeGame.id)"
             >
-              {{ activeGame.playerOneName }} vs.
-              {{ activeGame.playerTwoName }}
+              <span>{{ activeGame.playerOneName }}</span>
+              <span>vs.</span>
+              <span>{{ activeGame.playerTwoName }}</span>
+              <!-- {{ activeGame.playerOneName }} vs. -->
+              <!-- {{ activeGame.playerTwoName }} -->
             </button>
           </div>
         </div>
@@ -39,9 +52,9 @@
 <script setup lang="ts">
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
-import apiRequest from "../utils/apiRequest";
-import { onBeforeMount, onUnmounted, ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import apiRequest, { baseUrl } from "../utils/apiRequest";
+import { onBeforeMount, onUnmounted, ref, onMounted, watchEffect } from "vue";
+// import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import type { Game, GameRoom } from "../components/game/pong.types";
 import type { AxiosResponse } from "axios";
@@ -57,9 +70,10 @@ const State = {
 // const id = route.params.id as string;
 const userStore = useUserStore();
 const id = ref(0);
-const socket = io("http://localhost:3000/pong");
+const socket = io(baseUrl + "/pong");
 const game = ref({} as GameRoom);
 const activeGames = ref(Array<Game>());
+const noGames = ref(true);
 game.value.state = State.READY;
 
 // remove?
@@ -73,6 +87,7 @@ onBeforeMount(async () => {
 onMounted(async () => {
   await userStore.retrieveCurrentUserData();
   id.value = userStore.user.id;
+  console.log("id ", id.value);
   // await apiRequest(
   //   // `/match/${id.value}`,
   //   `/match/${id}`,
@@ -97,6 +112,17 @@ onUnmounted(async () => {
     removePlayerFromMatchQueue();
   }
   game.value.state = State.READY;
+  // await apiRequest(`/match/${id.value}`, "delete").catch((err) => {
+  //   console.log("Something went wrong with deleting the match: ", err);
+  // });
+});
+
+watchEffect(() => {
+  if (activeGames.value.length > 0) {
+    noGames.value = false;
+  } else {
+    noGames.value = true;
+  }
 });
 
 socket.on("updateActiveGames", async () => {
@@ -116,7 +142,6 @@ async function getActiveGames() {
 }
 
 async function watchGame(gameId: number) {
-  // const res = await apiRequest(`/game/${gameId}`, "get");
   const res = await apiRequest(`/game/${gameId}`, "get");
   console.log("watchGame | retrieved game state: ", res.data.state);
   if (res.data.state !== "playing") {
@@ -131,8 +156,8 @@ async function watchGame(gameId: number) {
 }
 
 const startGame = async () => {
-  // const res = await apiRequest(`/match/play/${id.value}`, "get");
   const res = await apiRequest(`/match/play/${id.value}`, "get");
+  // const res = await apiRequest(`/match/play/${id}`, "get");
   /* if no one currently in queue */
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
@@ -170,13 +195,13 @@ async function gameOver(gameRoom: GameRoom) {
     " p2 score: ",
     gameRoom.playerTwo.score
   );
-  game.value.state = State.READY;
-  socket.emit("leaveRoom", gameRoom.id);
-  console.log("GamePage | ", id.value, " left room ", gameRoom.id);
   // can fail if both players disconnected and game was deleted
   await apiRequest(`/game`, "put", { data: gameRoom }).catch((err) => {
     console.log("Something went wrong with updating with game result: ", err);
   });
+  game.value.state = State.READY;
+  socket.emit("leaveRoom", gameRoom.id);
+  console.log("GamePage | ", id.value, " left room ", gameRoom.id);
   await getActiveGames();
 }
 
@@ -187,6 +212,7 @@ socket.on("playerForfeited", async (disconnectedPlayer: number) => {
   //   " p2 socket: ",
   //   game.value.playerTwo.socket
   // );
+
   // if user is not actively watching game
   if (game.value.state !== State.PLAYING) {
     return;
@@ -267,8 +293,6 @@ function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
 
 <style scoped>
 #display-content {
-  /* display: flex; */
-  /* height: 80%; */
   align-items: center;
   justify-items: center;
 }
@@ -279,6 +303,15 @@ function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
   align-items: stretch;
   height: 100%;
   overflow: hidden;
+}
+
+/* class styling when no games available to watch */
+.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
 }
 
 .start-game {
@@ -292,6 +325,11 @@ function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
   gap: 10px;
   flex-direction: column;
   justify-content: center;
+}
+
+/* styling when there are no games available to watch */
+.nolive {
+  display: none;
 }
 
 .watch-games button {
@@ -312,7 +350,8 @@ function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
 }
 
 .game-list > button {
-  /* TODO TOMORROW MAKE GRID */
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr;
 }
 
 .in-game {
@@ -332,6 +371,10 @@ button:hover {
 
 .game-button {
   font-size: 4em;
+}
+
+.activebutton {
+  font-size: 8em;
 }
 
 button {

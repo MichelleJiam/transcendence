@@ -19,12 +19,17 @@
             <div class="losses">losses</div>
           </li>
           <li
-            v-for="rank in leaderboardDummy"
-            :key="rank.rank"
+            v-for="(rank, index) in leaderboard"
+            :key="index"
             class="list-items"
           >
-            <div class="rank">{{ rank.rank }}</div>
-            <div class="playername">{{ rank.playername }}</div>
+            <div class="rank">{{ inc(index) }}</div>
+            <!-- add ranking system-->
+            <div class="playername">
+              <a :href="'/player/' + rank.user.playerName">{{
+                rank.user.playerName
+              }}</a>
+            </div>
             <div class="rate">{{ rank.rate }}</div>
             <div class="wins">{{ rank.wins }}</div>
             <div class="losses">{{ rank.losses }}</div>
@@ -36,28 +41,29 @@
 </template>
 
 <script setup lang="ts">
-const leaderboardDummy = [
-  { rank: 1, playername: "sanne", rate: 2000, wins: 21, losses: 2 },
-  { rank: 2, playername: "nilo", rate: 1900, wins: 12, losses: 3 },
-  { rank: 3, playername: "swaan", rate: 1700, wins: 10, losses: 2 },
-  { rank: 4, playername: "michelle", rate: 1000, wins: 19, losses: 8 },
-  { rank: 5, playername: "niks", rate: 200, wins: 0, losses: 5 },
-  // { rank: 6, playername: "sanne", rate: 2000, wins: 21, losses: 2 },
-  // { rank: 7, playername: "nilo", rate: 1900, wins: 12, losses: 3 },
-  // { rank: 8, playername: "swaan", rate: 1700, wins: 10, losses: 2 },
-  // { rank: 9, playername: "michelle", rate: 1000, wins: 19, losses: 8 },
-  // { rank: 10, playername: "niks", rate: 200, wins: 0, losses: 5 },
-  // { rank: 11, playername: "sanne", rate: 2000, wins: 21, losses: 2 },
-  // { rank: 12, playername: "nilo", rate: 1900, wins: 12, losses: 3 },
-  // { rank: 13, playername: "swaan", rate: 1700, wins: 10, losses: 2 },
-  // { rank: 14, playername: "michelle", rate: 1000, wins: 19, losses: 8 },
-  // { rank: 15, playername: "niks", rate: 200, wins: 0, losses: 5 },
-  // { rank: 16, playername: "sanne", rate: 2000, wins: 21, losses: 2 },
-  // { rank: 17, playername: "nilo", rate: 1900, wins: 12, losses: 3 },
-  // { rank: 18, playername: "swaan", rate: 1700, wins: 10, losses: 2 },
-  // { rank: 19, playername: "michelle", rate: 1000, wins: 19, losses: 8 },
-  // { rank: 20, playername: "niks", rate: 200, wins: 0, losses: 5 },
-];
+import apiRequest from "@/utils/apiRequest";
+import { ref, onBeforeMount } from "vue";
+
+const leaderboard = ref([]);
+
+function inc(index: number) {
+  return (index += 1);
+}
+
+onBeforeMount(async () => {
+  await apiRequest("/leaderboard", "get")
+    .then((response) => {
+      leaderboard.value = response.data;
+    })
+    .catch((error) => console.log(error));
+});
+// const leaderboardDummy = [
+//   { rank: 1, playername: "sanne", rate: 2000, wins: 21, losses: 2 },
+//   { rank: 2, playername: "nilo", rate: 1900, wins: 12, losses: 3 },
+//   { rank: 3, playername: "swaan", rate: 1700, wins: 10, losses: 2 },
+//   { rank: 4, playername: "michelle", rate: 1000, wins: 19, losses: 8 },
+//   { rank: 5, playername: "niks", rate: 200, wins: 0, losses: 5 },
+// ];
 
 // query all game data from the users
 // need to have there rate (score) based on that we will order them (rank)
@@ -66,6 +72,9 @@ const leaderboardDummy = [
 // amount of losses they have
 </script>
 <style scoped>
+a:link {
+  text-decoration: none;
+}
 h1 {
   font-size: 4.5em;
   padding-bottom: 20px;

@@ -175,7 +175,7 @@ export class GameGateway {
       // updates active game list on disconnecting player side
       this.gameService.update(gameRoom);
       // updates active game list on lobby user
-      this.updateActiveGames();
+      await this.updateActiveGames();
       this.endGame(gameRoom.id, gameRoom.winner);
     }
   }

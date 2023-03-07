@@ -10,7 +10,7 @@ export type Relation = {
 export type User = {
   id: number;
   playerName: string;
-  status: string /* ONLINE | OFFLINE | GAME */;
+  status: number /* ONLINE | OFFLINE | GAME */;
   avatarUrl: string | undefined;
   relation: Relation /* in relation to the current user */;
 };

@@ -6,7 +6,7 @@ import { AvatarService } from "./avatar.service";
 
 @Module({
   imports: [TypeOrmModule.forFeature([Avatar])],
-  controllers: [AvatarController], // this can probably go because we use user.controller.ts
+  controllers: [AvatarController],
   providers: [AvatarService],
 })
 export class AvatarModule {}
