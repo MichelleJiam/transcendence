@@ -1,5 +1,5 @@
 <template>
-  <div id="display-content">
+  <div class="pong-div">
     <button @click="colorMode">COLOR MODE</button>
     <canvas id="canvas" ref="game"></canvas>
   </div>
@@ -10,6 +10,7 @@ import { onMounted, onUnmounted } from "vue";
 import type { PropType } from "vue";
 import type { Keys, GameRoom, Canvas, Colors } from "./pong.types";
 import { Socket } from "socket.io-client";
+import apiRequest from "../../utils/apiRequest";
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -17,26 +18,38 @@ const props = defineProps({
   socket: { type: Socket, required: true },
 });
 
+enum UserStatus {
+  ONLINE,
+  OFFLINE,
+  GAME,
+}
+
 let view: Canvas;
 let ctx: CanvasRenderingContext2D;
 let key: Keys;
 let gameRoom: GameRoom;
 let color: Colors;
 
-onMounted(() => {
+onMounted(async () => {
   console.log("onMounted");
   initCanvas();
   initGame();
   drawBorderLines();
   drawCenterLine();
   drawPaddles();
+  await apiRequest(`/user/${props.id}/update-status`, "put", {
+    data: { status: UserStatus.GAME },
+  });
   if (gameRoom.player == 1) {
     props.socket.emit("countdown", gameRoom);
   }
 });
 
-onUnmounted(() => {
+onUnmounted(async () => {
   console.log("PongGame unmounted");
+  await apiRequest(`/user/${props.id}/update-status`, "put", {
+    data: { status: UserStatus.ONLINE },
+  });
   // if (gameRoom.player == 0) {
   //   props.socket.emit("leaveRoom", gameRoom.id);
   // }
@@ -145,19 +158,16 @@ async function gameOver() {
   emit("game-over", gameRoom);
 }
 
-props.socket.on(
-  "endGame",
-  (playerOneScore: number, playerTwoScore: number, winner: number) => {
-    ctx.fillStyle = color.canvas;
-    ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
-    drawCenterLine();
-    drawBorderLines();
-    drawPaddles();
-    drawScoreboard(playerOneScore, playerTwoScore);
-    drawGameOver(winner);
-    gameOver();
-  }
-);
+props.socket.on("endGame", (winner: number) => {
+  ctx.fillStyle = color.canvas;
+  ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
+  drawCenterLine();
+  drawBorderLines();
+  drawPaddles();
+  drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
+  drawGameOver(winner);
+  gameOver();
+});
 
 /********************
  * UPDATE GAME ROOM *
@@ -471,11 +481,19 @@ function drawGameOver(winner: number) {
 </script>
 
 <style scoped>
+button {
+  margin-bottom: 15px;
+  width: 33%;
+}
 canvas {
-  height: 80%;
   width: 100%;
   color: white;
   display: block;
 }
 
+.pong-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 </style>

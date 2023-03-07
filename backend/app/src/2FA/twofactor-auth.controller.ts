@@ -34,7 +34,7 @@ export class TwoFactorAuthController {
     @Res() response: Response,
     @currentUser() user: User,
   ): Promise<string | void> {
-    const { otpauthUrl } =
+    const otpauthUrl =
       await this.twoFactorAuthService.generateTwoFactorAuthSecret(user);
     const qrCode = await this.twoFactorAuthService.getQrCodeAsDataUrl(
       otpauthUrl,
@@ -49,7 +49,7 @@ export class TwoFactorAuthController {
     @currentUser() user: User,
     @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto,
   ) {
-    await this.validateCode(user, twoFactorAuthCode);
+    this.validateCode(user, twoFactorAuthCode);
     await this.twoFactorAuthService.enableTwoFactor(user);
     this.logger.log(`2FA has been enabled for user ${user.id}`);
   }
@@ -70,19 +70,22 @@ export class TwoFactorAuthController {
     @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    this.logger.log(`Attempting to authenticate 2FA for user ${user.id}`);
-    await this.validateCode(user, twoFactorAuthCode);
+    this.validateCode(user, twoFactorAuthCode);
 
     const authCookie = this.authService.getCookieWithJwtToken(user.id);
     response.setHeader("Set-Cookie", authCookie);
   }
 
-  private async validateCode(user: User, twoFactorAuthCode: string) {
+  private validateCode(user: User, twoFactorAuthCode: string) {
+    this.logger.log(
+      `Attempting to validate user ${user.id} with 2FA code ${twoFactorAuthCode}`,
+    );
     const isCodeValid = this.twoFactorAuthService.isTwoFactorAuthCodeValid(
       twoFactorAuthCode,
       user,
     );
     if (!isCodeValid) {
+      console.log("2FA code not valid");
       throw new UnauthorizedException("2FA: wrong authentication code");
     }
   }

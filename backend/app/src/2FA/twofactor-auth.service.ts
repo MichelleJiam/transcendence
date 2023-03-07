@@ -10,16 +10,16 @@ export class TwoFactorAuthService {
   private readonly logger = new Logger(TwoFactorAuthService.name);
   constructor(private readonly userService: UserService) {}
 
-  async generateTwoFactorAuthSecret(
-    user: User,
-  ): Promise<{ secret: string; otpauthUrl: string }> {
-    this.logger.log(`Generating 2FA secret for user ${user}`);
+  async generateTwoFactorAuthSecret(user: User) {
+    this.logger.log(`Generating 2FA secret for user ${user.id}`);
     const secret = authenticator.generateSecret();
     const appName = process.env.TWOFA_APP_NAME ?? "Pong";
     const otpauthUrl = authenticator.keyuri(user.intraId, appName, secret);
 
-    await this.userService.setTwoFactorSecret(secret, user.id);
-    return { secret: secret, otpauthUrl: otpauthUrl };
+    await this.userService.setTwoFactorSecret(user.id, secret);
+    // console.log("secret: ", secret);
+    // console.log("otpauth: ", otpauthUrl);
+    return otpauthUrl;
   }
 
   async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
@@ -31,6 +31,12 @@ export class TwoFactorAuthService {
   }
 
   isTwoFactorAuthCodeValid(twoFactorAuthCode: string, user: User) {
+    // console.log(
+    //   "Trying to verify token ",
+    //   twoFactorAuthCode,
+    //   " with secret ",
+    //   user.twoFASecret,
+    // );
     if (!user.twoFASecret || user.twoFASecret.length < 1) {
       throw new BadRequestException("2FA: user has not registered a secret");
     }

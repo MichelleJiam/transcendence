@@ -12,7 +12,6 @@ import {
   Put,
   ValidationPipe,
   UsePipes,
-  StreamableFile,
   Res,
   UseInterceptors,
   UploadedFile,
@@ -24,15 +23,13 @@ import {
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserSettingsDto } from "./dto/update-user-settings.dto";
 import { UserService } from "./user.service";
-import { createReadStream } from "fs";
-import { join } from "path";
 import { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { Readable } from "typeorm/platform/PlatformTools";
 import { RequestUser } from "./request-user.interface";
 import { User } from "./user.entity";
 import { QueryFailedError } from "typeorm";
 import { Achievements } from "src/achievement/achievement";
+import { UpdateUserStatusDto } from "./dto/update-user-status.dto";
 // the code for each function can be found in:
 // user.service.ts
 
@@ -114,6 +111,29 @@ export class UserController {
     }
   }
 
+  /*********
+   * status *
+   *********/
+
+  @Put(":id/update-status")
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  async updateUserStatus(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateUserStatusDto: UpdateUserStatusDto,
+  ) {
+    this.logger.log("Hit the updateStatus route");
+    try {
+      return await this.userService.updateUserStatus(id, updateUserStatusDto);
+    } catch (error) {
+      if (error instanceof QueryFailedError) this.logger.error(error.message);
+      throw new HttpException(
+        "Updating user status failed",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   // @Put("/update-settings")
   // @UsePipes(ValidationPipe)
   // async updateUser(
@@ -124,7 +144,9 @@ export class UserController {
   //   return await this.userService.updateUser(user.id, userSettings);
   // }
 
-  /* avatar */
+  /*********
+   * avatar *
+   *********/
 
   @Post(":id/avatar")
   @UseGuards(JwtAuthGuard)
@@ -134,10 +156,11 @@ export class UserController {
     @Param("id", ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    // delete avatar before posting a new one
+    this.logger.log("Hit the addAvatar route");
     if (file) await this.userService.addAchievement(id, Achievements.AVATAR);
     file.filename = "avatar" + "-" + id + "-" + Date.now();
-    return this.userService.addAvatar(id, file.buffer, file.filename);
+    this.logger.debug(file.filename);
+    return await this.userService.addAvatar(id, file.buffer, file.filename);
   }
 
   @Get(":id/avatar")
@@ -146,36 +169,14 @@ export class UserController {
     @Param("id", ParseIntPipe) id: number,
     @Res({ passthrough: true }) res: Response,
   ) {
-    // add id check here
+    this.logger.log("Hit the getAvatar route");
     const user = await this.findUserById(id);
     if (user != null) {
       const avatarId = user.avatarId;
-      if (user.avatarId == null) {
-        res.header("Content-Type", "image");
-        res.header(
-          "Content-Disposition",
-          `inline; filename="default-avatar.jpg"`,
-        );
-        const defaultAvatar = createReadStream(
-          join(process.cwd(), "src/assets/default-avatar.png"),
-        );
-        return new StreamableFile(defaultAvatar);
-        // split up into different functions
-      } else {
-        if (avatarId) {
-          const file = await this.userService.getAvatarById(avatarId);
-          res.header("Content-Type", "image");
-          res.header(
-            "Content-Disposition",
-            `inline; filename="${file.filename}"`,
-          );
-          if (file.data) {
-            const stream = Readable.from(file.data);
-            return new StreamableFile(stream);
-          }
-        }
-      }
-    }
+      if (!avatarId) {
+        return await this.userService.getDefaultAvatar(res);
+      } else return await this.userService.getAvatarById(avatarId, res);
+    } else this.logger.debug("User not found");
   }
 
   /* achievements */
