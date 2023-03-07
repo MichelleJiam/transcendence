@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/user/user.entity";
 import { Repository } from "typeorm";
@@ -18,9 +18,7 @@ export class LeaderboardService {
         user: true,
       },
       order: {
-        user: {
-          id: "asc", // potentially change this to rate later that will then sort the list by ascending value of the rate
-        },
+        rate: "desc",
       },
     });
     return leaderboard;
@@ -58,9 +56,9 @@ export class LeaderboardService {
     });
     if (winner) {
       winner.wins += 1;
-      // calculate the new rate for the winner
-      return await this.leaderboardRepository.save(winner);
+      return winner;
     }
+    throw new HttpException("winner userId not found.", HttpStatus.NOT_FOUND);
   }
 
   async updateLoserData(loserId: number) {
@@ -78,18 +76,29 @@ export class LeaderboardService {
     if (loser) {
       loser.losses += 1;
       // calculate the new rate for the loser
-      return await this.leaderboardRepository.save(loser);
+      return loser;
     }
+    throw new HttpException("loser userId not found.", HttpStatus.NOT_FOUND);
   }
 
   // calculate new rate function?
+  async calculateRate(winner: Leaderboard, loser: Leaderboard) {
+    const int = Math.trunc;
+    const winnerExpect = 1 / (1 + (10 ^ ((loser.rate - winner.rate) / 400)));
+    const loserExpect = 1 - winnerExpect;
+
+    winner.rate = int(winner.rate + 20 * (1 - winnerExpect));
+    loser.rate = int(loser.rate + 20 * (1 - loserExpect));
+    await this.leaderboardRepository.save(winner);
+    await this.leaderboardRepository.save(loser);
+  }
 
   async updateUsersInLeaderboard(
     updateLeaderboardUserDto: UpdateLeaderboardUserDto,
   ): Promise<Leaderboard[]> {
-    await this.updateWinnerData(updateLeaderboardUserDto.winner);
-    await this.updateLoserData(updateLeaderboardUserDto.loser);
-
+    const winner = await this.updateWinnerData(updateLeaderboardUserDto.winner);
+    const loser = await this.updateLoserData(updateLeaderboardUserDto.loser);
+    if (winner && loser) this.calculateRate(winner, loser);
     return await this.getLeaderboard(); // change this later
   }
 }
