@@ -97,8 +97,11 @@ function toggleTwoFAPopup(newState: boolean) {
   showTwoFAPopup.value = newState;
 }
 
-function updatePlayerName() {
-  store.updateAccountSettings(playerName.value, twoFactorAuthentication.value);
+async function updatePlayerName() {
+  await store.updateAccountSettings(
+    playerName.value,
+    twoFactorAuthentication.value
+  );
 }
 
 function uncheckTwoFACheckbox() {

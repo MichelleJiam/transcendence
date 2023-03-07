@@ -4,9 +4,7 @@
 
 <script setup lang="ts">
 defineProps({
-  src: { type: String }, //, default: "../assets/default-avatar.png" },
-  // removed the default as it resulted in a 404 error,
-  // removing it still seems to load in the default avatar correctly.
+  src: { type: String, required: true },
 });
 </script>
 
