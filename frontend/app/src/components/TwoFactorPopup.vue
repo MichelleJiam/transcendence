@@ -4,12 +4,17 @@
     <h2>2FA Registration</h2>
     <p>Scan me with your authenticator app!</p>
     <img :src="qrCode" class="qr-code" />
-    <!-- <qrcode-vue :value="qrCode" :margin="2" /> -->
-    <form class="token-box" @submit.prevent="validateToken">
+    <form class="code-box" @submit.prevent="validateAuthCode">
       <p>Enter the 6-digit code shown in your authenticator app:</p>
-      <input v-model="token" type="text" name="token" />
+      <input
+        v-model="authCode"
+        type="text"
+        name="authCode"
+        autocomplete="off"
+        @click="clearInputAndMessage"
+      />
       <span class="validate-message">{{ validationMessage }}</span>
-      <button type="submit" name="button">validate</button>
+      <button type="submit">validate</button>
     </form>
   </form>
 </template>
@@ -18,7 +23,7 @@
 import { onMounted, ref } from "vue";
 import apiRequest from "@/utils/apiRequest";
 
-const token = ref<string>("");
+const authCode = ref<string>("");
 const qrCode = ref();
 const validationMessage = ref<string>("");
 const emit = defineEmits(["uncheck", "close-popup"]);
@@ -33,21 +38,32 @@ onMounted(async () => {
     });
 });
 
-async function validateToken() {
+async function validateAuthCode() {
   await apiRequest(`/2fa/enable`, "post", {
-    data: { twoFactorAuthCode: token.value },
+    data: { twoFactorAuthCode: authCode.value },
   })
     .then(() => {
       alert("Two factor authentication successfully enabled!");
       emit("close-popup");
     })
     .catch((err) => {
-      validationMessage.value = "Wrong two factor authentication code";
+      if (err.response.status === 401) {
+        validationMessage.value = "Wrong two factor authentication code";
+      } else {
+        validationMessage.value =
+          "Something went wrong with enabling 2FA. Please try again";
+      }
       console.log("Something went wrong with 2FA enabling: ", err);
     });
 }
 
-function cancelTwoFA() {
+function clearInputAndMessage() {
+  authCode.value = "";
+  validationMessage.value = "";
+}
+
+async function cancelTwoFA() {
+  await apiRequest(`/2fa/disable`, "post");
   emit("uncheck");
 }
 </script>
@@ -69,7 +85,7 @@ form {
   padding: 0;
   margin: 10px;
 }
-.token-box {
+.code-box {
   align-self: center;
 }
 .validate-message {
@@ -81,6 +97,7 @@ form {
   height: 40%;
   align-self: center;
 }
+
 button {
   width: 100%;
 }
