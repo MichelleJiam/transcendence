@@ -11,6 +11,7 @@ import { Penalty } from "./penalty/penalty.entity";
 import { Blocklist } from "./blocklist/blocklist.entity";
 import { Friend } from "./friend/friend.entity";
 import { Achievement } from "./achievement/achievement.entity";
+import { Leaderboard } from "./leaderboard/leaderboard.entity";
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { Achievement } from "./achievement/achievement.entity";
           Penalty,
           Blocklist,
           Achievement,
+          Leaderboard,
         ],
         synchronize: true /* automatically updates database schema */,
       }),
