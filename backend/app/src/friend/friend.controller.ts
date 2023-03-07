@@ -21,7 +21,7 @@ type PartialUser = {
   // partial user with relation
   id: number;
   playerName: string;
-  status: string;
+  status: number;
 };
 
 @Controller("/friend")
