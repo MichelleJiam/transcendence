@@ -25,7 +25,11 @@
           >
             <div class="rank">{{ inc(index) }}</div>
             <!-- add ranking system-->
-            <div class="playername">{{ rank.user.playerName }}</div>
+            <div class="playername">
+              <a :href="'/player/' + rank.user.playerName">{{
+                rank.user.playerName
+              }}</a>
+            </div>
             <div class="rate">{{ rank.rate }}</div>
             <div class="wins">{{ rank.wins }}</div>
             <div class="losses">{{ rank.losses }}</div>
@@ -68,6 +72,9 @@ onBeforeMount(async () => {
 // amount of losses they have
 </script>
 <style scoped>
+a:link {
+  text-decoration: none;
+}
 h1 {
   font-size: 4.5em;
   padding-bottom: 20px;

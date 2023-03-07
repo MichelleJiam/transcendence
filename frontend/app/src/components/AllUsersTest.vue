@@ -23,6 +23,8 @@
 <!-- API call -->
 
 <script lang="ts">
+import { baseUrl } from "@/utils/apiRequest";
+
 type User = {
   id: string;
   username: string;
@@ -35,7 +37,7 @@ export default {
     };
   },
   mounted() {
-    fetch("http://localhost:3000/user/")
+    fetch(baseUrl + "/user/")
       .then((res) => res.json())
       .then((data) => (this.users = data))
       .catch((err) => console.log(err.message));
