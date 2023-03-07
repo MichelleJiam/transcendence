@@ -40,7 +40,7 @@ export class $(capitalize "$name")Controller {
 # SERVICE
 touch $src/$1.service.ts
 echo "import { Injectable } from \"@nestjs/common\";
-import { $(capitalize "$name") } from \"./$name.model\";
+import { $(capitalize "$name") } from \"./$name.entity\";
 
 @Injectable()
 export class $(capitalize "$name")Service {
@@ -59,3 +59,8 @@ import { $(capitalize "$name")Service } from \"./$name.service\";
 	providers: [$(capitalize "$name")Service],
 })
 export class $(capitalize "$name")Module {}" >> $src/$1.module.ts
+
+# ENTITY
+touch $src/$1.entity.ts
+echo "@Entity()
+export class $(capitalize "$name") {}"

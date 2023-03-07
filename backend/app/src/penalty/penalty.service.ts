@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { Cron } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Chatroom } from "src/chat/chat.entity";
 import { User } from "src/user/user.entity";
@@ -17,6 +18,12 @@ export class PenaltyService {
     @InjectRepository(Penalty)
     private readonly penaltyRepository: Repository<Penalty>,
   ) {}
+
+  @Cron("*/15 * * * *")
+  async scheduleClearOldPenalties() {
+    await this.clearOldPenalties();
+    console.log("cleared penalties");
+  }
 
   async getAllPenalties(): Promise<Penalty[]> {
     const foundPenalties = await this.penaltyRepository.find({
