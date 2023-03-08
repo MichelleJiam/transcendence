@@ -16,7 +16,7 @@ import {
   UserStatus,
 } from "./pong.types";
 import { Socket } from "socket.io-client";
-import apiRequest from "../../utils/apiRequest";
+import { updateUserStatus } from "@/utils/userStatus";
 
 const props = defineProps({
   id: { type: Number, required: true },
@@ -37,9 +37,10 @@ onMounted(async () => {
   drawBorderLines();
   drawCenterLine();
   drawPaddles();
-  await apiRequest(`/user/${props.id}/update-status`, "put", {
-    data: { status: UserStatus.GAME },
-  });
+  // await apiRequest(`/user/${props.id}/update-status`, "put", {
+  //   data: { status: UserStatus.GAME },
+  // });
+  await updateUserStatus(props.id, UserStatus.GAME);
   if (gameRoom.player == 1) {
     props.socket.emit("countdown", gameRoom);
   }
@@ -47,9 +48,10 @@ onMounted(async () => {
 
 onUnmounted(async () => {
   console.log("PongGame unmounted");
-  await apiRequest(`/user/${props.id}/update-status`, "put", {
-    data: { status: UserStatus.ONLINE },
-  });
+  // await apiRequest(`/user/${props.id}/update-status`, "put", {
+  //   data: { status: UserStatus.ONLINE },
+  // });
+  await updateUserStatus(props.id, UserStatus.ONLINE);
   // if (gameRoom.player == 0) {
   //   props.socket.emit("leaveRoom", gameRoom.id);
   // }
