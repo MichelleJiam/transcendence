@@ -20,7 +20,7 @@ onMounted(async () => {
   await userStore.checkAuthStatus();
   if (userStore.isAuthenticated()) {
     await userStore.logIn();
-    await router.push("/home");
+    await router.push("/");
   }
 });
 
