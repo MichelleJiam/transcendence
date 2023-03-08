@@ -45,6 +45,7 @@ export class GameGateway {
         leftGame.game?.id,
       );
       this.server.emit("playerForfeited", leftGame.playerNum);
+      // reset disconnected user status back to online
       if (leftGame.playerId) {
         await this.userService.updateUserStatus(leftGame.playerId, {
           status: 0,
