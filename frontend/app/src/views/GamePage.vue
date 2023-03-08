@@ -56,7 +56,11 @@ import apiRequest, { baseUrl } from "../utils/apiRequest";
 import { onBeforeMount, onUnmounted, ref, onMounted, watchEffect } from "vue";
 // import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
-import type { Game, GameRoom } from "../components/game/pong.types";
+import {
+  UserStatus,
+  type Game,
+  type GameRoom,
+} from "../components/game/pong.types";
 import type { AxiosResponse } from "axios";
 import { useUserStore } from "@/stores/UserStore";
 
@@ -106,6 +110,10 @@ onUnmounted(async () => {
   // If a watcher or player navigates away during an active game
   if (game.value.state === State.PLAYING) {
     socket.emit("activeGameLeft", game.value);
+    // reset user status back to online
+    await apiRequest(`/user/${id.value}/update-status`, "put", {
+      data: { status: UserStatus.ONLINE },
+    });
   }
   // if a player in queue navigates away
   else if (game.value.state === State.WAITING) {

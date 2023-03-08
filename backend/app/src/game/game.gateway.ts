@@ -6,6 +6,7 @@ import {
   ConnectedSocket,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import { UserService } from "src/user/user.service";
 import { GameService } from "./game.service";
 import { GameRoom, GameWithPlayer } from "./pong.types";
 
@@ -20,7 +21,10 @@ export class GameGateway {
   @WebSocketServer() /* tell NestJS to inject the WebSocket server */
   server!: Server; /* reference to socket.io server under the hood */
   map = new Map<string, ReturnType<typeof setInterval>>();
-  constructor(private readonly gameService: GameService) {}
+  constructor(
+    private readonly gameService: GameService,
+    private readonly userService: UserService,
+  ) {}
 
   handleConnection(client: Socket) {
     console.log("GameGateway: ", client.id, " connected");
@@ -34,8 +38,18 @@ export class GameGateway {
     const leftGame: GameWithPlayer =
       await this.gameService.findGameFromPlayerSocket(client.id);
     if (leftGame.game !== null) {
-      console.log("Player left game ", leftGame.game?.id);
+      console.log(
+        "Player ",
+        leftGame.playerId,
+        " left game ",
+        leftGame.game?.id,
+      );
       this.server.emit("playerForfeited", leftGame.playerNum);
+      if (leftGame.playerId) {
+        await this.userService.updateUserStatus(leftGame.playerId, {
+          status: 0,
+        });
+      }
     } else {
       console.log("No active games being played were left");
       this.server.emit("disconnection");
@@ -173,7 +187,7 @@ export class GameGateway {
           gameRoom.playerTwo.score,
         );
       // updates active game list on disconnecting player side
-      this.gameService.update(gameRoom);
+      await this.gameService.update(gameRoom);
       // updates active game list on lobby user
       await this.updateActiveGames();
       this.endGame(gameRoom.id, gameRoom.winner);

@@ -47,7 +47,8 @@ export class GameService {
   }
 
   async findGameFromPlayerSocket(playerSocket: string) {
-    let playerNum = 0;
+    let playerNum = 0,
+      playerId = null;
     const foundGame = await this.gameRepository
       .createQueryBuilder("game")
       .where("game.state = :playing", { playing: "playing" })
@@ -62,9 +63,10 @@ export class GameService {
 
     if (foundGame) {
       playerNum = foundGame.playerOneSocket === playerSocket ? 1 : 2;
+      playerId = playerNum === 1 ? foundGame.playerOne : foundGame.playerTwo;
     }
 
-    return { game: foundGame, playerNum: playerNum };
+    return { game: foundGame, playerNum: playerNum, playerId: playerId };
   }
 
   async create(createGameDto: CreateGameDto) {

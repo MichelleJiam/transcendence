@@ -201,7 +201,7 @@ export class UserService {
   async getGameAchievements(userId: number) {
     this.logger.log("Hit the getGameAchievements route");
     const user = await this.findUserById(userId);
-    if (user) {
+    if (user && user.wins && user.losses) {
       if (user.wins.length >= 1 || user.losses.length >= 1)
         await this.addAchievement(userId, Achievements.FIRST);
       if (user.wins.length >= 1)
