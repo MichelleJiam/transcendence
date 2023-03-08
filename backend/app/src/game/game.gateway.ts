@@ -45,12 +45,8 @@ export class GameGateway {
         leftGame.game?.id,
       );
       this.server.emit("playerForfeited", leftGame.playerNum);
-      // reset disconnected user status back to online
-      if (leftGame.playerId) {
-        await this.userService.updateUserStatus(leftGame.playerId, {
-          status: 0,
-        });
-      }
+      this.server.to(String(leftGame.game.id)).emit("stopCountdown");
+      this.cleanUpOnDisconnect(leftGame);
     } else {
       console.log("No active games being played were left");
       this.server.emit("disconnection");
@@ -167,6 +163,16 @@ export class GameGateway {
     this.server.to(gameRoomId).emit("endGame", winner);
   }
 
+  @SubscribeMessage("leaveRoom")
+  leaveRoom(@ConnectedSocket() client: Socket, @MessageBody() gameId: string) {
+    client.leave(gameId);
+    console.log("GameGateway | ", client.id, " left room ", gameId);
+  }
+
+  /*****************
+   * DISCONNECTION *
+   *****************/
+
   @SubscribeMessage("forfeitGame")
   async forfeitGame(
     @ConnectedSocket() client: Socket,
@@ -179,7 +185,7 @@ export class GameGateway {
       console.log("Both players disconnected");
       this.gameService.remove(Number(gameRoom.id));
     } else {
-      this.gameService.handleForfeit(gameRoom);
+      this.gameService.setForfeitScoreWinner(gameRoom);
       this.server
         .to(gameRoom.id)
         .emit(
@@ -187,10 +193,6 @@ export class GameGateway {
           gameRoom.playerOne.score,
           gameRoom.playerTwo.score,
         );
-      // updates active game list on disconnecting player side
-      await this.gameService.update(gameRoom);
-      // updates active game list on lobby user
-      await this.updateActiveGames();
       this.endGame(gameRoom.id, gameRoom.winner);
     }
   }
@@ -211,10 +213,21 @@ export class GameGateway {
     // this.leaveRoom(client, gameRoom.id);
   }
 
-  @SubscribeMessage("leaveRoom")
-  leaveRoom(@ConnectedSocket() client: Socket, @MessageBody() gameId: string) {
-    client.leave(gameId);
-    console.log("GameGateway | ", client.id, " left room ", gameId);
+  async cleanUpOnDisconnect(leftGame: GameWithPlayer) {
+    // updates active game list on disconnecting player side
+    if (leftGame.game) {
+      this.gameService.setGameToDone(leftGame.game.id);
+    }
+
+    // updates active game list on lobby user
+    await this.updateActiveGames();
+
+    // reset disconnected user status back to online
+    if (leftGame.playerId) {
+      await this.userService.updateUserStatus(leftGame.playerId, {
+        status: 0,
+      });
+    }
   }
 
   /************
