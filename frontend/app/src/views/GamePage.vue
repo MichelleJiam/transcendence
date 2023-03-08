@@ -27,8 +27,6 @@
               <span>{{ activeGame.playerOneName }}</span>
               <span>vs.</span>
               <span>{{ activeGame.playerTwoName }}</span>
-              <!-- {{ activeGame.playerOneName }} vs. -->
-              <!-- {{ activeGame.playerTwoName }} -->
             </button>
           </div>
         </div>
@@ -54,7 +52,6 @@ import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue"
 import PongGame from "../components/game/PongGame.vue";
 import apiRequest, { baseUrl } from "../utils/apiRequest";
 import { onBeforeMount, onUnmounted, ref, onMounted, watchEffect } from "vue";
-// import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import type { Game, GameRoom } from "../components/game/pong.types";
 import type { AxiosResponse } from "axios";
@@ -66,8 +63,6 @@ const State = {
   PLAYING: 2,
 };
 
-// const route = useRoute();
-// const id = route.params.id as string;
 const userStore = useUserStore();
 const id = ref(0);
 const socket = io(baseUrl + "/pong");
@@ -95,9 +90,10 @@ onMounted(async () => {
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
-  const dmGame = await apiRequest(`${id.value}/dm`, "get");
-  console.log("dmGame ", dmGame);
-  // query the db for playerId in db state
+  const dmGame = await apiRequest(`/game/${id.value}/dm`, "get");
+  if (dmGame.data.length !== 0) {
+    // this means the game has already been created and this user should be into this game
+  }
 });
 
 onUnmounted(async () => {
@@ -108,9 +104,6 @@ onUnmounted(async () => {
   await apiRequest(`/match/${id.value}`, "delete").catch((err) => {
     console.log("Something went wrong with deleting the match: ", err);
   });
-  // await apiRequest(`/match/${id}`, "delete").catch((err) => {
-  //   console.log("Something went wrong with deleting the match: ", err);
-  // });
 });
 
 // // not used?
@@ -142,24 +135,26 @@ async function getActiveGames() {
 }
 
 async function watchGame(gameId: number) {
-  // const res = await apiRequest(`/game/${gameId}`, "get");
   const res = await apiRequest(`/game/${gameId}`, "get");
-  fillGameRoomObject(res, 0);
+  fillGameRoomObject(res.data, 0);
   socket.emit("watchGame", game.value); /* adds them to gameRoom */
   console.log(id, " has joined room ", gameId, " as a WATCHER");
   game.value.state = State.PLAYING;
 }
 
+function startGamePlayerTwo(res: Game) {
+  fillGameRoomObject(res, 2);
+  game.value.state = State.PLAYING;
+}
+
 const startGame = async () => {
   const res = await apiRequest(`/match/play/${id.value}`, "get");
-  // const res = await apiRequest(`/match/play/${id}`, "get");
   /* if no one currently in queue */
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
   } else {
     /* else if opponent found */
-    fillGameRoomObject(res, 2);
-    game.value.state = State.PLAYING;
+    startGamePlayerTwo(res.data);
     socket.emit("joinRoom", game.value);
     console.log(id, " has joined room ", game.value.id, " as PLAYER 2");
   }
@@ -182,15 +177,11 @@ async function gameOver(gameRoom: GameRoom) {
   await getActiveGames();
 }
 
-function fillPlayerObject(
-  playerNumber: number,
-  playerSocket: string,
-  score: number
-) {
+function fillPlayerObject(playerNumber: number) {
   return {
     id: playerNumber,
-    socket: playerSocket,
-    score: score,
+    socket: "",
+    score: 0,
     paddle: {
       height: 0,
       width: 0,
@@ -200,26 +191,11 @@ function fillPlayerObject(
   };
 }
 
-function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
-  game.value.id = res.data.id;
+function fillGameRoomObject(res: Game, playerNumber: number) {
+  game.value.id = res.id;
   game.value.player = playerNumber;
-  /* if player is a watcher */
-  if (playerNumber === 0) {
-    game.value.playerOne = fillPlayerObject(
-      res.data.playerOne,
-      res.data.playerOneSocket,
-      res.data.playerOneScore
-    );
-    game.value.playerTwo = fillPlayerObject(
-      res.data.playerTwo,
-      res.data.playerTwoSocket,
-      res.data.playerTwoScore
-    );
-  } else {
-    /* else if player 2 */
-    game.value.playerOne = fillPlayerObject(res.data.playerOne, "", 0);
-    game.value.playerTwo = fillPlayerObject(res.data.playerTwo, "", 0);
-  }
+  game.value.playerOne = fillPlayerObject(res.playerOne);
+  game.value.playerTwo = fillPlayerObject(res.playerTwo);
 }
 </script>
 
