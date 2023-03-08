@@ -47,6 +47,11 @@ export class GameController {
     return await this.gameService.findGamesFromId(id);
   }
 
+  @Get(":id/dm")
+  async findGameFromDm(@Param("id", ParseIntPipe) id: number) {
+    return await this.gameService.findGameFromDm(id);
+  }
+
   @Get(":id")
   async findOne(@Param("id", ParseIntPipe) id: number) {
     const game = await this.gameService.findOne(id);
@@ -56,11 +61,6 @@ export class GameController {
     } else {
       return game;
     }
-  }
-
-  @Get(":id/dm")
-  async findGameFromDm(@Param("id", ParseIntPipe) id: number) {
-    return await this.gameService.findGameFromDm(id);
   }
 
   @Post()
