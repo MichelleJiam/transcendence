@@ -119,6 +119,10 @@ export class GameService {
     return game;
   }
 
+  async setGameToDone(gameId: number) {
+    await this.gameRepository.update(gameId, { state: "done" });
+  }
+
   async update(gameRoom: GameRoom) {
     if ((await this.findOne(Number(gameRoom.id))) == null) {
       this.logger.debug("game does not exist, unable to update");
@@ -168,19 +172,11 @@ export class GameService {
     await this.gameRepository.delete(gameId);
   }
 
-  // setPlayerAsDisconnected(gameRoom: GameRoom, disconnectedPlayer: number) {
-  //   if (disconnectedPlayer === 1) {
-  //     gameRoom.playerOne.disconnected = true;
-  //   } else if (disconnectedPlayer === 2) {
-  //     gameRoom.playerTwo.disconnected = true;
-  //   }
-  // }
-
   bothPlayersDisconnected(gameRoom: GameRoom) {
     return gameRoom.playerOne.disconnected && gameRoom.playerTwo.disconnected;
   }
 
-  handleForfeit(gameRoom: GameRoom) {
+  setForfeitScoreWinner(gameRoom: GameRoom) {
     if (gameRoom.playerOne.disconnected) {
       console.log("player one forfeited");
       gameRoom.playerOne.score = 0;
