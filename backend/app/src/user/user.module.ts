@@ -14,6 +14,8 @@ import { BlocklistService } from "src/blocklist/blocklist.service";
 import { JwtModule } from "@nestjs/jwt";
 import { Achievement } from "src/achievement/achievement.entity";
 import { AchievementService } from "src/achievement/achievement.service";
+import { Leaderboard } from "src/leaderboard/leaderboard.entity";
+import { LeaderboardService } from "src/leaderboard/leaderboard.service";
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { AchievementService } from "src/achievement/achievement.service";
       Chatroom,
       Blocklist,
       Achievement,
+      Leaderboard,
     ]),
     JwtModule.registerAsync({
       useFactory: () => ({
@@ -38,7 +41,13 @@ import { AchievementService } from "src/achievement/achievement.service";
     }),
   ],
   controllers: [UserController],
-  providers: [UserService, AvatarService, BlocklistService, AchievementService],
+  providers: [
+    UserService,
+    AvatarService,
+    BlocklistService,
+    AchievementService,
+    LeaderboardService,
+  ],
   exports: [UserService],
 })
 export class UserModule {}
