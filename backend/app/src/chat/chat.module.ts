@@ -8,6 +8,8 @@ import { Avatar } from "src/avatar/avatar.entity";
 import { AvatarService } from "src/avatar/avatar.service";
 import { Blocklist } from "src/blocklist/blocklist.entity";
 import { BlocklistService } from "src/blocklist/blocklist.service";
+import { Leaderboard } from "src/leaderboard/leaderboard.entity";
+import { LeaderboardService } from "src/leaderboard/leaderboard.service";
 import { Message } from "src/message/message.entity";
 import { MessageService } from "src/message/message.service";
 import { Penalty } from "src/penalty/penalty.entity";
@@ -30,6 +32,7 @@ import { ChatService } from "./chat.service";
       Penalty,
       Blocklist,
       Achievement,
+      Leaderboard,
     ]),
   ],
   controllers: [ChatController],
@@ -41,10 +44,11 @@ import { ChatService } from "./chat.service";
     ChatService,
     ChatMethod,
     ChatGateway,
-    UserService,
     MessageService,
+    UserService,
     AvatarService,
     AchievementService,
+    LeaderboardService,
   ],
 })
 export class ChatModule {}

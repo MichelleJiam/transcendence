@@ -1,13 +1,17 @@
 <template>
   <div class="chat-message-box scroll-y">
     <h2>Owner of the chat</h2>
-    <div class="roles">{{ ownerName }} 👑</div>
+    <div class="roles">
+      <a :href="'/player/' + ownerName"> {{ ownerName }} 👑 </a>
+    </div>
     <h2>Admins of the chat</h2>
     <div v-if="chatRoomInfo.type != 'DM'" class="roles">
       <div v-for="admin in chatRoomInfo.admin" :key="chatRoomInfo.admin.id">
         <p>
-          {{ admin.playerName }}
-          <span v-if="admin.isOwner == true">👑</span>
+          <a :href="'/player/' + admin.playerName">
+            {{ admin.playerName }}
+            <span v-if="admin.isOwner == true">👑</span>
+          </a>
           <br />
           <button
             v-if="
@@ -36,7 +40,10 @@
     <div class="roles">
       <div v-for="member in chatRoomInfo.member" :key="chatRoomInfo.member.id">
         <p>
-          {{ member.playerName }} <span v-if="member.isOwner == true">👑</span>
+          <a :href="'/player/' + member.playerName">
+            {{ member.playerName }}
+            <span v-if="member.isOwner == true">👑</span>
+          </a>
           <br />
           <button
             v-if="
@@ -125,7 +132,6 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/UserStore";
 import { io } from "socket.io-client";
-import CreateDMButton from "../chat_main/CreateDMButton.vue";
 
 const props = defineProps({
   showContent: Boolean,
@@ -291,6 +297,9 @@ function unBlock(blocklistOwner: number, blockedUser: number) {
 }
 </script>
 <style scoped>
+a:link {
+  text-decoration: none;
+}
 button {
   width: 14%;
   height: 2%;

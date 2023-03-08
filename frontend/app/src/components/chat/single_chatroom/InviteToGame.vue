@@ -79,11 +79,11 @@ async function cancelInvite() {
   }
 }
 
-class CreateGameDto {
-  playerOne!: number;
-  playerTwo!: number;
-  state = "DM";
-}
+// class CreateGameDto {
+//   playerOne!: number;
+//   playerTwo!: number;
+//   state = "DM";
+// }
 
 onMounted(async () => {
   socket.on("sendGameRequestToPlayerTwo", async (payload) => {
