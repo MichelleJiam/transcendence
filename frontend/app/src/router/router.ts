@@ -19,7 +19,7 @@ const routes: {
   name?: string;
 }[] = [
   { path: "/", component: HomePage, name: "home"},
-  { path: "/:id/home", component: HomePage, alias: ["/home"] },
+  { path: "/:id/home", component: HomePage },
   { path: "/login", component: LoginPage, name: "login" },
   { path: "/:id/game", component: GamePage } /* temp workaround */,
   { path: "/game", component: GamePage },
