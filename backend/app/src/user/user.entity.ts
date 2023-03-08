@@ -117,14 +117,14 @@ export class User {
 
   @JoinColumn()
   @OneToMany(() => Game, (games: Game) => games.winnerId, {
-    // eager: true,
+    eager: true,
     nullable: true,
   })
   public wins!: Game[];
 
   @JoinColumn()
   @OneToMany(() => Game, (games: Game) => games.loserId, {
-    // eager: true,
+    eager: true,
     nullable: true,
   })
   public losses!: Game[];
