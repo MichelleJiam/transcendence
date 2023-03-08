@@ -110,13 +110,6 @@ onMounted(async () => {
   width: 24%;
 }
 
-.playerNameUrl {
-  font-family: sans-serif;
-  background: #00000000;
-  color: white;
-  font-size: 1rem;
-}
-
 .dateTime {
   float: right;
   width: 30%;

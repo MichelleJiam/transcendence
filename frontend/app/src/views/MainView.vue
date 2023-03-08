@@ -26,14 +26,25 @@
         <h1>{{ userStore.user.playerName }}</h1>
       </div>
       <WinsLosses
-        v-if="route.params.playerName != undefined"
+        v-if="
+          route.params.playerName != undefined &&
+          route.params.playerName != userStore.user.playerName
+        "
         class="wins-losses"
+        :user-id="otherPlayerInfo.id"
       ></WinsLosses>
       <!-- needs a prop to specify which player's wins/losses, this one for other users -->
-      <WinsLosses v-else class="wins-losses"></WinsLosses>
+      <WinsLosses
+        v-else
+        :user-id="userStore.user.id"
+        class="wins-losses"
+      ></WinsLosses>
       <!-- needs a prop to specify which player's wins/losses, this one for current user -->
       <GameHistory
-        v-if="route.params.playerName != undefined"
+        v-if="
+          route.params.playerName != undefined &&
+          route.params.playerName != userStore.user.playerName
+        "
         class="game-history"
       ></GameHistory>
       <!-- needs a prop to specify which player's game history, this one for other users -->

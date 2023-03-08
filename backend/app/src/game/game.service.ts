@@ -10,6 +10,8 @@ import { Game } from "./entities/game.entity";
 import { UserService } from "src/user/user.service";
 import { CreateGameDto } from "./dto/create-game.dto";
 import { GameRoom } from "./pong.types";
+import { LeaderboardService } from "src/leaderboard/leaderboard.service";
+import { UpdateLeaderboardUserDto } from "src/leaderboard/dto/update-leaderboard-user.dto";
 
 @Injectable()
 export class GameService {
@@ -19,6 +21,7 @@ export class GameService {
     @InjectRepository(Game)
     private readonly gameRepository: Repository<Game>,
     private readonly userService: UserService,
+    private readonly leaderboardService: LeaderboardService,
   ) {}
 
   async findAll() {
@@ -141,6 +144,10 @@ export class GameService {
       })
       .where("id = :id", { id: gameRoom.id })
       .execute();
+    const leaderboardDto = new UpdateLeaderboardUserDto();
+    leaderboardDto.winner = gameRoom.winner;
+    leaderboardDto.loser = gameRoom.loser;
+    await this.leaderboardService.updateUsersInLeaderboard(leaderboardDto);
     return game;
   }
 
