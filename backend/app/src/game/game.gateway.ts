@@ -6,6 +6,7 @@ import {
   ConnectedSocket,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import { MatchService } from "src/match/match.service";
 import { UserService } from "src/user/user.service";
 import { GameService } from "./game.service";
 import { GameRoom, GameWithPlayer } from "./pong.types";
@@ -24,6 +25,7 @@ export class GameGateway {
   constructor(
     private readonly gameService: GameService,
     private readonly userService: UserService,
+    private readonly matchService: MatchService,
   ) {}
 
   handleConnection(client: Socket) {
@@ -45,10 +47,11 @@ export class GameGateway {
         leftGame.game?.id,
       );
       this.server.emit("playerForfeited", leftGame.playerNum);
-      this.server.to(String(leftGame.game.id)).emit("stopCountdown");
-      this.cleanUpOnDisconnect(leftGame);
+      // this.server.to(String(leftGame.game.id)).emit("stopCountdown");
+      this.cleanUpOnPlayerDisconnect(leftGame);
     } else {
       console.log("No active games being played were left");
+      this.checkMatchQueueOnDisconnect(client.id);
       this.server.emit("disconnection");
     }
   }
@@ -213,7 +216,7 @@ export class GameGateway {
     // this.leaveRoom(client, gameRoom.id);
   }
 
-  async cleanUpOnDisconnect(leftGame: GameWithPlayer) {
+  async cleanUpOnPlayerDisconnect(leftGame: GameWithPlayer) {
     // updates active game list on disconnecting player side
     if (leftGame.game) {
       this.gameService.setGameToDone(leftGame.game.id);
@@ -227,6 +230,16 @@ export class GameGateway {
       await this.userService.updateUserStatus(leftGame.playerId, {
         status: 0,
       });
+    }
+  }
+
+  async checkMatchQueueOnDisconnect(socketId: string) {
+    // console.log("Checking if player socket ", socketId, " was in queue");
+    const leftMatch = await this.matchService.findPlayerInMatchQueueBySocket(
+      socketId,
+    );
+    if (leftMatch) {
+      await this.matchService.remove(leftMatch.playerId);
     }
   }
 

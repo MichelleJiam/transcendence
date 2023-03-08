@@ -15,6 +15,7 @@ import {
 import { MatchService } from "./match.service";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { CreateMatchDto } from "./dto/create-match.dto";
+import { MatchPlayerDto } from "./dto/match-player.dto";
 
 @Controller("match")
 @UseGuards(JwtAuthGuard)
@@ -31,14 +32,18 @@ export class MatchController {
 
   @Get(":userId")
   async findPlayerInMatchQueue(@Param("userId", ParseIntPipe) userId: number) {
-    return await this.matchService.findPlayerInMatchQueue(userId);
+    return await this.matchService.findPlayerInMatchQueueByUserId(userId);
   }
 
   /* curl http://localhost:3000/match/:id */
-  @Get("/play/:userId")
-  async findOpponentToPlayGame(@Param("userId", ParseIntPipe) userId: number) {
+  @Post("/play/:userId")
+  async findOpponentToPlayGame(
+    @Param("userId", ParseIntPipe) userId: number, // remove?
+    @Body() matchPlayer: MatchPlayerDto,
+  ) {
+    // console.log("finding opponent for socket ", matchPlayer.socketId);
     const game = await this.matchService
-      .findOpponentToPlayGame(userId)
+      .findOpponentToPlayGame(matchPlayer)
       .catch(() => {
         throw new BadRequestException("error while trying to create match");
       });
@@ -61,7 +66,6 @@ export class MatchController {
   @Delete(":id")
   @HttpCode(204)
   async remove(@Param("id", ParseIntPipe) id: number) {
-    console.log("Removing player ", id, " from match queue");
     await this.matchService.remove(id).catch(() => {
       this.logger.debug("match does not exist, unable to delete");
       throw new NotFoundException("match does not exist, unable to delete");
