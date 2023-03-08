@@ -42,6 +42,11 @@ export class GameController {
     }
   }
 
+  @Get(":id/state")
+  async findGamesFromId(@Param("id", ParseIntPipe) id: number) {
+    return await this.gameService.findGamesFromId(id);
+  }
+
   @Get(":id")
   async findOne(@Param("id", ParseIntPipe) id: number) {
     const game = await this.gameService.findOne(id);
