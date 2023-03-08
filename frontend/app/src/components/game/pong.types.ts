@@ -69,3 +69,9 @@ export interface Colors {
   scoreBoard: string;
   countDown: string;
 }
+
+export enum UserStatus {
+  ONLINE,
+  OFFLINE,
+  GAME,
+}

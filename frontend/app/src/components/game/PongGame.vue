@@ -8,7 +8,13 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from "vue";
 import type { PropType } from "vue";
-import type { Keys, GameRoom, Canvas, Colors } from "./pong.types";
+import {
+  type Keys,
+  type GameRoom,
+  type Canvas,
+  type Colors,
+  UserStatus,
+} from "./pong.types";
 import { Socket } from "socket.io-client";
 import apiRequest from "../../utils/apiRequest";
 
@@ -17,12 +23,6 @@ const props = defineProps({
   game: { type: Object as PropType<GameRoom>, required: true },
   socket: { type: Socket, required: true },
 });
-
-enum UserStatus {
-  ONLINE,
-  OFFLINE,
-  GAME,
-}
 
 let view: Canvas;
 let ctx: CanvasRenderingContext2D;

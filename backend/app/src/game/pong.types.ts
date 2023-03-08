@@ -45,4 +45,5 @@ export interface GameRoom {
 export interface GameWithPlayer {
   game: Game | null;
   playerNum: number;
+  playerId: number | null;
 }
