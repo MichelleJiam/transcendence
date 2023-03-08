@@ -6,8 +6,10 @@ import {
   ConnectedSocket,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import { MatchService } from "src/match/match.service";
+import { UserService } from "src/user/user.service";
 import { GameService } from "./game.service";
-import { GameRoom } from "./pong.types";
+import { GameRoom, GameWithPlayer } from "./pong.types";
 
 // by default will listen to same port http is listening on
 @WebSocketGateway({
@@ -20,22 +22,38 @@ export class GameGateway {
   @WebSocketServer() /* tell NestJS to inject the WebSocket server */
   server!: Server; /* reference to socket.io server under the hood */
   map = new Map<string, ReturnType<typeof setInterval>>();
-  constructor(private readonly gameService: GameService) {}
+  constructor(
+    private readonly gameService: GameService,
+    private readonly userService: UserService,
+    private readonly matchService: MatchService,
+  ) {}
 
   handleConnection(client: Socket) {
     console.log("GameGateway: ", client.id, " connected");
   }
 
+  // Triggered on window close or refresh.
+  // No need to leave rooms as sockets leave all the channels they were part
+  // of automatically on disconnection.
   async handleDisconnect(client: Socket) {
-    console.log("GameGateway: ", client.id, " disconnected");
-    const leftGame = await this.gameService.findGameFromPlayerSocket(client.id);
-    if (leftGame != null) {
-      // this.someoneLeft(leftGame);
-      console.log("Player left game ", leftGame.id);
+    console.log("GameGateway: ", client.id, " disconnected"); // socket id here not same as when joining? find doesn't return anything then
+    const leftGame: GameWithPlayer =
+      await this.gameService.findGameFromPlayerSocket(client.id);
+    if (leftGame.game !== null) {
+      console.log(
+        "Player ",
+        leftGame.playerId,
+        " left game ",
+        leftGame.game?.id,
+      );
+      this.server.emit("playerForfeited", leftGame.playerNum);
+      // this.server.to(String(leftGame.game.id)).emit("stopCountdown");
+      this.cleanUpOnPlayerDisconnect(leftGame);
     } else {
-      console.log("No active games were left");
+      console.log("No active games being played were left");
+      this.checkMatchQueueOnDisconnect(client.id);
+      this.server.emit("disconnection");
     }
-    // handle watcher & player in queu leaving
   }
 
   @SubscribeMessage("updateActiveGames")
@@ -75,10 +93,18 @@ export class GameGateway {
       await this.gameService.updateSocket(gameRoom);
     }
     client.join(gameRoom.id);
-    console.log(client.id, " joined room: ", client.rooms);
-    if (gameRoom.player == 2) {
+    console.log(
+      client.id,
+      " joined room: ",
+      client.rooms,
+      " as player ",
+      gameRoom.player,
+    );
+    if (gameRoom.player === 2) {
       this.server.emit("addPlayerOne", gameRoom);
       this.updateActiveGames();
+    } else if (gameRoom.player === 1) {
+      this.server.emit("savePlayerSockets", gameRoom);
     }
   }
 
@@ -140,20 +166,81 @@ export class GameGateway {
     this.server.to(gameRoomId).emit("endGame", winner);
   }
 
-  @SubscribeMessage("someoneLeft")
-  async someoneLeft(@MessageBody() gameRoom: GameRoom) {
-    console.log("Someone left the game");
-    console.log("Game state: ", gameRoom.state);
-    if (gameRoom.player === 0) {
-      // this.leaveRoom;
-      console.log("A watcher left the room");
-    }
-  }
-
   @SubscribeMessage("leaveRoom")
   leaveRoom(@ConnectedSocket() client: Socket, @MessageBody() gameId: string) {
     client.leave(gameId);
     console.log("GameGateway | ", client.id, " left room ", gameId);
+  }
+
+  /*****************
+   * DISCONNECTION *
+   *****************/
+
+  @SubscribeMessage("forfeitGame")
+  async forfeitGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() gameRoom: GameRoom,
+  ) {
+    console.log("Forfeiting game");
+    clearInterval(this.map.get(gameRoom.id));
+    this.map.delete(gameRoom.id);
+    if (this.gameService.bothPlayersDisconnected(gameRoom)) {
+      console.log("Both players disconnected");
+      this.gameService.remove(Number(gameRoom.id));
+    } else {
+      this.gameService.setForfeitScoreWinner(gameRoom);
+      this.server
+        .to(gameRoom.id)
+        .emit(
+          "updateScore",
+          gameRoom.playerOne.score,
+          gameRoom.playerTwo.score,
+        );
+      this.endGame(gameRoom.id, gameRoom.winner);
+    }
+  }
+
+  @SubscribeMessage("activeGameLeft")
+  async activeGameLeft(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() gameRoom: GameRoom,
+  ) {
+    if (gameRoom.player === 0) {
+      console.log("A watcher left");
+    } else {
+      console.log("A player left game: ", gameRoom.id);
+      const disconnectedPlayer =
+        gameRoom.playerOne.socket === client.id ? 1 : 2;
+      this.server.emit("playerForfeited", disconnectedPlayer);
+    }
+    // this.leaveRoom(client, gameRoom.id);
+  }
+
+  async cleanUpOnPlayerDisconnect(leftGame: GameWithPlayer) {
+    // updates active game list on disconnecting player side
+    if (leftGame.game) {
+      this.gameService.setGameToDone(leftGame.game.id);
+    }
+
+    // updates active game list on lobby user
+    await this.updateActiveGames();
+
+    // reset disconnected user status back to online
+    if (leftGame.playerId) {
+      await this.userService.updateUserStatus(leftGame.playerId, {
+        status: 0,
+      });
+    }
+  }
+
+  async checkMatchQueueOnDisconnect(socketId: string) {
+    // console.log("Checking if player socket ", socketId, " was in queue");
+    const leftMatch = await this.matchService.findPlayerInMatchQueueBySocket(
+      socketId,
+    );
+    if (leftMatch) {
+      await this.matchService.remove(leftMatch.playerId);
+    }
   }
 
   /************
