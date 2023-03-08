@@ -91,7 +91,10 @@ export class UserService {
       await this.addAchievement(id, Achievements.TWOFA);
     if (await this.checkPlayerNameAchievement(id, settings.playerName))
       await this.addAchievement(id, Achievements.NAME);
-    return await this.userRepository.update(id, settings);
+    return await this.userRepository.save({
+      id: id,
+      ...settings,
+    });
   }
 
   async updateUserStatus(
@@ -201,7 +204,7 @@ export class UserService {
   async getGameAchievements(userId: number) {
     this.logger.log("Hit the getGameAchievements route");
     const user = await this.findUserById(userId);
-    if (user && user.wins && user.losses) {
+    if (user) {
       if (user.wins.length >= 1 || user.losses.length >= 1)
         await this.addAchievement(userId, Achievements.FIRST);
       if (user.wins.length >= 1)
