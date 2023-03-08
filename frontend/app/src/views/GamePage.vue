@@ -70,6 +70,7 @@ const game = ref({} as GameRoom);
 const activeGames = ref(Array<Game>());
 const noGames = ref(true);
 game.value.state = State.READY;
+const dmGameJoined = ref(false);
 
 onBeforeMount(async () => {
   socket.on("disconnect", () => {
@@ -91,8 +92,14 @@ onMounted(async () => {
     console.log(socket.id + " connected from frontend");
   });
   const dmGame = await apiRequest(`/game/${id.value}/dm`, "get");
+  console.log("dmGame ", dmGame);
   if (dmGame.data.length !== 0) {
-    // this means the game has already been created and this user should be into this game
+    if (dmGameJoined.value === false) {
+      startGamePlayerTwo(dmGame.data);
+      dmGameJoined.value = true;
+    } else {
+      dmGameJoined.value = false;
+    }
   }
 });
 
@@ -145,6 +152,8 @@ async function watchGame(gameId: number) {
 function startGamePlayerTwo(res: Game) {
   fillGameRoomObject(res, 2);
   game.value.state = State.PLAYING;
+  socket.emit("joinRoom", game.value);
+  console.log(id, " has joined room ", game.value.id, " as PLAYER 2");
 }
 
 const startGame = async () => {
@@ -155,17 +164,17 @@ const startGame = async () => {
   } else {
     /* else if opponent found */
     startGamePlayerTwo(res.data);
-    socket.emit("joinRoom", game.value);
-    console.log(id, " has joined room ", game.value.id, " as PLAYER 2");
   }
 };
 
 socket.on("addPlayerOne", (gameRoom: GameRoom) => {
-  if (game.value.state == State.WAITING) {
+  // if (game.value.state == State.WAITING) {
+  if (game.value.player == undefined) {
     game.value = gameRoom;
     game.value.player = 1;
     socket.emit("joinRoom", game.value);
     console.log(id, "has joined room ", game.value.id, " as PLAYER 1");
+    // update the game state to playing
   }
 });
 
