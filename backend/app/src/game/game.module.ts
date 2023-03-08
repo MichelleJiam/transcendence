@@ -10,13 +10,18 @@ import { Avatar } from "src/avatar/avatar.entity";
 import { GameGateway } from "./game.gateway";
 import { AchievementService } from "src/achievement/achievement.service";
 import { Achievement } from "src/achievement/achievement.entity";
+import { Leaderboard } from "src/leaderboard/leaderboard.entity";
+import { LeaderboardService } from "src/leaderboard/leaderboard.service";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Game, User, Avatar, Achievement])],
+  imports: [
+    TypeOrmModule.forFeature([Game, User, Avatar, Achievement, Leaderboard]),
+  ],
   controllers: [GameController],
   providers: [
     GameService,
     UserService,
+    LeaderboardService,
     AvatarService,
     GameGateway,
     AchievementService,

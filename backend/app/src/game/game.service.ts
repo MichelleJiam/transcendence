@@ -10,6 +10,8 @@ import { Game } from "./entities/game.entity";
 import { UserService } from "src/user/user.service";
 import { CreateGameDto } from "./dto/create-game.dto";
 import { GameRoom } from "./pong.types";
+import { LeaderboardService } from "src/leaderboard/leaderboard.service";
+import { UpdateLeaderboardUserDto } from "src/leaderboard/dto/update-leaderboard-user.dto";
 
 @Injectable()
 export class GameService {
@@ -19,6 +21,7 @@ export class GameService {
     @InjectRepository(Game)
     private readonly gameRepository: Repository<Game>,
     private readonly userService: UserService,
+    private readonly leaderboardService: LeaderboardService,
   ) {}
 
   async findAll() {
@@ -131,6 +134,10 @@ export class GameService {
       })
       .where("id = :id", { id: gameRoom.id })
       .execute();
+    const leaderboardDto = new UpdateLeaderboardUserDto();
+    leaderboardDto.winner = gameRoom.winner;
+    leaderboardDto.loser = gameRoom.loser;
+    await this.leaderboardService.updateUsersInLeaderboard(leaderboardDto);
     return game;
   }
 
@@ -142,33 +149,3 @@ export class GameService {
     await this.gameRepository.delete(gameId);
   }
 }
-
-/* USED WHEN LOSER AND WINNER WERE RELATIONS OF TYPE USER */
-// async update(updateGameDto: UpdateGameDto) {
-//   if (updateGameDto.id !== undefined) {
-//     if ((await this.findOne(updateGameDto.id)) == null) {
-//       this.logger.debug("game does not exist, unable to update");
-//       throw new NotFoundException(
-//         "Unable to update game because game does not exist",
-//       );
-//     }
-//     await this.gameRepository.update(updateGameDto.id, updateGameDto);
-
-//     await this.gameRepository
-//       .createQueryBuilder()
-//       .relation(Game, "loserId")
-//       .of(updateGameDto.id)
-//       .set(updateGameDto.loserId);
-
-//     await this.gameRepository
-//       .createQueryBuilder()
-//       .relation(Game, "winnerId")
-//       .of(updateGameDto.id)
-//       .set(updateGameDto.winnerId);
-
-//     return this.findOne(updateGameDto.id);
-//   }
-//   throw new NotFoundException(
-//     "Unable to update game because no data received from dto",
-//   );
-// }
