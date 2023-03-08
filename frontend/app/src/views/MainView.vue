@@ -45,10 +45,15 @@
           route.params.playerName != undefined &&
           route.params.playerName != userStore.user.playerName
         "
+        :user-id="otherPlayerInfo.id"
         class="game-history"
       ></GameHistory>
       <!-- needs a prop to specify which player's game history, this one for other users -->
-      <GameHistory v-else class="game-history"></GameHistory>
+      <GameHistory
+        v-else
+        class="game-history"
+        :user-id="userStore.user.id"
+      ></GameHistory>
       <!-- needs a prop to specify which player's game history, this one for current user -->
       <UserAchiements
         class="user-achievements"
@@ -96,6 +101,7 @@ const showPopup = computed(() => {
 });
 
 onBeforeMount(async () => {
+  console.log(userStore.user.id);
   if (route.params.playerName != undefined) {
     if (route.params.playerName != userStore.user.playerName) {
       await apiRequest("/user/player/" + route.params.playerName, "get")
