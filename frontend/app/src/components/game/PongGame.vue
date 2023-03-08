@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import type { PropType } from "vue";
 import {
   type Keys,
@@ -24,6 +24,8 @@ const props = defineProps({
   socket: { type: Socket, required: true },
 });
 
+const gameEnded = ref(Boolean(false));
+
 let view: Canvas;
 let ctx: CanvasRenderingContext2D;
 let key: Keys;
@@ -37,9 +39,6 @@ onMounted(async () => {
   drawBorderLines();
   drawCenterLine();
   drawPaddles();
-  // await apiRequest(`/user/${props.id}/update-status`, "put", {
-  //   data: { status: UserStatus.GAME },
-  // });
   await updateUserStatus(props.id, UserStatus.GAME);
   if (gameRoom.player == 1) {
     props.socket.emit("countdown", gameRoom);
@@ -48,9 +47,6 @@ onMounted(async () => {
 
 onUnmounted(async () => {
   console.log("PongGame unmounted");
-  // await apiRequest(`/user/${props.id}/update-status`, "put", {
-  //   data: { status: UserStatus.ONLINE },
-  // });
   await updateUserStatus(props.id, UserStatus.ONLINE);
   // if (gameRoom.player == 0) {
   //   props.socket.emit("leaveRoom", gameRoom.id);
@@ -172,6 +168,11 @@ props.socket.on("endGame", (winner: number) => {
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
   drawGameOver(winner);
   gameOver();
+});
+
+props.socket.on("stopCountdown", () => {
+  console.log("stopping countdown");
+  gameEnded.value = true;
 });
 
 /********************

@@ -118,9 +118,6 @@ onUnmounted(async () => {
     removePlayerFromMatchQueue();
   }
   game.value.state = State.READY;
-  // await apiRequest(`/match/${id.value}`, "delete").catch((err) => {
-  //   console.log("Something went wrong with deleting the match: ", err);
-  // });
 });
 
 watchEffect(() => {
@@ -136,7 +133,6 @@ socket.on("updateActiveGames", async () => {
 });
 
 async function getActiveGames() {
-  console.log("getting active games");
   const res = await apiRequest(`/game/active`, "get");
   activeGames.value = res.data;
   for (const game of activeGames.value) {
@@ -162,8 +158,9 @@ async function watchGame(gameId: number) {
 }
 
 const startGame = async () => {
-  const res = await apiRequest(`/match/play/${id.value}`, "get");
-  // const res = await apiRequest(`/match/play/${id}`, "get");
+  const res = await apiRequest(`/match/play/${id.value}`, "post", {
+    data: { id: id.value, socketId: socket.id },
+  });
   /* if no one currently in queue */
   if (res.data.id == undefined) {
     game.value.state = State.WAITING;
@@ -236,6 +233,7 @@ socket.on("playerForfeited", async (disconnectedPlayer: number) => {
 // Used by GameGateway::handleDisconnect when a watcher or queued player
 // disconnects.
 socket.on("disconnection", () => {
+  console.log("Disconnection socket");
   // if disconnected user was in match queue
   if (game.value.state === State.WAITING) {
     removePlayerFromMatchQueue();
