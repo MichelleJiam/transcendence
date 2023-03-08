@@ -61,7 +61,7 @@
         "
         class="homepage-buttons box-styling"
       >
-        <FriendButton class="friend-button"></FriendButton>
+        <FriendButton :friend-id="otherPlayerInfo?.id"></FriendButton>
         <CreateDMButton :other-player="otherPlayerInfo?.id"></CreateDMButton>
       </div>
       <div v-else class="homepage-buttons box-styling paddle-div">
