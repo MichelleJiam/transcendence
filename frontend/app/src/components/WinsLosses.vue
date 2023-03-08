@@ -17,6 +17,7 @@ const props = defineProps({
 const wins = ref<number>(0);
 const losses = ref<number>(0);
 
+
 onMounted(async () => {
   await apiRequest("/leaderboard/" + props.userId, "get")
     .then((response) => {
