@@ -36,7 +36,7 @@ export class AchievementService {
     this.logger.log("Hit the addSingleAchievement route");
     const achievement = await this.getAchievementById(id);
     if (achievement) {
-      this.logger.debug("Achievement already exists");
+      this.logger.log("Achievement already exists");
       return;
     } else if (!achievements[id]) {
       this.logger.debug("Invalid achievement id");
