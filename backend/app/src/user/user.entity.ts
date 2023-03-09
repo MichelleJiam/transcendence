@@ -44,7 +44,44 @@ export class User {
   })
   public playerName!: string;
 
-  // relationships for chat START
+  /*******
+   * 2FA *
+   *******/
+
+  @Column({
+    type: "boolean",
+    default: false,
+  })
+  public twoFAEnabled!: boolean;
+
+  @Column({ nullable: true })
+  public twoFASecret?: string;
+
+  /**********
+   * AVATAR *
+   **********/
+
+  @JoinColumn({ name: "avatarId" })
+  @OneToOne(() => Avatar, {
+    nullable: true,
+  })
+  @Column({ nullable: true })
+  public avatarId?: number;
+
+  /**********
+   * STATUS *
+   **********/
+
+  @Column({
+    name: "userStatus",
+    default: UserStatus.OFFLINE,
+  })
+  public status!: number;
+
+  /********
+   * CHAT *
+   ********/
+
   @OneToMany(() => Message, (message: Message) => message.userId)
   @JoinColumn()
   public message!: Message[];
@@ -76,44 +113,27 @@ export class User {
   @JoinTable()
   public chatroomAdmin!: Chatroom[];
 
-  // relationships for chat END
+  /***************
+   * LEADERBOARD *
+   ***************/
 
-  // leaderboard relationship
   @OneToOne(() => Leaderboard, (leaderboard: Leaderboard) => leaderboard.user)
   @JoinColumn()
   public leaderboard!: Leaderboard;
 
-  @Column({
-    type: "boolean",
-    default: false,
-  })
-  public twoFAEnabled!: boolean;
-
-  @Column({ nullable: true })
-  public twoFASecret?: string;
-
-  @JoinColumn({ name: "avatarId" })
-  @OneToOne(() => Avatar, {
-    nullable: true,
-  })
-  @Column({ nullable: true })
-  public avatarId?: number;
-
-  /* user status */
-
-  @Column({
-    name: "userStatus",
-    default: UserStatus.OFFLINE,
-  })
-  public status!: number;
-
-  /* user friends */
+  /***********
+   * FRIENDS *
+   ***********/
 
   @OneToMany(() => Friend, (friend: Friend) => friend.source)
   source!: Friend[]; // array of relations where the user is the source (sender of friend request)
 
   @OneToMany(() => Friend, (friend: Friend) => friend.target)
   target!: Friend[]; // array of relations where the user is the target (receiver of friend request)
+
+  /*********
+   * GAMES *
+   *********/
 
   @JoinColumn()
   @OneToMany(() => Game, (games: Game) => games.winnerId, {
@@ -129,7 +149,9 @@ export class User {
   })
   public losses!: Game[];
 
-  /* achievements */
+  /****************
+   * ACHIEVEMENTS *
+   ****************/
 
   @ManyToMany(
     () => Achievement,

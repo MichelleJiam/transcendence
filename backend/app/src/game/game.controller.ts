@@ -42,6 +42,11 @@ export class GameController {
     }
   }
 
+  @Get(":id/state")
+  async findGamesFromId(@Param("id", ParseIntPipe) id: number) {
+    return await this.gameService.findGamesFromId(id);
+  }
+
   @Get(":id")
   async findOne(@Param("id", ParseIntPipe) id: number) {
     const game = await this.gameService.findOne(id);
@@ -65,7 +70,7 @@ export class GameController {
   async update(@Body() gameRoom: GameRoom) {
     const game = await this.gameService.update(gameRoom).catch(() => {
       this.logger.debug("updating game stats failed");
-      throw new BadRequestException("unable to update finished game");
+      throw new BadRequestException("Unable to update finished game");
     });
     return game;
   }
