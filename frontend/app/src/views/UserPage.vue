@@ -59,8 +59,8 @@
 <script setup lang="ts">
 import InputText from "@/components/InputText.vue";
 import InputCheckbox from "@/components/InputCheckbox.vue";
-import AvatarDisplay from "@/components/AvatarDisplay.vue";
-import AvatarUpload from "@/components/AvatarUpload.vue";
+import AvatarDisplay from "@/components/avatar/AvatarDisplay.vue";
+import AvatarUpload from "@/components/avatar/AvatarUpload.vue";
 import { ref, onMounted, watch } from "vue";
 import { useUserStore } from "@/stores/UserStore";
 import TwoFactorPopup from "@/components/TwoFactorPopup.vue";

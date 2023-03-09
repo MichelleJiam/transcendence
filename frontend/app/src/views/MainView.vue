@@ -78,7 +78,7 @@ import PlayerNamePopup from "@/components/PlayerNamePopup.vue";
 import WinsLosses from "@/components/WinsLosses.vue";
 import GameHistory from "@/components/GameHistory.vue";
 import UserAchiements from "@/components/UserAchiements.vue";
-import AvatarDisplay from "@/components/AvatarDisplay.vue";
+import AvatarDisplay from "@/components/avatar/AvatarDisplay.vue";
 import FriendButton from "@/components/friend/FriendButton.vue";
 import { ref, onMounted, onBeforeMount, computed } from "vue";
 import { useUserStore } from "@/stores/UserStore";
