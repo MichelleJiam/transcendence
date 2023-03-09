@@ -20,10 +20,10 @@
       class="inputfield"
       label="Player Name"
       placeholder="playername"
+      @keydown.enter.prevent="setPlayerName"
     />
     <span class="validate-message">{{ message }}</span>
     <button @click.prevent="setPlayerName">Submit</button>
-    <!-- <button @click.prevent="setPlayerName">→</button> -->
   </div>
 </template>
 
