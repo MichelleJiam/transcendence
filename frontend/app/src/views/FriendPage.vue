@@ -32,9 +32,9 @@
 <script setup lang="ts">
 import { onBeforeMount } from "vue";
 import { io } from "socket.io-client";
-import AllUsersFriend from "@/components/AllUsersFriend.vue";
-import DisplayPending from "@/components/DisplayPending.vue";
-import DisplayFriend from "@/components/DisplayFriend.vue";
+import AllUsersFriend from "@/components/friend/AllUsersFriend.vue";
+import DisplayPending from "@/components/friend/DisplayPending.vue";
+import DisplayFriend from "@/components/friend/DisplayFriend.vue";
 import { useFriendStore } from "@/stores/FriendStore";
 import { useUserStore } from "@/stores/UserStore";
 import { baseUrl } from "@/utils/apiRequest";

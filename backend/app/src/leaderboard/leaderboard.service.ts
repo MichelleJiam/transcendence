@@ -75,7 +75,6 @@ export class LeaderboardService {
 
     if (loser) {
       loser.losses += 1;
-      // calculate the new rate for the loser
       return loser;
     }
     throw new HttpException("loser userId not found.", HttpStatus.NOT_FOUND);
@@ -99,6 +98,11 @@ export class LeaderboardService {
     const winner = await this.updateWinnerData(updateLeaderboardUserDto.winner);
     const loser = await this.updateLoserData(updateLeaderboardUserDto.loser);
     if (winner && loser) this.calculateRate(winner, loser);
+    else
+      throw new HttpException(
+        "invalid winner and loser combo",
+        HttpStatus.BAD_REQUEST,
+      );
     return await this.getLeaderboard(); // change this later
   }
 }

@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Param,
   UseGuards,
+  HttpException,
 } from "@nestjs/common";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { UpdateLeaderboardUserDto } from "./dto/update-leaderboard-user.dto";
