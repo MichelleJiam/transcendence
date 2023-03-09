@@ -79,7 +79,7 @@ import WinsLosses from "@/components/WinsLosses.vue";
 import GameHistory from "@/components/GameHistory.vue";
 import UserAchiements from "@/components/UserAchiements.vue";
 import AvatarDisplay from "@/components/AvatarDisplay.vue";
-import FriendButton from "@/components/FriendButton.vue";
+import FriendButton from "@/components/friend/FriendButton.vue";
 import { ref, onMounted, onBeforeMount, computed } from "vue";
 import { useUserStore } from "@/stores/UserStore";
 import CreateDMButton from "@/components/chat/chat_main/CreateDMButton.vue";

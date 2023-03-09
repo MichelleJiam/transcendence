@@ -110,14 +110,13 @@ onMounted(async () => {
       payload.playerTwo == userStore.user.id ||
       payload.playerOne == userStore.user.id
     ) {
-      // do whatever you need to accept the game here;
       console.log("PlayerTwo accepted your game request");
       socket.emit("StartDMGame", payload);
       if (payload.playerOne == userStore.user.id) {
         const createGameDto = new CreateGameDto();
         createGameDto.playerOne = payload.playerOne;
         createGameDto.playerTwo = payload.playerTwo;
-        // await apiRequest(baseUrl + "/game", "post", { data: createGameDto });
+        // await apiRequest(baseUrl + "/game", "post", { data: createGameDto }); // SWAAN!! UNCOMMENT THIS TO SEND THE API REQUEST WHEN READY
       }
       window.location.href = "/game";
       inviteReceived.value = false;
@@ -129,8 +128,7 @@ onMounted(async () => {
       payload.playerTwo == userStore.user.id ||
       payload.playerOne == userStore.user.id
     ) {
-      // do whatever you need to reject the game here
-      console.log("PlayerTwo declined your game request");
+      console.log("Your game request was declined.");
       inviteReceived.value = false;
     }
   });
@@ -141,7 +139,7 @@ onMounted(async () => {
       payload.playerOne == userStore.user.id
     ) {
       // do whatever you need to reject the game here
-      console.log("PlayerOne canceled their game request.");
+      console.log("The game request was canceled");
       inviteReceived.value = false;
     }
   });
@@ -156,10 +154,6 @@ onMounted(async () => {
     }
   });
 });
-
-// make buildgameDto (or ask swaan about the frontend DTO for it?)
-// build the DTO
-// use the axios call to hit the backend and create and redirect to the game.
 </script>
 <style scoped>
 .padding {

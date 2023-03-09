@@ -1,28 +1,26 @@
 <template>
-  <!-- <button>{{ props.friendId }}</button> -->
-  <!-- <button v-else-if="">Pending</button> -->
-  <!-- <button v-else>Unfriend</button> -->
-  <!-- <button v-if="friend.relation?.status == 'PENDING'" class="pending" disabled>
-    Pending
-  </button> -->
-  <button v-if="status == 'FRIEND'" class="unfriend" @click="unfriend(friend)">
-    Unfriend
-  </button>
-  <button
-    v-if="status == 'PENDING'"
-    class="pending"
-    @click="cancelRequest(friend)"
-  >
-    <img
-      src="https://vignette3.wikia.nocookie.net/touken-ranbu/images/8/8b/Fire_gif.gif/revision/latest?cb=20150511021654"
-    />
-  </button>
-  <button
-    v-if="status == 'NONE'"
-    @click="sendUtilsFriendRequest(userStore.user.id, friend, friendStore)"
-  >
-    Add Friend
-  </button>
+  <section>
+    <button
+      v-if="status == 'FRIEND'"
+      class="unfriend"
+      @click="unfriend(friend)"
+    >
+      Unfriend
+    </button>
+    <button
+      v-if="status == 'PENDING'"
+      class="pending"
+      @click="cancelRequest(friend)"
+    >
+      cancel
+    </button>
+    <button
+      v-if="status == 'NONE'"
+      @click="sendUtilsFriendRequest(userStore.user.id, friend, friendStore)"
+    >
+      Add Friend
+    </button>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -31,7 +29,7 @@ import { io } from "socket.io-client";
 import { useFriendStore, type User } from "@/stores/FriendStore";
 import { useUserStore } from "@/stores/UserStore";
 import apiRequest, { baseUrl } from "@/utils/apiRequest";
-import { sendUtilsFriendRequest, utilsUnfriend } from "./friend/friendUtils";
+import { sendUtilsFriendRequest, utilsUnfriend } from "./friendUtils";
 const props = defineProps({
   friendId: Number,
 });
