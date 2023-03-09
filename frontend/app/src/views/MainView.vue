@@ -70,7 +70,7 @@
         <CreateDMButton :other-player="otherPlayerInfo?.id"></CreateDMButton>
       </div>
       <div v-else class="homepage-buttons box-styling paddle-div">
-        <font-awesome class="font-awesome" icon="table-tennis-paddle-ball" />
+        <NotificationMark></NotificationMark>
       </div>
     </div>
     <div v-else>User Not Found</div>
@@ -80,9 +80,9 @@
 
 <script setup lang="ts">
 import PlayerNamePopup from "@/components/PlayerNamePopup.vue";
-import WinsLosses from "@/components/WinsLosses.vue";
+import WinsLosses from "@/components/main-view/WinsLosses.vue";
 import GameHistory from "@/components/GameHistory.vue";
-import UserAchiements from "@/components/UserAchiements.vue";
+import UserAchiements from "@/components/main-view/UserAchiements.vue";
 import AvatarDisplay from "@/components/avatar/AvatarDisplay.vue";
 import FriendButton from "@/components/friend/FriendButton.vue";
 import { ref, onMounted, onBeforeMount, computed } from "vue";
@@ -90,6 +90,7 @@ import { useUserStore } from "@/stores/UserStore";
 import CreateDMButton from "@/components/chat/chat_main/CreateDMButton.vue";
 import { useRoute } from "vue-router";
 import apiRequest from "@/utils/apiRequest";
+import NotificationMark from "@/components/main-view/NotificationMark.vue";
 
 const userStore = useUserStore();
 const route = useRoute();
@@ -193,10 +194,6 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.font-awesome {
-  font-size: 50px;
 }
 
 h1 {

@@ -40,26 +40,37 @@ const socket = io(baseUrl + "/friend");
 
 const friend = ref();
 const status = ref<string>("NONE");
+const relation = ref();
 
 // inventory.find(e => e.name === 'apples');
 
 onBeforeMount(async () => {
+  await apiRequest(
+    "/friend/relation/" + userStore.user.id + "/" + props.friendId,
+    "get"
+  )
+    .then((response) => {
+      status.value = response.data.status;
+      relation.value = response.data;
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+
+  await apiRequest("/user/" + props.friendId, "get")
+    .then((response) => {
+      friend.value = response.data;
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+
   socket.on("connect", () => {
     console.log(
       socket.id + " user",
       userStore.user.id,
       "connected to socket on player page"
     );
-  });
-
-  await apiRequest("/user/" + props.friendId, "get").then((response) => {
-    friend.value = response.data;
-
-    const user = friendStore.users.find(
-      (buddy) => buddy.id === friend.value.id
-    );
-    if (user?.relation != undefined) status.value = user?.relation?.status;
-    console.log("status: ", status.value);
   });
 
   socket.on("friendRequest", async (data) => {
@@ -93,33 +104,63 @@ onBeforeMount(async () => {
 async function unfriend(player: User) {
   const user = friendStore.users.find((friend) => friend.id === player.id);
 
-  if (user) utilsUnfriend(user, friendStore);
+  if (user) {
+    utilsUnfriend(user, friendStore);
+  } else {
+    const newUser = new UserDto();
+    const relations = new RelationDto();
+    newUser.avatarUrl = friend.value.avatarUrl;
+    newUser.id = friend.value.id;
+    newUser.playerName = friend.value.playerName;
+    newUser.status = friend.value.status;
+    relations.source = userStore.user.id;
+    relations.target = friend.value.id;
+    relations.status = "FRIEND";
+    newUser.relation = relations;
+    console.log("in unfriend:", newUser);
+    await friendStore.removeRelation(newUser);
+    status.value = "NONE";
+  }
+}
+
+class RelationDto {
+  source!: number;
+  target!: number;
+  status!: string;
+}
+
+class UserDto {
+  id!: number;
+  playerName!: string;
+  status!: number;
+  avatarUrl!: string | undefined;
+  relation!: RelationDto;
 }
 
 async function cancelRequest(player: User) {
   const user = friendStore.users.find((friend) => friend.id === player.id);
 
-  if (user) await friendStore.removeRelation(user);
-  if (user?.relation != undefined) status.value = user?.relation.status;
-  console.log("in cancel request", user);
-}
-
-async function acceptRequest(player: User) {
-  const user = friendStore.users.find((friend) => friend.id === player.id);
   if (user) {
-    await friendStore.acceptRequest(player);
-    await friendStore.updateUserList(userStore.user.id);
-    if (user?.relation != undefined) status.value = user?.relation.status;
+    await friendStore.removeRelation(user);
+    if (user?.relation != undefined) {
+      status.value = user?.relation.status;
+    }
+  } else {
+    const newUser = new UserDto();
+    const relations = new RelationDto();
+    newUser.avatarUrl = friend.value.avatarUrl;
+    newUser.id = friend.value.id;
+    newUser.playerName = friend.value.playerName;
+    newUser.status = friend.value.status;
+    relations.source = userStore.user.id;
+    relations.target = friend.value.id;
+    relations.status = "PENDING";
+    newUser.relation = relations;
+    await friendStore.removeRelation(newUser);
+    status.value = "NONE";
   }
 }
 
-async function denyRequest(player: User) {
-  const user = friendStore.users.find((friend) => friend.id === player.id);
-  if (user) {
-    await friendStore.removeRelation(player);
-    if (user?.relation != undefined) status.value = user?.relation.status;
-  }
-}
 // TODO: import the friend store and implement showing if a friendship
 // is pending, not there yet or already established.
 // reuse the code used in friendpage
