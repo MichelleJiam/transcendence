@@ -91,7 +91,10 @@ export class UserService {
       await this.addAchievement(id, Achievements.TWOFA);
     if (await this.checkPlayerNameAchievement(id, settings.playerName))
       await this.addAchievement(id, Achievements.NAME);
-    return await this.userRepository.update(id, settings);
+    return await this.userRepository.save({
+      id: id,
+      ...settings,
+    });
   }
 
   async updateUserStatus(
