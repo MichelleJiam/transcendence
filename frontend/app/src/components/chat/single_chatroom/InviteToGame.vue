@@ -117,7 +117,7 @@ onMounted(async () => {
         const createGameDto = new CreateGameDto();
         createGameDto.playerOne = payload.playerOne;
         createGameDto.playerTwo = payload.playerTwo;
-        await apiRequest(baseUrl + "/game", "post", { data: createGameDto });
+        // await apiRequest(baseUrl + "/game", "post", { data: createGameDto });
       }
       window.location.href = "/game";
       inviteReceived.value = false;

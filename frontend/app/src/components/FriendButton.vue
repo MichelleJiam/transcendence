@@ -5,19 +5,17 @@
   <!-- <button v-if="friend.relation?.status == 'PENDING'" class="pending" disabled>
     Pending
   </button> -->
-  <!-- <button
-    v-else-if="friend.relation?.status == 'FRIEND'"
-    class="unfriend"
-    @click="utilsUnfriend(friend, friendStore)"
-  >
+  <button v-if="status == 'FRIEND'" class="unfriend" @click="unfriend(friend)">
     Unfriend
-  </button> -->
+  </button>
   <button
     v-if="status == 'PENDING'"
     class="pending"
     @click="cancelRequest(friend)"
   >
-    Cancel
+    <img
+      src="https://vignette3.wikia.nocookie.net/touken-ranbu/images/8/8b/Fire_gif.gif/revision/latest?cb=20150511021654"
+    />
   </button>
   <button
     v-if="status == 'NONE'"
@@ -72,25 +70,33 @@ onBeforeMount(async () => {
       status.value = "PENDING";
     } else if (data.target == userStore.user.id) {
       await friendStore.updateUserList(userStore.user.id);
+      status.value = "PENDING";
     }
+    console.log("status in friend request: ", status.value);
   });
 
   socket.on("requestAccepted", async (data) => {
     if (data.source == userStore.user.id) {
       await friendStore.updateUserList(userStore.user.id);
+      status.value = "FRIEND";
     }
+    console.log("status in request accepted: ", status.value);
   });
 
   socket.on("unfriend", async (data) => {
     if (data.target == userStore.user.id || data.source == userStore.user.id) {
-      const user = friendStore.users.find(
-        (friend) => friend.id === data.source
-      );
-      if (user?.relation != undefined) status.value = user?.relation.status;
       await friendStore.updateUserList(userStore.user.id);
+      status.value = "NONE";
     }
+    console.log("status in unfriend: ", data);
   });
 });
+
+async function unfriend(player: User) {
+  const user = friendStore.users.find((friend) => friend.id === player.id);
+
+  if (user) utilsUnfriend(user, friendStore);
+}
 
 async function cancelRequest(player: User) {
   const user = friendStore.users.find((friend) => friend.id === player.id);
@@ -98,7 +104,6 @@ async function cancelRequest(player: User) {
   if (user) await friendStore.removeRelation(user);
   if (user?.relation != undefined) status.value = user?.relation.status;
   console.log("in cancel request", user);
-  // await friendStore.updateUserList(userStore.user.id);
 }
 
 async function acceptRequest(player: User) {
