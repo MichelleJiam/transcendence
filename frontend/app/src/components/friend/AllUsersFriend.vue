@@ -52,7 +52,7 @@
 import apiRequest from "@/utils/apiRequest";
 import { ref, computed, onBeforeMount } from "vue";
 import { useFriendStore, type User } from "@/stores/FriendStore";
-import { sendUtilsFriendRequest, utilsUnfriend } from "./friend/friendUtils";
+import { sendUtilsFriendRequest, utilsUnfriend } from "./friendUtils";
 
 const props = defineProps({
   userid: { type: Number, required: true },
