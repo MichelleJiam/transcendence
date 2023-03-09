@@ -71,16 +71,12 @@ const showDescription: number | null = null;
   display: flex;
   flex-direction: column;
   width: 375px;
-
   padding: 20px;
 }
-
 h2 {
   font-size: 50px;
   margin-bottom: 20px;
-  /* color: var(--primary-color); */
 }
-
 .achievement-container {
   position: relative;
   display: grid;
@@ -94,7 +90,6 @@ h2 {
   opacity: 0.1;
   margin: 0;
 }
-
 .achievement-text {
   position: absolute;
   display: none;
