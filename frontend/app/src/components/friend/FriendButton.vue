@@ -74,14 +74,12 @@ onBeforeMount(async () => {
   });
 
   socket.on("friendRequest", async (data) => {
-    console.log("in friendRequest", data.target);
     if (data.source == userStore.user.id) {
       status.value = "PENDING";
     } else if (data.target == userStore.user.id) {
       await friendStore.updateUserList(userStore.user.id);
       status.value = "PENDING";
     }
-    console.log("status in friend request: ", status.value);
   });
 
   socket.on("requestAccepted", async (data) => {
@@ -89,7 +87,6 @@ onBeforeMount(async () => {
       await friendStore.updateUserList(userStore.user.id);
       status.value = "FRIEND";
     }
-    console.log("status in request accepted: ", status.value);
   });
 
   socket.on("unfriend", async (data) => {
@@ -97,7 +94,6 @@ onBeforeMount(async () => {
       await friendStore.updateUserList(userStore.user.id);
       status.value = "NONE";
     }
-    console.log("status in unfriend: ", data);
   });
 });
 
@@ -117,7 +113,10 @@ async function unfriend(player: User) {
     relations.target = friend.value.id;
     relations.status = "FRIEND";
     newUser.relation = relations;
-    console.log("in unfriend:", newUser);
+    await friendStore.removeRelation(newUser);
+    relations.source = friend.value.id;
+    relations.target = userStore.user.id;
+    newUser.relation = relations;
     await friendStore.removeRelation(newUser);
     status.value = "NONE";
   }
@@ -146,6 +145,7 @@ async function cancelRequest(player: User) {
       status.value = user?.relation.status;
     }
   } else {
+    // allows for removal one leaves or refreshes the page in the meantime
     const newUser = new UserDto();
     const relations = new RelationDto();
     newUser.avatarUrl = friend.value.avatarUrl;
@@ -155,6 +155,10 @@ async function cancelRequest(player: User) {
     relations.source = userStore.user.id;
     relations.target = friend.value.id;
     relations.status = "PENDING";
+    newUser.relation = relations;
+    await friendStore.removeRelation(newUser);
+    relations.source = friend.value.id;
+    relations.target = userStore.user.id;
     newUser.relation = relations;
     await friendStore.removeRelation(newUser);
     status.value = "NONE";
