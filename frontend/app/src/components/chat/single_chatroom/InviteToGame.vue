@@ -116,7 +116,8 @@ onMounted(async () => {
         const createGameDto = new CreateGameDto();
         createGameDto.playerOne = payload.playerOne;
         createGameDto.playerTwo = payload.playerTwo;
-        await apiRequest(baseUrl + "/game", "post", { data: createGameDto }); // SWAAN!! UNCOMMENT THIS TO SEND THE API REQUEST WHEN READY
+        createGameDto.state = "dm";
+        await apiRequest("/game", "post", { data: createGameDto }); // SWAAN!! UNCOMMENT THIS TO SEND THE API REQUEST WHEN READY
       }
       window.location.href = "/game";
       inviteReceived.value = false;

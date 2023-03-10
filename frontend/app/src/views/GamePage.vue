@@ -58,9 +58,9 @@ import {
   type Game,
   type GameRoom,
 } from "../components/game/pong.types";
-import type { AxiosResponse } from "axios";
 import { useUserStore } from "@/stores/UserStore";
 import { updateUserStatus } from "@/utils/userStatus";
+import type { AxiosResponse } from "axios";
 
 const State = {
   READY: 0,
@@ -99,10 +99,11 @@ onMounted(async () => {
     console.log(socket.id + " connected from frontend");
   });
   const dmGame = await apiRequest(`/game/${id.value}/dm`, "get");
-  console.log("dmGame ", dmGame);
   if (dmGame.data.length !== 0) {
+    game.value.state = State.WAITING;
+    console.log("dmGame ", dmGame.data);
     if (dmGameJoined.value === false) {
-      startGamePlayerTwo(dmGame.data);
+      startGamePlayerTwo(dmGame);
       dmGameJoined.value = true;
     } else {
       dmGameJoined.value = false;
@@ -163,9 +164,10 @@ async function watchGame(gameId: number) {
   game.value.state = State.PLAYING;
 }
 
-function startGamePlayerTwo(res: Game) {
+function startGamePlayerTwo(res: AxiosResponse) {
   fillGameRoomObject(res, 2);
   game.value.state = State.PLAYING;
+  console.log("game in start playerTwo ", game.value);
   socket.emit("joinRoom", game.value);
   console.log(id, " has joined room ", game.value.id, " as PLAYER 2");
 }
@@ -179,7 +181,7 @@ const startGame = async () => {
     game.value.state = State.WAITING;
   } else {
     /* else if opponent found */
-    startGamePlayerTwo(res.data);
+    startGamePlayerTwo(res);
   }
 };
 
@@ -188,13 +190,14 @@ socket.on("savePlayerSockets", (gameRoom: GameRoom) => {
     game.value.playerOne.socket = gameRoom.playerOne.socket;
     game.value.playerTwo.socket = gameRoom.playerTwo.socket;
   }
+  console.log("game in savesockets ", game.value);
 });
 
 socket.on("addPlayerOne", async (gameRoom: GameRoom) => {
-  // if (game.value.state == State.WAITING) {
-  if (game.value.player == undefined) {
+  if (game.value.state == State.WAITING) {
     game.value = gameRoom;
     game.value.player = 1;
+    console.log("game in add playerOne ", game.value);
     await socket.emit("joinRoom", game.value);
     console.log(id.value, "has joined room ", game.value.id, " as PLAYER 1");
   }
@@ -264,11 +267,37 @@ async function removePlayerFromMatchQueue() {
   });
 }
 
-function fillPlayerObject(playerNumber: number) {
+// function fillPlayerObject(playerNumber: number) {
+//   return {
+//     id: playerNumber,
+//     socket: "",
+//     score: 0,
+//     paddle: {
+//       height: 0,
+//       width: 0,
+//       y: 0,
+//       offset: 0,
+//     },
+//     disconnected: false,
+//   };
+// }
+
+// function fillGameRoomObject(res: Game, playerNumber: number) {
+//   game.value.id = res.id;
+//   game.value.player = playerNumber;
+//   game.value.playerOne = fillPlayerObject(res.playerOne);
+//   game.value.playerTwo = fillPlayerObject(res.playerTwo);
+// }
+
+function fillPlayerObject(
+  playerNumber: number,
+  playerSocket: string,
+  score: number
+) {
   return {
     id: playerNumber,
-    socket: "",
-    score: 0,
+    socket: playerSocket,
+    score: score,
     paddle: {
       height: 0,
       width: 0,
@@ -278,12 +307,26 @@ function fillPlayerObject(playerNumber: number) {
     disconnected: false,
   };
 }
-
-function fillGameRoomObject(res: Game, playerNumber: number) {
-  game.value.id = res.id;
+function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
+  game.value.id = res.data.id;
   game.value.player = playerNumber;
-  game.value.playerOne = fillPlayerObject(res.playerOne);
-  game.value.playerTwo = fillPlayerObject(res.playerTwo);
+  /* if player is a watcher */
+  if (playerNumber === 0) {
+    game.value.playerOne = fillPlayerObject(
+      res.data.playerOne,
+      res.data.playerOneSocket,
+      res.data.playerOneScore
+    );
+    game.value.playerTwo = fillPlayerObject(
+      res.data.playerTwo,
+      res.data.playerTwoSocket,
+      res.data.playerTwoScore
+    );
+  } else {
+    /* else if player 2 */
+    game.value.playerOne = fillPlayerObject(res.data.playerOne, "", 0);
+    game.value.playerTwo = fillPlayerObject(res.data.playerTwo, "", 0);
+  }
 }
 </script>
 
