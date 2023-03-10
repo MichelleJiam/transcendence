@@ -24,8 +24,6 @@ const props = defineProps({
   socket: { type: Socket, required: true },
 });
 
-const gameEnded = ref(Boolean(false));
-
 let view: Canvas;
 let ctx: CanvasRenderingContext2D;
 let key: Keys;
@@ -168,11 +166,6 @@ props.socket.on("endGame", (winner: number) => {
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
   drawGameOver(winner);
   gameOver();
-});
-
-props.socket.on("stopCountdown", () => {
-  console.log("stopping countdown");
-  gameEnded.value = true;
 });
 
 /********************
