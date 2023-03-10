@@ -17,6 +17,7 @@ export interface Player {
   socket: string;
   score: number;
   paddle: Paddle;
+  disconnected: boolean;
 }
 
 export interface Ball {
@@ -67,4 +68,10 @@ export interface Colors {
   ball: string;
   scoreBoard: string;
   countDown: string;
+}
+
+export enum UserStatus {
+  ONLINE,
+  OFFLINE,
+  GAME,
 }
