@@ -23,7 +23,11 @@
           class="status-text"
         ></p>
         <p v-else class="status-text">in game</p>
-        <span class="player-name">{{ friend.playerName }}</span>
+        <span class="player-name">
+          <a :href="'/player/' + friend.playerName">
+            {{ friend.playerName }}
+          </a>
+        </span>
         <button class="unfriend" @click="unfriend(friend)">Unfriend</button>
       </li>
     </ul>
@@ -64,6 +68,9 @@ async function unfriend(player: User) {
 </script>
 
 <style scoped>
+a:link {
+  text-decoration: none;
+}
 .container {
   width: 50%;
   overflow-y: scroll;
