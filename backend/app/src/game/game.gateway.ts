@@ -48,7 +48,11 @@ export class GameGateway {
         " left game ",
         leftGame.game?.id,
       );
-      this.server.emit("playerForfeited", leftGame.playerNum);
+      const gameRoomId = String(leftGame.game.id);
+      this.server.to(gameRoomId).emit("beep", String(leftGame.game.id));
+      this.server
+        .to(String(leftGame.game.id))
+        .emit("playerForfeited", leftGame.playerNum);
       this.cleanUpOnPlayerDisconnect(leftGame);
     } else {
       console.log("No active games being played were left");
@@ -98,6 +102,8 @@ export class GameGateway {
       client.id,
       " joined room: ",
       client.rooms,
+      " with id ",
+      gameRoom.id,
       " as player ",
       gameRoom.player,
     );
@@ -215,7 +221,7 @@ export class GameGateway {
       console.log("A player left game: ", gameRoom.id);
       const disconnectedPlayer =
         gameRoom.playerOne.socket === client.id ? 1 : 2;
-      this.server.emit("playerForfeited", disconnectedPlayer);
+      this.server.to(gameRoom.id).emit("playerForfeited", disconnectedPlayer);
     }
     // this.leaveRoom(client, gameRoom.id);
   }

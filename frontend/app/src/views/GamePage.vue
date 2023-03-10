@@ -2,7 +2,7 @@
   <main>
     <div id="display-content">
       <div
-        v-if="game.state == State.READY"
+        v-if="game.state == GameState.READY"
         class="main-game"
         :class="{ active: noGames }"
       >
@@ -33,7 +33,7 @@
           </div>
         </div>
       </div>
-      <div v-else-if="game.state == State.WAITING" class="loader">
+      <div v-else-if="game.state == GameState.WAITING" class="loader">
         <LoaderKnightRider />
       </div>
       <div v-else>
@@ -43,6 +43,7 @@
           :game="game"
           :socket="socket"
           @game-over="gameOver"
+          @forfeit-game="forfeitGame"
         />
       </div>
     </div>
@@ -57,6 +58,7 @@ import { onBeforeMount, onUnmounted, ref, onMounted, watchEffect } from "vue";
 // import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import {
+  GameState,
   UserStatus,
   type Game,
   type GameRoom,
@@ -65,11 +67,11 @@ import type { AxiosResponse } from "axios";
 import { useUserStore } from "@/stores/UserStore";
 import { updateUserStatus } from "@/utils/userStatus";
 
-const State = {
-  READY: 0,
-  WAITING: 1,
-  PLAYING: 2,
-};
+// const State = {
+//   READY: 0,
+//   WAITING: 1,
+//   PLAYING: 2,
+// };
 
 // const route = useRoute();
 // const id = route.params.id as string;
@@ -79,7 +81,7 @@ const socket = io(baseUrl + "/pong");
 const game = ref({} as GameRoom);
 const activeGames = ref(Array<Game>());
 const noGames = ref(true);
-game.value.state = State.READY;
+game.value.state = GameState.READY;
 
 // remove?
 onBeforeMount(async () => {
@@ -109,15 +111,15 @@ onMounted(async () => {
 onUnmounted(async () => {
   console.log("GamePage unmounted");
   // If a watcher or player navigates away during an active game
-  if (game.value.state === State.PLAYING) {
+  if (game.value.state === GameState.PLAYING) {
     socket.emit("activeGameLeft", game.value);
     await updateUserStatus(id.value, UserStatus.ONLINE);
   }
   // if a player in queue navigates away
-  else if (game.value.state === State.WAITING) {
+  else if (game.value.state === GameState.WAITING) {
     removePlayerFromMatchQueue();
   }
-  game.value.state = State.READY;
+  game.value.state = GameState.READY;
 });
 
 watchEffect(() => {
@@ -154,7 +156,7 @@ async function watchGame(gameId: number) {
   fillGameRoomObject(res, 0);
   socket.emit("watchGame", game.value); /* adds them to gameRoom */
   console.log(id.value, " has joined room ", gameId, " as a WATCHER");
-  game.value.state = State.PLAYING;
+  game.value.state = GameState.PLAYING;
 }
 
 const startGame = async () => {
@@ -163,25 +165,25 @@ const startGame = async () => {
   });
   /* if no one currently in queue */
   if (res.data.id == undefined) {
-    game.value.state = State.WAITING;
+    game.value.state = GameState.WAITING;
   } else {
     /* else if opponent found */
     fillGameRoomObject(res, 2);
-    game.value.state = State.PLAYING;
+    game.value.state = GameState.PLAYING;
     await socket.emit("joinRoom", game.value);
     console.log(id.value, " has joined room ", game.value.id, " as PLAYER 2");
   }
 };
 
 socket.on("savePlayerSockets", (gameRoom: GameRoom) => {
-  if (game.value.state === State.PLAYING) {
+  if (game.value.state === GameState.PLAYING) {
     game.value.playerOne.socket = gameRoom.playerOne.socket;
     game.value.playerTwo.socket = gameRoom.playerTwo.socket;
   }
 });
 
 socket.on("addPlayerOne", async (gameRoom: GameRoom) => {
-  if (game.value.state == State.WAITING) {
+  if (game.value.state == GameState.WAITING) {
     game.value = gameRoom;
     game.value.player = 1;
     await socket.emit("joinRoom", game.value);
@@ -202,45 +204,53 @@ async function gameOver(gameRoom: GameRoom) {
   await apiRequest(`/game`, "put", { data: gameRoom }).catch((err) => {
     console.log("Something went wrong with updating with game result: ", err);
   });
-  game.value.state = State.READY;
+  game.value.state = GameState.READY;
   socket.emit("leaveRoom", gameRoom.id);
   console.log("GamePage | ", id.value, " left room ", gameRoom.id);
   await getActiveGames();
 }
 
-socket.on("playerForfeited", async (disconnectedPlayer: number) => {
-  // console.log(
-  //   "playerForfeited | p1 socket: ",
-  //   game.value.playerOne.socket,
-  //   " p2 socket: ",
-  //   game.value.playerTwo.socket
-  // );
-
+function forfeitGame(gameRoom: GameRoom) {
   // if user is not actively watching game
-  if (game.value.state !== State.PLAYING) {
+  if (gameRoom.state !== GameState.PLAYING) {
     return;
   }
-  if (disconnectedPlayer === 1) {
-    console.log("Player 1 forfeited");
-    game.value.playerOne.disconnected = true;
-  } else {
-    console.log("Player 2 forfeited");
-    game.value.playerTwo.disconnected = true;
-  }
-  socket.emit("forfeitGame", game.value);
-});
+  socket.emit("forfeitGame", gameRoom);
+}
+
+// socket.on("playerForfeited", async (disconnectedPlayer: number) => {
+//   // console.log(
+//   //   "playerForfeited | p1 socket: ",
+//   //   game.value.playerOne.socket,
+//   //   " p2 socket: ",
+//   //   game.value.playerTwo.socket
+//   // );
+
+//   // if user is not actively watching game
+//   if (game.value.state !== GameState.PLAYING) {
+//     return;
+//   }
+//   if (disconnectedPlayer === 1) {
+//     console.log("Player 1 forfeited");
+//     game.value.playerOne.disconnected = true;
+//   } else {
+//     console.log("Player 2 forfeited");
+//     game.value.playerTwo.disconnected = true;
+//   }
+//   socket.emit("forfeitGame", game.value);
+// });
 
 // Used by GameGateway::handleDisconnect when a watcher or queued player
 // disconnects.
 socket.on("disconnection", () => {
   console.log("Disconnection socket");
   // if disconnected user was in match queue
-  if (game.value.state === State.WAITING) {
+  if (game.value.state === GameState.WAITING) {
     removePlayerFromMatchQueue();
   }
   // if disconnected user was an observer
   else if (game.value.player === 0) {
-    game.value.state = State.READY;
+    game.value.state = GameState.READY;
   }
 });
 
