@@ -8,6 +8,7 @@
             <suspense>
               <template #default>
                 <InviteToGame
+                  v-if="chatRoomInfo.member.length == 2"
                   :chatroom-id="chatRoomInfo.id"
                   :invite-to-game-user-id="chatRoomInfo.gameRequestByUserId"
                   :player-two="DMMemberTwo"
@@ -37,7 +38,7 @@
         <div class="leave">
           <suspense>
             <template #default>
-              <LeaveChat v-if="isDM == false"></LeaveChat>
+              <LeaveChat></LeaveChat>
             </template>
             <template #fallback><p>loading...</p></template>
           </suspense>
