@@ -2,6 +2,8 @@ import { defineStore } from "pinia";
 import { apiRequest } from "@/utils/apiRequest";
 import router from "@/router";
 import type { AxiosError } from "axios";
+import { updateUserStatus } from "@/utils/userStatus";
+import { UserStatus } from "@/components/game/pong.types";
 
 interface PublicProfile {
   id: number;
@@ -23,17 +25,6 @@ interface Achievement {
 }
 
 export const useUserStore = defineStore("user", {
-  // state: () => ({
-  //   authenticated: false,
-  //   user: {
-  //     id: 0,
-  //     intraId: "",
-  //     playerName: null,
-  //     // messages: [],
-  //     twoFA: false,
-  //     avatarId: null,
-  //   },
-  // }),
   state: () => {
     return {
       user: {} as UserProfile,
@@ -42,50 +33,62 @@ export const useUserStore = defineStore("user", {
     };
   },
   actions: {
-    // AUTH
+    /********
+     * AUTH *
+     ********/
+
     isAuthenticated() {
       console.log("[DEBUG] isAuthenticated | returns ", this.authenticated);
       return this.authenticated === true;
     },
+
     async logIn() {
       console.log("[DEBUG] userStore.logIn");
       await this.retrieveCurrentUserData();
-      this.authenticated = true;
+      await this.userIsLoggedIn();
       console.log("Trying to log in user id: ", this.user.id);
-      // await router.push("/home");
     },
+
     async logOut() {
       console.log("[DEBUG] logOut");
       if (this.authenticated) {
-        await apiRequest(`/auth/logout`, "post")
-          // .then(() => {
-          //   this.authenticated = false;
-          //   console.log("User logged out");
-          // })
-          .catch(() => {
-            console.log("User already logged out");
-          });
-        this.authenticated = false;
+        await apiRequest(`/auth/logout`, "post").catch(() => {
+          console.log("User already logged out");
+        });
+        await this.userIsLoggedOut();
         this.$reset();
-        console.log(this.isAuthenticated());
       }
-      console.log("About to push to login");
       await router.push("/login");
     },
+
     async checkAuthStatus(): Promise<boolean> {
       console.log("[DEBUG] checkAuthStatus");
       await apiRequest(`/auth/status`, "get")
-        .then(async (response) => {
-          this.authenticated = true;
+        .then(async () => {
+          await this.userIsLoggedIn();
           console.log("User is authenticated");
         })
-        .catch(() => {
-          this.authenticated = false;
+        .catch(async () => {
+          await this.userIsLoggedOut();
           console.log("User is not authenticated");
         });
       return this.authenticated;
     },
-    // USER DATA
+
+    async userIsLoggedIn() {
+      this.authenticated = true;
+      await updateUserStatus(this.user.id, UserStatus.ONLINE);
+    },
+
+    async userIsLoggedOut() {
+      this.authenticated = false;
+      await updateUserStatus(this.user.id, UserStatus.OFFLINE);
+    },
+
+    /*************
+     * USER DATA *
+     *************/
+
     async retrieveCurrentUserData() {
       console.log("[DEBUG] retrieveUserData");
       try {
@@ -100,6 +103,7 @@ export const useUserStore = defineStore("user", {
       }
       return null;
     },
+
     async updateAccountSettings(
       newPlayerName: string,
       twoFA: boolean | undefined
@@ -116,9 +120,9 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    /*********
-     * avatar *
-     *********/
+    /**********
+     * AVATAR *
+     **********/
 
     async updateAvatar(selectedFile: File) {
       console.log("[DEBUG] updateAvatar() in UserStore.ts");
@@ -144,9 +148,9 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    /***************
-     * achievements *
-     ***************/
+    /****************
+     * ACHIEVEMENTS *
+     ****************/
 
     async getAchievements() {
       try {
@@ -160,9 +164,9 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    /*****************
-     * error handling *
-     *****************/
+    /******************
+     * ERROR HANDLING *
+     ******************/
 
     handleError(error: AxiosError) {
       if (error.response && error.response.data) {

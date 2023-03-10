@@ -10,7 +10,11 @@
         />
       </div>
     </div>
-    <button :disabled="isDisabledAvatar" @click="submitAvatar">
+    <button
+      :disabled="isDisabledAvatar"
+      :class="{ lightbutton: !isDisabledAvatar }"
+      @click="submitAvatar"
+    >
       Update avatar
     </button>
   </div>
@@ -56,10 +60,6 @@ async function submitAvatar() {
   flex-direction: column;
   justify-content: space-around;
   padding: 10px;
-  /* row-gap: 10px; */
-  /* grid-template-areas:
-    "name-label inputfield"
-    "button button"; */
 }
 
 .avatar-upload {
@@ -68,13 +68,15 @@ async function submitAvatar() {
 }
 .avatar-upload .inputfield {
   display: inline-block;
-  /* margin-right: 0; */
-  /* grid-area: inputfield; */
-  /* justify-self: end; */
+  margin-bottom: 10px;
+}
+
+.lightbutton {
+  background-color: var(--primary-color);
 }
 
 button {
-  /* grid-area: button; */
+  background-color: var(--primary-color-transparant);
   justify-self: stretch;
 }
 </style>

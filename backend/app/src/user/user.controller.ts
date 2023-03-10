@@ -115,7 +115,7 @@ export class UserController {
    *********/
 
   @Put(":id/update-status")
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   async updateUserStatus(
     @Param("id", ParseIntPipe) id: number,

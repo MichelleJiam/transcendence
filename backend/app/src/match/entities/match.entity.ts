@@ -10,5 +10,10 @@ export class Match {
   })
   public playerId!: number;
 
+  @Column({
+    nullable: true,
+  })
+  playerSocket!: string;
+
   /* maybe also store if they want to use special features, aka game type */
 }

@@ -63,6 +63,7 @@ export class ChatService {
         message: true,
         owner: true,
         admin: true,
+        member: true,
       },
       select: {
         id: true,

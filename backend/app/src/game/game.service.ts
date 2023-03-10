@@ -57,7 +57,9 @@ export class GameService {
   }
 
   async findGameFromPlayerSocket(playerSocket: string) {
-    const foundGame = this.gameRepository
+    let playerNum = 0,
+      playerId = null;
+    const foundGame = await this.gameRepository
       .createQueryBuilder("game")
       .where("game.state = :playing", { playing: "playing" })
       .andWhere(
@@ -66,8 +68,15 @@ export class GameService {
             playerSocket,
           }).orWhere("game.playerTwoSocket = :playerSocket", { playerSocket });
         }),
-      );
-    return await foundGame.getOne();
+      )
+      .getOne();
+
+    if (foundGame) {
+      playerNum = foundGame.playerOneSocket === playerSocket ? 1 : 2;
+      playerId = playerNum === 1 ? foundGame.playerOne : foundGame.playerTwo;
+    }
+
+    return { game: foundGame, playerNum: playerNum, playerId: playerId };
   }
 
   async findGameFromDm(id: number) {
@@ -120,6 +129,10 @@ export class GameService {
     return game;
   }
 
+  async setGameToDone(gameId: number) {
+    await this.gameRepository.update(gameId, { state: "done" });
+  }
+
   async update(gameRoom: GameRoom) {
     if ((await this.findOne(Number(gameRoom.id))) == null) {
       this.logger.debug("game does not exist, unable to update");
@@ -167,5 +180,23 @@ export class GameService {
       throw new NotFoundException("game does not exist, unable to delete");
     }
     await this.gameRepository.delete(gameId);
+  }
+
+  bothPlayersDisconnected(gameRoom: GameRoom) {
+    return gameRoom.playerOne.disconnected && gameRoom.playerTwo.disconnected;
+  }
+
+  setForfeitScoreWinner(gameRoom: GameRoom) {
+    if (gameRoom.playerOne.disconnected) {
+      console.log("player one forfeited");
+      gameRoom.playerOne.score = 0;
+      gameRoom.playerTwo.score = 3;
+      gameRoom.winner = 2;
+    } else {
+      console.log("player two forfeited");
+      gameRoom.playerTwo.score = 0;
+      gameRoom.playerOne.score = 3;
+      gameRoom.winner = 1;
+    }
   }
 }
