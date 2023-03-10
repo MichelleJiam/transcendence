@@ -82,11 +82,21 @@ export class GameService {
   async findGameFromDm(id: number) {
     return await this.gameRepository
       .createQueryBuilder("game")
-      .where(
-        "game.state = :dm AND (game.playerOne = :playerOneId OR game.playerTwo = :playerTwoId)",
-        { dm: "dm", playerOneId: id, playerTwoId: id },
+      .where("game.state = :dm", { dm: "dm" })
+      .andWhere(
+        new Brackets((qb: WhereExpressionBuilder) => {
+          qb.where("game.playerOne = :playerOneId", {
+            playerOneId: id,
+          }).orWhere("game.playerTwo = :playerTwoId", { playerTwoId: id });
+        }),
       )
-      .execute();
+      .getOne();
+    // .createQueryBuilder("game")
+    // .where(
+    //   "game.state = :dm AND (game.playerOne = :playerOneId OR game.playerTwo = :playerTwoId)",
+    //   { dm: "dm", playerOneId: id, playerTwoId: id },
+    // )
+    // .execute();
   }
 
   async create(createGameDto: CreateGameDto) {
