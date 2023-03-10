@@ -35,7 +35,7 @@
           <button
             class="account-settings-button"
             :disabled="isDisabled"
-            :class="{ lightbutton: isLight }"
+            :class="{ lightbutton: isDisabled }"
             @click.prevent="updatePlayerName"
           >
             Update player name
@@ -70,8 +70,7 @@ import apiRequest from "@/utils/apiRequest";
 const twoFactorAuthentication = ref<boolean>();
 const showTwoFAPopup = ref<boolean>(false);
 const playerName = ref<string>("");
-const isDisabled = ref<boolean>();
-const isLight = ref<boolean>();
+const isDisabled = ref<boolean>(true);
 let message = "";
 
 const store = useUserStore();
@@ -80,7 +79,6 @@ onMounted(async () => {
   await store.retrieveCurrentUserData();
   twoFactorAuthentication.value = store.user.twoFAEnabled;
   playerName.value = store.user.playerName;
-  isLight.value = true;
   console.log("2fa enabled? ", twoFactorAuthentication.value);
   await store.getAvatar();
 });
@@ -117,7 +115,7 @@ watch(playerName, () => {
   if (playerName.value?.length <= 2 || playerName.value?.length > 8) {
     message = "Player name must be between 3 and 8 characters";
     isDisabled.value = true;
-    isLight.value = true;
+    // isLight.value = true;
   } else if (!validPlayerName(playerName.value)) {
     message =
       "Player name can only include alphabetic characters, digits and the following special characters -_";
@@ -125,7 +123,7 @@ watch(playerName, () => {
   } else {
     message = "";
     isDisabled.value = false;
-    isLight.value = false;
+    // isLight.value = false;
   }
 });
 
@@ -200,6 +198,10 @@ h2 {
 
 .lightbutton {
   background-color: var(--primary-color-transparant);
+}
+
+button {
+  background-color: var(--primary-color);
 }
 
 .account-settings-checkbox {
