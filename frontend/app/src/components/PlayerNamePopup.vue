@@ -31,8 +31,10 @@
 import { useUserStore } from "@/stores/UserStore";
 import { ref, onMounted, watch } from "vue";
 import InputText from "@/components/InputText.vue";
-import router from "@/router";
+import { useRouter } from "vue-router";
+// import router from "@/router";
 
+const router = useRouter();
 const userStore = useUserStore();
 const playerName = ref<string>("");
 let message = "";

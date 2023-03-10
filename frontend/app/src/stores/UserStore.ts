@@ -1,9 +1,12 @@
+import { useRouter } from "vue-router";
 import { defineStore } from "pinia";
 import { apiRequest } from "@/utils/apiRequest";
-import router from "@/router";
+// import router from "@/router";
 import type { AxiosError } from "axios";
 import { updateUserStatus } from "@/utils/userStatus";
 import { UserStatus } from "@/components/game/pong.types";
+
+const router = useRouter();
 
 interface PublicProfile {
   id: number;

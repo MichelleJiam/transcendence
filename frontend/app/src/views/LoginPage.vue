@@ -8,12 +8,14 @@
 </template>
 
 <script setup lang="ts">
-import router from "@/router";
+// import router from "@/router";
 import { useUserStore } from "@/stores/UserStore";
 import { baseUrl } from "@/utils/apiRequest";
 import { onMounted } from "vue";
+import { useRouter } from "vue-router";
 
 const userStore = useUserStore();
+const router = useRouter();
 
 onMounted(async () => {
   console.log("[DEBUG] onMounted");

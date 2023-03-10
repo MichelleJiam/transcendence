@@ -28,9 +28,11 @@
 import { useUserStore } from "@/stores/UserStore";
 import { ref } from "vue";
 import InputText from "@/components/InputText.vue";
-import router from "@/router";
 import apiRequest from "@/utils/apiRequest";
+import { useRouter } from "vue-router";
+// import router from "@/router";
 
+const router = useRouter();
 const userStore = useUserStore();
 const authCode = ref<string>("");
 
