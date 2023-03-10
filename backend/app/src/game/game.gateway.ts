@@ -112,8 +112,6 @@ export class GameGateway {
   @SubscribeMessage("countdown")
   async countdown(@MessageBody() gameRoom: GameRoom) {
     let count = 3;
-    // const timeout = setInterval(() => {
-    // console.log("gameRoom.player ", gameRoom.player, " count ", count);
     this.countdownMap.set(
       gameRoom.id,
       setInterval(() => {
