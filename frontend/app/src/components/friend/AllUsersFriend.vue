@@ -7,10 +7,18 @@
         <span v-if="player.avatarUrl != undefined"
           ><img :src="player.avatarUrl" alt="Avatar" class="avatar"
         /></span>
-        <span class="player-name" v-if="player.relation != undefined">{{ player.playerName }}</span>
-        <button
+        <span v-if="player.relation != undefined" class="player-name">{{
+          player.playerName
+        }}</span>
+        <!-- <button
           v-if="player.relation?.status == 'NONE'"
           @click="sendFriendRequest(player)"
+        >
+          Add friend
+        </button> -->
+        <button
+          v-if="player.relation?.status == 'NONE'"
+          @click="sendUtilsFriendRequest(props.userid, player, store)"
         >
           Add friend
         </button>
@@ -21,10 +29,17 @@
         >
           Pending
         </button>
-        <button
+        <!-- <button
           v-else-if="player.relation?.status == 'FRIEND'"
           class="unfriend"
           @click="unfriend(player)"
+        >
+          Unfriend
+        </button> -->
+        <button
+          v-else-if="player.relation?.status == 'FRIEND'"
+          class="unfriend"
+          @click="utilsUnfriend(player, store)"
         >
           Unfriend
         </button>
@@ -37,6 +52,7 @@
 import apiRequest from "@/utils/apiRequest";
 import { ref, computed, onBeforeMount } from "vue";
 import { useFriendStore, type User } from "@/stores/FriendStore";
+import { sendUtilsFriendRequest, utilsUnfriend } from "./friendUtils";
 
 const props = defineProps({
   userid: { type: Number, required: true },

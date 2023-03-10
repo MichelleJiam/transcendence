@@ -35,6 +35,7 @@
           <button
             class="account-settings-button"
             :disabled="isDisabled"
+            :class="{ lightbutton: isLight }"
             @click.prevent="updatePlayerName"
           >
             Update player name
@@ -59,8 +60,8 @@
 <script setup lang="ts">
 import InputText from "@/components/InputText.vue";
 import InputCheckbox from "@/components/InputCheckbox.vue";
-import AvatarDisplay from "@/components/AvatarDisplay.vue";
-import AvatarUpload from "@/components/AvatarUpload.vue";
+import AvatarDisplay from "@/components/avatar/AvatarDisplay.vue";
+import AvatarUpload from "@/components/avatar/AvatarUpload.vue";
 import { ref, onMounted, watch } from "vue";
 import { useUserStore } from "@/stores/UserStore";
 import TwoFactorPopup from "@/components/TwoFactorPopup.vue";
@@ -70,6 +71,7 @@ const twoFactorAuthentication = ref<boolean>();
 const showTwoFAPopup = ref<boolean>(false);
 const playerName = ref<string>("");
 const isDisabled = ref<boolean>();
+const isLight = ref<boolean>();
 let message = "";
 
 const store = useUserStore();
@@ -78,6 +80,7 @@ onMounted(async () => {
   await store.retrieveCurrentUserData();
   twoFactorAuthentication.value = store.user.twoFAEnabled;
   playerName.value = store.user.playerName;
+  isLight.value = true;
   console.log("2fa enabled? ", twoFactorAuthentication.value);
   await store.getAvatar();
 });
@@ -114,6 +117,7 @@ watch(playerName, () => {
   if (playerName.value?.length <= 2 || playerName.value?.length > 8) {
     message = "Player name must be between 3 and 8 characters";
     isDisabled.value = true;
+    isLight.value = true;
   } else if (!validPlayerName(playerName.value)) {
     message =
       "Player name can only include alphabetic characters, digits and the following special characters -_";
@@ -121,6 +125,7 @@ watch(playerName, () => {
   } else {
     message = "";
     isDisabled.value = false;
+    isLight.value = false;
   }
 });
 
@@ -131,7 +136,6 @@ function validPlayerName(playerName: string) {
 
 <style scoped>
 #display-content {
-  /* display: flex; */
   display: grid;
   grid-template-columns: 1fr 2fr;
   justify-content: center;
@@ -144,7 +148,6 @@ function validPlayerName(playerName: string) {
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-
   flex-basis: 450px;
 }
 
@@ -153,7 +156,6 @@ function validPlayerName(playerName: string) {
   flex-direction: column;
   justify-content: space-around;
   gap: 10px;
-  /* flex-basis: 650px; */
 }
 
 .account-settings {
@@ -187,18 +189,17 @@ h2 {
   position: absolute;
   z-index: 2;
 }
-/* .overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-} */
 .account-settings-button {
   grid-area: button;
   justify-self: stretch;
+}
+
+.account-settings-button:hover {
+  background-color: var(--primary-color);
+}
+
+.lightbutton {
+  background-color: var(--primary-color-transparant);
 }
 
 .account-settings-checkbox {
