@@ -14,6 +14,7 @@ import {
   type Canvas,
   type Colors,
   UserStatus,
+  GameState,
 } from "./pong.types";
 import { Socket } from "socket.io-client";
 import { updateUserStatus } from "@/utils/userStatus";
@@ -140,7 +141,7 @@ function initGame() {
  ************/
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-const emit = defineEmits(["game-over"]);
+const emit = defineEmits(["game-over", "forfeit-game"]);
 
 props.socket.on(
   "drawScoreboard",
@@ -166,6 +167,23 @@ props.socket.on("endGame", (winner: number) => {
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
   drawGameOver(winner);
   gameOver();
+});
+
+props.socket.on("beep", (gameRoomId: string) => {
+  console.log("beep from room ", gameRoom.id);
+  console.log("is passed id same as room id: ", gameRoom.id === gameRoomId);
+});
+
+props.socket.on("playerForfeited", (disconnectedPlayer: number) => {
+  console.log("PongGame.playerForfeited");
+  if (disconnectedPlayer === 1) {
+    console.log("Player 1 forfeited");
+    gameRoom.playerOne.disconnected = true;
+  } else {
+    console.log("Player 2 forfeited");
+    gameRoom.playerTwo.disconnected = true;
+  }
+  emit("forfeit-game", gameRoom);
 });
 
 /********************
