@@ -2,6 +2,9 @@ import { IsNotEmpty } from "class-validator";
 
 export class InviteToGameDto {
   @IsNotEmpty()
+  chatroomId!: number;
+
+  @IsNotEmpty()
   playerOne!: number;
 
   @IsNotEmpty()

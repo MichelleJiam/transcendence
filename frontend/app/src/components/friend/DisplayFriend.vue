@@ -15,7 +15,19 @@
               : { 'background-color': 'orange' },
           ]"
         ></span>
-        <span class="player-name">{{ friend.playerName }}</span>
+        <p v-if="friend.status === UserStatus.OFFLINE" class="status-text">
+          offline
+        </p>
+        <p
+          v-else-if="friend.status === UserStatus.ONLINE"
+          class="status-text"
+        ></p>
+        <p v-else class="status-text">in game</p>
+        <span class="player-name">
+          <a :href="'/player/' + friend.playerName">
+            {{ friend.playerName }}
+          </a>
+        </span>
         <button class="unfriend" @click="unfriend(friend)">Unfriend</button>
       </li>
     </ul>
@@ -56,6 +68,9 @@ async function unfriend(player: User) {
 </script>
 
 <style scoped>
+a:link {
+  text-decoration: none;
+}
 .container {
   width: 50%;
   overflow-y: scroll;
@@ -98,5 +113,19 @@ button:active {
 
 :disabled {
   cursor: progress;
+}
+
+/* hover effect for the player status */
+.status-text {
+  display: none;
+  position: absolute;
+  background-color: grey;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+}
+
+.dot:hover + .status-text {
+  display: block;
 }
 </style>

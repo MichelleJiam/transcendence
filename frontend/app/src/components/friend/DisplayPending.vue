@@ -8,7 +8,11 @@
           <span
             ><img :src="pending.avatarUrl" alt="Avatar" class="avatar"
           /></span>
-          <span class="player-name">{{ pending.playerName }}</span>
+          <span class="player-name">
+            <a :href="'/player/' + pending.playerName">
+              {{ pending.playerName }}
+            </a>
+          </span>
           <div v-if="Number(userid) == pending.relation?.target">
             <button style="margin-right: 20px" @click="acceptRequest(pending)">
               Accept
@@ -69,6 +73,9 @@ async function denyRequest(player: User) {
 </script>
 
 <style scoped>
+a:link {
+  text-decoration: none;
+}
 .container {
   width: 50%;
   overflow-y: scroll;

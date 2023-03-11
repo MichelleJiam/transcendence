@@ -12,7 +12,6 @@
         <router-link to="/leaderboard">Leaderboard</router-link>
       </li>
       <li @click="closeMenu"><router-link to="/chat">Chat</router-link></li>
-      <li @click="closeMenu"><router-link to="/stream">Live</router-link></li>
       <li @click="closeMenu">
         <router-link to="/friends">Friends</router-link>
       </li>
@@ -44,7 +43,6 @@ let windowWidth = ref(window.innerWidth);
 onMounted(() => {
   window.onresize = () => {
     windowWidth.value = window.innerWidth;
-    console.log(windowWidth.value);
   };
 });
 
@@ -67,15 +65,7 @@ function closeMenu() {
 </script>
 
 <style scoped>
-/* .overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.85);
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-} */
+
 nav {
   position: fixed;
   top: 0;
@@ -86,7 +76,7 @@ nav {
   padding-top: 10px;
 }
 .navbar {
-  width: 1000px;
+  width: 900px;
   display: flex;
   justify-content: space-around;
 }

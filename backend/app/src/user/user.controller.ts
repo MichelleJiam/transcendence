@@ -50,7 +50,6 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   getCurrentUser(@currentUser() user: User) {
     this.logger.log(`Retrieving details of current user: ${user.id}`);
-    console.log("User: ", user);
     // JwtAuthGuard already calls userService.findUserById
     // so we don't call it again.
     return user;
@@ -116,7 +115,7 @@ export class UserController {
    *********/
 
   @Put(":id/update-status")
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   async updateUserStatus(
     @Param("id", ParseIntPipe) id: number,
@@ -179,10 +178,13 @@ export class UserController {
     } else this.logger.debug("User not found");
   }
 
-  /* achievements */
+  /***************
+   * achievements *
+   ***************/
 
   @Get(":id/achievements")
   async getAchievements(@Param("id", ParseIntPipe) id: number) {
+    this.logger.log("Hit the getAchievements route");
     return await this.userService.getAchievements(id);
   }
 }
