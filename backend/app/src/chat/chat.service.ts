@@ -36,6 +36,7 @@ import { BlocklistService } from "src/blocklist/blocklist.service";
 import { filterMessages } from "src/blocklist/blocklist.method";
 import { ChatGateway } from "./chat.gateway";
 import { AuthService } from "src/auth/auth.service";
+import { InviteToGameDto } from "./dto/invite-to-game.dto";
 
 @Injectable()
 export class ChatService {
@@ -101,6 +102,7 @@ export class ChatService {
         id: true,
         chatroomName: true,
         type: true,
+        gameRequestByUserId: true,
         owner: {
           id: true,
           playerName: true,
@@ -138,6 +140,22 @@ export class ChatService {
 
   async getMessagesFromChatroom(chatroomId: number): Promise<Message[]> {
     return this.messageService.getMessagesFromChatroom(chatroomId);
+  }
+
+  async createGameInvite(inviteToGameDto: InviteToGameDto): Promise<void> {
+    const chatroom = await this.getChatroomInfoById(inviteToGameDto.chatroomId);
+    if (chatroom) {
+      chatroom.gameRequestByUserId = inviteToGameDto.playerOne;
+      await this.chatroomRepository.save(chatroom);
+    }
+  }
+
+  async deleteGameInvite(inviteToGameDto: InviteToGameDto): Promise<void> {
+    const chatroom = await this.getChatroomInfoById(inviteToGameDto.chatroomId);
+    if (chatroom) {
+      chatroom.gameRequestByUserId = 0;
+      await this.chatroomRepository.save(chatroom);
+    }
   }
 
   async getMessagesFromChatroomForUser(
@@ -551,8 +569,13 @@ export class ChatService {
       } else if (
         (await this.chatMethod.hasMultipleMembersInChatroom(chatroomId)) == true
       ) {
-        swapOwner(chatroom, chatroom.member[1]);
-        addAdmin(chatroom, chatroom.member[1]);
+        for (const member of chatroom.member) {
+          if (member.id != chatroom.owner.id) {
+            swapOwner(chatroom, member);
+            addAdmin(chatroom, member);
+            break;
+          }
+        }
       } else {
         this.deleteChatroom(chatroomId);
       }
