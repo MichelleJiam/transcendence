@@ -5,6 +5,7 @@ import { Match } from "./entities/match.entity";
 import { GameService } from "src/game/game.service";
 import { CreateMatchDto } from "./dto/create-match.dto";
 import { CreateGameDto } from "src/game/dto/create-game.dto";
+import { MatchPlayerDto } from "./dto/match-player.dto";
 
 @Injectable()
 export class MatchService {
@@ -20,33 +21,39 @@ export class MatchService {
     return await this.matchRepository.find({});
   }
 
-  async findPlayerInMatchQueue(userId: number) {
+  async findPlayerInMatchQueueByUserId(userId: number) {
     const match = await this.matchRepository.findOne({
-      where: {
-        playerId: userId,
-      },
+      where: { playerId: userId },
     });
     return match;
   }
 
-  async findOpponentToPlayGame(id: number) {
+  async findPlayerInMatchQueueBySocket(socketId: string) {
+    const match = await this.matchRepository.findOne({
+      where: { playerSocket: socketId },
+    });
+    return match;
+  }
+
+  async findOpponentToPlayGame(matchPlayerDto: MatchPlayerDto) {
     const match = await this.matchRepository.find({
       take: 1,
     });
     if (match.length === 0) {
       const createMatchDto = new CreateMatchDto();
-      createMatchDto.playerId = id;
+      createMatchDto.playerId = matchPlayerDto.id;
+      createMatchDto.playerSocket = matchPlayerDto.socketId;
       this.addToMatchQueue(createMatchDto).catch(() => {
         this.logger.debug("error while creating match in create()");
       });
       return null;
     } else {
-      if (match[0].playerId == id) {
+      if (match[0].playerId == matchPlayerDto.id) {
         this.logger.debug("cannot match player with themself");
         /* is this even possible and do we want to throw if it does happen? */
         throw new BadRequestException();
       }
-      return await this.createGame(match[0].playerId, id);
+      return await this.createGame(match[0].playerId, matchPlayerDto.id);
     }
   }
 
@@ -55,6 +62,7 @@ export class MatchService {
     createGameDto.playerOne = playerOneId;
     createGameDto.playerTwo = playerTwoId;
     createGameDto.state = "playing";
+    createGameDto.join = false;
     const game = await this.gameService.create(createGameDto).catch(() => {
       this.logger.debug("error in getMatch while trying to create new game");
       throw new BadRequestException();
@@ -81,6 +89,7 @@ export class MatchService {
   }
 
   async remove(id: number) {
+    console.log("Removing player ", id, " from match queue");
     const match = await this.matchRepository.findOne({
       where: {
         playerId: id,

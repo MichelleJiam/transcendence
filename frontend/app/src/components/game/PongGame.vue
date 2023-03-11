@@ -6,23 +6,23 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import type { PropType } from "vue";
-import type { Keys, GameRoom, Canvas, Colors } from "./pong.types";
+import {
+  type Keys,
+  type GameRoom,
+  type Canvas,
+  type Colors,
+  UserStatus,
+} from "./pong.types";
 import { Socket } from "socket.io-client";
-import apiRequest from "../../utils/apiRequest";
+import { updateUserStatus } from "@/utils/userStatus";
 
 const props = defineProps({
   id: { type: Number, required: true },
   game: { type: Object as PropType<GameRoom>, required: true },
   socket: { type: Socket, required: true },
 });
-
-enum UserStatus {
-  ONLINE,
-  OFFLINE,
-  GAME,
-}
 
 let view: Canvas;
 let ctx: CanvasRenderingContext2D;
@@ -37,9 +37,7 @@ onMounted(async () => {
   drawBorderLines();
   drawCenterLine();
   drawPaddles();
-  await apiRequest(`/user/${props.id}/update-status`, "put", {
-    data: { status: UserStatus.GAME },
-  });
+  await updateUserStatus(props.id, UserStatus.GAME);
   if (gameRoom.player == 1) {
     props.socket.emit("countdown", gameRoom);
   }
@@ -47,9 +45,7 @@ onMounted(async () => {
 
 onUnmounted(async () => {
   console.log("PongGame unmounted");
-  await apiRequest(`/user/${props.id}/update-status`, "put", {
-    data: { status: UserStatus.ONLINE },
-  });
+  await updateUserStatus(props.id, UserStatus.ONLINE);
   // if (gameRoom.player == 0) {
   //   props.socket.emit("leaveRoom", gameRoom.id);
   // }
@@ -108,6 +104,7 @@ function initGame() {
         y: (view.height - view.height * 0.24) / 2,
         offset: view.width * 0.0026,
       },
+      disconnected: false,
     },
     playerTwo: {
       id: props.game.playerTwo.id,
@@ -119,6 +116,7 @@ function initGame() {
         y: (view.height - view.height * 0.24) / 2,
         offset: view.width * 0.0026,
       },
+      disconnected: false,
     },
     ball: {
       radius: view.width * 0.014,
@@ -159,6 +157,7 @@ async function gameOver() {
 }
 
 props.socket.on("endGame", (winner: number) => {
+  console.log("PongGame.endGame");
   ctx.fillStyle = color.canvas;
   ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();

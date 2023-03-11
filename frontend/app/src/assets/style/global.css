@@ -4,6 +4,7 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  word-spacing: 0.1em;
 }
 
 body {
@@ -125,6 +126,12 @@ input {
   transition: all 0.2s ease;
 }
 
+select {
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+}
+
 form {
   background: #151414e4;
   text-align: center;
@@ -162,6 +169,13 @@ a:hover {
 .chatroom-list {
   margin: 0.2rem 0.2rem;
   padding: 0.3rem;
+}
+
+.playerNameUrl {
+  font-family: sans-serif;
+  background: #00000000;
+  color: white;
+  font-size: 1rem;
 }
 
 li {

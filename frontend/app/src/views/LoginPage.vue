@@ -10,6 +10,7 @@
 <script setup lang="ts">
 import router from "@/router";
 import { useUserStore } from "@/stores/UserStore";
+import { baseUrl } from "@/utils/apiRequest";
 import { onMounted } from "vue";
 
 const userStore = useUserStore();
@@ -19,13 +20,13 @@ onMounted(async () => {
   await userStore.checkAuthStatus();
   if (userStore.isAuthenticated()) {
     await userStore.logIn();
-    await router.push("/home");
+    await router.push("/");
   }
 });
 
 async function submitLogin(): Promise<void> {
   console.log("[DEBUG] submitLogin");
-  window.location.href = `http://localhost:3000/auth/login`;
+  window.location.href = baseUrl + `/auth/login`;
 }
 </script>
 

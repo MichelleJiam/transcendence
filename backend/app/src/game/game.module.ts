@@ -12,10 +12,19 @@ import { AchievementService } from "src/achievement/achievement.service";
 import { Achievement } from "src/achievement/achievement.entity";
 import { Leaderboard } from "src/leaderboard/leaderboard.entity";
 import { LeaderboardService } from "src/leaderboard/leaderboard.service";
+import { MatchService } from "src/match/match.service";
+import { Match } from "src/match/entities/match.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Game, User, Avatar, Achievement, Leaderboard]),
+    TypeOrmModule.forFeature([
+      Game,
+      User,
+      Avatar,
+      Achievement,
+      Leaderboard,
+      Match,
+    ]),
   ],
   controllers: [GameController],
   providers: [
@@ -25,6 +34,7 @@ import { LeaderboardService } from "src/leaderboard/leaderboard.service";
     AvatarService,
     GameGateway,
     AchievementService,
+    MatchService,
   ],
 })
 export class GameModule {}

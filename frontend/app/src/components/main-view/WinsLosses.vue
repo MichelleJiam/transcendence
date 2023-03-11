@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import apiRequest, { baseUrl } from "@/utils/apiRequest";
+import apiRequest from "@/utils/apiRequest";
 import { ref, onMounted } from "vue";
 const props = defineProps({
   userId: Number,
@@ -16,6 +16,7 @@ const props = defineProps({
 
 const wins = ref<number>(0);
 const losses = ref<number>(0);
+
 
 onMounted(async () => {
   await apiRequest("/leaderboard/" + props.userId, "get")

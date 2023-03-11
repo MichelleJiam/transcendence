@@ -8,8 +8,6 @@ import { fas, faR } from "@fortawesome/free-solid-svg-icons";
 import App from "./App.vue";
 import router from "./router";
 
-// import "bootstrap/dist/css/bootstrap.css";
-// import bootstrap from "bootstrap/dist/js/bootstrap.bundle.js";
 import "./assets/style/global.css";
 import "./assets/style/variables.css";
 
@@ -22,6 +20,4 @@ pinia.use(piniaPluginPersistedState);
 app.use(pinia);
 app.use(router);
 app.component("FontAwesome", FontAwesomeIcon);
-
-// app.use(bootstrap);
 app.mount("#app");
