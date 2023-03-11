@@ -101,10 +101,10 @@ export class GameGateway {
       gameRoom.player,
     );
     if (gameRoom.player === 2) {
-      this.server.emit("addPlayerOne", gameRoom);
-      this.updateActiveGames();
+        this.server.emit("addPlayerOne", gameRoom);
+        this.updateActiveGames();
     } else if (gameRoom.player === 1) {
-      this.server.emit("savePlayerSockets", gameRoom);
+      this.server.to(gameRoom.id).emit("savePlayerSockets", gameRoom);
     }
   }
 

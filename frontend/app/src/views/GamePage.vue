@@ -52,7 +52,7 @@ import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue"
 import PongGame from "../components/game/PongGame.vue";
 import apiRequest, { baseUrl } from "../utils/apiRequest";
 import { onBeforeMount, onUnmounted, ref, onMounted, watchEffect } from "vue";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import {
   UserStatus,
   type Game,
@@ -75,7 +75,8 @@ const game = ref({} as GameRoom);
 const activeGames = ref(Array<Game>());
 const noGames = ref(true);
 game.value.state = State.READY;
-const dmGameJoined = ref(false);
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // remove?
 onBeforeMount(async () => {
@@ -89,27 +90,23 @@ onMounted(async () => {
   await userStore.retrieveCurrentUserData();
   id.value = userStore.user.id;
   console.log("id ", id.value);
-  // await apiRequest(
-  //   // `/match/${id.value}`,
-  //   `/match/${id}`,
-  //   "delete"
-  // ); /* protection if user refreshes; removes them from queue */
   console.log("GamePage.onMounted");
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
+
   const dmGame = await apiRequest(`/game/${id.value}/dm`, "get");
+
   if (dmGame.data.length !== 0) {
     game.value.state = State.WAITING;
-    console.log("dmGame ", dmGame.data);
-    if (dmGameJoined.value === false) {
+    if (dmGame.data.join === false) {
+      await sleep(2000);
       startGamePlayerTwo(dmGame);
-      dmGameJoined.value = true;
     } else {
-      dmGameJoined.value = false;
+      game.value.id = dmGame.data.id;
+      game.value.player = 1;
     }
   }
-  await getActiveGames();
 });
 
 // Triggered on navigate away
@@ -158,7 +155,7 @@ async function watchGame(gameId: number) {
     window.location.reload();
     return;
   }
-  fillGameRoomObject(res.data, 0);
+  fillGameRoomObject(res, 0);
   socket.emit("watchGame", game.value); /* adds them to gameRoom */
   console.log(id.value, " has joined room ", gameId, " as a WATCHER");
   game.value.state = State.PLAYING;
@@ -166,10 +163,8 @@ async function watchGame(gameId: number) {
 
 function startGamePlayerTwo(res: AxiosResponse) {
   fillGameRoomObject(res, 2);
-  game.value.state = State.PLAYING;
-  console.log("game in start playerTwo ", game.value);
   socket.emit("joinRoom", game.value);
-  console.log(id, " has joined room ", game.value.id, " as PLAYER 2");
+  console.log(id.value, " has joined room ", game.value.id, " as PLAYER 2");
 }
 
 const startGame = async () => {
@@ -178,6 +173,7 @@ const startGame = async () => {
   });
   /* if no one currently in queue */
   if (res.data.id == undefined) {
+    game.value.player = 1;
     game.value.state = State.WAITING;
   } else {
     /* else if opponent found */
@@ -186,20 +182,19 @@ const startGame = async () => {
 };
 
 socket.on("savePlayerSockets", (gameRoom: GameRoom) => {
-  if (game.value.state === State.PLAYING) {
     game.value.playerOne.socket = gameRoom.playerOne.socket;
     game.value.playerTwo.socket = gameRoom.playerTwo.socket;
-  }
-  console.log("game in savesockets ", game.value);
 });
 
 socket.on("addPlayerOne", async (gameRoom: GameRoom) => {
-  if (game.value.state == State.WAITING) {
+  if (game.value.player == 1) {
     game.value = gameRoom;
     game.value.player = 1;
-    console.log("game in add playerOne ", game.value);
-    await socket.emit("joinRoom", game.value);
+    socket.emit("joinRoom", game.value);
     console.log(id.value, "has joined room ", game.value.id, " as PLAYER 1");
+  }
+  if (game.value.player === 1 || game.value.player === 2) {
+    game.value.state = State.PLAYING;
   }
 });
 
@@ -267,28 +262,6 @@ async function removePlayerFromMatchQueue() {
   });
 }
 
-// function fillPlayerObject(playerNumber: number) {
-//   return {
-//     id: playerNumber,
-//     socket: "",
-//     score: 0,
-//     paddle: {
-//       height: 0,
-//       width: 0,
-//       y: 0,
-//       offset: 0,
-//     },
-//     disconnected: false,
-//   };
-// }
-
-// function fillGameRoomObject(res: Game, playerNumber: number) {
-//   game.value.id = res.id;
-//   game.value.player = playerNumber;
-//   game.value.playerOne = fillPlayerObject(res.playerOne);
-//   game.value.playerTwo = fillPlayerObject(res.playerTwo);
-// }
-
 function fillPlayerObject(
   playerNumber: number,
   playerSocket: string,
@@ -307,6 +280,7 @@ function fillPlayerObject(
     disconnected: false,
   };
 }
+
 function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
   game.value.id = res.data.id;
   game.value.player = playerNumber;

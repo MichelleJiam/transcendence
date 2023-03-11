@@ -9,4 +9,5 @@ export class CreateGameDto {
   winnerScore!: number;
   loserScore!: number;
   state!: string;
+  join!: boolean;
 }
