@@ -82,7 +82,8 @@ async function cancelInvite() {
 class CreateGameDto {
   playerOne!: number;
   playerTwo!: number;
-  state = "DM";
+  state = "dm";
+  join = false;
 }
 
 onMounted(async () => {

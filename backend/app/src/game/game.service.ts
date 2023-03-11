@@ -80,7 +80,7 @@ export class GameService {
   }
 
   async findGameFromDm(id: number) {
-    return await this.gameRepository
+    const game = await this.gameRepository
       .createQueryBuilder("game")
       .where("game.state = :dm", { dm: "dm" })
       .andWhere(
@@ -91,12 +91,13 @@ export class GameService {
         }),
       )
       .getOne();
-    // .createQueryBuilder("game")
-    // .where(
-    //   "game.state = :dm AND (game.playerOne = :playerOneId OR game.playerTwo = :playerTwoId)",
-    //   { dm: "dm", playerOneId: id, playerTwoId: id },
-    // )
-    // .execute();
+      if (game != null && game.join === true) {
+        await this.gameRepository.update(game.id, { state: "playing" });
+      }
+      else if (game != null) {
+        await this.gameRepository.update(game.id, { join: true });
+      }
+      return game;
   }
 
   async create(createGameDto: CreateGameDto) {
