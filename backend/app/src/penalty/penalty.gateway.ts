@@ -10,7 +10,7 @@ import {
 
 import { Socket, Server } from "socket.io";
 import { CreatePenaltyDto } from "./dto/create-penalty.dto";
-import { InviteToGameDto } from "./dto/invite-to-game.dto";
+import { InviteToGameDto } from "../chat/dto/invite-to-game.dto";
 import { KickedAUserDto } from "./dto/kicked-a-user.dto";
 import { PenaltyService } from "./penalty.service";
 
@@ -49,24 +49,6 @@ export class PenaltyGateway
   @SubscribeMessage("kickUser")
   async handleKick(client: Socket, payload: KickedAUserDto) {
     this.server.emit("kickedAUser", payload);
-  }
-
-  @SubscribeMessage("inviteToGame")
-  async inviteToGame(client: Socket, payload: InviteToGameDto) {
-    if (payload.status == "waiting") {
-      this.server.emit("sendGameRequestToPlayerTwo", payload);
-    } else if (payload.status == "accept") {
-      // create the game here.
-      this.server.emit("acceptedGameInvite", payload);
-    } else if (payload.status == "reject") {
-      // do whatever you need to safely reject the game invite here
-      this.server.emit("declinedGameInvite", payload);
-    } else if (payload.status == "cancel") {
-      this.server.emit("canceledInvite", payload);
-    } else {
-      this.server.emit("inviteGameError", payload);
-      console.error("Game invite failed");
-    }
   }
 
   afterInit(server: Server) {

@@ -18,36 +18,149 @@
 import { useUserStore } from "@/stores/UserStore";
 import apiRequest, { baseUrl } from "@/utils/apiRequest";
 import { io } from "socket.io-client";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 
-class InviteToGameDto {
-  playerOne!: number;
-  playerTwo!: number;
-  status = "waiting";
-}
+const props = defineProps({
+  playerTwo: { type: Number, required: true },
+  chatroomId: { type: Number, required: true },
+  inviteToGameUserId: { type: Number, default: 0 },
+});
 
 const userStore = useUserStore();
-const socketUrl = baseUrl + "/penalty"; // change this to the game gateway later
+const socketUrl = baseUrl + "/chat";
 const socket = io(socketUrl);
 const firstPlayer = ref<number>();
 const firstPlayerData = ref();
 const secondPlayer = ref<number>();
 const inviteReceived = ref<boolean>(false);
 
-const props = defineProps({
-  playerTwo: Number,
+class CreateGameDto {
+  playerOne!: number;
+  playerTwo!: number;
+  state = "dm";
+  join = false;
+}
+
+class InviteToGameDto {
+  chatroomId!: number;
+  playerOne!: number;
+  playerTwo!: number;
+  status = "waiting";
+}
+
+onMounted(async () => {
+  if (props.inviteToGameUserId > 0) {
+    inviteReceived.value = true;
+    firstPlayer.value = props.inviteToGameUserId;
+    if (firstPlayer.value != userStore.user.id)
+      secondPlayer.value = userStore.user.id;
+    else secondPlayer.value = props.playerTwo;
+    await apiRequest("/user/" + props.inviteToGameUserId, "get")
+      .then((response) => {
+        firstPlayerData.value = response.data;
+      })
+      .catch((err) => console.error(err));
+  }
+  socket.on("sendGameRequestToPlayerTwo", async (payload) => {
+    if (payload.chatroomId == props.chatroomId) {
+      if (payload.playerOne == userStore.user.id) {
+        inviteReceived.value = true;
+        firstPlayer.value = userStore.user.id;
+        secondPlayer.value = payload.playerTwo;
+      }
+      if (payload.playerTwo == userStore.user.id) {
+        firstPlayer.value = payload.playerOne;
+        await apiRequest("/user/" + payload.playerOne, "get")
+          .then((response) => {
+            firstPlayerData.value = response.data;
+          })
+          .catch((err) => console.error(err));
+        secondPlayer.value = payload.playerTwo;
+        inviteReceived.value = true;
+        console.log("You are being invited to a game");
+      }
+    }
+  });
+
+  socket.on("acceptedGameInvite", async (payload) => {
+    if (payload.chatroomId == props.chatroomId) {
+      if (
+        payload.playerTwo == userStore.user.id ||
+        payload.playerOne == userStore.user.id
+      ) {
+        console.log("PlayerTwo accepted your game request");
+        if (payload.playerOne == userStore.user.id) {
+          const createGameDto = new CreateGameDto();
+          createGameDto.playerOne = payload.playerOne;
+          createGameDto.playerTwo = payload.playerTwo;
+          await apiRequest(baseUrl + "/game", "post", { data: createGameDto });
+        }
+        window.location.href = "/game";
+        inviteReceived.value = false;
+      }
+    }
+  });
+
+  socket.on("declinedGameInvite", (payload) => {
+    if (payload.chatroomId == props.chatroomId) {
+      if (
+        payload.playerTwo == userStore.user.id ||
+        payload.playerOne == userStore.user.id
+      ) {
+        console.log("Your game request was declined.");
+        inviteReceived.value = false;
+      }
+    }
+  });
+
+  socket.on("canceledInvite", (payload) => {
+    if (payload.chatroomId == props.chatroomId) {
+      if (
+        payload.playerTwo == userStore.user.id ||
+        payload.playerOne == userStore.user.id
+      ) {
+        // do whatever you need to reject the game here
+        console.log("The game request was canceled");
+        inviteReceived.value = false;
+      }
+    }
+  });
+
+  socket.on("inviteGameError", (payload) => {
+    if (payload.chatroomId == props.chatroomId) {
+      if (
+        payload.playerTwo == userStore.user.id ||
+        payload.playerOne == userStore.user.id
+      ) {
+        console.log("There was a problem with your game invite");
+        inviteReceived.value = false;
+      }
+    }
+  });
+});
+
+onUnmounted(() => {
+  const inviteToGameDto = new InviteToGameDto();
+  if (firstPlayer.value != undefined && secondPlayer.value != undefined) {
+    inviteToGameDto.chatroomId = props.chatroomId;
+    inviteToGameDto.playerOne = firstPlayer.value;
+    inviteToGameDto.playerTwo = secondPlayer.value;
+    inviteToGameDto.status = "cancel";
+    socket.emit("inviteToGame", inviteToGameDto);
+  } else {
+    console.log("RespondToInvite failed.");
+  }
 });
 
 async function inviteToGame() {
   const inviteToGameDto = new InviteToGameDto();
+  inviteToGameDto.chatroomId = props.chatroomId;
   inviteToGameDto.playerOne = userStore.user.id;
+  inviteToGameDto.playerTwo = props.playerTwo;
   inviteToGameDto.status = "waiting";
-  if (props.playerTwo != undefined) {
-    inviteToGameDto.playerTwo = props.playerTwo;
-    console.log("invite to game has been emitted");
-    socket.emit("inviteToGame", inviteToGameDto);
-    inviteReceived.value = false;
-  }
+  console.log("invite to game has been emitted");
+  socket.emit("inviteToGame", inviteToGameDto);
+  inviteReceived.value = false;
 }
 
 async function respondToInvite(response: string) {
@@ -57,6 +170,7 @@ async function respondToInvite(response: string) {
   } else {
     const inviteToGameDto = new InviteToGameDto();
     if (firstPlayer.value != undefined && secondPlayer.value != undefined) {
+      inviteToGameDto.chatroomId = props.chatroomId;
       inviteToGameDto.playerOne = firstPlayer.value;
       inviteToGameDto.playerTwo = secondPlayer.value;
       inviteToGameDto.status = response;
@@ -70,6 +184,7 @@ async function respondToInvite(response: string) {
 async function cancelInvite() {
   const inviteToGameDto = new InviteToGameDto();
   if (firstPlayer.value != undefined && secondPlayer.value != undefined) {
+    inviteToGameDto.chatroomId = props.chatroomId;
     inviteToGameDto.playerOne = firstPlayer.value;
     inviteToGameDto.playerTwo = secondPlayer.value;
     inviteToGameDto.status = "cancel";
@@ -78,84 +193,6 @@ async function cancelInvite() {
     console.log("cancelInvite failed.");
   }
 }
-
-class CreateGameDto {
-  playerOne!: number;
-  playerTwo!: number;
-  state = "dm";
-  join = false;
-}
-
-onMounted(async () => {
-  socket.on("sendGameRequestToPlayerTwo", async (payload) => {
-    if (payload.playerOne == userStore.user.id) {
-      inviteReceived.value = true;
-      firstPlayer.value = userStore.user.id;
-      secondPlayer.value = payload.playerTwo;
-    }
-    if (payload.playerTwo == userStore.user.id) {
-      firstPlayer.value = payload.playerOne;
-      await apiRequest("/user/" + payload.playerOne, "get")
-        .then((response) => {
-          firstPlayerData.value = response.data;
-        })
-        .catch((err) => console.error(err));
-      secondPlayer.value = payload.playerTwo;
-      inviteReceived.value = true;
-      console.log("You are being invited to a game");
-    }
-  });
-
-  socket.on("acceptedGameInvite", async (payload) => {
-    if (
-      payload.playerTwo == userStore.user.id ||
-      payload.playerOne == userStore.user.id
-    ) {
-      console.log("PlayerTwo accepted your game request");
-      // socket.emit("StartDMGame", payload);
-      if (payload.playerOne == userStore.user.id) {
-        const createGameDto = new CreateGameDto();
-        createGameDto.playerOne = payload.playerOne;
-        createGameDto.playerTwo = payload.playerTwo;
-        createGameDto.state = "dm";
-        await apiRequest("/game", "post", { data: createGameDto }); // SWAAN!! UNCOMMENT THIS TO SEND THE API REQUEST WHEN READY
-      }
-      window.location.href = "/game";
-      inviteReceived.value = false;
-    }
-  });
-
-  socket.on("declinedGameInvite", (payload) => {
-    if (
-      payload.playerTwo == userStore.user.id ||
-      payload.playerOne == userStore.user.id
-    ) {
-      console.log("Your game request was declined.");
-      inviteReceived.value = false;
-    }
-  });
-
-  socket.on("canceledInvite", (payload) => {
-    if (
-      payload.playerTwo == userStore.user.id ||
-      payload.playerOne == userStore.user.id
-    ) {
-      // do whatever you need to reject the game here
-      console.log("The game request was canceled");
-      inviteReceived.value = false;
-    }
-  });
-
-  socket.on("inviteGameError", (payload) => {
-    if (
-      payload.playerTwo == userStore.user.id ||
-      payload.playerOne == userStore.user.id
-    ) {
-      console.log("There was a problem with your game invite");
-      inviteReceived.value = false;
-    }
-  });
-});
 </script>
 <style scoped>
 .padding {

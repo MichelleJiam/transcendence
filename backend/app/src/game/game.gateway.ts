@@ -22,6 +22,8 @@ export class GameGateway {
   @WebSocketServer() /* tell NestJS to inject the WebSocket server */
   server!: Server; /* reference to socket.io server under the hood */
   map = new Map<string, ReturnType<typeof setInterval>>();
+  countdownMap = new Map<string, ReturnType<typeof setInterval>>();
+
   constructor(
     private readonly gameService: GameService,
     private readonly userService: UserService,
@@ -47,7 +49,6 @@ export class GameGateway {
         leftGame.game?.id,
       );
       this.server.emit("playerForfeited", leftGame.playerNum);
-      // this.server.to(String(leftGame.game.id)).emit("stopCountdown");
       this.cleanUpOnPlayerDisconnect(leftGame);
     } else {
       console.log("No active games being played were left");
@@ -111,20 +112,24 @@ export class GameGateway {
   @SubscribeMessage("countdown")
   async countdown(@MessageBody() gameRoom: GameRoom) {
     let count = 3;
-    const timeout = setInterval(() => {
-      // console.log("gameRoom.player ", gameRoom.player, " count ", count);
-      this.server.to(gameRoom.id).emit("drawCountdown", count);
-      if (count < 0) {
-        clearInterval(timeout);
-        this.map.set(
-          gameRoom.id,
-          setInterval(() => {
-            this.server.to(gameRoom.id).emit("drawCanvas");
-          }, 8),
-        );
-      }
-      count--;
-    }, 750);
+    // const timeout = setInterval(() => {
+    // console.log("gameRoom.player ", gameRoom.player, " count ", count);
+    this.countdownMap.set(
+      gameRoom.id,
+      setInterval(() => {
+        this.server.to(gameRoom.id).emit("drawCountdown", count);
+        if (count < 0) {
+          clearInterval(this.countdownMap.get(gameRoom.id));
+          this.map.set(
+            gameRoom.id,
+            setInterval(() => {
+              this.server.to(gameRoom.id).emit("drawCanvas");
+            }, 8),
+          );
+        }
+        count--;
+      }, 750),
+    );
   }
 
   /************
@@ -183,6 +188,7 @@ export class GameGateway {
   ) {
     console.log("Forfeiting game");
     clearInterval(this.map.get(gameRoom.id));
+    clearInterval(this.countdownMap.get(gameRoom.id));
     this.map.delete(gameRoom.id);
     if (this.gameService.bothPlayersDisconnected(gameRoom)) {
       console.log("Both players disconnected");
