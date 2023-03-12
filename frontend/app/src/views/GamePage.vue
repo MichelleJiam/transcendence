@@ -68,6 +68,13 @@ const State = {
   PLAYING: 2,
 };
 
+class CreateGameDto {
+  playerOne!: number;
+  playerTwo!: number;
+  state!: string;
+  join!: boolean;
+}
+
 const userStore = useUserStore();
 const id = ref(0);
 const socket = io(baseUrl + "/pong");
@@ -161,6 +168,23 @@ async function watchGame(gameId: number) {
   game.value.state = State.PLAYING;
 }
 
+socket.on("savePlayerSockets", (gameRoom: GameRoom) => {
+  game.value.playerOne.socket = gameRoom.playerOne.socket;
+  game.value.playerTwo.socket = gameRoom.playerTwo.socket;
+});
+
+socket.on("addPlayerOne", async (gameRoom: GameRoom) => {
+  if (game.value.player === 1 && id.value === gameRoom.playerOne.id) {
+    game.value = gameRoom;
+    game.value.player = 1;
+    socket.emit("joinRoom", game.value);
+    console.log(id.value, "has joined room ", game.value.id, " as PLAYER 1");
+  }
+  if (game.value.player === 1 || game.value.player === 2) {
+    game.value.state = State.PLAYING;
+  }
+});
+
 function startGamePlayerTwo(res: AxiosResponse) {
   fillGameRoomObject(res, 2);
   socket.emit("joinRoom", game.value);
@@ -180,23 +204,6 @@ const startGame = async () => {
     startGamePlayerTwo(res);
   }
 };
-
-socket.on("savePlayerSockets", (gameRoom: GameRoom) => {
-    game.value.playerOne.socket = gameRoom.playerOne.socket;
-    game.value.playerTwo.socket = gameRoom.playerTwo.socket;
-});
-
-socket.on("addPlayerOne", async (gameRoom: GameRoom) => {
-  if (game.value.player == 1) {
-    game.value = gameRoom;
-    game.value.player = 1;
-    socket.emit("joinRoom", game.value);
-    console.log(id.value, "has joined room ", game.value.id, " as PLAYER 1");
-  }
-  if (game.value.player === 1 || game.value.player === 2) {
-    game.value.state = State.PLAYING;
-  }
-});
 
 async function gameOver(gameRoom: GameRoom) {
   console.log(
