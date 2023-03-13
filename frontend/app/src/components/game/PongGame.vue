@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import type { PropType } from "vue";
 import {
   type Keys,
