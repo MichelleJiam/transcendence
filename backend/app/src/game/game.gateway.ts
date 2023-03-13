@@ -39,6 +39,7 @@ export class GameGateway {
   // of automatically on disconnection.
   async handleDisconnect(client: Socket) {
     console.log("GameGateway: ", client.id, " disconnected"); // socket id here not same as when joining? find doesn't return anything then
+    console.log("rooms they were in: ", client.rooms);
     const leftGame: GameWithPlayer =
       await this.gameService.findGameFromPlayerSocket(client.id);
     if (leftGame.game !== null) {
@@ -51,7 +52,7 @@ export class GameGateway {
       const gameRoomId = String(leftGame.game.id);
       this.server.to(gameRoomId).emit("beep", String(leftGame.game.id));
       this.server
-        .to(String(leftGame.game.id))
+        // .to(String(leftGame.game.id))
         .emit("playerForfeited", leftGame.playerNum);
       this.cleanUpOnPlayerDisconnect(leftGame);
     } else {
@@ -107,6 +108,7 @@ export class GameGateway {
       " as player ",
       gameRoom.player,
     );
+    console.log("rooms they are in: ", client.rooms);
     if (gameRoom.player === 2) {
       this.server.emit("addPlayerOne", gameRoom);
       this.updateActiveGames();
@@ -227,6 +229,7 @@ export class GameGateway {
   }
 
   async cleanUpOnPlayerDisconnect(leftGame: GameWithPlayer) {
+    console.log("Cleaning up on player disconnect");
     // updates active game list on disconnecting player side
     if (leftGame.game) {
       this.gameService.setGameToDone(leftGame.game.id);
@@ -244,7 +247,7 @@ export class GameGateway {
   }
 
   async checkMatchQueueOnDisconnect(socketId: string) {
-    // console.log("Checking if player socket ", socketId, " was in queue");
+    console.log("Checking if player socket ", socketId, " was in queue");
     const leftMatch = await this.matchService.findPlayerInMatchQueueBySocket(
       socketId,
     );

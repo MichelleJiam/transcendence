@@ -202,7 +202,10 @@ async function gameOver(gameRoom: GameRoom) {
   );
   // can fail if both players disconnected and game was deleted
   await apiRequest(`/game`, "put", { data: gameRoom }).catch((err) => {
-    console.log("Something went wrong with updating with game result: ", err);
+    console.log(
+      "GamePage.gameOver | Something went wrong with updating with game result: ",
+      err
+    );
   });
   game.value.state = GameState.READY;
   socket.emit("leaveRoom", gameRoom.id);
@@ -218,27 +221,27 @@ function forfeitGame(gameRoom: GameRoom) {
   socket.emit("forfeitGame", gameRoom);
 }
 
-// socket.on("playerForfeited", async (disconnectedPlayer: number) => {
-//   // console.log(
-//   //   "playerForfeited | p1 socket: ",
-//   //   game.value.playerOne.socket,
-//   //   " p2 socket: ",
-//   //   game.value.playerTwo.socket
-//   // );
+socket.on("playerForfeited", async (disconnectedPlayer: number) => {
+  // console.log(
+  //   "playerForfeited | p1 socket: ",
+  //   game.value.playerOne.socket,
+  //   " p2 socket: ",
+  //   game.value.playerTwo.socket
+  // );
 
-//   // if user is not actively watching game
-//   if (game.value.state !== GameState.PLAYING) {
-//     return;
-//   }
-//   if (disconnectedPlayer === 1) {
-//     console.log("Player 1 forfeited");
-//     game.value.playerOne.disconnected = true;
-//   } else {
-//     console.log("Player 2 forfeited");
-//     game.value.playerTwo.disconnected = true;
-//   }
-//   socket.emit("forfeitGame", game.value);
-// });
+  // if user is not actively watching game
+  if (game.value.state !== GameState.PLAYING) {
+    return;
+  }
+  if (disconnectedPlayer === 1) {
+    console.log("Player 1 forfeited");
+    game.value.playerOne.disconnected = true;
+  } else {
+    console.log("Player 2 forfeited");
+    game.value.playerTwo.disconnected = true;
+  }
+  socket.emit("forfeitGame", game.value);
+});
 
 // Used by GameGateway::handleDisconnect when a watcher or queued player
 // disconnects.
