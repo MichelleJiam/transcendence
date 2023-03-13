@@ -7,15 +7,11 @@
         <span v-if="player.avatarUrl != undefined"
           ><img :src="player.avatarUrl" alt="Avatar" class="avatar"
         /></span>
-        <span v-if="player.relation != undefined" class="player-name">{{
-          player.playerName
-        }}</span>
-        <!-- <button
-          v-if="player.relation?.status == 'NONE'"
-          @click="sendFriendRequest(player)"
-        >
-          Add friend
-        </button> -->
+        <span v-if="player.relation != undefined" class="player-name">
+          <a :href="'/player/' + player.playerName">
+            {{ player.playerName }}
+          </a>
+        </span>
         <button
           v-if="player.relation?.status == 'NONE'"
           @click="sendUtilsFriendRequest(props.userid, player, store)"
@@ -29,13 +25,6 @@
         >
           Pending
         </button>
-        <!-- <button
-          v-else-if="player.relation?.status == 'FRIEND'"
-          class="unfriend"
-          @click="unfriend(player)"
-        >
-          Unfriend
-        </button> -->
         <button
           v-else-if="player.relation?.status == 'FRIEND'"
           class="unfriend"
@@ -49,9 +38,8 @@
 </template>
 
 <script setup lang="ts">
-import apiRequest from "@/utils/apiRequest";
 import { ref, computed, onBeforeMount } from "vue";
-import { useFriendStore, type User } from "@/stores/FriendStore";
+import { useFriendStore } from "@/stores/FriendStore";
 import { sendUtilsFriendRequest, utilsUnfriend } from "./friendUtils";
 
 const props = defineProps({
@@ -82,34 +70,15 @@ const searchedPlayers = computed(() => {
   });
 });
 
-/***********
- * at click *
- ***********/
-
-async function sendFriendRequest(player: User) {
-  if (props.userid) {
-    try {
-      await apiRequest("/friend/request", "post", {
-        data: {
-          source: props.userid,
-          target: player.id,
-          status: "PENDING",
-        },
-      });
-    } catch (error) {
-      console.log(error);
-      return;
-    }
-    await store.updateUserList(props.userid);
-  } else console.log("No user id provided in url");
-}
-
-async function unfriend(player: User) {
-  await store.removeRelation(player);
-}
+/********************************************
+ * at click, found in friendUtils.ts        *
+ ********************************************/
 </script>
 
 <style scoped>
+a:link {
+  text-decoration: none;
+}
 .container {
   width: 50%;
   overflow-y: scroll;
