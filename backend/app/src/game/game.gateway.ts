@@ -24,6 +24,12 @@ export class GameGateway {
   map = new Map<string, ReturnType<typeof setInterval>>();
   countdownMap = new Map<string, ReturnType<typeof setInterval>>();
 
+  State = {
+    READY: 0,
+    WAITING: 1,
+    PLAYING: 2,
+  };
+
   constructor(
     private readonly gameService: GameService,
     private readonly userService: UserService,
@@ -101,10 +107,10 @@ export class GameGateway {
       " as player ",
       gameRoom.player,
     );
-    if (gameRoom.player === 2) {
-        this.server.emit("addPlayerOne", gameRoom);
-        this.updateActiveGames();
+    if (gameRoom.player === 2 && gameRoom.state === this.State.READY) {
+      this.server.emit("addPlayerOne", gameRoom);
     } else if (gameRoom.player === 1) {
+      this.updateActiveGames();
       this.server.to(gameRoom.id).emit("savePlayerSockets", gameRoom);
     }
   }
@@ -118,6 +124,7 @@ export class GameGateway {
       gameRoom.id,
       setInterval(() => {
         this.server.to(gameRoom.id).emit("drawCountdown", count);
+        console.log("count ", count);
         if (count < 0) {
           clearInterval(this.countdownMap.get(gameRoom.id));
           this.map.set(
