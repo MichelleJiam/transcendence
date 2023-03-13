@@ -6,10 +6,10 @@ import LeaderBoard from "../views/LeaderBoard.vue";
 import Chatroom from "../views/ChatroomMainPage.vue";
 import SingleChatroom from "../views/ChatroomSingle.vue";
 import NotFound from "../views/NotFound.vue";
-import NotAuthorized from "../views/NotAuthorized.vue"
+import NotAuthorized from "../views/NotAuthorized.vue";
 import FriendPage from "../views/FriendPage.vue";
 import TwoFAPage from "@/views/TwoFAPage.vue";
-import GenericError from "@/views/GenericError.vue"
+import GenericError from "@/views/GenericError.vue";
 import type { Component } from "vue";
 
 const routes: {
@@ -18,12 +18,16 @@ const routes: {
   alias?: string[];
   name?: string;
 }[] = [
-  { path: "/", component: HomePage, name: "home"},
+  { path: "/", component: HomePage, name: "home" },
   { path: "/:id/home", component: HomePage },
   { path: "/login", component: LoginPage, name: "login" },
   { path: "/:id/game", component: GamePage } /* temp workaround */,
   { path: "/game", component: GamePage },
-  { path: "/:id/account", component: UserPage, name: "account",} /* temp workaround */,
+  {
+    path: "/:id/account",
+    component: UserPage,
+    name: "account",
+  } /* temp workaround */,
   { path: "/account", component: UserPage, alias: ["/user"] },
   { path: "/leaderboard", component: LeaderBoard },
   { path: "/chat", component: Chatroom },
@@ -34,7 +38,7 @@ const routes: {
   { path: "/2fa", component: TwoFAPage, name: "2fa" },
   { path: "/404", component: NotFound },
   { path: "/401", component: NotAuthorized },
-  { path: "/error", component: GenericError},
+  { path: "/error", component: GenericError },
   { path: "/:pathMatch(.*)*", component: NotFound },
 ];
 

@@ -53,7 +53,6 @@ async function validateAuthCode() {
         validationMessage.value =
           "Something went wrong with enabling 2FA. Please try again";
       }
-      console.log("Something went wrong with 2FA enabling: ", err);
     });
 }
 

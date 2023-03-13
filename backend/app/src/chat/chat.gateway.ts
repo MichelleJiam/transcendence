@@ -10,6 +10,7 @@ import {
 
 import { Socket, Server } from "socket.io";
 import { CreateMessageDto } from "src/message/dto/create-message.dto";
+import { InviteToGameDto } from "src/chat/dto/invite-to-game.dto";
 import { ChatService } from "./chat.service";
 
 @WebSocketGateway({
@@ -39,6 +40,28 @@ export class ChatGateway
       this.server.emit("recMessage", message);
     } catch (err) {
       console.error(err);
+    }
+  }
+
+  @SubscribeMessage("inviteToGame")
+  async inviteToGame(client: Socket, payload: InviteToGameDto) {
+    console.log(payload);
+    if (payload.status == "waiting") {
+      await this.chatService.createGameInvite(payload);
+      this.server.emit("sendGameRequestToPlayerTwo", payload);
+    } else if (payload.status == "accept") {
+      await this.chatService.deleteGameInvite(payload);
+      this.server.emit("acceptedGameInvite", payload);
+    } else if (payload.status == "reject") {
+      await this.chatService.deleteGameInvite(payload);
+      this.server.emit("declinedGameInvite", payload);
+    } else if (payload.status == "cancel") {
+      await this.chatService.deleteGameInvite(payload);
+      this.server.emit("canceledInvite", payload);
+    } else {
+      await this.chatService.deleteGameInvite(payload);
+      this.server.emit("inviteGameError", payload);
+      console.error("Game invite failed");
     }
   }
 

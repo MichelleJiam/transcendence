@@ -7,7 +7,12 @@
           <span v-if="isDM == true">
             <suspense>
               <template #default>
-                <InviteToGame :player-two="DMMemberTwo"></InviteToGame>
+                <InviteToGame
+                  v-if="chatRoomInfo.member.length == 2"
+                  :chatroom-id="chatRoomInfo.id"
+                  :invite-to-game-user-id="chatRoomInfo.gameRequestByUserId"
+                  :player-two="DMMemberTwo"
+                ></InviteToGame>
               </template>
               <template #fallback><p>loading...</p></template>
             </suspense>
@@ -110,7 +115,7 @@ const isDM = ref<boolean>(false);
 const showContent = ref<boolean>(false);
 
 // for DM, in order to create the invite to game button
-const DMMemberTwo = ref<number>();
+const DMMemberTwo = ref<number>(0);
 
 const backendurlChatName = "/chat/" + chatroomId;
 

@@ -35,6 +35,12 @@ export class Chatroom {
   })
   public chatroomName!: string;
 
+  // if DM and a request to play a game is made
+  @Column({
+    default: 0,
+  })
+  public gameRequestByUserId!: number;
+
   // shows messages belonging to this chatroom
   @OneToMany(() => Message, (message: Message) => message.chatroomId, {
     onDelete: "CASCADE",
