@@ -160,6 +160,7 @@ export class GameService {
     const leaderboardDto = new UpdateLeaderboardUserDto();
     leaderboardDto.winner = gameRoom.winner;
     leaderboardDto.loser = gameRoom.loser;
+    console.log("Updated game repo, about to update leaderboard");
     await this.leaderboardService.updateUsersInLeaderboard(leaderboardDto);
     return game;
   }
