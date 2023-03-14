@@ -78,7 +78,7 @@ onMounted(async () => {
   await store.retrieveCurrentUserData();
   twoFactorAuthentication.value = store.user.twoFAEnabled;
   playerName.value = store.user.playerName;
-  console.log("2fa enabled? ", twoFactorAuthentication.value);
+  console.debug("2fa enabled? ", twoFactorAuthentication.value);
   await store.getAvatar();
 });
 
@@ -89,7 +89,7 @@ async function checkForTwoFAPopup() {
     toggleTwoFAPopup(false);
     await apiRequest(`/2fa/disable`, "post");
     alert("Two factor authentication has been disabled");
-    console.log("2FA disabled");
+    console.debug("2FA disabled");
   }
 }
 

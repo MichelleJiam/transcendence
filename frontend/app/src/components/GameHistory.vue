@@ -25,19 +25,32 @@ const props = defineProps({
 const wins = ref<string[]>([]);
 const losses = ref<string[]>([]);
 
-
 onBeforeMount(async () => {
-  const res = await apiRequest(`/game/${props.userId}/state`, "get");
-  for (const game of res.data) {
-    const playerWin = await apiRequest(`/user/${game.game_winnerIdId}`, "get")
-    game.playerOneName = playerWin.data.playerName;
-    wins.value.push(game.playerOneName);
-    const playerLose = await apiRequest(`/user/${game.game_loserIdId}`, "get")
-    game.playerTwoName = playerLose.data.playerName;
-    losses.value.push(game.playerTwoName);
-  }
-}); 
-
+  await apiRequest(`/game/${props.userId}/state`, "get")
+    .then(async (res) => {
+      for (const game of res.data) {
+        try {
+          const playerWin = await apiRequest(
+            `/user/${game.game_winnerIdId}`,
+            "get"
+          );
+          game.playerOneName = playerWin.data.playerName;
+          wins.value.push(game.playerOneName);
+          const playerLose = await apiRequest(
+            `/user/${game.game_loserIdId}`,
+            "get"
+          );
+          game.playerTwoName = playerLose.data.playerName;
+          losses.value.push(game.playerTwoName);
+        } catch (err) {
+          console.error("Could not retrieve winners & losers: ", err);
+        }
+      }
+    })
+    .catch((err) => {
+      console.error("Could not retrieve user games: ", err);
+    });
+});
 </script>
 
 <style scoped>

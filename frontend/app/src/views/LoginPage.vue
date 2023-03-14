@@ -16,7 +16,6 @@ import { onMounted } from "vue";
 const userStore = useUserStore();
 
 onMounted(async () => {
-  console.log("[DEBUG] onMounted");
   await userStore.checkAuthStatus();
   if (userStore.isAuthenticated()) {
     await userStore.logIn();
@@ -25,7 +24,6 @@ onMounted(async () => {
 });
 
 async function submitLogin(): Promise<void> {
-  console.log("[DEBUG] submitLogin");
   window.location.href = baseUrl + `/auth/login`;
 }
 </script>

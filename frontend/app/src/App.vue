@@ -24,7 +24,6 @@ onMounted(async () => {
 });
 
 function isAuthenticated() {
-  console.log("[DEBUG] App.vue NavBar display check");
   return userStore.isAuthenticated();
 }
 </script>

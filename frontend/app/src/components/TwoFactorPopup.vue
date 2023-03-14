@@ -34,7 +34,7 @@ onMounted(async () => {
       qrCode.value = response.data;
     })
     .catch((err) => {
-      console.log("Unable to get 2FA QR code: ", err);
+      console.error("Unable to get 2FA QR code: ", err);
     });
 });
 
