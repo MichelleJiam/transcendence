@@ -31,6 +31,7 @@ let ctx: CanvasRenderingContext2D;
 let key: Keys;
 let gameRoom: GameRoom;
 let color: Colors;
+const colorModeOn = ref(false);
 const inGame = ref(true);
 
 onMounted(async () => {
@@ -41,6 +42,7 @@ onMounted(async () => {
   drawCenterLine();
   drawPaddles();
   await updateUserStatus(props.id, UserStatus.GAME);
+  console.log("gameRoom ", gameRoom);
   if (gameRoom.player == 1) {
     props.socket.emit("countdown", gameRoom);
   }
@@ -52,6 +54,7 @@ onUnmounted(async () => {
   // if (gameRoom.player == 0) {
   //   props.socket.emit("leaveRoom", gameRoom.id);
   // }
+  window.location.reload();
 });
 
 /******************
@@ -269,13 +272,25 @@ function keyUpHandler(e: KeyboardEvent) {
  *************/
 
 function colorMode() {
-  color.canvas = "pink";
-  color.borderLines = "white";
-  color.centerLine = "white";
-  color.paddle = "yellow";
-  color.ball = "white";
-  color.scoreBoard = "aqua";
-  color.countDown = "aqua";
+  if (colorModeOn.value === false) {
+    color.canvas = "pink";
+    color.borderLines = "white";
+    color.centerLine = "white";
+    color.paddle = "yellow";
+    color.ball = "white";
+    color.scoreBoard = "aqua";
+    color.countDown = "aqua";
+    colorModeOn.value = true;
+  } else {
+    color.canvas = "#000000";
+    color.paddle = "#FFFFFF";
+    color.borderLines = "#FFFFFF";
+    color.centerLine = "#FFFFFF";
+    color.ball = "FFFFFF";
+    color.scoreBoard = "#39ff14";
+    color.countDown = "#39ff14";
+    colorModeOn.value = false;
+  }
 }
 
 /*********************
