@@ -33,7 +33,7 @@ const isDisabledAvatar = ref<boolean>(true);
 const avatar: Avatar = {};
 
 async function onFileSelected(e: Event) {
-  console.log("[DEBUG] onFileSelected() in AvatarUpload.vue");
+  console.debug("onFileSelected() in AvatarUpload.vue");
   const target = e.target as HTMLInputElement;
   if (target.files) {
     if (target.files[0].size > 1000000) {
@@ -47,10 +47,10 @@ async function onFileSelected(e: Event) {
 }
 
 async function submitAvatar() {
-  console.log("[DEBUG] submitAvatar() in AvatarUpload.vue");
+  console.debug("submitAvatar() in AvatarUpload.vue");
   if (avatar.selectedFile) {
     await store.updateAvatar(avatar.selectedFile);
-  } else console.log("[DEBUG] No file selected");
+  } else console.debug("No file selected");
 }
 </script>
 

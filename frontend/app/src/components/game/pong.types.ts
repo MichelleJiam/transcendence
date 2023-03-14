@@ -75,3 +75,9 @@ export enum UserStatus {
   OFFLINE,
   GAME,
 }
+
+export enum GameState {
+  READY,
+  WAITING,
+  PLAYING,
+}

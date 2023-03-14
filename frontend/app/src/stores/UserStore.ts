@@ -38,22 +38,20 @@ export const useUserStore = defineStore("user", {
      ********/
 
     isAuthenticated() {
-      console.log("[DEBUG] isAuthenticated | returns ", this.authenticated);
+      console.debug("isAuthenticated | returns ", this.authenticated);
       return this.authenticated === true;
     },
 
     async logIn() {
-      console.log("[DEBUG] userStore.logIn");
       await this.retrieveCurrentUserData();
       await this.userIsLoggedIn();
-      console.log("Trying to log in user id: ", this.user.id);
+      console.debug("Trying to log in user id: ", this.user.id);
     },
 
     async logOut() {
-      console.log("[DEBUG] logOut");
       if (this.authenticated) {
         await apiRequest(`/auth/logout`, "post").catch(() => {
-          console.log("User already logged out");
+          console.debug("User already logged out");
         });
         await this.userIsLoggedOut();
         this.$reset();
@@ -62,28 +60,30 @@ export const useUserStore = defineStore("user", {
     },
 
     async checkAuthStatus(): Promise<boolean> {
-      console.log("[DEBUG] checkAuthStatus");
       await apiRequest(`/auth/status`, "get")
         .then(async () => {
           await this.userIsLoggedIn();
-          console.log("User is authenticated");
+          console.debug("User is authenticated");
         })
         .catch(async () => {
           await this.userIsLoggedOut();
-          console.log("User is not authenticated");
+          console.debug("User is not authenticated");
         });
       return this.authenticated;
     },
 
     async userIsLoggedIn() {
       this.authenticated = true;
-      if (this.user.id) await updateUserStatus(this.user.id, UserStatus.ONLINE);
+      if (this.user.id) {
+        await updateUserStatus(this.user.id, UserStatus.ONLINE);
+      }
     },
 
     async userIsLoggedOut() {
       this.authenticated = false;
-      if (this.user.id)
+      if (this.user.id) {
         await updateUserStatus(this.user.id, UserStatus.OFFLINE);
+      }
     },
 
     /*************
@@ -91,7 +91,6 @@ export const useUserStore = defineStore("user", {
      *************/
 
     async retrieveCurrentUserData() {
-      console.log("[DEBUG] retrieveUserData");
       try {
         const res = await apiRequest(`/user/current`, "get");
         this.user.id = res.data.id;
@@ -100,7 +99,7 @@ export const useUserStore = defineStore("user", {
         this.user.avatarId = res.data.avatarID ?? null;
         return res.data.user;
       } catch (error) {
-        console.log(`Error in retrieveCurrentUserData(): ${error}`);
+        console.error(`Error in retrieveCurrentUserData(): ${error}`);
       }
       return null;
     },
@@ -109,7 +108,6 @@ export const useUserStore = defineStore("user", {
       newPlayerName: string,
       twoFA: boolean | undefined
     ) {
-      console.log("[DEBUG] updateAccountSettings");
       try {
         await apiRequest(`/user/${this.user.id}/update-settings`, "put", {
           data: { playerName: newPlayerName, twoFAEnabled: twoFA },
@@ -126,7 +124,6 @@ export const useUserStore = defineStore("user", {
      **********/
 
     async updateAvatar(selectedFile: File) {
-      console.log("[DEBUG] updateAvatar() in UserStore.ts");
       try {
         const formData = new FormData();
         formData.append("file", selectedFile);
@@ -135,17 +132,16 @@ export const useUserStore = defineStore("user", {
         });
         location.reload();
       } catch (error) {
-        console.log(`[DEBUG] error in updateAvatar(): ${error}`);
+        console.error(`Error in updateAvatar(): ${error}`);
       }
     },
 
     async getAvatar() {
-      console.log("[DEBUG] getAvatar() in UserStore.ts");
       try {
         const res = await apiRequest(`/user/${this.user.id}/avatar`, "get");
         this.user.avatarUrl = res.config.url;
       } catch (error) {
-        console.log(`[DEBUG] error in getAvatar(): ${error}`);
+        console.error(`Error in getAvatar(): ${error}`);
       }
     },
 
@@ -161,7 +157,7 @@ export const useUserStore = defineStore("user", {
         );
         if (res) this.achievements = res.data;
       } catch (error) {
-        console.log(`Error in getAchievements(): ${error}`);
+        console.error(`Error in getAchievements(): ${error}`);
       }
     },
 
@@ -171,7 +167,7 @@ export const useUserStore = defineStore("user", {
 
     handleError(error: AxiosError) {
       if (error.response && error.response.data) {
-        console.log((error.response.data as Error).message);
+        console.error((error.response.data as Error).message);
         alert((error.response.data as Error).message);
       }
     },
