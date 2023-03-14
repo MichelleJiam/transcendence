@@ -40,7 +40,7 @@ export const useFriendStore = defineStore("friend", {
     },
 
     async removeRelation(player: User) {
-      console.log("removeRelation called");
+      console.debug("removeRelation called");
       await apiRequest("/friend/unfriend", "delete", { data: player.relation });
     },
 

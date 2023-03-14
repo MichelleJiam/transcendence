@@ -7,20 +7,20 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to) => {
   const userStore = useUserStore();
-  console.log("[DEBUG] beforeEach");
+  console.debug("beforeEach");
   if (to.name === "login" || to.name === "2fa") {
     return true;
   }
   // check if user's auth token expired in between page loads
   if ((await userStore.checkAuthStatus()) === false) {
-    console.log("User not authenticated, pushing to login");
+    console.debug("User not authenticated, pushing to login");
     return { name: "login" };
   }
   // checks if user's player name still has to be set (new account)
   if (userStore.user.playerName === null && to.name != "home") {
-    console.log("Player name not set, pushing to home");
+    console.debug("Player name not set, pushing to home");
     return { name: "home" };
   }
 });
