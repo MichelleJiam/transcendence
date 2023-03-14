@@ -79,6 +79,26 @@ export class GameService {
     return { game: foundGame, playerNum: playerNum, playerId: playerId };
   }
 
+  async findGameFromDm(id: number) {
+    const game = await this.gameRepository
+      .createQueryBuilder("game")
+      .where("game.state = :dm", { dm: "dm" })
+      .andWhere(
+        new Brackets((qb: WhereExpressionBuilder) => {
+          qb.where("game.playerOne = :playerOneId", {
+            playerOneId: id,
+          }).orWhere("game.playerTwo = :playerTwoId", { playerTwoId: id });
+        }),
+      )
+      .getOne();
+    if (game != null && game.join === true) {
+      await this.gameRepository.update(game.id, { state: "playing" });
+    } else if (game != null) {
+      await this.gameRepository.update(game.id, { join: true });
+    }
+    return game;
+  }
+
   async create(createGameDto: CreateGameDto) {
     if (createGameDto.playerOne === createGameDto.playerTwo) {
       this.logger.debug("cannot create game, players are not unique");

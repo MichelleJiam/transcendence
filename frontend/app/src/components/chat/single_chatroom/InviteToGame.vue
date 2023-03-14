@@ -37,7 +37,8 @@ const inviteReceived = ref<boolean>(false);
 class CreateGameDto {
   playerOne!: number;
   playerTwo!: number;
-  state = "DM";
+  state!: string;
+  join!: boolean;
 }
 
 class InviteToGameDto {
@@ -92,7 +93,9 @@ onMounted(async () => {
           const createGameDto = new CreateGameDto();
           createGameDto.playerOne = payload.playerOne;
           createGameDto.playerTwo = payload.playerTwo;
-          // await apiRequest(baseUrl + "/game", "post", { data: createGameDto }); // SWAAN!! UNCOMMENT THIS TO SEND THE API REQUEST WHEN READY
+          createGameDto.state = "dm";
+          createGameDto.join = false;
+          await apiRequest("/game", "post", { data: createGameDto });
         }
         window.location.href = "/game";
         inviteReceived.value = false;
