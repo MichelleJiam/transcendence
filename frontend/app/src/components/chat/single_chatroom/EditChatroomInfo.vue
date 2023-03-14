@@ -83,6 +83,16 @@ function editChat(adminId: number) {
     alert("password type needs a password!");
     return;
   }
+  if (!(updateChatroomDto.password && updateChatroomDto.password.trim())) {
+    alert("password cannot be just white spaces");
+    return;
+  }
+  if (
+    updateChatroomDto.chatroomName != undefined &&
+    !(updateChatroomDto.chatroomName && updateChatroomDto.chatroomName.trim())
+  ) {
+    updateChatroomDto.chatroomName = undefined;
+  }
   apiRequest(url, "put", { data: updateChatroomDto })
     .then((response) => {
       location.reload();
