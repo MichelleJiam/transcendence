@@ -1,5 +1,5 @@
 <template>
-  <form>
+  <form class="form box-styling">
     <button class="exit-button" @click.prevent="cancelTwoFA">X</button>
     <h2>2FA Registration</h2>
     <p>Scan me with your authenticator app!</p>
@@ -53,7 +53,6 @@ async function validateAuthCode() {
         validationMessage.value =
           "Something went wrong with enabling 2FA. Please try again";
       }
-      console.log("Something went wrong with 2FA enabling: ", err);
     });
 }
 
@@ -69,14 +68,15 @@ async function cancelTwoFA() {
 </script>
 
 <style scoped>
-form {
+.form {
   display: flex;
   flex-direction: column;
-  gap: 30px;
-  width: 70%;
-  max-width: 750px;
-  text-align: left;
+  gap: 10px;
+  width: 550px;
+  padding: 20px;
+  align-items: center;
 }
+
 .exit-button {
   position: absolute;
   top: 0;
@@ -86,10 +86,14 @@ form {
   margin: 10px;
 }
 .code-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   align-self: center;
+  gap: 10px;
 }
 .validate-message {
-  align-self: center;
+  /* align-self: center; */
   color: var(--validation-color);
 }
 .qr-code {
