@@ -42,7 +42,6 @@ onMounted(async () => {
   drawCenterLine();
   drawPaddles();
   await updateUserStatus(props.id, UserStatus.GAME);
-  console.log("gameRoom ", gameRoom);
   if (gameRoom.player == 1) {
     props.socket.emit("countdown", gameRoom);
   }
