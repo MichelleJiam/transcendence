@@ -120,7 +120,10 @@ export function createUpdatedChatroomEntity(
       }
     }
   }
-  if (updateChatroomDto.chatroomName !== undefined) {
+  if (
+    updateChatroomDto.chatroomName !== undefined &&
+    validateChatroomName(updateChatroomDto.chatroomName)
+  ) {
     chatroom.chatroomName = updateChatroomDto.chatroomName;
   }
   return chatroom;
