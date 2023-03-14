@@ -76,6 +76,13 @@ const userStore = useUserStore();
 
 function editChat(adminId: number) {
   const url = "/chat/" + chatroomId + "/admin/" + adminId + "/update/info";
+  if (
+    updateChatroomDto.type == "password" &&
+    !(updateChatroomDto.password && updateChatroomDto.password.trim())
+  ) {
+    alert("password type needs a password!");
+    return;
+  }
   apiRequest(url, "put", { data: updateChatroomDto })
     .then((response) => {
       location.reload();
