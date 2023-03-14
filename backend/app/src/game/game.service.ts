@@ -91,13 +91,12 @@ export class GameService {
         }),
       )
       .getOne();
-      if (game != null && game.join === true) {
-        await this.gameRepository.update(game.id, { state: "playing" });
-      }
-      else if (game != null) {
-        await this.gameRepository.update(game.id, { join: true });
-      }
-      return game;
+    if (game != null && game.join === true) {
+      await this.gameRepository.update(game.id, { state: "playing" });
+    } else if (game != null) {
+      await this.gameRepository.update(game.id, { join: true });
+    }
+    return game;
   }
 
   async create(createGameDto: CreateGameDto) {
