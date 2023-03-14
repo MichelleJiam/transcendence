@@ -35,10 +35,11 @@
 
 <script setup lang="ts">
 import { useUserStore } from "@/stores/UserStore";
-import apiRequest from "@/utils/apiRequest";
+import apiRequest, { baseUrl } from "@/utils/apiRequest";
 import { useRoute } from "vue-router";
 import { AddMemberDto } from "../chatUtils";
 import { ref } from "vue";
+import { io } from "socket.io-client";
 
 const props = defineProps({
   show: Boolean,
@@ -51,6 +52,9 @@ const userStore = useUserStore();
 const givenPassword = ref<string>();
 const rightPassword = ref<boolean>(false);
 
+const socketUrl = baseUrl + "/penalty";
+const socket = io(socketUrl);
+
 function enterChat(memberId: number) {
   const url = "/chat/" + chatroomId + "/add/member";
   addMemberDto.member = memberId;
@@ -58,6 +62,7 @@ function enterChat(memberId: number) {
   apiRequest(url, "put", { data: addMemberDto })
     .then((response) => {
       rightPassword.value = true;
+      socket.emit("newUserState");
     }) // axios throws errors for non 2xx responses by default!
     .catch((err) => {
       alert("Bad password!");

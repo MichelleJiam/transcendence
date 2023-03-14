@@ -25,6 +25,12 @@ export class GameGateway {
   countdownMap = new Map<string, ReturnType<typeof setInterval>>();
   gameRooms = new Map<string, GameRoom>();
 
+  STATE = {
+    READY: 0,
+    WAITING: 1,
+    PLAYING: 2,
+  };
+
   constructor(
     private readonly gameService: GameService,
     private readonly userService: UserService,
@@ -60,7 +66,7 @@ export class GameGateway {
         this.forfeitGame(endingGame);
       }
       // updates active game list on lobby user
-      await this.updateActiveGames();
+      this.updateActiveGames();
 
       // this.server
       //   // .to(String(leftGame.game.id))
@@ -119,13 +125,12 @@ export class GameGateway {
       " as player ",
       gameRoom.player,
     );
-    console.log("rooms they are in: ", client.rooms);
     this.gameRooms.set(client.id, gameRoom);
-    if (gameRoom.player === 2) {
+    if (gameRoom.player === 2 && gameRoom.state === this.STATE.READY) {
       this.server.emit("addPlayerOne", gameRoom);
-      this.updateActiveGames();
     } else if (gameRoom.player === 1) {
-      this.server.emit("savePlayerSockets", gameRoom);
+      this.updateActiveGames();
+      this.server.to(gameRoom.id).emit("savePlayerSockets", gameRoom);
     }
   }
 
@@ -136,6 +141,7 @@ export class GameGateway {
       gameRoom.id,
       setInterval(() => {
         this.server.to(gameRoom.id).emit("drawCountdown", count);
+        console.log(gameRoom.player, ": count ", count);
         if (count < 0) {
           clearInterval(this.countdownMap.get(gameRoom.id));
           this.map.set(
@@ -195,6 +201,7 @@ export class GameGateway {
   leaveRoom(@ConnectedSocket() client: Socket, @MessageBody() gameId: string) {
     client.leave(gameId);
     console.log("GameGateway | ", client.id, " left room ", gameId);
+    this.updateActiveGames();
   }
 
   /*****************
@@ -321,7 +328,7 @@ export class GameGateway {
   }
 
   @SubscribeMessage("moveBall")
-  moveBall(@MessageBody() gameRoom: GameRoom) {
+  async moveBall(@MessageBody() gameRoom: GameRoom) {
     if (
       gameRoom.ball.x + gameRoom.ball.moveX >
       gameRoom.view.width -
@@ -341,7 +348,7 @@ export class GameGateway {
       } else {
         // console.log("right side hit");
         gameRoom.winner = 1;
-        return this.checkScore(gameRoom);
+        return await this.checkScore(gameRoom);
       }
     } else if (
       gameRoom.ball.x + gameRoom.ball.moveX <
@@ -361,7 +368,7 @@ export class GameGateway {
       } else {
         // console.log("left side hit");
         gameRoom.winner = 2;
-        return this.checkScore(gameRoom);
+        return await this.checkScore(gameRoom);
       }
     }
     /* 
@@ -385,8 +392,8 @@ export class GameGateway {
         "drawBall",
         gameRoom.ball.x / gameRoom.view.width,
         gameRoom.ball.y / gameRoom.view.height,
-        gameRoom.ball.moveX,
-        gameRoom.ball.moveY,
+        gameRoom.ball.moveX / gameRoom.view.width,
+        gameRoom.ball.moveY / gameRoom.view.height,
       );
   }
 }

@@ -29,7 +29,7 @@ export interface Ball {
 }
 
 export interface GameRoom {
-  id: string;
+  id: number;
   player: number;
   winner: number;
   loser: number;

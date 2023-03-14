@@ -1,3 +1,5 @@
 export class UpdateChatroomDto {
-  password!: string;
+  type?: string;
+  chatroomName?: string;
+  password?: string;
 }
