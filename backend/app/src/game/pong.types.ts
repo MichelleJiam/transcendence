@@ -39,7 +39,7 @@ export interface GameRoom {
   playerTwo: Player;
   ball: Ball;
   view: Canvas;
-  state: string;
+  state: number;
 }
 
 export interface GameWithPlayer {
