@@ -210,4 +210,12 @@ export class GameService {
       gameRoom.winner = 1;
     }
   }
+
+  setDisconnectedPlayer(gameRoom: GameRoom, disconnectedPlayer: number) {
+    if (disconnectedPlayer === 1) {
+      gameRoom.playerOne.disconnected = true;
+    } else {
+      gameRoom.playerTwo.disconnected = true;
+    }
+  }
 }
