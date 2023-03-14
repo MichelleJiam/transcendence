@@ -27,8 +27,6 @@
               <span>{{ activeGame.playerOneName }}</span>
               <span>vs.</span>
               <span>{{ activeGame.playerTwoName }}</span>
-              <!-- {{ activeGame.playerOneName }} vs. -->
-              <!-- {{ activeGame.playerTwoName }} -->
             </button>
           </div>
         </div>
@@ -54,16 +52,15 @@ import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue"
 import PongGame from "../components/game/PongGame.vue";
 import apiRequest, { baseUrl } from "../utils/apiRequest";
 import { onBeforeMount, onUnmounted, ref, onMounted, watchEffect } from "vue";
-// import { useRoute } from "vue-router";
 import { io } from "socket.io-client";
 import {
   UserStatus,
   type Game,
   type GameRoom,
 } from "../components/game/pong.types";
-import type { AxiosResponse } from "axios";
 import { useUserStore } from "@/stores/UserStore";
 import { updateUserStatus } from "@/utils/userStatus";
+import type { AxiosResponse } from "axios";
 
 const State = {
   READY: 0,
@@ -71,8 +68,6 @@ const State = {
   PLAYING: 2,
 };
 
-// const route = useRoute();
-// const id = route.params.id as string;
 const userStore = useUserStore();
 const id = ref(0);
 const socket = io(baseUrl + "/pong");
@@ -93,16 +88,21 @@ onMounted(async () => {
   await userStore.retrieveCurrentUserData();
   id.value = userStore.user.id;
   console.log("id ", id.value);
-  // await apiRequest(
-  //   // `/match/${id.value}`,
-  //   `/match/${id}`,
-  //   "delete"
-  // ); /* protection if user refreshes; removes them from queue */
   console.log("GamePage.onMounted");
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
-  await getActiveGames();
+
+  const dmGame = await apiRequest(`/game/${id.value}/dm`, "get");
+  if (dmGame.data.length !== 0) {
+    game.value.state = State.WAITING;
+    if (dmGame.data.join === false) {
+      startGamePlayer(dmGame, 2);
+    } else {
+      startGamePlayer(dmGame, 1);
+    }
+    game.value.state = State.PLAYING;
+  }
 });
 
 // Triggered on navigate away
@@ -157,37 +157,48 @@ async function watchGame(gameId: number) {
   game.value.state = State.PLAYING;
 }
 
+socket.on("savePlayerSockets", (gameRoom: GameRoom) => {
+  game.value.playerOne.socket = gameRoom.playerOne.socket;
+  game.value.playerTwo.socket = gameRoom.playerTwo.socket;
+});
+
+socket.on("addPlayerOne", async (gameRoom: GameRoom) => {
+  if (game.value.player === 1 && id.value === gameRoom.playerOne.id) {
+    game.value = gameRoom;
+    game.value.player = 1;
+    socket.emit("joinRoom", game.value);
+    console.log(id.value, "has joined room ", game.value.id, " as PLAYER 1");
+  }
+  if (game.value.player === 1 || game.value.player === 2) {
+    game.value.state = State.PLAYING;
+  }
+});
+
+function startGamePlayer(res: AxiosResponse, player: number) {
+  fillGameRoomObject(res, player);
+  socket.emit("joinRoom", game.value);
+  console.log(
+    id.value,
+    " has joined room ",
+    game.value.id,
+    " as PLAYER ",
+    player
+  );
+}
+
 const startGame = async () => {
   const res = await apiRequest(`/match/play/${id.value}`, "post", {
     data: { id: id.value, socketId: socket.id },
   });
   /* if no one currently in queue */
   if (res.data.id == undefined) {
+    game.value.player = 1;
     game.value.state = State.WAITING;
   } else {
     /* else if opponent found */
-    fillGameRoomObject(res, 2);
-    game.value.state = State.PLAYING;
-    await socket.emit("joinRoom", game.value);
-    console.log(id.value, " has joined room ", game.value.id, " as PLAYER 2");
+    startGamePlayer(res, 2);
   }
 };
-
-socket.on("savePlayerSockets", (gameRoom: GameRoom) => {
-  if (game.value.state === State.PLAYING) {
-    game.value.playerOne.socket = gameRoom.playerOne.socket;
-    game.value.playerTwo.socket = gameRoom.playerTwo.socket;
-  }
-});
-
-socket.on("addPlayerOne", async (gameRoom: GameRoom) => {
-  if (game.value.state == State.WAITING) {
-    game.value = gameRoom;
-    game.value.player = 1;
-    await socket.emit("joinRoom", game.value);
-    console.log(id.value, "has joined room ", game.value.id, " as PLAYER 1");
-  }
-});
 
 async function gameOver(gameRoom: GameRoom) {
   console.log(
@@ -199,9 +210,11 @@ async function gameOver(gameRoom: GameRoom) {
     gameRoom.playerTwo.score
   );
   // can fail if both players disconnected and game was deleted
-  await apiRequest(`/game`, "put", { data: gameRoom }).catch((err) => {
-    console.log("Something went wrong with updating with game result: ", err);
-  });
+  if (game.value.player !== 0) {
+    await apiRequest(`/game`, "put", { data: gameRoom }).catch((err) => {
+      console.log("Something went wrong with updating with game result: ", err);
+    });
+  }
   game.value.state = State.READY;
   socket.emit("leaveRoom", gameRoom.id);
   console.log("GamePage | ", id.value, " left room ", gameRoom.id);

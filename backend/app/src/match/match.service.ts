@@ -62,6 +62,7 @@ export class MatchService {
     createGameDto.playerOne = playerOneId;
     createGameDto.playerTwo = playerTwoId;
     createGameDto.state = "playing";
+    createGameDto.join = false;
     const game = await this.gameService.create(createGameDto).catch(() => {
       this.logger.debug("error in getMatch while trying to create new game");
       throw new BadRequestException();
