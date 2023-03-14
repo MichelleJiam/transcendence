@@ -214,7 +214,7 @@ async function gameOver(gameRoom: GameRoom) {
     await apiRequest(`/game`, "put", { data: gameRoom }).catch((err) => {
       console.log("Something went wrong with updating with game result: ", err);
     });
-}
+  }
   game.value.state = State.READY;
   socket.emit("leaveRoom", gameRoom.id);
   console.log("GamePage | ", id.value, " left room ", gameRoom.id);

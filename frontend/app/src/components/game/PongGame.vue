@@ -1,12 +1,13 @@
 <template>
   <div class="pong-div">
-    <button @click="colorMode">COLOR MODE</button>
+    <button v-if="inGame" @click="colorMode">COLOR MODE</button>
+    <button v-else @click="goBack">GO BACK</button>
     <canvas id="canvas" ref="game"></canvas>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import type { PropType } from "vue";
 import {
   type Keys,
@@ -17,6 +18,7 @@ import {
 } from "./pong.types";
 import { Socket } from "socket.io-client";
 import { updateUserStatus } from "@/utils/userStatus";
+import apiRequest from "../../utils/apiRequest";
 
 const props = defineProps({
   id: { type: Number, required: true },
@@ -29,6 +31,7 @@ let ctx: CanvasRenderingContext2D;
 let key: Keys;
 let gameRoom: GameRoom;
 let color: Colors;
+const inGame = ref(true);
 
 onMounted(async () => {
   console.log("onMounted");
@@ -139,8 +142,8 @@ function initGame() {
  * END GAME *
  ************/
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-const emit = defineEmits(["game-over"]);
+// const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// const emit = defineEmits(["game-over"]);
 
 props.socket.on(
   "drawScoreboard",
@@ -151,9 +154,20 @@ props.socket.on(
   }
 );
 
+function goBack() {
+  window.location.href = "/game";
+}
+
 async function gameOver() {
-  await sleep(2000);
-  emit("game-over", gameRoom);
+  inGame.value = false;
+  if (gameRoom.player !== 0) {
+    await apiRequest(`/game`, "put", { data: gameRoom }).catch((err) => {
+      console.log("Something went wrong with updating with game result: ", err);
+    });
+  }
+  props.socket.emit("leaveRoom", String(gameRoom.id));
+  // await sleep(2000);
+  // emit("game-over", gameRoom);
 }
 
 props.socket.on("endGame", (winner: number) => {
@@ -386,8 +400,8 @@ props.socket.on(
   (x: number, y: number, moveX: number, moveY: number) => {
     gameRoom.ball.x = x * gameRoom.view.width;
     gameRoom.ball.y = y * gameRoom.view.height;
-    gameRoom.ball.moveX = moveX;
-    gameRoom.ball.moveY = moveY;
+    gameRoom.ball.moveX = moveX * gameRoom.view.width;
+    gameRoom.ball.moveY = moveY * gameRoom.view.height;
 
     ctx.beginPath();
     ctx.rect(
