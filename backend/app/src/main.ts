@@ -2,7 +2,7 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import * as cookieParser from "cookie-parser";
 
-const frontendUrl = "http://localhost:5173";
+const frontendUrl = "http://10.11.1.3:5173";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
