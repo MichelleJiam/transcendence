@@ -15,6 +15,7 @@ import {
   type Canvas,
   type Colors,
   UserStatus,
+  GameState,
 } from "./pong.types";
 import { Socket } from "socket.io-client";
 import { updateUserStatus } from "@/utils/userStatus";
@@ -47,8 +48,13 @@ onMounted(async () => {
   }
 });
 
+// Triggered on navigate away
 onUnmounted(async () => {
   console.log("PongGame unmounted");
+  // If a watcher or player navigates away during an active game
+  if (inGame.value === true) {
+    props.socket.emit("activeGameLeft", gameRoom);
+  }
   await updateUserStatus(props.id, UserStatus.ONLINE);
   // if (gameRoom.player == 0) {
   //   props.socket.emit("leaveRoom", gameRoom.id);
@@ -184,6 +190,18 @@ props.socket.on("endGame", (winner: number) => {
   gameOver();
 });
 
+// props.socket.on("playerForfeited", (disconnectedPlayer: number) => {
+//   console.log("PongGame.playerForfeited");
+//   if (disconnectedPlayer === 1) {
+//     console.log("Player 1 forfeited");
+//     gameRoom.playerOne.disconnected = true;
+//   } else {
+//     console.log("Player 2 forfeited");
+//     gameRoom.playerTwo.disconnected = true;
+//   }
+//   emit("forfeit-game", gameRoom);
+// });
+
 /********************
  * UPDATE GAME ROOM *
  *******************/
@@ -191,6 +209,14 @@ props.socket.on("endGame", (winner: number) => {
 props.socket.on(
   "updateScore",
   (playerOneScore: number, playerTwoScore: number) => {
+    console.log(
+      "Updating game ",
+      gameRoom.id,
+      " with score ",
+      playerOneScore,
+      " | ",
+      playerTwoScore
+    );
     gameRoom.playerOne.score = playerOneScore;
     gameRoom.playerTwo.score = playerTwoScore;
   }

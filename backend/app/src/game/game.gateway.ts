@@ -23,6 +23,7 @@ export class GameGateway {
   server!: Server; /* reference to socket.io server under the hood */
   map = new Map<string, ReturnType<typeof setInterval>>();
   countdownMap = new Map<string, ReturnType<typeof setInterval>>();
+  gameRooms = new Map<string, GameRoom>();
 
   STATE = {
     READY: 0,
@@ -45,6 +46,7 @@ export class GameGateway {
   // of automatically on disconnection.
   async handleDisconnect(client: Socket) {
     console.log("GameGateway: ", client.id, " disconnected"); // socket id here not same as when joining? find doesn't return anything then
+    console.log("rooms they were in: ", client.rooms);
     const leftGame: GameWithPlayer =
       await this.gameService.findGameFromPlayerSocket(client.id);
     if (leftGame.game !== null) {
@@ -54,12 +56,25 @@ export class GameGateway {
         " left game ",
         leftGame.game?.id,
       );
-      this.server.emit("playerForfeited", leftGame.playerNum);
-      this.cleanUpOnPlayerDisconnect(leftGame);
+      const leftGameRoom = this.gameRooms.get(client.id);
+      if (leftGameRoom) {
+        this.gameService.setDisconnectedPlayer(
+          leftGameRoom,
+          leftGame.playerNum,
+        );
+        this.forfeitGame(leftGameRoom);
+      }
+      // updates active game list on lobby user
+      this.updateActiveGames();
+
+      // this.server
+      //   // .to(String(leftGame.game.id))
+      //   .emit("playerForfeited", leftGame.playerNum);
+      // this.cleanUpOnPlayerDisconnect(leftGame);
     } else {
       console.log("No active games being played were left");
       this.checkMatchQueueOnDisconnect(client.id);
-      this.server.emit("disconnection");
+      // this.server.emit("disconnection");
     }
   }
 
@@ -104,9 +119,12 @@ export class GameGateway {
       client.id,
       " joined room: ",
       client.rooms,
+      " with id ",
+      gameRoom.id,
       " as player ",
       gameRoom.player,
     );
+    this.gameRooms.set(client.id, gameRoom);
     if (gameRoom.player === 2 && gameRoom.state === this.STATE.READY) {
       this.server.emit("addPlayerOne", gameRoom);
     } else if (gameRoom.player === 1) {
@@ -165,15 +183,17 @@ export class GameGateway {
       .to(gameRoom.id)
       .emit("updateScore", gameRoom.playerOne.score, gameRoom.playerTwo.score);
     if (gameRoom.playerOne.score === 3 || gameRoom.playerTwo.score === 3) {
-      await this.endGame(gameRoom.id, gameRoom.winner);
+      await this.endGame(gameRoom, gameRoom.winner);
     } else {
       this.server.to(gameRoom.id).emit("resetBall", gameRoom.ball.moveX);
     }
   }
 
   @SubscribeMessage("endGame")
-  async endGame(@MessageBody() gameRoomId: string, winner: number) {
-    this.server.to(gameRoomId).emit("endGame", winner);
+  async endGame(@MessageBody() gameRoom: GameRoom, winner: number) {
+    this.gameRooms.delete(gameRoom.playerOne.socket);
+    this.gameRooms.delete(gameRoom.playerTwo.socket);
+    this.server.to(gameRoom.id).emit("endGame", winner);
   }
 
   @SubscribeMessage("leaveRoom")
@@ -189,7 +209,7 @@ export class GameGateway {
 
   @SubscribeMessage("forfeitGame")
   async forfeitGame(
-    @ConnectedSocket() client: Socket,
+    // @ConnectedSocket() client: Socket,
     @MessageBody() gameRoom: GameRoom,
   ) {
     console.log("Forfeiting game");
@@ -208,7 +228,7 @@ export class GameGateway {
           gameRoom.playerOne.score,
           gameRoom.playerTwo.score,
         );
-      this.endGame(gameRoom.id, gameRoom.winner);
+      this.endGame(gameRoom, gameRoom.winner);
     }
   }
 
@@ -223,30 +243,34 @@ export class GameGateway {
       console.log("A player left game: ", gameRoom.id);
       const disconnectedPlayer =
         gameRoom.playerOne.socket === client.id ? 1 : 2;
-      this.server.emit("playerForfeited", disconnectedPlayer);
+      this.gameService.setDisconnectedPlayer(gameRoom, disconnectedPlayer);
+      this.forfeitGame(gameRoom);
+      // this.server.to(gameRoom.id).emit("playerForfeited", disconnectedPlayer);
     }
     // this.leaveRoom(client, gameRoom.id);
   }
 
-  async cleanUpOnPlayerDisconnect(leftGame: GameWithPlayer) {
-    // updates active game list on disconnecting player side
-    if (leftGame.game) {
-      this.gameService.setGameToDone(leftGame.game.id);
-    }
+  // async cleanUpOnPlayerDisconnect(leftGame: GameWithPlayer) {
+  //   console.log("Cleaning up on player disconnect");
+  //   // updates active game list on disconnecting player side
+  //   if (leftGame.game) {
+  //     this.gameService.setGameToDone(leftGame.game.id);
+  //   }
 
-    // updates active game list on lobby user
-    await this.updateActiveGames();
+  //   // updates active game list on lobby user
+  //   await this.updateActiveGames();
 
-    // reset disconnected user status back to online
-    if (leftGame.playerId) {
-      await this.userService.updateUserStatus(leftGame.playerId, {
-        status: 0,
-      });
-    }
-  }
+  //   // reset disconnected user status back to online
+  //   if (leftGame.playerId) {
+  //     await this.userService.updateUserStatus(leftGame.playerId, {
+  //       status: 0,
+  //     });
+  //   }
+  // }
 
+  // remove disconnected user if they were in match queue
   async checkMatchQueueOnDisconnect(socketId: string) {
-    // console.log("Checking if player socket ", socketId, " was in queue");
+    console.log("Checking if player socket ", socketId, " was in queue");
     const leftMatch = await this.matchService.findPlayerInMatchQueueBySocket(
       socketId,
     );

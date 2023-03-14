@@ -180,6 +180,7 @@ export class GameService {
     const leaderboardDto = new UpdateLeaderboardUserDto();
     leaderboardDto.winner = gameRoom.winner;
     leaderboardDto.loser = gameRoom.loser;
+    console.log("Updated game repo, about to update leaderboard");
     await this.leaderboardService.updateUsersInLeaderboard(leaderboardDto);
     return game;
   }
@@ -207,6 +208,14 @@ export class GameService {
       gameRoom.playerTwo.score = 0;
       gameRoom.playerOne.score = 3;
       gameRoom.winner = 1;
+    }
+  }
+
+  setDisconnectedPlayer(gameRoom: GameRoom, disconnectedPlayer: number) {
+    if (disconnectedPlayer === 1) {
+      gameRoom.playerOne.disconnected = true;
+    } else {
+      gameRoom.playerTwo.disconnected = true;
     }
   }
 }
