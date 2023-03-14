@@ -70,7 +70,7 @@
         </div>
         <div class="leave settings">
           <button
-            v-if="isCurrentUserOwner == true && chatRoomInfo.type == 'password'"
+            v-if="isCurrentUserOwner == true"
             id="show-modal"
             @click="showModal = true"
           >
