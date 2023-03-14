@@ -48,8 +48,13 @@ onMounted(async () => {
   }
 });
 
+// Triggered on navigate away
 onUnmounted(async () => {
   console.log("PongGame unmounted");
+  // If a watcher or player navigates away during an active game
+  if (inGame.value === true) {
+    props.socket.emit("activeGameLeft", gameRoom);
+  }
   await updateUserStatus(props.id, UserStatus.ONLINE);
   // if (gameRoom.player == 0) {
   //   props.socket.emit("leaveRoom", gameRoom.id);

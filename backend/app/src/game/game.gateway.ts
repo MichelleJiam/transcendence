@@ -56,14 +56,13 @@ export class GameGateway {
         " left game ",
         leftGame.game?.id,
       );
-      const endingGame = this.gameRooms.get(client.id);
-      if (endingGame) {
-        if (leftGame.playerNum === 1) {
-          endingGame.playerOne.disconnected = true;
-        } else {
-          endingGame.playerTwo.disconnected = true;
-        }
-        this.forfeitGame(endingGame);
+      const leftGameRoom = this.gameRooms.get(client.id);
+      if (leftGameRoom) {
+        this.gameService.setDisconnectedPlayer(
+          leftGameRoom,
+          leftGame.playerNum,
+        );
+        this.forfeitGame(leftGameRoom);
       }
       // updates active game list on lobby user
       this.updateActiveGames();
@@ -244,29 +243,32 @@ export class GameGateway {
       console.log("A player left game: ", gameRoom.id);
       const disconnectedPlayer =
         gameRoom.playerOne.socket === client.id ? 1 : 2;
-      this.server.to(gameRoom.id).emit("playerForfeited", disconnectedPlayer);
+      this.gameService.setDisconnectedPlayer(gameRoom, disconnectedPlayer);
+      this.forfeitGame(gameRoom);
+      // this.server.to(gameRoom.id).emit("playerForfeited", disconnectedPlayer);
     }
     // this.leaveRoom(client, gameRoom.id);
   }
 
-  async cleanUpOnPlayerDisconnect(leftGame: GameWithPlayer) {
-    console.log("Cleaning up on player disconnect");
-    // updates active game list on disconnecting player side
-    if (leftGame.game) {
-      this.gameService.setGameToDone(leftGame.game.id);
-    }
+  // async cleanUpOnPlayerDisconnect(leftGame: GameWithPlayer) {
+  //   console.log("Cleaning up on player disconnect");
+  //   // updates active game list on disconnecting player side
+  //   if (leftGame.game) {
+  //     this.gameService.setGameToDone(leftGame.game.id);
+  //   }
 
-    // updates active game list on lobby user
-    await this.updateActiveGames();
+  //   // updates active game list on lobby user
+  //   await this.updateActiveGames();
 
-    // reset disconnected user status back to online
-    if (leftGame.playerId) {
-      await this.userService.updateUserStatus(leftGame.playerId, {
-        status: 0,
-      });
-    }
-  }
+  //   // reset disconnected user status back to online
+  //   if (leftGame.playerId) {
+  //     await this.userService.updateUserStatus(leftGame.playerId, {
+  //       status: 0,
+  //     });
+  //   }
+  // }
 
+  // remove disconnected user if they were in match queue
   async checkMatchQueueOnDisconnect(socketId: string) {
     console.log("Checking if player socket ", socketId, " was in queue");
     const leftMatch = await this.matchService.findPlayerInMatchQueueBySocket(
