@@ -41,6 +41,11 @@ export class Game {
   @Column({
     nullable: true,
   })
+  public join!: Boolean;
+
+  @Column({
+    nullable: true,
+  })
   public state!: string;
 
   @ManyToOne(() => User, (user: User) => user.wins)
@@ -49,9 +54,3 @@ export class Game {
   @ManyToOne(() => User, (user: User) => user.losses)
   public loserId!: number;
 }
-
-/* 
-  lazy loading - lets you load the main entity and then load the relations on demand; field has to be wrapped in a promise
-  eager loading - relations are always fetched along the parent entity
-  use that when you know you will need all the data; performed by using an SQL join to the related table 
-*/

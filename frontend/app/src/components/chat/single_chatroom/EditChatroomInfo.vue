@@ -13,6 +13,30 @@
           <slot name="body">
             <form @submit.prevent="editChat(userStore.user.id)">
               <div>
+                <label>select type of chat:</label>
+              </div>
+              <div>
+                <label for="type" class="modal-text padding"
+                  >Choose a chat type:</label
+                ><br />
+                <select id="type" v-model="updateChatroomDto.type" name="type">
+                  <option value="public" selected>public</option>
+                  <option value="private">private</option>
+                  <option value="password">password</option>
+                </select>
+              </div>
+              <div>
+                <label for="chatroomName" class="modal-text"
+                  >Name the chat:</label
+                ><br />
+                <input
+                  id="chatroomName"
+                  v-model="updateChatroomDto.chatroomName"
+                  type="text"
+                  class="modal-text padding"
+                />
+              </div>
+              <div>
                 <label for="password" class="modal-text">Update password:</label
                 ><br />
                 <input
@@ -52,12 +76,29 @@ const userStore = useUserStore();
 
 function editChat(adminId: number) {
   const url = "/chat/" + chatroomId + "/admin/" + adminId + "/update/info";
+  if (
+    updateChatroomDto.type == "password" &&
+    !(updateChatroomDto.password && updateChatroomDto.password.trim())
+  ) {
+    alert("password type needs a password!");
+    return;
+  }
+  if (!(updateChatroomDto.password && updateChatroomDto.password.trim())) {
+    alert("password cannot be just white spaces");
+    return;
+  }
+  if (
+    updateChatroomDto.chatroomName != undefined &&
+    !(updateChatroomDto.chatroomName && updateChatroomDto.chatroomName.trim())
+  ) {
+    updateChatroomDto.chatroomName = undefined;
+  }
   apiRequest(url, "put", { data: updateChatroomDto })
     .then((response) => {
       location.reload();
     }) // axios throws errors for non 2xx responses by default!
     .catch((error) => {
-      console.error(error);
+      // console.error(error);
       alert("Unable to update chat info");
     });
 }

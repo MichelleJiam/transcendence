@@ -6,7 +6,9 @@ const socketUrl = baseUrl + "/penalty";
 const socket = io(socketUrl);
 
 export class UpdateChatroomDto {
-  password!: string;
+  type?: string;
+  chatroomName?: string;
+  password?: string;
 }
 
 export class AddMemberDto {
