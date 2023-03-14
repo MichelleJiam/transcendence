@@ -23,6 +23,7 @@ export class GameGateway {
   server!: Server; /* reference to socket.io server under the hood */
   map = new Map<string, ReturnType<typeof setInterval>>();
   countdownMap = new Map<string, ReturnType<typeof setInterval>>();
+  gameRooms = new Map<string, GameRoom>();
 
   constructor(
     private readonly gameService: GameService,
@@ -49,16 +50,26 @@ export class GameGateway {
         " left game ",
         leftGame.game?.id,
       );
-      const gameRoomId = String(leftGame.game.id);
-      this.server.to(gameRoomId).emit("beep", String(leftGame.game.id));
-      this.server
-        // .to(String(leftGame.game.id))
-        .emit("playerForfeited", leftGame.playerNum);
-      this.cleanUpOnPlayerDisconnect(leftGame);
+      const endingGame = this.gameRooms.get(client.id);
+      if (endingGame) {
+        if (leftGame.playerNum === 1) {
+          endingGame.playerOne.disconnected = true;
+        } else {
+          endingGame.playerTwo.disconnected = true;
+        }
+        this.forfeitGame(endingGame);
+      }
+      // updates active game list on lobby user
+      await this.updateActiveGames();
+
+      // this.server
+      //   // .to(String(leftGame.game.id))
+      //   .emit("playerForfeited", leftGame.playerNum);
+      // this.cleanUpOnPlayerDisconnect(leftGame);
     } else {
       console.log("No active games being played were left");
       this.checkMatchQueueOnDisconnect(client.id);
-      this.server.emit("disconnection");
+      // this.server.emit("disconnection");
     }
   }
 
@@ -109,6 +120,7 @@ export class GameGateway {
       gameRoom.player,
     );
     console.log("rooms they are in: ", client.rooms);
+    this.gameRooms.set(client.id, gameRoom);
     if (gameRoom.player === 2) {
       this.server.emit("addPlayerOne", gameRoom);
       this.updateActiveGames();
@@ -166,15 +178,17 @@ export class GameGateway {
       .to(gameRoom.id)
       .emit("updateScore", gameRoom.playerOne.score, gameRoom.playerTwo.score);
     if (gameRoom.playerOne.score === 3 || gameRoom.playerTwo.score === 3) {
-      await this.endGame(gameRoom.id, gameRoom.winner);
+      await this.endGame(gameRoom, gameRoom.winner);
     } else {
       this.server.to(gameRoom.id).emit("resetBall", gameRoom.ball.moveX);
     }
   }
 
   @SubscribeMessage("endGame")
-  async endGame(@MessageBody() gameRoomId: string, winner: number) {
-    this.server.to(gameRoomId).emit("endGame", winner);
+  async endGame(@MessageBody() gameRoom: GameRoom, winner: number) {
+    this.gameRooms.delete(gameRoom.playerOne.socket);
+    this.gameRooms.delete(gameRoom.playerTwo.socket);
+    this.server.to(gameRoom.id).emit("endGame", winner);
   }
 
   @SubscribeMessage("leaveRoom")
@@ -189,7 +203,7 @@ export class GameGateway {
 
   @SubscribeMessage("forfeitGame")
   async forfeitGame(
-    @ConnectedSocket() client: Socket,
+    // @ConnectedSocket() client: Socket,
     @MessageBody() gameRoom: GameRoom,
   ) {
     console.log("Forfeiting game");
@@ -208,7 +222,7 @@ export class GameGateway {
           gameRoom.playerOne.score,
           gameRoom.playerTwo.score,
         );
-      this.endGame(gameRoom.id, gameRoom.winner);
+      this.endGame(gameRoom, gameRoom.winner);
     }
   }
 

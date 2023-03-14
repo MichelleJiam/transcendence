@@ -169,11 +169,6 @@ props.socket.on("endGame", (winner: number) => {
   gameOver();
 });
 
-props.socket.on("beep", (gameRoomId: string) => {
-  console.log("beep from room ", gameRoom.id);
-  console.log("is passed id same as room id: ", gameRoom.id === gameRoomId);
-});
-
 props.socket.on("playerForfeited", (disconnectedPlayer: number) => {
   console.log("PongGame.playerForfeited");
   if (disconnectedPlayer === 1) {
@@ -193,6 +188,14 @@ props.socket.on("playerForfeited", (disconnectedPlayer: number) => {
 props.socket.on(
   "updateScore",
   (playerOneScore: number, playerTwoScore: number) => {
+    console.log(
+      "Updating game ",
+      gameRoom.id,
+      " with score ",
+      playerOneScore,
+      " | ",
+      playerTwoScore
+    );
     gameRoom.playerOne.score = playerOneScore;
     gameRoom.playerTwo.score = playerTwoScore;
   }
