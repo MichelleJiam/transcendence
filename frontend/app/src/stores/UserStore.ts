@@ -77,12 +77,13 @@ export const useUserStore = defineStore("user", {
 
     async userIsLoggedIn() {
       this.authenticated = true;
-      await updateUserStatus(this.user.id, UserStatus.ONLINE);
+      if (this.user.id) await updateUserStatus(this.user.id, UserStatus.ONLINE);
     },
 
     async userIsLoggedOut() {
       this.authenticated = false;
-      await updateUserStatus(this.user.id, UserStatus.OFFLINE);
+      if (this.user.id)
+        await updateUserStatus(this.user.id, UserStatus.OFFLINE);
     },
 
     /*************

@@ -16,6 +16,9 @@
         label="AuthCode"
         placeholder="authenticator code"
       />
+      <span v-if="validationMessage != ''" class="validate-message">{{
+        validationMessage
+      }}</span>
       <div class="buttons">
         <button @click="submitCode">Submit</button>
         <button @click="cancelLogin">Cancel Login</button>
@@ -33,6 +36,7 @@ import apiRequest from "@/utils/apiRequest";
 
 const userStore = useUserStore();
 const authCode = ref<string>("");
+const validationMessage = ref<string>("");
 
 async function submitCode() {
   await apiRequest(`/2fa/authenticate`, "post", {
@@ -42,11 +46,10 @@ async function submitCode() {
       if (response.status === 200) {
         await userStore.logIn();
       }
-      router.push("/home");
+      router.push("/");
     })
-    .catch((err) => {
-      console.log("Something went wrong with 2FA: ", err);
-      alert("Wrong two factor authentication code!");
+    .catch(() => {
+      validationMessage.value = "Wrong two factor authentication code!";
     });
 }
 
@@ -96,5 +99,10 @@ button {
 .buttons {
   width: 100%;
   flex-direction: row;
+}
+
+.validate-message {
+  align-self: center;
+  color: var(--validation-color);
 }
 </style>

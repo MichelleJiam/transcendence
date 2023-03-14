@@ -102,7 +102,6 @@ const showPopup = computed(() => {
 });
 
 onBeforeMount(async () => {
-  console.log(userStore.user.id);
   if (route.params.playerName != undefined) {
     if (route.params.playerName != userStore.user.playerName) {
       await apiRequest("/user/player/" + route.params.playerName, "get")
