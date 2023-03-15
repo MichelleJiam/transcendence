@@ -406,11 +406,13 @@ export class ChatService {
     if (chatroom.type === "password") {
       const password = await this.getChatroomPassword(chatroomId);
       if (
-        addMemberDto.password != undefined &&
-        (await this.authService.checkPassword(
-          addMemberDto.password,
-          password,
-        )) == false
+        (addMemberDto.password != undefined &&
+          (await this.authService.checkPassword(
+            addMemberDto.password,
+            password,
+          )) == false) ||
+        addMemberDto.password == undefined ||
+        !(addMemberDto.password && addMemberDto.password.trim())
       ) {
         throw new HttpException("Incorrect password", HttpStatus.BAD_REQUEST);
       }

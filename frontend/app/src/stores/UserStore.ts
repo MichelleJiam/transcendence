@@ -38,20 +38,20 @@ export const useUserStore = defineStore("user", {
      ********/
 
     isAuthenticated() {
-      console.debug("isAuthenticated | returns ", this.authenticated);
+      console.debug("[DEBUG] isAuthenticated | returns ", this.authenticated);
       return this.authenticated === true;
     },
 
     async logIn() {
       await this.retrieveCurrentUserData();
       await this.userIsLoggedIn();
-      console.debug("Trying to log in user id: ", this.user.id);
+      console.debug("[DEBUG] Trying to log in user id: ", this.user.id);
     },
 
     async logOut() {
       if (this.authenticated) {
         await apiRequest(`/auth/logout`, "post").catch(() => {
-          console.debug("User already logged out");
+          console.debug("[DEBUG] User already logged out");
         });
         await this.userIsLoggedOut();
         this.$reset();
