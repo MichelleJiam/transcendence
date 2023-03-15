@@ -24,6 +24,7 @@ export interface Paddle {
 
 export interface Player {
   id: number;
+  name: string;
   socket: string;
   score: number;
   paddle: Paddle;

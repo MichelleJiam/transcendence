@@ -164,13 +164,18 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() winnerGame: GameRoom,
   ) {
+    let winnerName;
+    winnerGame.playerOne.score > winnerGame.playerTwo.score
+      ? (winnerName = winnerGame.playerOne.name)
+      : (winnerName = winnerGame.playerTwo.name);
+    console.log("winner name ", winnerName);
     this.server
       .to(winnerGame.id)
       .emit(
         "drawScoreboard",
         winnerGame.playerOne.score,
         winnerGame.playerTwo.score,
-        winnerGame.winner,
+        winnerName,
       );
   }
 
@@ -183,17 +188,20 @@ export class GameGateway {
       .to(gameRoom.id)
       .emit("updateScore", gameRoom.playerOne.score, gameRoom.playerTwo.score);
     if (gameRoom.playerOne.score === 3 || gameRoom.playerTwo.score === 3) {
-      await this.endGame(gameRoom, gameRoom.winner);
+      await this.endGame(gameRoom);
     } else {
       this.server.to(gameRoom.id).emit("resetBall", gameRoom.ball.moveX);
     }
   }
 
-  @SubscribeMessage("endGame")
-  async endGame(@MessageBody() gameRoom: GameRoom, winner: number) {
+  async endGame(@MessageBody() gameRoom: GameRoom) {
     this.gameRooms.delete(gameRoom.playerOne.socket);
     this.gameRooms.delete(gameRoom.playerTwo.socket);
-    this.server.to(gameRoom.id).emit("endGame", winner);
+    let winnerName;
+    gameRoom.playerOne.score > gameRoom.playerTwo.score
+      ? (winnerName = gameRoom.playerOne.name)
+      : (winnerName = gameRoom.playerTwo.name);
+    this.server.to(gameRoom.id).emit("endGame", winnerName);
   }
 
   @SubscribeMessage("leaveRoom")
@@ -228,7 +236,7 @@ export class GameGateway {
           gameRoom.playerOne.score,
           gameRoom.playerTwo.score,
         );
-      this.endGame(gameRoom, gameRoom.winner);
+      this.endGame(gameRoom);
     }
   }
 
