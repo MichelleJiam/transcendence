@@ -111,6 +111,19 @@ button:active {
   background: #ff1818;
 }
 
+.list-elements li {
+  height: 73.5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #2b2929b6;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin: 2px;
+  border-radius: 4px;
+}
+
 h3 {
   margin-top: 20px;
 }
