@@ -1,5 +1,9 @@
 <template>
   <div class="pong-div">
+    <div class="playernames">
+      <h3 class="playerone">{{ props.game.playerOne.name }}</h3>
+      <h3 class="playertwo">{{ props.game.playerTwo.name }}</h3>
+    </div>
     <button v-if="inGame" @click="colorMode">COLOR MODE</button>
     <button v-else @click="goBack">GO BACK</button>
     <canvas id="canvas" ref="game"></canvas>
@@ -99,7 +103,7 @@ function initCanvas() {
   };
 }
 
-function initGame() {
+async function initGame() {
   gameRoom = {
     id: props.game.id,
     player: props.game.player,
@@ -107,6 +111,7 @@ function initGame() {
     loser: props.game.loser,
     playerOne: {
       id: props.game.playerOne.id,
+      name: props.game.playerOne.name,
       socket: props.game.playerOne.socket,
       score: 0,
       paddle: {
@@ -119,6 +124,7 @@ function initGame() {
     },
     playerTwo: {
       id: props.game.playerTwo.id,
+      name: props.game.playerTwo.name,
       socket: props.game.playerTwo.socket,
       score: 0,
       paddle: {
@@ -150,14 +156,11 @@ function initGame() {
  * END GAME *
  ************/
 
-// const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-// const emit = defineEmits(["game-over"]);
-
 props.socket.on(
   "drawScoreboard",
-  (playerOneScore: number, playerTwoScore: number, winner: number) => {
+  (playerOneScore: number, playerTwoScore: number, winnerName: string) => {
     drawScoreboard(playerOneScore, playerTwoScore);
-    drawGameOver(winner);
+    drawGameOver(winnerName);
     gameOver();
   }
 );
@@ -174,11 +177,9 @@ async function gameOver() {
     });
   }
   props.socket.emit("leaveRoom", String(gameRoom.id));
-  // await sleep(2000);
-  // emit("game-over", gameRoom);
 }
 
-props.socket.on("endGame", (winner: number) => {
+props.socket.on("endGame", (winnerName: string) => {
   console.log("PongGame.endGame");
   ctx.fillStyle = color.canvas;
   ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
@@ -186,7 +187,7 @@ props.socket.on("endGame", (winner: number) => {
   drawBorderLines();
   drawPaddles();
   drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
-  drawGameOver(winner);
+  drawGameOver(winnerName);
   gameOver();
 });
 
@@ -502,13 +503,13 @@ function drawCountdownCenterLine() {
   ctx.closePath();
 }
 
-function drawGameOver(winner: number) {
+function drawGameOver(winnerName: string) {
   ctx.beginPath();
   ctx.font = gameRoom.view.width * 0.07 + "px ArcadeClassic";
   ctx.textAlign = "center";
   ctx.fillText(
-    "PLAYER " + winner,
-    gameRoom.view.width / 2 - gameRoom.view.width / 6,
+    winnerName,
+    gameRoom.view.width / 2 - gameRoom.view.width / 5,
     gameRoom.view.height - gameRoom.view.height / 3
   );
   ctx.fillText(
@@ -535,13 +536,29 @@ function drawGameOver(winner: number) {
 
 <style scoped>
 button {
+  z-index: 999;
   margin-bottom: 15px;
   width: 33%;
 }
 canvas {
+  position: relative;
   width: 100%;
   color: white;
   display: block;
+}
+
+.playernames {
+  position: absolute;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+.playerone,
+.playertwo {
+  color: var(--primary-color);
 }
 
 .pong-div {

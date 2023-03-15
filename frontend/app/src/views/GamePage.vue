@@ -117,9 +117,9 @@ async function checkDMGames() {
     if (dmGame.data.length !== 0) {
       game.value.state = GameState.WAITING;
       if (dmGame.data.join === false) {
-        startGamePlayer(dmGame, 2);
+        await startGamePlayer(dmGame, 2);
       } else {
-        startGamePlayer(dmGame, 1);
+        await startGamePlayer(dmGame, 1);
       }
       game.value.state = GameState.PLAYING;
     }
@@ -156,7 +156,7 @@ async function watchGame(gameId: number) {
         window.location.reload();
         return;
       }
-      fillGameRoomObject(res, 0);
+      await fillGameRoomObject(res, 0);
       socket.emit("watchGame", game.value); /* adds them to gameRoom */
       console.debug(id.value, " has joined room ", gameId, " as a WATCHER");
       game.value.state = GameState.PLAYING;
@@ -171,7 +171,7 @@ socket.on("savePlayerSockets", (gameRoom: GameRoom) => {
   game.value.playerTwo.socket = gameRoom.playerTwo.socket;
 });
 
-socket.on("addPlayerOne", async (gameRoom: GameRoom) => {
+socket.on("addPlayerOne", (gameRoom: GameRoom) => {
   if (game.value.player === 1 && id.value === gameRoom.playerOne.id) {
     game.value = gameRoom;
     game.value.player = 1;
@@ -183,8 +183,8 @@ socket.on("addPlayerOne", async (gameRoom: GameRoom) => {
   }
 });
 
-function startGamePlayer(res: AxiosResponse, player: number) {
-  fillGameRoomObject(res, player);
+async function startGamePlayer(res: AxiosResponse, player: number) {
+  await fillGameRoomObject(res, player);
   socket.emit("joinRoom", game.value);
   console.debug(
     id.value,
@@ -206,7 +206,7 @@ const startGame = async () => {
         game.value.state = GameState.WAITING;
       } else {
         /* else if opponent found */
-        startGamePlayer(res, 2);
+        await startGamePlayer(res, 2);
       }
     })
     .catch((err) => {
@@ -293,11 +293,13 @@ async function removePlayerFromMatchQueue() {
 
 function fillPlayerObject(
   playerNumber: number,
+  playerName: string,
   playerSocket: string,
   score: number
 ) {
   return {
     id: playerNumber,
+    name: playerName,
     socket: playerSocket,
     score: score,
     paddle: {
@@ -310,25 +312,39 @@ function fillPlayerObject(
   };
 }
 
-function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
+async function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
   game.value.id = res.data.id;
   game.value.player = playerNumber;
+  const playerOne = await apiRequest(`/user/${res.data.playerOne}`, "get");
+  const playerTwo = await apiRequest(`/user/${res.data.playerTwo}`, "get");
   /* if player is a watcher */
   if (playerNumber === 0) {
     game.value.playerOne = fillPlayerObject(
       res.data.playerOne,
+      playerOne.data.playerName,
       res.data.playerOneSocket,
       res.data.playerOneScore
     );
     game.value.playerTwo = fillPlayerObject(
       res.data.playerTwo,
+      playerTwo.data.playerName,
       res.data.playerTwoSocket,
       res.data.playerTwoScore
     );
   } else {
     /* else if player 2 */
-    game.value.playerOne = fillPlayerObject(res.data.playerOne, "", 0);
-    game.value.playerTwo = fillPlayerObject(res.data.playerTwo, "", 0);
+    game.value.playerOne = fillPlayerObject(
+      res.data.playerOne,
+      playerOne.data.playerName,
+      "",
+      0
+    );
+    game.value.playerTwo = fillPlayerObject(
+      res.data.playerTwo,
+      playerTwo.data.playerName,
+      "",
+      0
+    );
   }
 }
 </script>
