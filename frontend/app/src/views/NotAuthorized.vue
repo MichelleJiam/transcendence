@@ -12,7 +12,6 @@
   <style scoped>
   #display-content {
     display: grid;
-    /* grid-template-columns: 1fr; */
     align-content: center;
     justify-content: center;
     height: auto;
