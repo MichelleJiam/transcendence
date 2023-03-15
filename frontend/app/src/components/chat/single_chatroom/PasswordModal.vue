@@ -59,6 +59,9 @@ function enterChat(memberId: number) {
   const url = "/chat/" + chatroomId + "/add/member";
   addMemberDto.member = memberId;
   addMemberDto.password = givenPassword.value;
+  if (!(givenPassword.value && givenPassword.value.trim())) {
+    return;
+  }
   apiRequest(url, "put", { data: addMemberDto })
     .then((response) => {
       rightPassword.value = true;

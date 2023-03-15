@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import apiRequest from "@/utils/apiRequest";
-import { onBeforeMount, ref, defineProps } from "vue";
+import { onBeforeMount, ref } from "vue";
 
 const props = defineProps({
   userId: Number,

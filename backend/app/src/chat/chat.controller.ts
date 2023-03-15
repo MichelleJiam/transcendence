@@ -191,7 +191,10 @@ export class ChatController {
   ): Promise<Chatroom | undefined> {
     try {
       // check if user is not banned from chat
-      return this.chatroomService.addMemberToChatroom(chatroomId, addMemberDto);
+      return await this.chatroomService.addMemberToChatroom(
+        chatroomId,
+        addMemberDto,
+      );
     } catch (err) {
       console.error(err);
     }
