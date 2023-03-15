@@ -9,7 +9,7 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const userStore = useUserStore();
-  console.debug("beforeEach");
+  console.debug("[DEBUG] beforeEach");
   if (to.name === "login" || to.name === "2fa") {
     return true;
   }
