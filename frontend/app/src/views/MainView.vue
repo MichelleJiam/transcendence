@@ -185,8 +185,6 @@ onMounted(async () => {
   height: 100px;
   width: 100px;
   border: 5px solid white;
-  /* white for offline, green for online, purple for in a game 
-  add a hover function on the avatar image to show the status of the color */
 }
 
 .paddle-div {
@@ -198,7 +196,6 @@ onMounted(async () => {
 h1 {
   font-size: 9rem;
 }
-/* CSS for the playername pop up */
 .playername-popup {
   position: absolute;
   z-index: 2;
