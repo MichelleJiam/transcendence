@@ -127,16 +127,27 @@ export class GameService {
         "Unable to update game because game does not exist",
       );
     }
-    const game = await this.gameRepository
-      .createQueryBuilder()
-      .update(Game)
-      .set({
-        playerOneSocket: gameRoom.playerOne.socket,
-        playerTwoSocket: gameRoom.playerTwo.socket,
-      })
-      .where("id = :id", { id: gameRoom.id })
-      .execute();
-    return game;
+    if (gameRoom.player === 1) {
+      const game = await this.gameRepository
+        .createQueryBuilder()
+        .update(Game)
+        .set({
+          playerOneSocket: gameRoom.playerOne.socket,
+        })
+        .where("id = :id", { id: gameRoom.id })
+        .execute();
+      return game;
+    } else {
+      const game = await this.gameRepository
+        .createQueryBuilder()
+        .update(Game)
+        .set({
+          playerTwoSocket: gameRoom.playerTwo.socket,
+        })
+        .where("id = :id", { id: gameRoom.id })
+        .execute();
+      return game;
+    }
   }
 
   async setGameToDone(gameId: number) {
