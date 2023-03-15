@@ -431,4 +431,12 @@ button {
   width: 50%;
   display: block;
 }
+
+@media (max-width: 1100px) {
+  .main-game {
+    display: grid;
+    grid-template-rows: 1fr 2fr;
+    grid-template-columns: none;
+  }
+}
 </style>
