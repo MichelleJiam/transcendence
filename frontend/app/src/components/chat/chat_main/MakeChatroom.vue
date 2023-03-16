@@ -66,6 +66,11 @@ async function createChat() {
     console.log("Password required for password chat");
     alert("Password required for password chat");
     return;
+  }
+  if (chatName.value.length > 25) {
+    alert("Chat name too long!");
+    chatName.value = "";
+    return;
   } else {
     postChatData.chatroomName = chatName.value;
     postChatData.type = chatType.value;
@@ -84,9 +89,8 @@ async function createChat() {
 }
 </script>
 <style scoped>
-
 * {
-  word-spacing: .2rem;
+  word-spacing: 0.2rem;
 }
 .formText {
   font-size: 1rem;

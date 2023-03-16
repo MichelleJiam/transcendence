@@ -6,7 +6,7 @@ export class CreateChatroomDto {
   type!: string;
 
   @IsNotEmpty()
-  @MaxLength(250, {
+  @MaxLength(26, {
     message: "chat name too long",
   })
   chatroomName!: string;

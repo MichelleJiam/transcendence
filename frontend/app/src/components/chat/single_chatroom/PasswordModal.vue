@@ -64,9 +64,14 @@ function enterChat(memberId: number) {
   }
   apiRequest(url, "put", { data: addMemberDto })
     .then((response) => {
-      rightPassword.value = true;
-      socket.emit("newUserState");
-    }) // axios throws errors for non 2xx responses by default!
+      if (response.data != "") {
+        rightPassword.value = true;
+        socket.emit("newUserState");
+      } else {
+        alert("Bad password!");
+        givenPassword.value = "";
+      }
+    })
     .catch((err) => {
       alert("Bad password!");
       givenPassword.value = "";
