@@ -12,7 +12,7 @@
     </div>
     <button
       :disabled="isDisabledAvatar"
-      :class="{ lightbutton: !isDisabledAvatar }"
+      :class="{ 'disabled-button': isDisabledAvatar }"
       @click="submitAvatar"
     >
       Update avatar
@@ -24,6 +24,7 @@
 import { ref } from "vue";
 import { useUserStore } from "@/stores/UserStore";
 
+const emit = defineEmits(["show-message"]);
 const store = useUserStore();
 type Avatar = {
   selectedFile?: File;
@@ -37,7 +38,8 @@ async function onFileSelected(e: Event) {
   const target = e.target as HTMLInputElement;
   if (target.files) {
     if (target.files[0].size > 1000000) {
-      alert("File can not be larger than 1mb");
+      emit("show-message", "Avatar can not be larger than 1mb");
+      // alert("File can not be larger than 1mb");
       target.value = "";
       return;
     }
@@ -76,7 +78,13 @@ async function submitAvatar() {
 }
 
 button {
-  background-color: var(--primary-color-transparant);
+  /* background-color: var(--primary-color-transparant); */
   justify-self: stretch;
+}
+
+.disabled-button {
+  background-color: var(--primary-color-transparant);
+  cursor: not-allowed;
+  pointer-events: none;
 }
 </style>
