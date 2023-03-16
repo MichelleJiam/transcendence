@@ -23,7 +23,9 @@
       @keydown.enter.prevent="setPlayerName"
     />
     <span class="validate-message">{{ message }}</span>
-    <button @click.prevent="setPlayerName">Submit</button>
+    <button :disabled="isDisabled" @click.prevent="setPlayerName">
+      Submit
+    </button>
   </div>
 </template>
 
@@ -35,13 +37,17 @@ import router from "@/router";
 
 const userStore = useUserStore();
 const playerName = ref<string>("");
+let isDisabled = ref<Boolean>(true);
 let message = "";
 
 function setPlayerName() {
-  userStore.updateAccountSettings(
-    playerName.value,
-    userStore.user.twoFAEnabled
-  );
+  // protects @keydown.enter.prevent="setPlayerName" from updating account settings when the button is disabled
+  if (isDisabled.value === false) {
+    userStore.updateAccountSettings(
+      playerName.value,
+      userStore.user.twoFAEnabled
+    );
+  }
 }
 
 async function cancelLogin() {
@@ -55,12 +61,17 @@ onMounted(async () => {
 });
 
 watch(playerName, () => {
-  if (playerName.value?.length <= 2 || playerName.value?.length > 8) {
+  if (!playerName.value) {
+    isDisabled.value === true;
+  } else if (playerName.value?.length <= 2 || playerName.value?.length > 8) {
     message = "Player name must be between 3 and 8 characters";
+    isDisabled.value = true;
   } else if (!validPlayerName(playerName.value)) {
+    isDisabled.value = true;
     message =
       "Player name can only include alphabetic characters, digits and the following special characters -_";
   } else {
+    isDisabled.value = false;
     message = "";
   }
 });
