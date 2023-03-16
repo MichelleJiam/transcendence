@@ -113,7 +113,7 @@ export const useUserStore = defineStore("user", {
           data: { playerName: newPlayerName, twoFAEnabled: twoFA },
         });
         this.retrieveCurrentUserData();
-        alert("Your account settings were succesfully updated!");
+        // alert("Your account settings were succesfully updated!");
       } catch (error) {
         this.handleError(error as AxiosError);
       }

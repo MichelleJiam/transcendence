@@ -5,6 +5,7 @@
       class="two-fa-popup"
       @uncheck="uncheckTwoFACheckbox"
       @close-popup="toggleTwoFAPopup(false)"
+      @show-message="showMessage"
     ></TwoFactorPopup>
     <div id="display-content">
       <div class="user-info">
@@ -17,7 +18,7 @@
 
       <div class="user-settings">
         <h2>You can edit your account settings here.</h2>
-        <AvatarUpload />
+        <AvatarUpload @show-message="showMessage" />
         <form class="account-settings">
           <label class="account-settings-label" for="player-name"
             >Player Name</label
@@ -30,7 +31,7 @@
             :placeholder="playerName"
           />
           <span class="validate-message"
-            ><i>{{ message }}</i></span
+            ><i>{{ invalidMessage }}</i></span
           >
           <button
             :class="{ 'disabled-button': isDisabled }"
@@ -50,6 +51,7 @@
             @change="checkForTwoFAPopup()"
           />
         </form>
+        <div v-if="message" class="message">{{ message }}</div>
       </div>
     </div>
   </main>
@@ -70,9 +72,18 @@ const twoFactorAuthentication = ref<boolean>();
 const showTwoFAPopup = ref<boolean>(false);
 const playerName = ref<string>("");
 const isDisabled = ref<boolean>(true);
-let message = "";
+let invalidMessage = "";
 
 const store = useUserStore();
+
+const message = ref("");
+
+const showMessage = (msg: string) => {
+  message.value = msg;
+  setTimeout(() => {
+    message.value = "";
+  }, 3000);
+};
 
 onMounted(async () => {
   await store.retrieveCurrentUserData();
@@ -88,7 +99,8 @@ async function checkForTwoFAPopup() {
   } else {
     toggleTwoFAPopup(false);
     await apiRequest(`/2fa/disable`, "post");
-    alert("Two factor authentication has been disabled");
+    showMessage("Two factor authentication has been disabled");
+    // alert("Two factor authentication has been disabled");
     console.debug("2FA disabled");
   }
 }
@@ -102,6 +114,7 @@ async function updatePlayerName() {
     playerName.value,
     twoFactorAuthentication.value
   );
+  showMessage("Player name succesfully updated");
 }
 
 function uncheckTwoFACheckbox() {
@@ -112,17 +125,17 @@ function uncheckTwoFACheckbox() {
 
 watch(playerName, () => {
   if (playerName.value?.length <= 2 || playerName.value?.length > 8) {
-    message = "Player name must be between 3 and 8 characters";
+    invalidMessage = "Player name must be between 3 and 8 characters";
     isDisabled.value = true;
   } else if (!validPlayerName(playerName.value)) {
-    message =
+    invalidMessage =
       "Player name can only include alphabetic characters, digits and the following special characters -_";
     isDisabled.value = true;
   }
   // if there was a change
   else if (playerName.value !== store.user.playerName) {
     isDisabled.value = false;
-    message = "";
+    invalidMessage = "";
   }
 });
 
@@ -188,6 +201,8 @@ h2 {
 }
 .disabled-button {
   background-color: var(--primary-color-transparant);
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 button {
@@ -227,5 +242,13 @@ form {
     width: 600px;
     height: 90%;
   }
+}
+
+.message {
+  background-color: #eaffe6;
+  color: #000000;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
 }
 </style>

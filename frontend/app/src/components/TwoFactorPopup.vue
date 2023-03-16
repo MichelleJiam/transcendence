@@ -26,7 +26,7 @@ import apiRequest from "@/utils/apiRequest";
 const authCode = ref<string>("");
 const qrCode = ref();
 const validationMessage = ref<string>("");
-const emit = defineEmits(["uncheck", "close-popup"]);
+const emit = defineEmits(["uncheck", "close-popup", "show-message"]);
 
 onMounted(async () => {
   await apiRequest(`/2fa/register`, "post")
@@ -43,7 +43,8 @@ async function validateAuthCode() {
     data: { twoFactorAuthCode: authCode.value },
   })
     .then(() => {
-      alert("Two factor authentication successfully enabled!");
+      // alert("Two factor authentication successfully enabled!");
+      emit("show-message", "Two factor authentication successfully enabled!");
       emit("close-popup");
     })
     .catch((err) => {

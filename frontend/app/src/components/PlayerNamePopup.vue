@@ -1,29 +1,27 @@
 <template>
   <div class="form box-styling">
     <button class="exit-button" @click.prevent="cancelLogin">X</button>
-    <h2>Hey there,</h2>
+    <h2>Hey There!</h2>
     <p>
-      Welcome to our super-duper, incredibly awesome pong game! We're so excited
-      that you've decided to join us for some ball-bouncing, paddle-smacking
-      fun.<br /><br />
-      But before we can get started, we need you to do one little thing for us:
-      pick a player name. It's super easy and will only take a moment, we
-      promise. And don't worry, we won't judge you if you choose something
-      totally goofy (in fact, we encourage it).<br /><br />So what do you say,
-      champ? Are you ready to show us what you've got and become a part of the
-      pong-playing elite? Let's do this thing!
+      Greetings, Pong master! Before you can take on your opponents, we need to
+      know your player name. Enter your cool, quirky, or downright silly name
+      below, and get ready to dominate the leaderboard.
     </p>
-    <label for="player-name">Player Name</label>
+    <!-- <label for="player-name">Player Name</label> -->
     <InputText
       id="playerName"
       v-model="playerName"
       class="inputfield"
       label="Player Name"
-      placeholder="playername"
+      placeholder="player name"
       @keydown.enter.prevent="setPlayerName"
     />
     <span class="validate-message">{{ message }}</span>
-    <button :disabled="isDisabled" @click.prevent="setPlayerName">
+    <button
+      :class="{ 'disabled-button': isDisabled }"
+      :disabled="isDisabled"
+      @click.prevent="setPlayerName"
+    >
       Submit
     </button>
   </div>
@@ -64,12 +62,12 @@ watch(playerName, () => {
   if (!playerName.value) {
     isDisabled.value === true;
   } else if (playerName.value?.length <= 2 || playerName.value?.length > 8) {
-    message = "Player name must be between 3 and 8 characters";
+    message = "player name must be between 3 and 8 characters";
     isDisabled.value = true;
   } else if (!validPlayerName(playerName.value)) {
     isDisabled.value = true;
     message =
-      "Player name can only include alphabetic characters, digits and the following special characters -_";
+      "player name can only include alphabetic characters, digits and the following special characters -_";
   } else {
     isDisabled.value = false;
     message = "";
@@ -125,5 +123,11 @@ h2 {
 p {
   margin-bottom: 20px;
   font-size: 20px;
+}
+
+.disabled-button {
+  background-color: var(--primary-color-transparant);
+  cursor: not-allowed;
+  pointer-events: none;
 }
 </style>
