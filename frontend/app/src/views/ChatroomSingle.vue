@@ -304,4 +304,18 @@ h2 {
   visibility: visible;
   opacity: 1;
 }
+
+@media screen and (max-width: 800px) {
+  .header,
+  .linkurl,
+  .leave,
+  .sub,
+  .post,
+  .row,
+  .columnright,
+  .column {
+    width: 100%;
+    padding: 0;
+  }
+}
 </style>
