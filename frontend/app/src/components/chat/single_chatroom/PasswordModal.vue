@@ -20,6 +20,12 @@
                 <label for="password">Enter password:</label>
                 <input id="password" v-model="givenPassword" type="text" />
               </div>
+              <div v-if="errorMessageAvailable() === true">
+                <span>
+                  {{ errorMessage }}
+                  <button class="error-x" @click="removeErrorText()">X</button>
+                </span>
+              </div>
               <button>→</button>
             </form>
           </slot>
@@ -51,9 +57,19 @@ const chatroomId = route.params.id;
 const userStore = useUserStore();
 const givenPassword = ref<string>();
 const rightPassword = ref<boolean>(false);
+const errorMessage = ref<string>("");
 
 const socketUrl = baseUrl + "/penalty";
 const socket = io(socketUrl);
+
+function errorMessageAvailable() {
+  if (errorMessage.value && errorMessage.value.trim()) return true;
+  return false;
+}
+
+function removeErrorText() {
+  errorMessage.value = "";
+}
 
 function enterChat(memberId: number) {
   const url = "/chat/" + chatroomId + "/add/member";
@@ -68,18 +84,26 @@ function enterChat(memberId: number) {
         rightPassword.value = true;
         socket.emit("newUserState");
       } else {
-        alert("Bad password!");
+        errorMessage.value = "Bad password!";
         givenPassword.value = "";
       }
     })
     .catch((err) => {
-      alert("Bad password!");
+      errorMessage.value = "Bad password!";
       givenPassword.value = "";
     });
 }
 </script>
 
 <style>
+.error-x {
+  width: 0.9rem;
+  height: 0.9rem;
+  font-size: 0.9rem;
+  top: 0;
+  left: 0;
+  padding: 0;
+}
 .modal-mask {
   position: fixed;
   z-index: 9998;

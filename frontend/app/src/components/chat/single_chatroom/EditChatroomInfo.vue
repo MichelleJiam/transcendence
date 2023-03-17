@@ -37,7 +37,11 @@
                 />
               </div>
               <div>
-                <label for="password" class="modal-text">Update password:</label
+                <label for="password" class="modal-text"
+                  >Update password:<br />
+                  <span class="small-text"
+                    >(Warning! Will turn chat into a password chat)</span
+                  ></label
                 ><br />
                 <input
                   id="password"
@@ -131,12 +135,15 @@ function editChat(adminId: number) {
     }) // axios throws errors for non 2xx responses by default!
     .catch((error) => {
       // console.error(error);
-      alert("Unable to update chat info");
+      errorMessage.value = "Could not update chatroom info.";
     });
 }
 </script>
 
 <style>
+.small-text {
+  font-size: 0.8rem;
+}
 .modal-text {
   font-size: 1.5rem;
 }
