@@ -20,7 +20,7 @@
                   >Choose a chat type:</label
                 ><br />
                 <select id="type" v-model="updateChatroomDto.type" name="type">
-                  <option value="public" selected>public</option>
+                  <option value="public">public</option>
                   <option value="private">private</option>
                   <option value="password">password</option>
                 </select>
@@ -37,7 +37,11 @@
                 />
               </div>
               <div>
-                <label for="password" class="modal-text">Update password:</label
+                <label for="password" class="modal-text"
+                  >Update password:<br />
+                  <span class="small-text"
+                    >(Warning! Will turn chat into a password chat)</span
+                  ></label
                 ><br />
                 <input
                   id="password"
@@ -45,6 +49,14 @@
                   type="text"
                   class="modal-text padding"
                 />
+              </div>
+              <div v-if="errorMessageAvailable() === true" class="padding">
+                <span
+                  >{{ errorMessage }}
+                  <button class="error-x" @click="removeErrorText()">
+                    X
+                  </button></span
+                >
               </div>
               <button>Update chat</button>
             </form>
@@ -64,6 +76,7 @@ import { useUserStore } from "@/stores/UserStore";
 import apiRequest from "@/utils/apiRequest";
 import { useRoute } from "vue-router";
 import { UpdateChatroomDto } from "../chatUtils";
+import { ref } from "vue";
 
 const props = defineProps({
   show: Boolean,
@@ -73,18 +86,37 @@ const updateChatroomDto = new UpdateChatroomDto();
 const route = useRoute();
 const chatroomId = route.params.id;
 const userStore = useUserStore();
+const errorMessage = ref<string>("");
+
+function errorMessageAvailable() {
+  if (errorMessage.value.length > 0) {
+    return true;
+  }
+  return false;
+}
+
+function removeErrorText() {
+  errorMessage.value = "";
+}
 
 function editChat(adminId: number) {
   const url = "/chat/" + chatroomId + "/admin/" + adminId + "/update/info";
   if (
+    updateChatroomDto.type == undefined &&
+    (updateChatroomDto.chatroomName == undefined ||
+      !(
+        updateChatroomDto.chatroomName && updateChatroomDto.chatroomName.trim()
+      )) &&
+    (updateChatroomDto.password == undefined ||
+      !(updateChatroomDto.password && updateChatroomDto.password.trim()))
+  ) {
+    return;
+  }
+  if (
     updateChatroomDto.type == "password" &&
     !(updateChatroomDto.password && updateChatroomDto.password.trim())
   ) {
-    alert("password type needs a password!");
-    return;
-  }
-  if (!(updateChatroomDto.password && updateChatroomDto.password.trim())) {
-    alert("password cannot be just white spaces");
+    errorMessage.value = "password type chat needs a password!";
     return;
   }
   if (
@@ -93,18 +125,25 @@ function editChat(adminId: number) {
   ) {
     updateChatroomDto.chatroomName = undefined;
   }
+  if (updateChatroomDto.password && updateChatroomDto.password.trim()) {
+    updateChatroomDto.type = "password";
+  }
+  console.log(updateChatroomDto);
   apiRequest(url, "put", { data: updateChatroomDto })
     .then((response) => {
       location.reload();
     }) // axios throws errors for non 2xx responses by default!
     .catch((error) => {
       // console.error(error);
-      alert("Unable to update chat info");
+      errorMessage.value = "Could not update chatroom info.";
     });
 }
 </script>
 
 <style>
+.small-text {
+  font-size: 0.8rem;
+}
 .modal-text {
   font-size: 1.5rem;
 }
@@ -113,7 +152,18 @@ function editChat(adminId: number) {
   margin: 0.5rem;
 }
 
+.error-x {
+  width: 0.9rem;
+  height: 0.9rem;
+  font-size: 0.9rem;
+  top: 0;
+  left: 0;
+  padding: 0;
+}
+
 .modal-mask {
+  display: flex;
+  flex-direction: column;
   position: fixed;
   z-index: 9998;
   top: 0;
