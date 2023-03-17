@@ -36,6 +36,12 @@
         class="inputStyle"
       />
     </div>
+    <div v-if="errorMessageAvailable() === true">
+      <span
+        >{{ errorMessage }}
+        <button class="error-x" @click="removeErrorText()">X</button></span
+      >
+    </div>
     <button class="buttonStyle">Create chat</button>
   </form>
 </template>
@@ -53,22 +59,36 @@ const chatType = ref<string>("public");
 
 const postChatData = new PostChatDto();
 postChatData.user = userStore.user.id;
+const errorMessage = ref<string>("");
+
+function errorMessageAvailable() {
+  if (errorMessage.value.length > 0) {
+    return true;
+  }
+  return false;
+}
+
+function removeErrorText() {
+  errorMessage.value = "";
+}
 
 async function createChat() {
   if (!chatName.value == null || chatName.value.trim() === "") {
     console.log("Chat must be named");
-    alert("Chat must be named");
+    errorMessage.value = "Chat must be named";
+    chatName.value = "";
     return;
   } else if (
     chatType.value == "password" &&
     (!chatPassword?.value == undefined || chatPassword?.value.trim() === "")
   ) {
     console.log("Password required for password chat");
-    alert("Password required for password chat");
+    errorMessage.value = "Password required for password chat";
+    chatPassword.value = "";
     return;
   }
   if (chatName.value.length > 25) {
-    alert("Chat name too long!");
+    errorMessage.value = "Chat name too long!";
     chatName.value = "";
     return;
   } else {

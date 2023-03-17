@@ -500,17 +500,15 @@ export class ChatService {
   ): Promise<Chatroom> {
     const chatroom = await this.getChatroomInfoById(chatroomId);
     if (await this.chatMethod.isOwnerOfChatroom(adminId, chatroomId)) {
-      if (
-        updateChatroomDto.type === "password" ||
-        (chatroom.type == "password" &&
-          (updateChatroomDto.type == "" || updateChatroomDto.type == undefined))
-      ) {
+      if (updateChatroomDto.type === "password" || updateChatroomDto.password) {
+        if (updateChatroomDto.type !== "password") {
+          updateChatroomDto.type = "password";
+        }
         if (updateChatroomDto.password) {
           validateChatroomPasswordSet(updateChatroomDto.password);
           updateChatroomDto.password = await this.authService.hashPassword(
             updateChatroomDto.password,
           );
-          console.log("validated password");
         } else {
           throw new HttpException(
             "Password type chatroom cannot have no password",
