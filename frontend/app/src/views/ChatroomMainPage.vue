@@ -46,4 +46,13 @@ import UserChats from "@/components/chat/chat_main/UserChats.vue";
   display: table;
   clear: both;
 }
+
+@media screen and (max-width: 1200px) {
+  .row,
+  .column,
+  .createChat {
+    width: 100%;
+    padding: 0;
+  }
+}
 </style>

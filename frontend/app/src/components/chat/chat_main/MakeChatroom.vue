@@ -97,7 +97,7 @@ async function createChat() {
 }
 
 .inputStyle {
-  width: 25%;
+  width: 15rem;
   height: 10%;
   font-size: 0.8rem;
   margin: 1% 1%;

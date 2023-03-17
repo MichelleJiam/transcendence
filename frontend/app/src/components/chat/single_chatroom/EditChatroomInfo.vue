@@ -127,7 +127,6 @@ function editChat(adminId: number) {
   console.log(updateChatroomDto);
   apiRequest(url, "put", { data: updateChatroomDto })
     .then((response) => {
-      alert("checking the console log");
       location.reload();
     }) // axios throws errors for non 2xx responses by default!
     .catch((error) => {
@@ -156,6 +155,8 @@ function editChat(adminId: number) {
 }
 
 .modal-mask {
+  display: flex;
+  flex-direction: column;
   position: fixed;
   z-index: 9998;
   top: 0;
