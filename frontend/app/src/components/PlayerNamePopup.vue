@@ -35,7 +35,7 @@ import router from "@/router";
 
 const userStore = useUserStore();
 const playerName = ref<string>("");
-let isDisabled = ref<Boolean>(true);
+const isDisabled = ref<boolean>(true);
 let message = "";
 
 function setPlayerName() {
