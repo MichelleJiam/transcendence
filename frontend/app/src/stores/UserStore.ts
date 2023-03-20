@@ -18,18 +18,11 @@ interface UserProfile extends PublicProfile {
   twoFAEnabled: boolean;
 }
 
-interface Achievement {
-  id: number;
-  name: string;
-  icon: string;
-}
-
 export const useUserStore = defineStore("user", {
   state: () => {
     return {
       user: {} as UserProfile,
       authenticated: false,
-      achievements: [] as Achievement[],
     };
   },
   actions: {
@@ -142,22 +135,6 @@ export const useUserStore = defineStore("user", {
         this.user.avatarUrl = res.config.url;
       } catch (error) {
         console.error(`Error in getAvatar(): ${error}`);
-      }
-    },
-
-    /****************
-     * ACHIEVEMENTS *
-     ****************/
-
-    async getAchievements() {
-      try {
-        const res = await apiRequest(
-          `/user/${this.user.id}/achievements`,
-          "get"
-        );
-        if (res) this.achievements = res.data;
-      } catch (error) {
-        console.error(`Error in getAchievements(): ${error}`);
       }
     },
 

@@ -24,6 +24,7 @@
 </template>
 
 <script setup lang="ts">
+import apiRequest from "@/utils/apiRequest";
 import {
   faPenToSquare,
   faGamepad,
@@ -35,6 +36,7 @@ import {
   faMedal,
   faSadTear,
 } from "@fortawesome/free-solid-svg-icons";
+import { onBeforeMount, ref } from "vue";
 
 type Achievement = {
   id: number;
@@ -43,7 +45,13 @@ type Achievement = {
 };
 
 const props = defineProps({
-  chievs: { type: Array<Achievement>, required: true },
+  userId: { type: Number, required: true },
+});
+
+const chievs = ref<Array<Achievement>>();
+
+onBeforeMount(async () => {
+  await getAchievements();
 });
 
 const achievements = [
@@ -58,9 +66,20 @@ const achievements = [
   { id: 8, icon: faSadTear, name: "Lost 5 games" },
 ];
 function achievementEarned(id: number) {
-  if (props.chievs.find((achievement: Achievement) => achievement.id === id))
-    return 1;
+  if (chievs.value) {
+    if (chievs.value.find((achievement: Achievement) => achievement.id === id))
+      return 1;
+  }
   return 0;
+}
+
+async function getAchievements() {
+  try {
+    const res = await apiRequest(`/user/${props.userId}/achievements`, "get");
+    if (res) chievs.value = res.data;
+  } catch (error) {
+    console.error(`Error in getAchievements(): ${error}`);
+  }
 }
 
 const showDescription: number | null = null;
