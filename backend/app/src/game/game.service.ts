@@ -56,6 +56,18 @@ export class GameService {
       .execute();
   }
 
+  async findGamesForHistory(id: number) {
+    return await this.gameRepository
+      .createQueryBuilder("game")
+      .limit(10)
+      .offset(0)
+      .where(
+        "game.state = :done AND (game.playerOne = :playerOneId OR game.playerTwo = :playerTwoId)",
+        { done: "done", playerOneId: id, playerTwoId: id },
+      )
+      .execute();
+  }
+
   async findGameFromPlayerSocket(playerSocket: string) {
     let playerNum = 0,
       playerId = null;
