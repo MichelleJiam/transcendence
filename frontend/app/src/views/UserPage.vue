@@ -147,6 +147,7 @@ function validPlayerName(playerName: string) {
 <style scoped>
 #display-content {
   display: grid;
+  grid-gap: 30px;
   grid-template-columns: 1fr 2fr;
   justify-content: center;
   height: auto;
@@ -165,7 +166,6 @@ function validPlayerName(playerName: string) {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  gap: 10px;
 }
 
 .account-settings {
