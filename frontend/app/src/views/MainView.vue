@@ -56,8 +56,17 @@
       ></GameHistory>
       <!-- needs a prop to specify which player's game history, this one for current user -->
       <UserAchiements
+        v-if="
+          route.params.playerName != undefined &&
+          route.params.playerName != userStore.user.playerName
+        "
         class="user-achievements"
-        :chievs="userStore.achievements"
+        :user-id="otherPlayerInfo.id"
+      ></UserAchiements>
+      <UserAchiements
+        v-else
+        class="user-achievements"
+        :user-id="userStore.user.id"
       ></UserAchiements>
       <div
         v-if="
@@ -137,7 +146,6 @@ onMounted(async () => {
   // refresh userStore data
   await userStore.retrieveCurrentUserData();
   await userStore.getAvatar();
-  await userStore.getAchievements();
 });
 </script>
 
