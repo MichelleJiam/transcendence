@@ -55,12 +55,6 @@ export class GameGateway {
     const leftGame: GameWithPlayer =
       await this.gameService.findGameFromPlayerSocket(client.id);
     if (leftGame.game !== null) {
-      console.log(
-        "Player ",
-        leftGame.playerId,
-        " left game ",
-        leftGame.game?.id,
-      );
       const leftGameRoom = this.socketMap.get(client.id);
       if (leftGameRoom) {
         this.gameService.setDisconnectedPlayer(
@@ -71,15 +65,9 @@ export class GameGateway {
       }
       // updates active game list on lobby user
       this.updateActiveGames();
-
-      // this.server
-      //   // .to(String(leftGame.game.id))
-      //   .emit("playerForfeited", leftGame.playerNum);
-      // this.cleanUpOnPlayerDisconnect(leftGame);
     } else {
       console.log("No active games being played were left");
       this.checkMatchQueueOnDisconnect(client.id);
-      // this.server.emit("disconnection");
     }
   }
 
@@ -168,47 +156,6 @@ export class GameGateway {
    * MOVEMENT *
    ************/
 
-  handlePlayerOneInput(input: PlayerInput) {
-    const move = 0.05;
-    const updatedGameRoom = this.gameroomMap.get(input.id) as GameRoom;
-    if (input.direction === "up") {
-      updatedGameRoom.playerOne.paddle.y = Math.max(
-        updatedGameRoom.playerOne.paddle.y - updatedGameRoom.view.height * move,
-        updatedGameRoom.view.offset + updatedGameRoom.view.borderLines,
-      );
-    } else {
-      updatedGameRoom.playerOne.paddle.y = Math.min(
-        updatedGameRoom.playerOne.paddle.y + updatedGameRoom.view.height * move,
-        updatedGameRoom.view.height -
-          updatedGameRoom.playerOne.paddle.height -
-          updatedGameRoom.view.offset -
-          updatedGameRoom.view.borderLines,
-      );
-    }
-    return updatedGameRoom;
-  }
-
-  handlePlayerTwoInput(input: PlayerInput) {
-    const move = 0.05;
-    const updatedGameRoom = this.gameroomMap.get(input.id) as GameRoom;
-
-    if (input.direction === "up") {
-      updatedGameRoom.playerTwo.paddle.y = Math.max(
-        updatedGameRoom.playerTwo.paddle.y - updatedGameRoom.view.height * move,
-        updatedGameRoom.view.offset + updatedGameRoom.view.borderLines,
-      );
-    } else {
-      updatedGameRoom.playerTwo.paddle.y = Math.min(
-        updatedGameRoom.playerTwo.paddle.y + updatedGameRoom.view.height * move,
-        updatedGameRoom.view.height -
-          updatedGameRoom.playerTwo.paddle.height -
-          updatedGameRoom.view.offset -
-          updatedGameRoom.view.borderLines,
-      );
-    }
-    return updatedGameRoom;
-  }
-
   handlePlayerInput(input: PlayerInput, player: Player, view: Canvas) {
     const move = 0.05;
 
@@ -223,24 +170,26 @@ export class GameGateway {
         view.height - player.paddle.height - view.offset - view.borderLines,
       );
     }
-    // return updatedGameRoom;
   }
 
   @SubscribeMessage("playerInput")
   playerInput(@MessageBody() input: PlayerInput) {
     const updatedGameRoom = this.gameroomMap.get(input.id) as GameRoom;
     if (updatedGameRoom) {
-      this.handlePlayerInput(
-        input,
-        updatedGameRoom.playerOne,
-        updatedGameRoom.view,
-      );
-      // if (input.player === 1) {
-      // updatedGameRoom = this.handlePlayerOneInput(input);
-      // }
-      // if (input.player === 2) {
-      //   updatedGameRoom = this.handlePlayerTwoInput(input);
-      // }
+      if (input.player === 1) {
+        this.handlePlayerInput(
+          input,
+          updatedGameRoom.playerOne,
+          updatedGameRoom.view,
+        );
+      }
+      if (input.player === 2) {
+        this.handlePlayerInput(
+          input,
+          updatedGameRoom.playerTwo,
+          updatedGameRoom.view,
+        );
+      }
       this.gameroomMap.set(input.id, { ...updatedGameRoom });
       this.server
         .to(String(updatedGameRoom.id))
@@ -442,7 +391,7 @@ export class GameGateway {
 
   @SubscribeMessage("forfeitGame")
   async forfeitGame(@MessageBody() gameRoom: GameRoom) {
-    console.log("Forfeiting game as player ", gameRoom.player);
+    console.log("Player ", gameRoom.player, " forfeited game ", gameRoom.id);
     let updatedGameRoom = this.gameroomMap.get(Number(gameRoom.id)) as GameRoom;
     updatedGameRoom.playerOne.disconnected = gameRoom.playerOne.disconnected;
     updatedGameRoom.playerTwo.disconnected = gameRoom.playerTwo.disconnected;
@@ -478,26 +427,7 @@ export class GameGateway {
       this.gameService.setDisconnectedPlayer(gameRoom, disconnectedPlayer);
       this.forfeitGame(gameRoom);
     }
-    // this.leaveRoom(client, gameRoom.id);
   }
-
-  // async cleanUpOnPlayerDisconnect(leftGame: GameWithPlayer) {
-  //   console.log("Cleaning up on player disconnect");
-  //   // updates active game list on disconnecting player side
-  //   if (leftGame.game) {
-  //     this.gameService.setGameToDone(leftGame.game.id);
-  //   }
-
-  //   // updates active game list on lobby user
-  //   await this.updateActiveGames();
-
-  //   // reset disconnected user status back to online
-  //   if (leftGame.playerId) {
-  //     await this.userService.updateUserStatus(leftGame.playerId, {
-  //       status: 0,
-  //     });
-  //   }
-  // }
 
   // remove disconnected user if they were in match queue
   async checkMatchQueueOnDisconnect(socketId: string) {

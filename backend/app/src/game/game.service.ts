@@ -56,6 +56,16 @@ export class GameService {
       .execute();
   }
 
+  async findGameToUpdate(gameId: number) {
+    const game = await this.gameRepository.findOne({
+      where: {
+        id: gameId,
+        state: "playing",
+      },
+    });
+    return game;
+  }
+
   async findGamesForHistory(id: number) {
     return await this.gameRepository
       .createQueryBuilder("game")
@@ -173,6 +183,11 @@ export class GameService {
         "Unable to update game because game does not exist",
       );
     }
+    const game = await this.findGameToUpdate(gameRoom.id);
+    if (!game) {
+      this.logger.debug("Game has already been updated");
+      return;
+    }
     const highScore = Math.max(
       gameRoom.playerOne.score,
       gameRoom.playerTwo.score,
@@ -188,18 +203,13 @@ export class GameService {
       gameRoom.loser = gameRoom.playerOne.id;
       gameRoom.winner = gameRoom.playerTwo.id;
     }
-    const game = await this.gameRepository
-      .createQueryBuilder()
-      .update(Game)
-      .set({
-        winnerId: gameRoom.winner,
-        loserId: gameRoom.loser,
-        winnerScore: highScore,
-        loserScore: lowScore,
-        state: "done",
-      })
-      .where("id = :id", { id: gameRoom.id })
-      .execute();
+    await this.gameRepository.update(game.id, {
+      winnerId: gameRoom.winner,
+      loserId: gameRoom.loser,
+      winnerScore: highScore,
+      loserScore: lowScore,
+      state: "done",
+    });
     const leaderboardDto = new UpdateLeaderboardUserDto();
     leaderboardDto.winner = gameRoom.winner;
     leaderboardDto.loser = gameRoom.loser;
