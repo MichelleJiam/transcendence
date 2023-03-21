@@ -74,16 +74,20 @@ export class ChatService {
         owner: {
           id: true,
           playerName: true,
+          avatarId: false,
         },
         admin: {
           id: true,
           playerName: true,
+          avatarId: false,
         },
         member: {
           id: true,
           playerName: true,
+          avatarId: false,
         },
       },
+      cache: true,
     });
     if (!chatroom) {
       throw new HttpException("Chatroom not found", HttpStatus.NOT_FOUND);

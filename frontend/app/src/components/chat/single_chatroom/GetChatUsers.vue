@@ -210,7 +210,7 @@ onMounted(async () => {
     }
   });
 
-  socket.on("userUpdate", async (payload) => {
+  socket.on("userUpdate", async (payload: number) => {
     if (payload === props.chatroomId) {
       await setup();
     }
