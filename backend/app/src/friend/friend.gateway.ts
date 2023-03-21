@@ -18,10 +18,10 @@ export class FriendGateway {
   ) {}
 
   handleConnection(client: Socket) {
-    console.log(client.id + " connected friend socket");
+    console.debug(client.id + " connected friend socket");
   }
 
   handleDisconnect(client: Socket) {
-    console.log(client.id + " disconnected friend socket");
+    console.debug(client.id + " disconnected friend socket");
   }
 }

@@ -36,9 +36,6 @@ export class FriendController {
   @Get()
   async getAllRelations() {
     this.logger.log("Hit the getAllRelations route");
-    const relations = await this.friendService.getAllRelations();
-    if (relations.length === 0)
-      this.logger.debug("There are no Friend entries in the database");
     return await this.friendService.getAllRelations();
   }
 
