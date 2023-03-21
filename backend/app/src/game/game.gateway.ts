@@ -216,6 +216,9 @@ export class GameGateway {
         updatedGameRoom = this.handlePlayerTwoInput(input);
       }
       this.gameroomMap.set(input.id, { ...updatedGameRoom });
+      this.server
+        .to(String(updatedGameRoom.id))
+        .emit("updateGameRoom", updatedGameRoom);
     }
   }
 
