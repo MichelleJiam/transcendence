@@ -80,7 +80,6 @@ export class LeaderboardService {
     throw new HttpException("loser userId not found.", HttpStatus.NOT_FOUND);
   }
 
-  // calculate new rate function?
   async calculateRate(winner: Leaderboard, loser: Leaderboard) {
     const int = Math.trunc;
     const winnerExpect = 1 / (1 + (10 ^ ((loser.rate - winner.rate) / 400)));
@@ -94,7 +93,7 @@ export class LeaderboardService {
 
   async updateUsersInLeaderboard(
     updateLeaderboardUserDto: UpdateLeaderboardUserDto,
-  ): Promise<Leaderboard[]> {
+  ): Promise<void> {
     const winner = await this.updateWinnerData(updateLeaderboardUserDto.winner);
     const loser = await this.updateLoserData(updateLeaderboardUserDto.loser);
     if (winner && loser) this.calculateRate(winner, loser);
@@ -103,6 +102,6 @@ export class LeaderboardService {
         "invalid winner and loser combo",
         HttpStatus.BAD_REQUEST,
       );
-    return await this.getLeaderboard(); // change this later
+    return;
   }
 }

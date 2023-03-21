@@ -55,38 +55,6 @@ export class ChatService {
   ) {}
 
   // GETTERS
-  async getAllChatrooms(): Promise<Chatroom[]> {
-    const foundChats = await this.chatroomRepository.find({
-      order: {
-        id: "asc",
-      },
-      relations: {
-        message: true,
-        owner: true,
-        admin: true,
-        member: true,
-      },
-      select: {
-        id: true,
-        chatroomName: true,
-        type: true,
-        owner: {
-          id: true,
-          playerName: true,
-        },
-        admin: {
-          id: true,
-          playerName: true,
-        },
-        member: {
-          id: true,
-          playerName: true,
-        },
-      },
-    });
-    return foundChats;
-  }
-
   async getChatroomInfoById(id: number): Promise<Chatroom> {
     const chatroom = await this.chatroomRepository.findOne({
       relations: {
@@ -453,11 +421,21 @@ export class ChatService {
           addAdminDto.newAdmin,
           chatroomId,
         )) == true
-      )
+      ) {
         return this.getChatroomInfoById(chatroomId);
-      const newAdmin = await this.chatMethod.getUser(addAdminDto.newAdmin);
-      const updatedChatroom = addAdmin(chatroom, newAdmin);
-      return this.chatroomRepository.save(updatedChatroom);
+      }
+      if (
+        (await this.penaltyService.isBannedFromChatroom(
+          chatroomId,
+          addAdminDto.newAdmin,
+        )) == false
+      ) {
+        const newAdmin = await this.chatMethod.getUser(addAdminDto.newAdmin);
+        const updatedChatroom = addAdmin(chatroom, newAdmin);
+        return this.chatroomRepository.save(updatedChatroom);
+      } else {
+        throw new HttpException("You are Banned", HttpStatus.FORBIDDEN);
+      }
     }
     throw new HttpException(
       "You don't have permission to assign new admins.",
@@ -478,7 +456,11 @@ export class ChatService {
       (await this.chatMethod.isOwnerOfChatroom(
         swapOwnerDto.oldOwner,
         chatroomId,
-      ))
+      )) &&
+      (await this.penaltyService.isBannedFromChatroom(
+        chatroomId,
+        swapOwnerDto.newOwner,
+      )) == false
     ) {
       const newOwner = await this.chatMethod.getUser(swapOwnerDto.newOwner);
       chatroom.owner = newOwner;

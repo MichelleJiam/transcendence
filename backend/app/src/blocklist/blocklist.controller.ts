@@ -23,15 +23,6 @@ import { DeleteBlockDto } from "./dto/delete-block.dto";
 export class BlocklistController {
   constructor(private readonly blocklistService: BlocklistService) {}
 
-  @Get()
-  getGlobalBlocklist(): Promise<Blocklist[]> {
-    try {
-      return this.blocklistService.getGlobalBlocklist();
-    } catch (err) {
-      throw NotFoundException;
-    }
-  }
-
   @Get("user/:userId")
   async getBlockedUsersForUser(
     @Param("userId", ParseIntPipe) userId: number,

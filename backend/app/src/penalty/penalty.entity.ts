@@ -23,7 +23,6 @@ export class Penalty {
   })
   penaltyType!: string;
 
-  // relationships
   @ManyToOne(() => User, (user: User) => user.penalty, {
     onDelete: "CASCADE",
     onUpdate: "CASCADE",

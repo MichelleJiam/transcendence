@@ -13,11 +13,6 @@ import { PenaltyService } from "./penalty.service";
 export class PenaltyController {
   constructor(private readonly penaltyService: PenaltyService) {}
 
-  @Get()
-  getAllPenalties() {
-    return this.penaltyService.getAllPenalties();
-  }
-
   @Get("/chatroom/:chatroomId/user/:userId/banned")
   async isBannedFromChat(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,

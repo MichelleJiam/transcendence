@@ -26,10 +26,6 @@ import { currentUser } from "src/auth/decorators/current-user.decorator";
 import { User } from "src/user/user.entity";
 import { isCurrentUser } from "src/user/user.utils";
 
-// TODO:
-//  VALIDATE USER BEFORE DOING ANYTHING is active user same as user in dto
-// use @currentUser user: User, and incorporate that into the functions to validate that the correct user Id is being passed constantly.
-
 @Controller("chat")
 @UseGuards(JwtAuthGuard)
 export class ChatController {
@@ -37,15 +33,6 @@ export class ChatController {
 
   // GENERAL CHAT FUNCTIONS
   // GET
-  @Get()
-  async getAllChatRooms(): Promise<Chatroom[]> {
-    try {
-      return this.chatroomService.getAllChatrooms();
-    } catch (err) {
-      throw NotFoundException;
-    }
-  }
-
   @Get(":id")
   async getChatroomInfoById(
     @Param("id", ParseIntPipe) id: number,
@@ -135,7 +122,6 @@ export class ChatController {
   }
 
   // POST
-  // is member the same Id as the logged in user?
   @Post("create")
   async createChatroom(
     @Body() createChatroomDto: CreateChatroomDto,
@@ -144,20 +130,6 @@ export class ChatController {
     try {
       isCurrentUser(user.id, createChatroomDto.user);
       return this.chatroomService.createChatroom(createChatroomDto);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  // is member the same Id as the logged in user? also this is just for testing, remove for deployment
-  @Post("post_message")
-  async postMessageToChatroom(
-    @Body() createMessageDto: CreateMessageDto,
-    @currentUser() user: User,
-  ): Promise<Message | undefined> {
-    try {
-      isCurrentUser(user.id, createMessageDto.userId);
-      return this.chatroomService.postMessageToChatroom(createMessageDto);
     } catch (err) {
       console.error(err);
     }
@@ -183,7 +155,6 @@ export class ChatController {
   }
 
   // PUT
-  // is member the same Id as the logged in user?
   @Put(":chatroomId/add/member")
   async addMemberToChatroomById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
@@ -202,7 +173,6 @@ export class ChatController {
 
   // ADMIN FUNCTIONALITIES //
 
-  // is adminId the same as the id of the user who called this?
   @Put(":chatroomId/add/admin")
   async addAdminToChatroomById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
@@ -211,7 +181,6 @@ export class ChatController {
   ): Promise<Chatroom | undefined> {
     try {
       isCurrentUser(user.id, addAdminDto.byAdmin);
-      // check if user is not banned from chat
       return this.chatroomService.addAdminToChatroom(chatroomId, addAdminDto);
     } catch (err) {
       console.error(err);
@@ -227,7 +196,6 @@ export class ChatController {
   ): Promise<Chatroom | undefined> {
     try {
       isCurrentUser(user.id, swapOwnerDto.oldOwner);
-      // check if user is not banned from chat
       return this.chatroomService.changeOwnerofChatroomById(
         chatroomId,
         swapOwnerDto,
@@ -238,8 +206,6 @@ export class ChatController {
   }
 
   // UPDATERS //
-  // function to update password or change chatroom name
-  // is adminId the same as the id of the user who called this?
   @Put(":chatroomId/admin/:adminId/update/info")
   async updateChatroomInfoById(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,
@@ -275,7 +241,6 @@ export class ChatController {
     }
   }
 
-  // is adminId the same as the id of the user who called this?
   @Delete(":chatroomId/admin/:adminId/delete/admin/:toDeleteId")
   async deleteAdminFromChatroom(
     @Param("chatroomId", ParseIntPipe) chatroomId: number,

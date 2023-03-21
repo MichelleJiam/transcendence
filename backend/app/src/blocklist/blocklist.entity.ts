@@ -8,7 +8,6 @@ export class Blocklist {
   })
   id!: number;
 
-  // relationships
   @ManyToOne(() => User, (user: User) => user.blocklistOwner)
   blocklistOwner!: User;
 

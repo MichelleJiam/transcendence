@@ -22,26 +22,23 @@ export class Chatroom {
     nullable: false,
     default: "public",
   })
-  public type!: string;
-  // public, private, password
+  public type!: string; // public, private, password
 
   @Column({
     nullable: true,
   })
-  public password!: string; // needs hashing
+  public password!: string;
 
   @Column({
     nullable: false,
   })
   public chatroomName!: string;
 
-  // if DM and a request to play a game is made
   @Column({
     default: 0,
   })
   public gameRequestByUserId!: number;
 
-  // shows messages belonging to this chatroom
   @OneToMany(() => Message, (message: Message) => message.chatroomId, {
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
