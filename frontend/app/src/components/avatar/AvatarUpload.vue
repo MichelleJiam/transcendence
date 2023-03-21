@@ -78,7 +78,6 @@ async function submitAvatar() {
 }
 
 button {
-  /* background-color: var(--primary-color-transparant); */
   justify-self: stretch;
 }
 

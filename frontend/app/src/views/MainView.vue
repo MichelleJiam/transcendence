@@ -170,7 +170,6 @@ onMounted(async () => {
   gap: 30px;
 
   grid-area: username;
-  /* justify-self: center; */
   font-size: 8em;
 }
 .homepage-buttons {

@@ -100,7 +100,6 @@ async function checkForTwoFAPopup() {
     toggleTwoFAPopup(false);
     await apiRequest(`/2fa/disable`, "post");
     showMessage("Two factor authentication has been disabled");
-    // alert("Two factor authentication has been disabled");
     console.debug("2FA disabled");
   }
 }
