@@ -1,9 +1,3 @@
-<!--
-    this should be the main page layout
-    so the basic nav bar and the content div
-    then there should be different components that render
-    on different circumstances
--->
 <template>
   <main>
     <div id="display-content">

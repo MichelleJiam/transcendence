@@ -1,6 +1,4 @@
 <template>
-  <!-- <div class="input-form"> -->
-  <!-- <label :for="id"> {{ label }} </label> -->
   <input
     :id="id"
     type="text"
@@ -9,7 +7,6 @@
     :disabled="disabled"
     @input="updateText"
   />
-  <!-- </div> -->
 </template>
 
 <script setup lang="ts">

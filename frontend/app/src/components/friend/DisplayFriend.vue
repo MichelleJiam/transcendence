@@ -113,8 +113,6 @@ button:active {
 :disabled {
   cursor: progress;
 }
-
-/* hover effect for the player status */
 .status-text {
   display: none;
   position: absolute;

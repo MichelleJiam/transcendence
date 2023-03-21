@@ -59,7 +59,6 @@ const pendingList = computed(() => {
 
 async function cancelRequest(player: User) {
   await store.removeRelation(player);
-  // await store.updateUserList(props.userid);
 }
 
 async function acceptRequest(player: User) {

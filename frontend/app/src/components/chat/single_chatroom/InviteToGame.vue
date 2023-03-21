@@ -121,7 +121,6 @@ onMounted(async () => {
         payload.playerTwo == userStore.user.id ||
         payload.playerOne == userStore.user.id
       ) {
-        // do whatever you need to reject the game here
         console.log("The game request was canceled");
         inviteReceived.value = false;
       }

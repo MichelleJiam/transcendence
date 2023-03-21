@@ -159,7 +159,7 @@ onBeforeMount(async () => {
 async function setup() {
   await apiRequest(backendurlChatName, "get")
     .then((response) => {
-      chatRoomInfo.value = response.data; // returns the response data into the users variable which can then be used in the template
+      chatRoomInfo.value = response.data;
       if (chatRoomInfo.value.owner.id == userStore.user.id)
         isCurrentUserOwner.value = true;
       if (chatRoomInfo.value.type === "private") isPrivate.value = true;

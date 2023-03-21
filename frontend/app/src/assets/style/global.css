@@ -16,7 +16,6 @@ body {
 }
 
 nav {
-  /* position is relavtive to the body element */
   height: 6vh;
   width: 100%;
   padding: 5px 10px;
@@ -51,15 +50,11 @@ h3 {
   font-size: 2em;
 }
 
-/* LOOK BACK AT THIS */
 main {
-  /* position is relative to the body element */
   position: absolute;
-  /* use the whole page with vh vw */
   height: 94vh;
   width: 100vw;
   top: 6vh;
-  /* display the items within main in the center */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -118,7 +113,6 @@ label {
   font-family: "ArcadeClassic", sans-serif;
 }
 
-/* Apply same border style */
 button,
 input {
   border: none;
@@ -182,7 +176,6 @@ li {
   list-style: none;
 }
 
-/* class to add to a list or div to add for all list items */
 .list-elements li {
   display: flex;
   justify-content: space-between;
@@ -195,7 +188,6 @@ li {
   border-radius: 4px;
 }
 
-/* scroll bar styling */
 ::-webkit-scrollbar {
   width: 5px;
 }
@@ -212,7 +204,6 @@ li {
   background: #2b2929;
 }
 
-/* horizontal scrollbar */
 ::-webkit-scrollbar:horizontal {
   height: 5px;
 }

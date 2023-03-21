@@ -13,7 +13,6 @@
 <style scoped>
 #display-content {
   display: grid;
-  /* grid-template-columns: 1fr; */
   align-items: center;
   justify-content: center;
   height: auto;
