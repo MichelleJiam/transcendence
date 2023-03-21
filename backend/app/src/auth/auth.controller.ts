@@ -43,12 +43,16 @@ export class AuthController {
     if (user.twoFAEnabled === true) {
       authCookie = this.authService.getCookieWithJwtToken(
         user.id,
+        user.intraId,
         TokenType.PARTIAL,
       );
       redirectTo = `${process.env.FRONTEND_URL}/2fa`;
       this.logger.log("2FA required, redirecting to 2FA frontend");
     } else {
-      authCookie = this.authService.getCookieWithJwtToken(user.id);
+      authCookie = this.authService.getCookieWithJwtToken(
+        user.id,
+        user.intraId,
+      );
       redirectTo = `${process.env.FRONTEND_URL}/login`;
     }
     response.setHeader("Set-Cookie", authCookie);
@@ -60,7 +64,7 @@ export class AuthController {
   // gets cookie just to test routes, does not create user in db
   @Get("test_login")
   async testLogin(@Res({ passthrough: true }) response: Response) {
-    const authCookie = this.authService.getCookieWithJwtToken(1); // assigns id 1
+    const authCookie = this.authService.getCookieWithJwtToken(1, "42"); // assigns id 1
     response.setHeader("Set-Cookie", authCookie);
     console.log("testLogin: Set access_token cookie");
     response.status(200).redirect(`${process.env.FRONTEND_URL}`);
@@ -74,7 +78,7 @@ export class AuthController {
     @Param("id", ParseIntPipe) id: number,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const authCookie = this.authService.getCookieWithJwtToken(id);
+    const authCookie = this.authService.getCookieWithJwtToken(id, "42");
     response.setHeader("Set-Cookie", authCookie);
     console.log("testLogin: Set access_token cookie");
     response.status(200).redirect(`${process.env.FRONTEND_URL}`);
