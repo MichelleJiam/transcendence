@@ -103,13 +103,6 @@ export class AuthController {
   @Get("status")
   checkAuthentication(@currentUser() user: User) {
     this.logger.log(`Confirming authenticated status of user ${user.id}`);
-    // if (user.twoFAEnabled === true) {
-    //   return "2FA";
-    // } else if (user.playerName === null) {
-    //   return "SETUP";
-    // } else {
-    //   return "AUTHENTICATED";
-    // }
     return user;
   }
 
@@ -120,10 +113,6 @@ export class AuthController {
     @currentUser() user: User,
   ) {
     this.logger.log(`User logging out: ${user}`);
-    // response.setHeader(
-    //   "Set-Cookie",
-    //   `Authentication=; HttpOnly; Path=/; Max-Age=0`,
-    // );
     response.clearCookie("Authentication");
     response.status(200);
   }

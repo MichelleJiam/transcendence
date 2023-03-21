@@ -10,7 +10,6 @@ import {
 
 import { Socket, Server } from "socket.io";
 import { CreatePenaltyDto } from "./dto/create-penalty.dto";
-import { InviteToGameDto } from "../chat/dto/invite-to-game.dto";
 import { KickedAUserDto } from "./dto/kicked-a-user.dto";
 import { PenaltyService } from "./penalty.service";
 

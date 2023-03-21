@@ -7,14 +7,12 @@ import {
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { MatchService } from "src/match/match.service";
-import { UserService } from "src/user/user.service";
 import { GameService } from "./game.service";
 import { GameRoom, GameWithPlayer, PlayerInput } from "./pong.types";
 
 // by default will listen to same port http is listening on
 @WebSocketGateway({
   cors: {
-    // origin: "*",
     credentials: true,
     origin: [process.env.FRONTEND_URL, process.env.BACKEND_URL],
   },
@@ -451,7 +449,6 @@ export class GameGateway {
       const disconnectedPlayer = gameRoom.player;
       this.gameService.setDisconnectedPlayer(gameRoom, disconnectedPlayer);
       this.forfeitGame(gameRoom);
-      // this.server.to(gameRoom.id).emit("playerForfeited", disconnectedPlayer);
     }
     // this.leaveRoom(client, gameRoom.id);
   }

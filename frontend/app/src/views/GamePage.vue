@@ -45,7 +45,7 @@
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
 import apiRequest, { baseUrl } from "../utils/apiRequest";
-import { onBeforeMount, onUnmounted, ref, onMounted, watchEffect } from "vue";
+import { onUnmounted, ref, onMounted, watchEffect } from "vue";
 import { io } from "socket.io-client";
 import {
   GameState,
@@ -63,14 +63,6 @@ const activeGames = ref(Array<Game>());
 const noGames = ref(true);
 game.value.state = GameState.READY;
 
-// remove?
-onBeforeMount(async () => {
-  socket.on("disconnect", () => {
-    console.log(socket.id + " disconnected from frontend");
-  });
-  await getActiveGames();
-});
-
 onMounted(async () => {
   await userStore.retrieveCurrentUserData();
   id.value = userStore.user.id;
@@ -78,6 +70,7 @@ onMounted(async () => {
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
+  await getActiveGames();
   checkDMGames();
 });
 
@@ -206,30 +199,6 @@ const startGame = async () => {
     });
 };
 
-// async function gameOver(gameRoom: GameRoom) {
-//   console.log(
-//     "GamePage.gameOver | ",
-//     gameRoom.id,
-//     " p1 score: ",
-//     gameRoom.playerOne.score,
-//     " p2 score: ",
-//     gameRoom.playerTwo.score
-//   );
-//   // can fail if both players disconnected and game was deleted
-//   if (game.value.player !== 0) {
-//     await apiRequest(`/game`, "put", { data: gameRoom }).catch((err) => {
-//       console.log(
-//         "GamePage.gameOver | Something went wrong with updating with game result: ",
-//         err
-//       );
-//     });
-//   }
-//   game.value.state = GameState.READY;
-//   socket.emit("leaveRoom", gameRoom.id);
-//   console.log("GamePage | ", id.value, " left room ", gameRoom.id);
-//   await getActiveGames();
-// }
-
 // function forfeitGame(gameRoom: GameRoom) {
 //   // if user is not actively watching game
 //   if (gameRoom.state !== GameState.PLAYING) {
@@ -323,6 +292,7 @@ async function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
 #display-content {
   align-items: center;
   justify-items: center;
+  width: 60%;
 }
 .main-game {
   display: grid;

@@ -14,7 +14,6 @@
 import { onMounted, onUnmounted, ref } from "vue";
 import type { PropType } from "vue";
 import {
-  type Keys,
   type GameRoom,
   type Canvas,
   type Colors,
@@ -33,7 +32,6 @@ const props = defineProps({
 
 let view: Canvas;
 let ctx: CanvasRenderingContext2D;
-let key: Keys;
 let gameRoom: GameRoom;
 let color: Colors;
 const colorModeOn = ref(false);
@@ -64,10 +62,6 @@ onUnmounted(async () => {
     props.socket.emit("activeGameLeft", gameRoom);
   }
   await updateUserStatus(props.id, UserStatus.ONLINE);
-  // if (gameRoom.player == 0) {
-  //   props.socket.emit("leaveRoom", gameRoom.id);
-  // }
-  // window.location.reload();
 });
 
 /******************
@@ -149,10 +143,9 @@ async function initGame() {
     view: view,
     state: props.game.state,
   };
-  key = { up: false, down: false };
   if (gameRoom.player != 0) {
-    document.addEventListener("keydown", keyDownHandler, false);
-    document.addEventListener("keyup", keyUpHandler, false);
+    document.addEventListener("keydown", keyPressHandler, false);
+    document.addEventListener("keyup", keyPressHandler, false);
   }
 }
 
@@ -262,18 +255,7 @@ props.socket.on("updateGameRoom", (updatedGameRoom: GameRoom) => {
  * KEY HANDLERS *
  ****************/
 
-function keyDownHandler(e: KeyboardEvent) {
-  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-    const input = {
-      id: gameRoom.id,
-      player: gameRoom.player,
-      direction: e.key === "ArrowUp" ? "up" : "down",
-    };
-    props.socket.emit("playerInput", input);
-  }
-}
-
-function keyUpHandler(e: KeyboardEvent) {
+function keyPressHandler(e: KeyboardEvent) {
   if (e.key === "ArrowUp" || e.key === "ArrowDown") {
     const input = {
       id: gameRoom.id,
