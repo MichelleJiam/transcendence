@@ -70,7 +70,7 @@
         </div>
         <div class="leave settings">
           <button
-            v-if="isCurrentUserOwner == true"
+            v-if="isCurrentUserOwner == true && isDM == false"
             id="show-modal"
             @click="showModal = true"
           >
