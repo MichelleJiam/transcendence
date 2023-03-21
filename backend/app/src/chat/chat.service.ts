@@ -55,38 +55,6 @@ export class ChatService {
   ) {}
 
   // GETTERS
-  async getAllChatrooms(): Promise<Chatroom[]> {
-    const foundChats = await this.chatroomRepository.find({
-      order: {
-        id: "asc",
-      },
-      relations: {
-        message: true,
-        owner: true,
-        admin: true,
-        member: true,
-      },
-      select: {
-        id: true,
-        chatroomName: true,
-        type: true,
-        owner: {
-          id: true,
-          playerName: true,
-        },
-        admin: {
-          id: true,
-          playerName: true,
-        },
-        member: {
-          id: true,
-          playerName: true,
-        },
-      },
-    });
-    return foundChats;
-  }
-
   async getChatroomInfoById(id: number): Promise<Chatroom> {
     const chatroom = await this.chatroomRepository.findOne({
       relations: {
