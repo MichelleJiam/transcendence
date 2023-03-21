@@ -17,8 +17,6 @@ export class TwoFactorAuthService {
     const otpauthUrl = authenticator.keyuri(user.intraId, appName, secret);
 
     await this.userService.setTwoFactorSecret(user.id, secret);
-    // console.log("secret: ", secret);
-    // console.log("otpauth: ", otpauthUrl);
     return otpauthUrl;
   }
 
@@ -31,12 +29,6 @@ export class TwoFactorAuthService {
   }
 
   isTwoFactorAuthCodeValid(twoFactorAuthCode: string, user: User) {
-    // console.log(
-    //   "Trying to verify token ",
-    //   twoFactorAuthCode,
-    //   " with secret ",
-    //   user.twoFASecret,
-    // );
     if (!user.twoFASecret || user.twoFASecret.length < 1) {
       throw new BadRequestException("2FA: user has not registered a secret");
     }

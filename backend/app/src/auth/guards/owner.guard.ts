@@ -11,14 +11,6 @@ export class OwnerGuard implements CanActivate {
     const passedId: number = parseInt(req.params.id);
     const currentUser = req.user;
 
-    console.log(
-      "CurrentUserGuard id check returns ",
-      currentUser.id === passedId,
-      " user id: ",
-      currentUser.id,
-      " trying to access resource of user ",
-      req.params.id,
-    );
     return currentUser.id === passedId;
   }
 }
