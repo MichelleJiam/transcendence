@@ -206,11 +206,12 @@ onMounted(async () => {
       ) {
         alert("You've been muted, you can reply again in 2 minutes.");
       }
-      await setup();
+      socket.emit("newUserState", props.chatroomId);
     }
   });
 
   socket.on("userUpdate", async (payload: number) => {
+    console.log("userUpdate Payload: ", payload);
     if (payload === props.chatroomId) {
       await setup();
     }
@@ -225,7 +226,7 @@ onMounted(async () => {
       console.log("You've been kicked");
       window.location.href = "/chat";
     } else if (props.chatroomId === response.chatroomId) {
-      await setup();
+      socket.emit("newUserState", props.chatroomId);
     }
   });
 });
