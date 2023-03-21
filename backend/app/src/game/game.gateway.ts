@@ -21,7 +21,7 @@ import { GameRoom, GameWithPlayer, PlayerInput } from "./pong.types";
 export class GameGateway {
   @WebSocketServer() /* tell NestJS to inject the WebSocket server */
   server!: Server; /* reference to socket.io server under the hood */
-  gameroomMap = new Map<number, GameRoom>;
+  gameroomMap = new Map<number, GameRoom>();
   intervalIdMap = new Map<number, ReturnType<typeof setInterval>>();
   countdownMap = new Map<number, ReturnType<typeof setInterval>>();
   socketMap = new Map<string, GameRoom>();
@@ -47,7 +47,6 @@ export class GameGateway {
   // of automatically on disconnection.
   async handleDisconnect(client: Socket) {
     console.log("GameGateway: ", client.id, " disconnected"); // socket id here not same as when joining? find doesn't return anything then
-    console.log("rooms they were in: ", client.rooms);
     const leftGame: GameWithPlayer =
       await this.gameService.findGameFromPlayerSocket(client.id);
     if (leftGame.game !== null) {
@@ -125,17 +124,21 @@ export class GameGateway {
   }
 
   startGame(gameRoomId: number) {
-    const updatedGameRoom = this.gameroomMap.get(Number(gameRoomId)) as GameRoom;
+    const updatedGameRoom = this.gameroomMap.get(
+      Number(gameRoomId),
+    ) as GameRoom;
     if (updatedGameRoom) {
       updatedGameRoom.countdown = 3;
     }
-    this.gameroomMap.set(gameRoomId, {...updatedGameRoom});
+    this.gameroomMap.set(gameRoomId, { ...updatedGameRoom });
 
     /* countdown and game loop */
     this.countdownMap.set(
       updatedGameRoom.id,
-      setInterval(() => {  
-        this.server.to(String(updatedGameRoom.id)).emit("drawCountdown", updatedGameRoom.countdown);
+      setInterval(() => {
+        this.server
+          .to(String(updatedGameRoom.id))
+          .emit("drawCountdown", updatedGameRoom.countdown);
         if (updatedGameRoom.countdown === -1) {
           clearInterval(this.countdownMap.get(updatedGameRoom.id));
           this.countdownMap.delete(updatedGameRoom.id);
@@ -144,8 +147,8 @@ export class GameGateway {
             setInterval(() => {
               this.startGameLoop(updatedGameRoom);
             }, 8),
-      );
-    }
+          );
+        }
         updatedGameRoom.countdown--;
       }, 750),
     );
@@ -164,21 +167,19 @@ export class GameGateway {
     const move = 0.05;
     const updatedGameRoom = this.gameroomMap.get(input.id) as GameRoom;
     if (input.direction === "up") {
-      updatedGameRoom.playerOne.paddle.y =
-      Math.max(
+      updatedGameRoom.playerOne.paddle.y = Math.max(
         updatedGameRoom.playerOne.paddle.y - updatedGameRoom.view.height * move,
         updatedGameRoom.view.offset + updatedGameRoom.view.borderLines,
       );
     } else {
-      updatedGameRoom.playerOne.paddle.y =
-      Math.min(
+      updatedGameRoom.playerOne.paddle.y = Math.min(
         updatedGameRoom.playerOne.paddle.y + updatedGameRoom.view.height * move,
         updatedGameRoom.view.height -
-        updatedGameRoom.playerOne.paddle.height -
-        updatedGameRoom.view.offset -
-        updatedGameRoom.view.borderLines,
+          updatedGameRoom.playerOne.paddle.height -
+          updatedGameRoom.view.offset -
+          updatedGameRoom.view.borderLines,
       );
-  }
+    }
     return updatedGameRoom;
   }
 
@@ -187,19 +188,17 @@ export class GameGateway {
     const updatedGameRoom = this.gameroomMap.get(input.id) as GameRoom;
 
     if (input.direction === "up") {
-      updatedGameRoom.playerTwo.paddle.y =
-      Math.max(
+      updatedGameRoom.playerTwo.paddle.y = Math.max(
         updatedGameRoom.playerTwo.paddle.y - updatedGameRoom.view.height * move,
         updatedGameRoom.view.offset + updatedGameRoom.view.borderLines,
       );
     } else {
-      updatedGameRoom.playerTwo.paddle.y =
-      Math.min(
+      updatedGameRoom.playerTwo.paddle.y = Math.min(
         updatedGameRoom.playerTwo.paddle.y + updatedGameRoom.view.height * move,
         updatedGameRoom.view.height -
-        updatedGameRoom.playerTwo.paddle.height -
-        updatedGameRoom.view.offset -
-        updatedGameRoom.view.borderLines,
+          updatedGameRoom.playerTwo.paddle.height -
+          updatedGameRoom.view.offset -
+          updatedGameRoom.view.borderLines,
       );
     }
     return updatedGameRoom;
@@ -207,7 +206,6 @@ export class GameGateway {
 
   @SubscribeMessage("playerInput")
   playerInput(@MessageBody() input: PlayerInput) {
-    const move = 0.05;
     let updatedGameRoom = this.gameroomMap.get(input.id) as GameRoom;
     if (updatedGameRoom) {
       if (input.player === 1) {
@@ -216,150 +214,183 @@ export class GameGateway {
       if (input.player === 2) {
         updatedGameRoom = this.handlePlayerTwoInput(input);
       }
-      this.gameroomMap.set(input.id, {...updatedGameRoom});
+      this.gameroomMap.set(input.id, { ...updatedGameRoom });
+    }
   }
-}
 
-ballHitRightSide(gameRoomId: number) {
-  const updatedGameRoom = this.gameroomMap.get(Number(gameRoomId)) as GameRoom;
-  if (
-    updatedGameRoom.ball.x + updatedGameRoom.ball.moveX >
-    updatedGameRoom.view.width -
-    updatedGameRoom.playerTwo.paddle.width -
-    updatedGameRoom.playerTwo.paddle.offset -
-    updatedGameRoom.ball.radius * 2
-  ) return true;
-  else return false;
-}
+  ballHitRightSide(gameRoomId: number) {
+    const updatedGameRoom = this.gameroomMap.get(
+      Number(gameRoomId),
+    ) as GameRoom;
+    if (
+      updatedGameRoom.ball.x + updatedGameRoom.ball.moveX >
+      updatedGameRoom.view.width -
+        updatedGameRoom.playerTwo.paddle.width -
+        updatedGameRoom.playerTwo.paddle.offset -
+        updatedGameRoom.ball.radius * 2
+    )
+      return true;
+    else return false;
+  }
 
-ballHitRightPaddle(gameRoomId: number) {
-  const updatedGameRoom = this.gameroomMap.get(Number(gameRoomId)) as GameRoom;
-  if (
-    updatedGameRoom.ball.y > updatedGameRoom.playerTwo.paddle.y - updatedGameRoom.ball.radius &&
-    updatedGameRoom.ball.y <
-    updatedGameRoom.playerTwo.paddle.y +
-    updatedGameRoom.playerTwo.paddle.height +
-    updatedGameRoom.ball.radius
-  ) return true;
-  else return false;
-}
+  ballHitRightPaddle(gameRoomId: number) {
+    const updatedGameRoom = this.gameroomMap.get(
+      Number(gameRoomId),
+    ) as GameRoom;
+    if (
+      updatedGameRoom.ball.y >
+        updatedGameRoom.playerTwo.paddle.y - updatedGameRoom.ball.radius &&
+      updatedGameRoom.ball.y <
+        updatedGameRoom.playerTwo.paddle.y +
+          updatedGameRoom.playerTwo.paddle.height +
+          updatedGameRoom.ball.radius
+    )
+      return true;
+    else return false;
+  }
 
-ballHitLeftSide(gameRoomId: number) {
-  const updatedGameRoom = this.gameroomMap.get(Number(gameRoomId)) as GameRoom;
-  if (
-    updatedGameRoom.ball.x + updatedGameRoom.ball.moveX <
-    updatedGameRoom.ball.radius +
-    updatedGameRoom.playerTwo.paddle.width +
-    updatedGameRoom.playerTwo.paddle.offset
-  ) return true;
-  else return false;
-}
+  ballHitLeftSide(gameRoomId: number) {
+    const updatedGameRoom = this.gameroomMap.get(
+      Number(gameRoomId),
+    ) as GameRoom;
+    if (
+      updatedGameRoom.ball.x + updatedGameRoom.ball.moveX <
+      updatedGameRoom.ball.radius +
+        updatedGameRoom.playerTwo.paddle.width +
+        updatedGameRoom.playerTwo.paddle.offset
+    )
+      return true;
+    else return false;
+  }
 
-ballHitLeftPaddle(gameRoomId: number) {
-  const updatedGameRoom = this.gameroomMap.get(Number(gameRoomId)) as GameRoom;
-  if (
-    updatedGameRoom.ball.y > updatedGameRoom.playerOne.paddle.y - updatedGameRoom.ball.radius &&
-    updatedGameRoom.ball.y <
-    updatedGameRoom.playerOne.paddle.y +
-    updatedGameRoom.playerOne.paddle.height +
-    updatedGameRoom.ball.radius
-  ) return true;
-  return false;
-}
+  ballHitLeftPaddle(gameRoomId: number) {
+    const updatedGameRoom = this.gameroomMap.get(
+      Number(gameRoomId),
+    ) as GameRoom;
+    if (
+      updatedGameRoom.ball.y >
+        updatedGameRoom.playerOne.paddle.y - updatedGameRoom.ball.radius &&
+      updatedGameRoom.ball.y <
+        updatedGameRoom.playerOne.paddle.y +
+          updatedGameRoom.playerOne.paddle.height +
+          updatedGameRoom.ball.radius
+    )
+      return true;
+    return false;
+  }
 
-ballHitTopWall(gameRoomId: number) {
-  const updatedGameRoom = this.gameroomMap.get(Number(gameRoomId)) as GameRoom;
-  if (
-    updatedGameRoom.ball.y + updatedGameRoom.ball.moveY + updatedGameRoom.ball.radius <
-    updatedGameRoom.view.offset + updatedGameRoom.view.borderLines
-  ) return true;
-  else return false;
-}
+  ballHitTopWall(gameRoomId: number) {
+    const updatedGameRoom = this.gameroomMap.get(
+      Number(gameRoomId),
+    ) as GameRoom;
+    if (
+      updatedGameRoom.ball.y +
+        updatedGameRoom.ball.moveY +
+        updatedGameRoom.ball.radius <
+      updatedGameRoom.view.offset + updatedGameRoom.view.borderLines
+    )
+      return true;
+    else return false;
+  }
 
-ballHitBottomWall(gameRoomId: number) {
-  const updatedGameRoom = this.gameroomMap.get(Number(gameRoomId)) as GameRoom;
-  if (
-    updatedGameRoom.ball.y + updatedGameRoom.ball.moveY >
-    updatedGameRoom.view.height - updatedGameRoom.view.offset - updatedGameRoom.view.borderLines
-  ) return true;
-  else return false;
-}
+  ballHitBottomWall(gameRoomId: number) {
+    const updatedGameRoom = this.gameroomMap.get(
+      Number(gameRoomId),
+    ) as GameRoom;
+    if (
+      updatedGameRoom.ball.y + updatedGameRoom.ball.moveY >
+      updatedGameRoom.view.height -
+        updatedGameRoom.view.offset -
+        updatedGameRoom.view.borderLines
+    )
+      return true;
+    else return false;
+  }
 
-async updateBall(gameRoomId: number) {
+  async updateBall(gameRoomId: number) {
+    const updatedGameRoom = this.gameroomMap.get(
+      Number(gameRoomId),
+    ) as GameRoom;
 
-  const updatedGameRoom = this.gameroomMap.get(Number(gameRoomId)) as GameRoom;
-
-  if (this.ballHitRightSide(gameRoomId)) {
-    if (this.ballHitRightPaddle(gameRoomId)) {
+    if (this.ballHitRightSide(gameRoomId)) {
+      if (this.ballHitRightPaddle(gameRoomId)) {
         updatedGameRoom.ball.moveX = -updatedGameRoom.ball.moveX;
-    } else {
+      } else {
         updatedGameRoom.winner = 1;
-        this.gameroomMap.set(gameRoomId, {...updatedGameRoom});
+        this.gameroomMap.set(gameRoomId, { ...updatedGameRoom });
         return await this.checkScore(gameRoomId);
-    }
-  } else if (this.ballHitLeftSide(gameRoomId)) {
-    if (this.ballHitLeftPaddle(gameRoomId)) {
+      }
+    } else if (this.ballHitLeftSide(gameRoomId)) {
+      if (this.ballHitLeftPaddle(gameRoomId)) {
         updatedGameRoom.ball.moveX = -updatedGameRoom.ball.moveX;
-    } else {
+      } else {
         updatedGameRoom.winner = 2;
-        this.gameroomMap.set(gameRoomId, {...updatedGameRoom});
+        this.gameroomMap.set(gameRoomId, { ...updatedGameRoom });
         return await this.checkScore(gameRoomId);
+      }
+    }
+    if (this.ballHitTopWall(gameRoomId) || this.ballHitBottomWall(gameRoomId)) {
+      updatedGameRoom.ball.moveY = -updatedGameRoom.ball.moveY;
+    }
+    updatedGameRoom.ball.x += updatedGameRoom.ball.moveX;
+    updatedGameRoom.ball.y += updatedGameRoom.ball.moveY;
+    this.gameroomMap.set(gameRoomId, { ...updatedGameRoom });
+  }
+
+  /************
+   * MATCH END *
+   ************/
+
+  resetBall(gameRoomId: number) {
+    const updatedGameRoom = this.gameroomMap.get(
+      Number(gameRoomId),
+    ) as GameRoom;
+    if (updatedGameRoom.ball.moveX < 0) {
+      updatedGameRoom.ball.x =
+        updatedGameRoom.view.width - updatedGameRoom.view.width / 4;
+    } else {
+      updatedGameRoom.ball.x = updatedGameRoom.view.width / 4;
+    }
+    updatedGameRoom.ball.moveY = -((updatedGameRoom.view.width * 0.014) / 5);
+    this.gameroomMap.set(gameRoomId, { ...updatedGameRoom });
+    this.server.to(String(gameRoomId)).emit("updateGameRoom", updatedGameRoom);
+    this.startGame(updatedGameRoom.id);
+  }
+
+  async checkScore(gameRoomId: number) {
+    clearInterval(this.intervalIdMap.get(gameRoomId));
+    this.server.to(String(gameRoomId)).emit("stopGameLoop");
+    const updatedGameRoom = this.gameroomMap.get(
+      Number(gameRoomId),
+    ) as GameRoom;
+
+    if (updatedGameRoom.winner == 1) updatedGameRoom.playerOne.score++;
+    else updatedGameRoom.playerTwo.score++;
+    this.gameroomMap.set(gameRoomId, { ...updatedGameRoom });
+    this.server.to(String(gameRoomId)).emit("updateGameRoom", updatedGameRoom);
+    if (
+      updatedGameRoom.playerOne.score === 3 ||
+      updatedGameRoom.playerTwo.score === 3
+    ) {
+      await this.endGame(gameRoomId);
+    } else {
+      this.resetBall(gameRoomId);
     }
   }
-  if (this.ballHitTopWall(gameRoomId) || this.ballHitBottomWall(gameRoomId)
-  ) {
-      updatedGameRoom.ball.moveY = -updatedGameRoom.ball.moveY;
-  }
-  updatedGameRoom.ball.x += updatedGameRoom.ball.moveX;
-  updatedGameRoom.ball.y += updatedGameRoom.ball.moveY;
-  this.gameroomMap.set(gameRoomId, {...updatedGameRoom});
-}
-
-/************
- * MATCH END *
- ************/
-
-resetBall(gameRoomId: number) {
-  const updatedGameRoom = this.gameroomMap.get(Number(gameRoomId)) as GameRoom;
-  if (updatedGameRoom.ball.moveX < 0) {
-    updatedGameRoom.ball.x = updatedGameRoom.view.width - updatedGameRoom.view.width / 4;
-  } else {
-    updatedGameRoom.ball.x = updatedGameRoom.view.width / 4;
-  }
-  updatedGameRoom.ball.moveY = -((updatedGameRoom.view.width * 0.014) / 5);
-  this.gameroomMap.set(gameRoomId, {...updatedGameRoom});
-  this.server.to(String(gameRoomId)).emit("updateGameRoom", updatedGameRoom);
-  this.startGame(updatedGameRoom.id);
-}
-
-
-async checkScore(gameRoomId: number) {
-  clearInterval(this.intervalIdMap.get(gameRoomId));
-  this.server.to(String(gameRoomId)).emit("stopGameLoop");
-  const updatedGameRoom = this.gameroomMap.get(Number(gameRoomId)) as GameRoom;
-
-  if (updatedGameRoom.winner == 1) updatedGameRoom.playerOne.score++;
-  else updatedGameRoom.playerTwo.score++;
-  this.gameroomMap.set(gameRoomId, {...updatedGameRoom});
-  this.server.to(String(gameRoomId)).emit("updateGameRoom", updatedGameRoom);
-  if (updatedGameRoom.playerOne.score === 3 || updatedGameRoom.playerTwo.score === 3) {
-    await this.endGame(gameRoomId);
-  } else {
-    this.resetBall(gameRoomId);
-  }
-}
 
   /************
    * GAME END *
    ************/
 
   async endGame(gameRoomId: number) {
-    const updatedGameRoom = this.gameroomMap.get(Number(gameRoomId)) as GameRoom;
+    const updatedGameRoom = this.gameroomMap.get(
+      Number(gameRoomId),
+    ) as GameRoom;
     let winnerName;
 
     updatedGameRoom.playerOne.score > updatedGameRoom.playerTwo.score
-    ? (winnerName = updatedGameRoom.playerOne.name)
-    : (winnerName = updatedGameRoom.playerTwo.name);
+      ? (winnerName = updatedGameRoom.playerOne.name)
+      : (winnerName = updatedGameRoom.playerTwo.name);
 
     this.server.to(String(gameRoomId)).emit("endGame", winnerName);
 
@@ -380,15 +411,13 @@ async checkScore(gameRoomId: number) {
    *****************/
 
   @SubscribeMessage("forfeitGame")
-  async forfeitGame(
-    @MessageBody() gameRoom: GameRoom,
-  ) {
-    console.log("Forfeiting game");
+  async forfeitGame(@MessageBody() gameRoom: GameRoom) {
+    console.log("Forfeiting game as player ", gameRoom.player);
     let updatedGameRoom = this.gameroomMap.get(Number(gameRoom.id)) as GameRoom;
     updatedGameRoom.playerOne.disconnected = gameRoom.playerOne.disconnected;
     updatedGameRoom.playerTwo.disconnected = gameRoom.playerTwo.disconnected;
 
-    clearInterval(this.intervalIdMap.get(gameRoom.id)); 
+    clearInterval(this.intervalIdMap.get(gameRoom.id));
     clearInterval(this.countdownMap.get(gameRoom.id));
     this.intervalIdMap.delete(gameRoom.id);
     this.countdownMap.delete(gameRoom.id);
@@ -398,8 +427,10 @@ async checkScore(gameRoomId: number) {
       this.gameService.remove(Number(gameRoom.id));
     } else {
       updatedGameRoom = this.gameService.setForfeitScoreWinner(updatedGameRoom);
-      this.gameroomMap.set(gameRoom.id, {...updatedGameRoom});
-      this.server.to(String(gameRoom.id)).emit("updateGameRoom", updatedGameRoom);
+      this.gameroomMap.set(gameRoom.id, { ...updatedGameRoom });
+      this.server
+        .to(String(gameRoom.id))
+        .emit("updateGameRoom", updatedGameRoom);
       this.endGame(gameRoom.id);
     }
   }
@@ -413,8 +444,7 @@ async checkScore(gameRoomId: number) {
       console.log("A watcher left");
     } else {
       console.log("A player left game: ", gameRoom.id);
-      const disconnectedPlayer =
-        gameRoom.playerOne.socket === client.id ? 1 : 2;
+      const disconnectedPlayer = gameRoom.player;
       this.gameService.setDisconnectedPlayer(gameRoom, disconnectedPlayer);
       this.forfeitGame(gameRoom);
       // this.server.to(gameRoom.id).emit("playerForfeited", disconnectedPlayer);
