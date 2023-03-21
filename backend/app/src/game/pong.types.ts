@@ -51,7 +51,7 @@ export interface GameWithPlayer {
 }
 
 export interface PlayerInput {
-  id: number,
-  player: number,
-  direction: string,
-};
+  id: number;
+  player: number;
+  direction: string;
+}

@@ -41,7 +41,7 @@ export class Game {
   @Column({
     nullable: true,
   })
-  public join!: Boolean;
+  public join!: boolean;
 
   @Column({
     nullable: true,

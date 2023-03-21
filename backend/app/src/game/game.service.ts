@@ -129,7 +129,6 @@ export class GameService {
       this.logger.debug("playerTwo does not exist in database");
       throw new NotFoundException();
     }
-    /* do we need safeguard to check if either player is already playing - is that even possible? */
     return await this.gameRepository.save(createGameDto);
   }
 
