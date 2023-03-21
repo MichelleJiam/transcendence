@@ -72,6 +72,14 @@ export class UserService {
     return foundUser;
   }
 
+  async findUniqueUserByIdAndIntra(id: number, intraId: string) {
+    const foundUser = this.userRepository.findOneBy({
+      id: id,
+      intraId: intraId,
+    });
+    return foundUser;
+  }
+
   async deleteUser(id: number) {
     const deleteResponse = await this.userRepository.delete(id);
     if (!deleteResponse.affected) {
