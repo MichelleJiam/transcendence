@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { apiRequest } from "@/utils/apiRequest";
+import type { PublicProfile } from "./UserStore";
 
 export type Relation = {
   source: number;
@@ -7,13 +8,17 @@ export type Relation = {
   status: string /* FRIEND | PENDING | NONE */;
 };
 
-export type User = {
-  id: number;
-  playerName: string;
-  status: number /* ONLINE | OFFLINE | GAME */;
-  avatarUrl: string | undefined;
+// export type User = {
+//   id: number;
+//   playerName: string;
+//   status: number /* ONLINE | OFFLINE | GAME */;
+//   avatarUrl: string | undefined;
+//   relation: Relation /* in relation to the current user */;
+// };
+
+interface User extends PublicProfile {
   relation: Relation /* in relation to the current user */;
-};
+}
 
 export const useFriendStore = defineStore("friend", {
   state: () => {
