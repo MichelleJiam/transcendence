@@ -26,7 +26,6 @@ export class Message {
   @CreateDateColumn()
   createdAt!: Date;
 
-  // relationships
   @ManyToOne(() => User, (userId: User) => userId.message, {
     onDelete: "CASCADE",
     onUpdate: "CASCADE",

@@ -18,19 +18,6 @@ export class MessageService {
     private readonly messageRepository: Repository<Message>,
   ) {}
 
-  async getAllMessages() {
-    return this.messageRepository.find({
-      relations: {
-        userId: true,
-        chatroomId: true,
-      },
-      order: {
-        id: "asc",
-      },
-      cache: true,
-    });
-  }
-
   async getMessagesFromChatroom(chatroomId: number): Promise<Message[]> {
     const messages = await this.messageRepository.find({
       order: {

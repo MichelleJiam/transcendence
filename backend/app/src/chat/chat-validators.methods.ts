@@ -52,7 +52,7 @@ export function createChatroomEntity(
   user: User,
   userTwo?: User | undefined,
 ): Chatroom {
-  validateChatroomDto(createChatroomDto); // extra check for validation in case something changed between validation function call and the create chatroom call
+  validateChatroomDto(createChatroomDto);
   const chatroom = new Chatroom();
   chatroom.chatroomName = createChatroomDto.chatroomName;
   chatroom.type = createChatroomDto.type;

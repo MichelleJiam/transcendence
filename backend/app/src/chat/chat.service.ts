@@ -453,11 +453,21 @@ export class ChatService {
           addAdminDto.newAdmin,
           chatroomId,
         )) == true
-      )
+      ) {
         return this.getChatroomInfoById(chatroomId);
-      const newAdmin = await this.chatMethod.getUser(addAdminDto.newAdmin);
-      const updatedChatroom = addAdmin(chatroom, newAdmin);
-      return this.chatroomRepository.save(updatedChatroom);
+      }
+      if (
+        (await this.penaltyService.isBannedFromChatroom(
+          chatroomId,
+          addAdminDto.newAdmin,
+        )) == false
+      ) {
+        const newAdmin = await this.chatMethod.getUser(addAdminDto.newAdmin);
+        const updatedChatroom = addAdmin(chatroom, newAdmin);
+        return this.chatroomRepository.save(updatedChatroom);
+      } else {
+        throw new HttpException("You are Banned", HttpStatus.FORBIDDEN);
+      }
     }
     throw new HttpException(
       "You don't have permission to assign new admins.",
@@ -478,7 +488,11 @@ export class ChatService {
       (await this.chatMethod.isOwnerOfChatroom(
         swapOwnerDto.oldOwner,
         chatroomId,
-      ))
+      )) &&
+      (await this.penaltyService.isBannedFromChatroom(
+        chatroomId,
+        swapOwnerDto.newOwner,
+      )) == false
     ) {
       const newOwner = await this.chatMethod.getUser(swapOwnerDto.newOwner);
       chatroom.owner = newOwner;
