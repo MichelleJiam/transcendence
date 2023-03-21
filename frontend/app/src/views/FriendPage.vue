@@ -45,11 +45,7 @@ const socket = io(baseUrl + "/friend");
 
 onBeforeMount(async () => {
   socket.on("connect", () => {
-    console.log(
-      socket.id + " user",
-      userStore.user.id,
-      "connected to socket on FriendPage"
-    );
+    return;
   });
 });
 

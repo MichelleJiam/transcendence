@@ -19,6 +19,7 @@ import {
   Logger,
   HttpException,
   HttpStatus,
+  NotFoundException,
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserSettingsDto } from "./dto/update-user-settings.dto";
@@ -83,13 +84,6 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  /* localhost:3000/user/:id/update-settings */
-  /* curl -i --header "Content-Type: application/json" --request PUT --data '{"playerName":"Nilo"}' http://localhost:3000/user/3/update-settings */
-
-  /* TODO:
-   **  add server-side validation for user input
-   */
-
   @Put(":id/update-settings")
   @UseGuards(JwtAuthGuard)
   @UseGuards(OwnerGuard)
@@ -115,7 +109,6 @@ export class UserController {
    *********/
 
   @Put(":id/update-status")
-  // @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   async updateUserStatus(
     @Param("id", ParseIntPipe) id: number,
@@ -132,16 +125,6 @@ export class UserController {
       );
     }
   }
-
-  // @Put("/update-settings")
-  // @UsePipes(ValidationPipe)
-  // async updateUser(
-  //   @currentUser() user: User,
-  //   @Body() userSettings: UpdateUserSettingsDto,
-  // ) {
-  //   console.log("Current user id: ", user.id);
-  //   return await this.userService.updateUser(user.id, userSettings);
-  // }
 
   /*********
    * avatar *
@@ -175,7 +158,10 @@ export class UserController {
       if (!avatarId) {
         return await this.userService.getDefaultAvatar(res);
       } else return await this.userService.getAvatarById(avatarId, res);
-    } else this.logger.debug("User not found");
+    } else {
+      this.logger.debug("User not found");
+      throw new NotFoundException("User not found");
+    }
   }
 
   /***************

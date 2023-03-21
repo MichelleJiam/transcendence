@@ -62,9 +62,6 @@ export class UserService {
     const foundUser = this.userRepository.findOneBy({
       intraId: intraId,
     });
-    // if (!foundUser) {
-    // 	throw new NotFoundException("User not found");
-    // }
     return foundUser;
   }
 
@@ -72,9 +69,6 @@ export class UserService {
     const foundUser = this.userRepository.findOneBy({
       id: id,
     });
-    // if (!foundUser) {
-    //   throw new NotFoundException("User not found");
-    // }
     return foundUser;
   }
 

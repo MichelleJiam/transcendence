@@ -19,10 +19,3 @@ export class UpdateUserSettingsDto {
   @IsOptional()
   twoFASecret?: string | undefined;
 }
-
-// can we extend from another DTO? check lecture 13: the update payload
-
-// force input validation errors:
-//  curl -i --header "Content-Type: application/json" --request PUT --data '{"playerName":"hellotestyo"}' http://localhost:3000/user/3/update-settings
-//  curl -i --header "Content-Type: application/json" --request PUT --data '{"playerName":"hello", "twoFA":""}' http://localhost:3000/user/3/update-settings
-//  curl -i --header "Content-Type: application/json" --request PUT --data '{"playerName":"hellohelllooo", "twoFA": "5"}' http://localhost:3000/user/3/update-settings

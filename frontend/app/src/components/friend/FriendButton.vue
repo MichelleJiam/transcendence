@@ -42,8 +42,6 @@ const friend = ref();
 const status = ref<string>("NONE");
 const relation = ref();
 
-// inventory.find(e => e.name === 'apples');
-
 onBeforeMount(async () => {
   await apiRequest(
     "/friend/relation/" + userStore.user.id + "/" + props.friendId,
@@ -145,7 +143,6 @@ async function cancelRequest(player: User) {
       status.value = user?.relation.status;
     }
   } else {
-    // allows for removal one leaves or refreshes the page in the meantime
     const newUser = new UserDto();
     const relations = new RelationDto();
     newUser.avatarUrl = friend.value.avatarUrl;
@@ -164,10 +161,6 @@ async function cancelRequest(player: User) {
     status.value = "NONE";
   }
 }
-
-// TODO: import the friend store and implement showing if a friendship
-// is pending, not there yet or already established.
-// reuse the code used in friendpage
 </script>
 <style scoped>
 .pending {
