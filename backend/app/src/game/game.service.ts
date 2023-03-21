@@ -61,6 +61,7 @@ export class GameService {
       .createQueryBuilder("game")
       .limit(10)
       .offset(0)
+      .orderBy("game.id", "DESC")
       .where(
         "game.state = :done AND (game.playerOne = :playerOneId OR game.playerTwo = :playerTwoId)",
         { done: "done", playerOneId: id, playerTwoId: id },
