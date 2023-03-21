@@ -11,11 +11,13 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseGuards,
 } from "@nestjs/common";
 import { User } from "src/user/user.entity";
 import { CreateRelationDto, Relation } from "./dto/create-relation.dto";
 import { FriendService } from "./friend.service";
 import { UserService } from "src/user/user.service";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 
 type PartialUser = {
   // partial user with relation
@@ -25,6 +27,7 @@ type PartialUser = {
 };
 
 @Controller("/friend")
+@UseGuards(JwtAuthGuard)
 export class FriendController {
   private readonly logger = new Logger(FriendController.name);
 

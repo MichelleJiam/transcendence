@@ -38,7 +38,6 @@ async function onFileSelected(e: Event) {
   if (target.files) {
     if (target.files[0].size > 1000000) {
       emit("show-message", "Avatar can not be larger than 1mb");
-      // alert("File can not be larger than 1mb");
       target.value = "";
       return;
     }
@@ -77,7 +76,6 @@ async function submitAvatar() {
 }
 
 button {
-  /* background-color: var(--primary-color-transparant); */
   justify-self: stretch;
 }
 

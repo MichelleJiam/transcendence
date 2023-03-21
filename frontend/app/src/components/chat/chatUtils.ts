@@ -146,7 +146,7 @@ export async function isAdmin(
   const isUserAdmin = ref<boolean>();
 
   await apiRequest(url, "get").then((response) => {
-    isUserAdmin.value = response.data; // returns the response data into the users variable which can then be used in the template
+    isUserAdmin.value = response.data;
   });
   if (isUserAdmin.value == true) return true;
   return false;
@@ -161,7 +161,7 @@ export async function isMember(
   const isUserMember = ref<boolean>();
 
   await apiRequest(url, "get").then((response) => {
-    isUserMember.value = response.data; // returns the response data into the users variable which can then be used in the template
+    isUserMember.value = response.data;
   });
   if (isUserMember.value == true) return true;
   return false;
@@ -176,7 +176,7 @@ export async function isOwner(
   const isUserOwner = ref<boolean>();
 
   await apiRequest(url, "get").then((response) => {
-    isUserOwner.value = response.data; // returns the response data into the users variable which can then be used in the template
+    isUserOwner.value = response.data;
   });
   if (isUserOwner.value == true) return true;
   return false;

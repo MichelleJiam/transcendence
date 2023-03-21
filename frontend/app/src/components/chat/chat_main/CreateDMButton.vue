@@ -8,7 +8,6 @@ import { CreateDMDto } from "@/components/chat/chatUtils";
 import apiRequest from "@/utils/apiRequest";
 import { ref } from "vue";
 
-// maybe you can use a prop for this?
 const props = defineProps({
   otherPlayer: Number,
 });

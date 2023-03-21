@@ -22,7 +22,7 @@ const publicChats = ref([]);
 onMounted(async () => {
   await apiRequest("/chat/type/public", "get")
     .then((response) => {
-      publicChats.value = response.data; // returns the response data into the users variable which can then be used in the template
+      publicChats.value = response.data;
       for (const link of publicChats.value) {
         const linkUrl = frontendUrl + "/chat/" + link.id;
         link["linkUrl"] = linkUrl;

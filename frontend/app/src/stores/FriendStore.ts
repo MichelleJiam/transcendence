@@ -49,12 +49,4 @@ export const useFriendStore = defineStore("friend", {
       });
     },
   },
-  // getters: {
-  //   pending(state) {
-  //     return state.users.forEach((element) => {
-  //       if (toRaw(element.relation?.status != undefined))
-  //         console.log(toRaw(element.relation.status));
-  //     });
-  //   },
-  // },
 });

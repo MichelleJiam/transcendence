@@ -128,5 +128,3 @@ h3 {
   margin-top: 20px;
 }
 </style>
-
-<!-- https://softauthor.com/vuejs-composition-api-search-bar-using-computed-properties/ -->

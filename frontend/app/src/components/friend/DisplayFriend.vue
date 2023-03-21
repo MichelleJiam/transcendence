@@ -18,10 +18,9 @@
         <p v-if="friend.status === UserStatus.OFFLINE" class="status-text">
           offline
         </p>
-        <p
-          v-else-if="friend.status === UserStatus.ONLINE"
-          class="status-text"
-        ></p>
+        <p v-else-if="friend.status === UserStatus.ONLINE" class="status-text">
+          online
+        </p>
         <p v-else class="status-text">in game</p>
         <span class="player-name">
           <a :href="'/player/' + friend.playerName">
@@ -114,8 +113,6 @@ button:active {
 :disabled {
   cursor: progress;
 }
-
-/* hover effect for the player status */
 .status-text {
   display: none;
   position: absolute;
