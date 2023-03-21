@@ -15,7 +15,7 @@
 
         <div class="modal-body">
           <slot name="body">
-            <form @submit.prevent="enterChat(userStore.user.id)">
+            <form @submit.prevent="enterChat(props.currentUserId)">
               <div>
                 <label for="password">Enter password:</label>
                 <input id="password" v-model="givenPassword" type="text" />
@@ -40,7 +40,6 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from "@/stores/UserStore";
 import apiRequest, { baseUrl } from "@/utils/apiRequest";
 import { useRoute } from "vue-router";
 import { AddMemberDto } from "../chatUtils";
@@ -49,12 +48,11 @@ import { io } from "socket.io-client";
 
 const props = defineProps({
   show: Boolean,
+  chatroomId: { type: Number, required: true },
+  currentUserId: { type: Number, required: true },
 });
 
 const addMemberDto = new AddMemberDto();
-const route = useRoute();
-const chatroomId = route.params.id;
-const userStore = useUserStore();
 const givenPassword = ref<string>();
 const rightPassword = ref<boolean>(false);
 const errorMessage = ref<string>("");
@@ -72,7 +70,7 @@ function removeErrorText() {
 }
 
 function enterChat(memberId: number) {
-  const url = "/chat/" + chatroomId + "/add/member";
+  const url = "/chat/" + props.chatroomId + "/add/member";
   addMemberDto.member = memberId;
   addMemberDto.password = givenPassword.value;
   if (!(givenPassword.value && givenPassword.value.trim())) {

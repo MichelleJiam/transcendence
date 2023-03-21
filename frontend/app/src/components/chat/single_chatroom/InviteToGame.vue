@@ -3,7 +3,9 @@
     <div v-if="inviteReceived == false">
       <button @click="inviteToGame()">Invite to Game</button>
     </div>
-    <div v-else-if="inviteReceived == true && firstPlayer == userStore.user.id">
+    <div
+      v-else-if="inviteReceived == true && firstPlayer == props.currentUserId"
+    >
       <button @click="cancelInvite()">cancel invite</button>
     </div>
     <div v-else>
@@ -15,18 +17,17 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from "@/stores/UserStore";
 import apiRequest, { baseUrl } from "@/utils/apiRequest";
 import { io } from "socket.io-client";
 import { ref, onMounted, onUnmounted } from "vue";
 
 const props = defineProps({
+  currentUserId: { type: Number, required: true },
   playerTwo: { type: Number, required: true },
   chatroomId: { type: Number, required: true },
   inviteToGameUserId: { type: Number, default: 0 },
 });
 
-const userStore = useUserStore();
 const socketUrl = baseUrl + "/chat";
 const socket = io(socketUrl);
 const firstPlayer = ref<number>();
@@ -52,8 +53,8 @@ onMounted(async () => {
   if (props.inviteToGameUserId > 0) {
     inviteReceived.value = true;
     firstPlayer.value = props.inviteToGameUserId;
-    if (firstPlayer.value != userStore.user.id)
-      secondPlayer.value = userStore.user.id;
+    if (firstPlayer.value != props.currentUserId)
+      secondPlayer.value = props.currentUserId;
     else secondPlayer.value = props.playerTwo;
     await apiRequest("/user/" + props.inviteToGameUserId, "get")
       .then((response) => {
@@ -63,12 +64,12 @@ onMounted(async () => {
   }
   socket.on("sendGameRequestToPlayerTwo", async (payload) => {
     if (payload.chatroomId == props.chatroomId) {
-      if (payload.playerOne == userStore.user.id) {
+      if (payload.playerOne == props.currentUserId) {
         inviteReceived.value = true;
-        firstPlayer.value = userStore.user.id;
+        firstPlayer.value = props.currentUserId;
         secondPlayer.value = payload.playerTwo;
       }
-      if (payload.playerTwo == userStore.user.id) {
+      if (payload.playerTwo == props.currentUserId) {
         firstPlayer.value = payload.playerOne;
         await apiRequest("/user/" + payload.playerOne, "get")
           .then((response) => {
@@ -85,11 +86,11 @@ onMounted(async () => {
   socket.on("acceptedGameInvite", async (payload) => {
     if (payload.chatroomId == props.chatroomId) {
       if (
-        payload.playerTwo == userStore.user.id ||
-        payload.playerOne == userStore.user.id
+        payload.playerTwo == props.currentUserId ||
+        payload.playerOne == props.currentUserId
       ) {
         console.log("PlayerTwo accepted your game request");
-        if (payload.playerOne == userStore.user.id) {
+        if (payload.playerOne == props.currentUserId) {
           const createGameDto = new CreateGameDto();
           createGameDto.playerOne = payload.playerOne;
           createGameDto.playerTwo = payload.playerTwo;
@@ -106,8 +107,8 @@ onMounted(async () => {
   socket.on("declinedGameInvite", (payload) => {
     if (payload.chatroomId == props.chatroomId) {
       if (
-        payload.playerTwo == userStore.user.id ||
-        payload.playerOne == userStore.user.id
+        payload.playerTwo == props.currentUserId ||
+        payload.playerOne == props.currentUserId
       ) {
         console.log("Your game request was declined.");
         inviteReceived.value = false;
@@ -118,8 +119,8 @@ onMounted(async () => {
   socket.on("canceledInvite", (payload) => {
     if (payload.chatroomId == props.chatroomId) {
       if (
-        payload.playerTwo == userStore.user.id ||
-        payload.playerOne == userStore.user.id
+        payload.playerTwo == props.currentUserId ||
+        payload.playerOne == props.currentUserId
       ) {
         console.log("The game request was canceled");
         inviteReceived.value = false;
@@ -130,8 +131,8 @@ onMounted(async () => {
   socket.on("inviteGameError", (payload) => {
     if (payload.chatroomId == props.chatroomId) {
       if (
-        payload.playerTwo == userStore.user.id ||
-        payload.playerOne == userStore.user.id
+        payload.playerTwo == props.currentUserId ||
+        payload.playerOne == props.currentUserId
       ) {
         console.log("There was a problem with your game invite");
         inviteReceived.value = false;
@@ -156,7 +157,7 @@ onUnmounted(() => {
 async function inviteToGame() {
   const inviteToGameDto = new InviteToGameDto();
   inviteToGameDto.chatroomId = props.chatroomId;
-  inviteToGameDto.playerOne = userStore.user.id;
+  inviteToGameDto.playerOne = props.currentUserId;
   inviteToGameDto.playerTwo = props.playerTwo;
   inviteToGameDto.status = "waiting";
   console.log("invite to game has been emitted");

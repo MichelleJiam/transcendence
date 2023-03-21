@@ -89,7 +89,7 @@ export async function makeAdmin(
 
   await apiRequest(url, "put", { data: admin })
     .then((response) => {
-      socket.emit("newUserState");
+      socket.emit("newUserState", chatroomId);
     })
     .catch((error) => {
       console.error(error);
@@ -106,7 +106,7 @@ export async function deleteAdmin(
 
   await apiRequest(url, "delete")
     .then((response) => {
-      socket.emit("newUserState");
+      socket.emit("newUserState", chatroomId);
     })
     .catch((error) => {
       console.error(error);
@@ -131,7 +131,7 @@ export async function swapOwner(
 
   await apiRequest(url, "put", { data: owner })
     .then((response) => {
-      socket.emit("newUserState");
+      socket.emit("newUserState", chatroomId);
     })
     .catch((error) => {
       console.error(error);
