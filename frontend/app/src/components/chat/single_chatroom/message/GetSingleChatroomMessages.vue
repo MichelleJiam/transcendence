@@ -28,7 +28,6 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from "@/stores/UserStore";
 import { apiRequest, baseUrl } from "@/utils/apiRequest";
 import { convertDateTime } from "@/utils/dateTime";
 import { io } from "socket.io-client";
@@ -36,20 +35,21 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { buildUserPageUrl } from "../../chatUtils";
 
+const props = defineProps({
+  currentUserId: { type: Number, required: true },
+  chatroomId: { type: Number, required: true },
+});
+
 const socketUrl = baseUrl + "/chat";
 
 const socket = io(socketUrl);
 
-const route = useRoute();
-const chatroomId = route.params.id;
-const userStore = useUserStore();
-
 const messages = ref([]);
 const blocklist = ref([]);
 const backendurlMessages =
-  "/chat/" + chatroomId + "/user/" + userStore.user.id + "/messages";
+  "/chat/" + props.chatroomId + "/user/" + props.currentUserId + "/messages";
 
-const backendBlocklist = "/blocklist/user/" + userStore.user.id;
+const backendBlocklist = "/blocklist/user/" + props.currentUserId;
 
 function inBlocklist(userId: number) {
   for (const entry of blocklist.value) {
@@ -68,7 +68,7 @@ onMounted(async () => {
         const dateTime = new Date(date.createdAt);
         date["formattedCreatedAt"] = convertDateTime(dateTime);
         date.userId.playerName =
-          date.userId.playerName ?? "unnamedPlayer" + userStore.user.id;
+          date.userId.playerName ?? "unnamedPlayer" + props.currentUserId;
       }
     })
     .catch((err) => console.error(err));
@@ -82,7 +82,7 @@ onMounted(async () => {
     });
 
   socket.on("recMessage", (message) => {
-    if (message.chatroomId.id == chatroomId) {
+    if (message.chatroomId.id == props.chatroomId) {
       message.userId.playerName =
         message.userId.playerName ?? "unnamedPlayer" + message.userId.id;
       const dateTime = new Date(message.createdAt);

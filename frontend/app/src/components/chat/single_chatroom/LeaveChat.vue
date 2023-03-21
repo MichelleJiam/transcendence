@@ -5,25 +5,24 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from "@/stores/UserStore";
 import apiRequest, { baseUrl, frontendUrl } from "@/utils/apiRequest";
 import { io } from "socket.io-client";
-import { useRoute } from "vue-router";
 
-const route = useRoute();
-const chatroomId = route.params.id;
+const props = defineProps({
+  currentUserId: { type: Number, required: true },
+  chatroomId: { type: Number, required: true },
+});
 
 const socketUrl = baseUrl + "/penalty";
 const socket = io(socketUrl);
 
-const userStore = useUserStore();
 const backendUrl =
-  "/chat/" + chatroomId + "/user/" + userStore.user.id + "/leave";
+  "/chat/" + props.chatroomId + "/user/" + props.currentUserId + "/leave";
 
 async function leaveChatroom() {
   await apiRequest(backendUrl, "delete").then((response) => {
     console.log(response);
-    socket.emit("newUserState");
+    socket.emit("newUserState", props.chatroomId);
     window.location.href = frontendUrl + "/chat";
   });
 }

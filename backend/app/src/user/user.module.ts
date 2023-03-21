@@ -20,6 +20,7 @@ import { LeaderboardService } from "src/leaderboard/leaderboard.service";
 @Module({
   imports: [
     forwardRef(() => AuthModule),
+    forwardRef(() => UserModule),
     TypeOrmModule.forFeature([
       User,
       Message,

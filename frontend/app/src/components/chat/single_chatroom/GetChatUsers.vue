@@ -17,9 +17,9 @@
             v-if="
               isUserAdmin == true &&
               admin.isOwner == false &&
-              admin.id != userId
+              admin.id != props.currentUserId
             "
-            @click="deleteAdmin(chatRoomInfo.id, userId, admin.id)"
+            @click="deleteAdmin(chatRoomInfo.id, props.currentUserId, admin.id)"
           >
             delete admin
           </button>
@@ -27,9 +27,9 @@
             v-if="
               isUserOwner == true &&
               admin.isOwner == false &&
-              admin.id != userId
+              admin.id != props.currentUserId
             "
-            @click="swapOwner(chatRoomInfo.id, userId, admin.id)"
+            @click="swapOwner(chatRoomInfo.id, props.currentUserId, admin.id)"
           >
             make owner
           </button>
@@ -47,17 +47,19 @@
           <br />
           <button
             v-if="
-              member.id != userId &&
+              member.id != props.currentUserId &&
               inBlocklist(member.id) == false &&
               chatRoomInfo.type != 'DM'
             "
-            @click="createBlock(userId, member.id)"
+            @click="createBlock(props.currentUserId, member.id)"
           >
             block
           </button>
           <button
-            v-if="member.id != userId && inBlocklist(member.id) == true"
-            @click="unBlock(userId, member.id)"
+            v-if="
+              member.id != props.currentUserId && inBlocklist(member.id) == true
+            "
+            @click="unBlock(props.currentUserId, member.id)"
           >
             unblock
           </button>
@@ -65,10 +67,17 @@
             v-if="
               (isUserAdmin == true || isUserOwner == true) &&
               member.isOwner == false &&
-              member.id != userId &&
+              member.id != props.currentUserId &&
               chatRoomInfo.type != 'DM'
             "
-            @click="createPenalty(userId, member.id, mute, chatRoomInfo.id)"
+            @click="
+              createPenalty(
+                props.currentUserId,
+                member.id,
+                mute,
+                chatRoomInfo.id
+              )
+            "
           >
             mute
           </button>
@@ -76,10 +85,17 @@
             v-if="
               (isUserAdmin == true || isUserOwner == true) &&
               member.isOwner == false &&
-              member.id != userId &&
+              member.id != props.currentUserId &&
               chatRoomInfo.type != 'DM'
             "
-            @click="createPenalty(userId, member.id, ban, chatRoomInfo.id)"
+            @click="
+              createPenalty(
+                props.currentUserId,
+                member.id,
+                ban,
+                chatRoomInfo.id
+              )
+            "
           >
             ban
           </button>
@@ -87,10 +103,10 @@
             v-if="
               (isUserAdmin == true || isUserOwner == true) &&
               member.isOwner == false &&
-              member.id != userId &&
+              member.id != props.currentUserId &&
               chatRoomInfo.type != 'DM'
             "
-            @click="kickUser(chatroomId, userId, member.id)"
+            @click="kickUser(props.chatroomId, props.currentUserId, member.id)"
           >
             kick
           </button>
@@ -98,10 +114,10 @@
             v-if="
               (isUserAdmin == true || isUserOwner == true) &&
               member.isAdmin == false &&
-              member.id != userId &&
+              member.id != props.currentUserId &&
               chatRoomInfo.type != 'DM'
             "
-            @click="makeAdmin(chatRoomInfo.id, userId, member.id)"
+            @click="makeAdmin(chatRoomInfo.id, props.currentUserId, member.id)"
           >
             make admin
           </button>
@@ -126,23 +142,19 @@ import {
   Blocklist,
 } from "../chatUtils";
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
-import { useUserStore } from "@/stores/UserStore";
 import { io } from "socket.io-client";
 
 const props = defineProps({
   showContent: Boolean,
+  currentUserId: { type: Number, required: true },
+  chatroomId: { type: Number, required: true },
 });
 
-const userStore = useUserStore();
-const userId = userStore.user.id;
 const mute = "mute";
 const ban = "ban";
 
-const route = useRoute();
-const chatroomId = Number(route.params.id);
-const backendurlChatName = "/chat/" + chatroomId;
-const backendBlocklist = "/blocklist/user/" + userStore.user.id;
+const backendurlChatName = "/chat/" + props.chatroomId;
+const backendBlocklist = "/blocklist/user/" + props.currentUserId;
 
 let ownerName: string;
 const chatRoomInfo = ref([]);
@@ -161,16 +173,16 @@ onMounted(async () => {
 
   if (
     props.showContent == true &&
-    (await isMember(chatroomId, userStore.user.id)) == false &&
+    (await isMember(props.chatroomId, props.currentUserId)) == false &&
     chatRoomInfo.value.type != "password"
   ) {
-    const addMemberUrl = "/chat/" + chatroomId + "/add/member";
+    const addMemberUrl = "/chat/" + props.chatroomId + "/add/member";
     const addMemberDto = new AddMemberDto();
-    addMemberDto.member = userStore.user.id;
+    addMemberDto.member = props.currentUserId;
     await apiRequest(addMemberUrl, "put", { data: addMemberDto })
       .then((response) => {
         chatRoomInfo.value = response.data;
-        socket.emit("newUserState");
+        socket.emit("newUserState", props.chatroomId);
       })
       .catch((err) => {
         console.error(err);
@@ -180,16 +192,16 @@ onMounted(async () => {
   // *** auto kick people if banned
   socket.on("gotBanned", async (response) => {
     if (
-      response.user == userStore.user.id &&
-      chatroomId == response.chatroom &&
+      response.user == props.currentUserId &&
+      props.chatroomId == response.chatroom &&
       response.penaltyType == "ban"
     ) {
       alert("Sorry, you've been banned, you can rejoin the chat in 2 minutes.");
       window.location.href = "/chat";
     } else {
       if (
-        response.user == userStore.user.id &&
-        chatroomId == response.chatroom &&
+        response.user == props.currentUserId &&
+        props.chatroomId == response.chatroom &&
         response.penaltyType == "mute"
       ) {
         alert("You've been muted, you can reply again in 2 minutes.");
@@ -198,19 +210,23 @@ onMounted(async () => {
     }
   });
 
-  socket.on("userUpdate", async () => {
-    await setup();
+  socket.on("userUpdate", async (payload) => {
+    if (payload === props.chatroomId) {
+      await setup();
+    }
   });
 
   socket.on("kickedAUser", async (response) => {
     if (
-      response.userId == userStore.user.id &&
-      chatroomId == response.chatroomId
+      response.userId == props.currentUserId &&
+      props.chatroomId == response.chatroomId
     ) {
       alert("Sorry, you've been kicked from the chat.");
       console.log("You've been kicked");
       window.location.href = "/chat";
-    } else await setup();
+    } else if (props.chatroomId === response.chatroomId) {
+      await setup();
+    }
   });
 });
 
@@ -225,8 +241,10 @@ async function getBlocklist() {
 }
 
 async function setup(): Promise<void> {
-  const ownerUrl = "/chat/" + chatroomId + "/is_owner/" + userId;
-  const adminUrl = "/chat/" + chatroomId + "/is_admin/" + userId;
+  const ownerUrl =
+    "/chat/" + props.chatroomId + "/is_owner/" + props.currentUserId;
+  const adminUrl =
+    "/chat/" + props.chatroomId + "/is_admin/" + props.currentUserId;
 
   // *** GET chatroom data and add user to member list if not in there yet
   await apiRequest(backendurlChatName, "get").then(async (response) => {
@@ -235,13 +253,13 @@ async function setup(): Promise<void> {
       response.data.owner.playerName ??
       "unnamedPlayer" + response.data.owner.id;
     for (const member of chatRoomInfo.value.member) {
-      member["isOwner"] = await isOwner(chatroomId, member.id);
-      member["isAdmin"] = await isAdmin(chatroomId, member.id);
+      member["isOwner"] = await isOwner(props.chatroomId, member.id);
+      member["isAdmin"] = await isAdmin(props.chatroomId, member.id);
       member.playerName = member.playerName ?? "unnamedPlayer" + member.id;
     }
     for (const admin of chatRoomInfo.value.admin) {
-      admin["isOwner"] = await isOwner(chatroomId, admin.id);
-      admin["isAdmin"] = await isAdmin(chatroomId, admin.id);
+      admin["isOwner"] = await isOwner(props.chatroomId, admin.id);
+      admin["isAdmin"] = await isAdmin(props.chatroomId, admin.id);
       admin.playerName = admin.playerName ?? "unnamedPlayer" + admin.id;
     }
   });
