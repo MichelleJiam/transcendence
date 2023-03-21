@@ -76,7 +76,6 @@ onBeforeMount(async () => {
 onMounted(async () => {
   await userStore.retrieveCurrentUserData();
   id.value = userStore.user.id;
-  console.log("id ", id.value);
   console.log("GamePage.onMounted");
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
@@ -87,11 +86,6 @@ onMounted(async () => {
 // Triggered on navigate away
 onUnmounted(async () => {
   console.log("GamePage unmounted");
-  // If a watcher or player navigates away during an active game
-  // if (game.value.state === GameState.PLAYING) {
-  //   socket.emit("activeGameLeft", game.value);
-  //   await updateUserStatus(id.value, UserStatus.ONLINE);
-  // }
   // if a player in queue navigates away
   if (game.value.state === GameState.WAITING) {
     removePlayerFromMatchQueue();
@@ -245,28 +239,6 @@ const startGame = async () => {
 //   }
 //   socket.emit("forfeitGame", gameRoom);
 // }
-
-// socket.on("playerForfeited", async (disconnectedPlayer: number) => {
-//   // console.log(
-//   //   "playerForfeited | p1 socket: ",
-//   //   game.value.playerOne.socket,
-//   //   " p2 socket: ",
-//   //   game.value.playerTwo.socket
-//   // );
-
-//   // if user is not actively watching game
-//   if (game.value.state !== GameState.PLAYING) {
-//     return;
-//   }
-//   if (disconnectedPlayer === 1) {
-//     console.log("Player 1 forfeited");
-//     game.value.playerOne.disconnected = true;
-//   } else {
-//     console.log("Player 2 forfeited");
-//     game.value.playerTwo.disconnected = true;
-//   }
-//   socket.emit("forfeitGame", game.value);
-// });
 
 // Used by GameGateway::handleDisconnect when a watcher or queued player
 // disconnects.

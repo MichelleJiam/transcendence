@@ -67,7 +67,7 @@ onUnmounted(async () => {
   // if (gameRoom.player == 0) {
   //   props.socket.emit("leaveRoom", gameRoom.id);
   // }
-  window.location.reload();
+  // window.location.reload();
 });
 
 /******************
@@ -156,16 +156,13 @@ async function initGame() {
   }
 }
 
- /************
+/************
  * GAME LOOP *
  ************/
 
- function drawGame() {
+function drawGame() {
   ctx.fillStyle = color.canvas;
-  ctx.fillRect(0,
-  0,
-  gameRoom.view.width,
-  gameRoom.view.height);
+  ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();
   drawBorderLines();
   drawScoreboard();
@@ -213,18 +210,6 @@ props.socket.on("endGame", (winnerName: string) => {
   gameOver();
 });
 
-// props.socket.on("playerForfeited", (disconnectedPlayer: number) => {
-//   console.log("PongGame.playerForfeited");
-//   if (disconnectedPlayer === 1) {
-//     console.log("Player 1 forfeited");
-//     gameRoom.playerOne.disconnected = true;
-//   } else {
-//     console.log("Player 2 forfeited");
-//     gameRoom.playerTwo.disconnected = true;
-//   }
-//   emit("forfeit-game", gameRoom);
-// });
-
 /********************
  * UPDATE GAME ROOM *
  *******************/
@@ -245,26 +230,33 @@ props.socket.on(
   }
 );
 
-props.socket.on(
-  "updateGameRoom",
-  (updatedGameRoom: GameRoom) => {
-  
-      // Update paddle positions
-    gameRoom.playerOne.paddle.y = gameRoom.view.height * (updatedGameRoom.playerOne.paddle.y / updatedGameRoom.view.height);
-    gameRoom.playerTwo.paddle.y = gameRoom.view.height * (updatedGameRoom.playerTwo.paddle.y / updatedGameRoom.view.height);
+props.socket.on("updateGameRoom", (updatedGameRoom: GameRoom) => {
+  // Update paddle positions
+  gameRoom.playerOne.paddle.y =
+    gameRoom.view.height *
+    (updatedGameRoom.playerOne.paddle.y / updatedGameRoom.view.height);
+  gameRoom.playerTwo.paddle.y =
+    gameRoom.view.height *
+    (updatedGameRoom.playerTwo.paddle.y / updatedGameRoom.view.height);
 
-    // Update ball position
-    gameRoom.ball.x = gameRoom.view.width * (updatedGameRoom.ball.x / updatedGameRoom.view.width);
-    gameRoom.ball.y = gameRoom.view.height * (updatedGameRoom.ball.y / updatedGameRoom.view.height);
-    gameRoom.ball.moveX = gameRoom.view.width * (updatedGameRoom.ball.moveX / updatedGameRoom.view.width);
-    gameRoom.ball.moveY = gameRoom.view.height * (updatedGameRoom.ball.moveY / updatedGameRoom.view.height);
-    
-    // update scores and winner
-    gameRoom.winner = updatedGameRoom.winner;
-    gameRoom.playerOne.score = updatedGameRoom.playerOne.score;
-    gameRoom.playerTwo.score = updatedGameRoom.playerTwo.score;
-  }
-);
+  // Update ball position
+  gameRoom.ball.x =
+    gameRoom.view.width * (updatedGameRoom.ball.x / updatedGameRoom.view.width);
+  gameRoom.ball.y =
+    gameRoom.view.height *
+    (updatedGameRoom.ball.y / updatedGameRoom.view.height);
+  gameRoom.ball.moveX =
+    gameRoom.view.width *
+    (updatedGameRoom.ball.moveX / updatedGameRoom.view.width);
+  gameRoom.ball.moveY =
+    gameRoom.view.height *
+    (updatedGameRoom.ball.moveY / updatedGameRoom.view.height);
+
+  // update scores and winner
+  gameRoom.winner = updatedGameRoom.winner;
+  gameRoom.playerOne.score = updatedGameRoom.playerOne.score;
+  gameRoom.playerTwo.score = updatedGameRoom.playerTwo.score;
+});
 
 /****************
  * KEY HANDLERS *
@@ -272,30 +264,29 @@ props.socket.on(
 
 function keyDownHandler(e: KeyboardEvent) {
   if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-  const input = {
-    id: gameRoom.id,
-    player: gameRoom.player,
-    direction: e.key === "ArrowUp" ? "up" : "down"
-  };
-  props.socket.emit("playerInput", input);
-}
+    const input = {
+      id: gameRoom.id,
+      player: gameRoom.player,
+      direction: e.key === "ArrowUp" ? "up" : "down",
+    };
+    props.socket.emit("playerInput", input);
+  }
 }
 
 function keyUpHandler(e: KeyboardEvent) {
   if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-  const input = {
-    id: gameRoom.id,
-    player: gameRoom.player,
-    direction: e.key === "ArrowUp" ? "up" : "down"
-  };
-  props.socket.emit("playerInput", input);
-}
+    const input = {
+      id: gameRoom.id,
+      player: gameRoom.player,
+      direction: e.key === "ArrowUp" ? "up" : "down",
+    };
+    props.socket.emit("playerInput", input);
+  }
 }
 
 /**************
  * COLOR MODE *
  *************/
-
 
 function colorMode() {
   if (colorModeOn.value === false) {
