@@ -32,7 +32,7 @@ export interface Player {
 }
 
 export interface GameRoom {
-  id: string;
+  id: number;
   player: number;
   winner: number;
   loser: number;
@@ -41,6 +41,7 @@ export interface GameRoom {
   ball: Ball;
   view: Canvas;
   state: number;
+  countdown: number;
 }
 
 export interface GameWithPlayer {
@@ -48,3 +49,9 @@ export interface GameWithPlayer {
   playerNum: number;
   playerId: number | null;
 }
+
+export interface PlayerInput {
+  id: number,
+  player: number,
+  direction: string,
+};

@@ -10,13 +10,13 @@ import {
 
 import { Socket, Server } from "socket.io";
 import { CreatePenaltyDto } from "./dto/create-penalty.dto";
-import { InviteToGameDto } from "../chat/dto/invite-to-game.dto";
 import { KickedAUserDto } from "./dto/kicked-a-user.dto";
 import { PenaltyService } from "./penalty.service";
 
 @WebSocketGateway({
   cors: {
-    origin: "*",
+    credentials: true,
+    origin: [process.env.FRONTEND_URL, process.env.BACKEND_URL],
   },
   namespace: "penalty",
 })

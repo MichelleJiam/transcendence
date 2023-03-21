@@ -5,11 +5,10 @@ import type { AxiosError } from "axios";
 import { updateUserStatus } from "@/utils/userStatus";
 import { UserStatus } from "@/components/game/pong.types";
 
-interface PublicProfile {
+export interface PublicProfile {
   id: number;
   playerName: string;
-  status: string;
-  avatarId: number;
+  status: number /* ONLINE | OFFLINE | GAME */;
   avatarUrl: string | undefined;
 }
 
@@ -89,7 +88,6 @@ export const useUserStore = defineStore("user", {
         this.user.id = res.data.id;
         this.user.playerName = res.data.playerName;
         this.user.twoFAEnabled = res.data.twoFAEnabled;
-        this.user.avatarId = res.data.avatarID ?? null;
         return res.data.user;
       } catch (error) {
         console.error(`Error in retrieveCurrentUserData(): ${error}`);

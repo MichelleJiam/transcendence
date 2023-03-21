@@ -14,16 +14,15 @@
 import { onMounted, onUnmounted, ref } from "vue";
 import type { PropType } from "vue";
 import {
-  type Keys,
   type GameRoom,
   type Canvas,
   type Colors,
   UserStatus,
-  GameState,
 } from "./pong.types";
 import { Socket } from "socket.io-client";
 import { updateUserStatus } from "@/utils/userStatus";
 import apiRequest from "../../utils/apiRequest";
+import router from "@/router";
 
 const props = defineProps({
   id: { type: Number, required: true },
@@ -33,11 +32,11 @@ const props = defineProps({
 
 let view: Canvas;
 let ctx: CanvasRenderingContext2D;
-let key: Keys;
 let gameRoom: GameRoom;
 let color: Colors;
 const colorModeOn = ref(false);
 const inGame = ref(true);
+let reqId: number;
 
 onMounted(async () => {
   console.log("onMounted");
@@ -47,8 +46,11 @@ onMounted(async () => {
   drawCenterLine();
   drawPaddles();
   await updateUserStatus(props.id, UserStatus.GAME);
-  if (gameRoom.player == 1) {
-    props.socket.emit("countdown", gameRoom);
+  if (gameRoom.player === 1) {
+    props.socket.emit("createNewGame", gameRoom);
+  }
+  if (gameRoom.player === 0) {
+    gameLoop();
   }
 });
 
@@ -60,10 +62,6 @@ onUnmounted(async () => {
     props.socket.emit("activeGameLeft", gameRoom);
   }
   await updateUserStatus(props.id, UserStatus.ONLINE);
-  // if (gameRoom.player == 0) {
-  //   props.socket.emit("leaveRoom", gameRoom.id);
-  // }
-  window.location.reload();
 });
 
 /******************
@@ -145,28 +143,37 @@ async function initGame() {
     view: view,
     state: props.game.state,
   };
-  key = { up: false, down: false };
   if (gameRoom.player != 0) {
-    document.addEventListener("keydown", keyDownHandler, false);
-    document.addEventListener("keyup", keyUpHandler, false);
+    document.addEventListener("keydown", keyPressHandler, false);
+    document.addEventListener("keyup", keyPressHandler, false);
   }
+}
+
+/************
+ * GAME LOOP *
+ ************/
+
+function drawGame() {
+  ctx.fillStyle = color.canvas;
+  ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
+  drawCenterLine();
+  drawBorderLines();
+  drawScoreboard();
+  drawPaddles();
+  drawBall();
+}
+
+function gameLoop() {
+  drawGame();
+  reqId = requestAnimationFrame(gameLoop);
 }
 
 /************
  * END GAME *
  ************/
 
-props.socket.on(
-  "drawScoreboard",
-  (playerOneScore: number, playerTwoScore: number, winnerName: string) => {
-    drawScoreboard(playerOneScore, playerTwoScore);
-    drawGameOver(winnerName);
-    gameOver();
-  }
-);
-
 function goBack() {
-  window.location.href = "/game";
+  router.push("/leaderboard");
 }
 
 async function gameOver() {
@@ -179,29 +186,22 @@ async function gameOver() {
   props.socket.emit("leaveRoom", String(gameRoom.id));
 }
 
+props.socket.on("stopGameLoop", () => {
+  window.cancelAnimationFrame(reqId);
+});
+
 props.socket.on("endGame", (winnerName: string) => {
   console.log("PongGame.endGame");
+  window.cancelAnimationFrame(reqId);
   ctx.fillStyle = color.canvas;
   ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawCenterLine();
   drawBorderLines();
   drawPaddles();
-  drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
+  drawScoreboard();
   drawGameOver(winnerName);
   gameOver();
 });
-
-// props.socket.on("playerForfeited", (disconnectedPlayer: number) => {
-//   console.log("PongGame.playerForfeited");
-//   if (disconnectedPlayer === 1) {
-//     console.log("Player 1 forfeited");
-//     gameRoom.playerOne.disconnected = true;
-//   } else {
-//     console.log("Player 2 forfeited");
-//     gameRoom.playerTwo.disconnected = true;
-//   }
-//   emit("forfeit-game", gameRoom);
-// });
 
 /********************
  * UPDATE GAME ROOM *
@@ -223,73 +223,46 @@ props.socket.on(
   }
 );
 
-/************
- * MOVEMENT *
- ************/
+props.socket.on("updateGameRoom", (updatedGameRoom: GameRoom) => {
+  // Update paddle positions
+  gameRoom.playerOne.paddle.y =
+    gameRoom.view.height *
+    (updatedGameRoom.playerOne.paddle.y / updatedGameRoom.view.height);
+  gameRoom.playerTwo.paddle.y =
+    gameRoom.view.height *
+    (updatedGameRoom.playerTwo.paddle.y / updatedGameRoom.view.height);
 
-async function determineKeyStrokes() {
-  if (key.up) {
-    props.socket.emit("movePaddleUp", gameRoom);
-  }
-  if (key.down) {
-    props.socket.emit("movePaddleDown", gameRoom);
-  }
-}
+  // Update ball position
+  gameRoom.ball.x =
+    gameRoom.view.width * (updatedGameRoom.ball.x / updatedGameRoom.view.width);
+  gameRoom.ball.y =
+    gameRoom.view.height *
+    (updatedGameRoom.ball.y / updatedGameRoom.view.height);
+  gameRoom.ball.moveX =
+    gameRoom.view.width *
+    (updatedGameRoom.ball.moveX / updatedGameRoom.view.width);
+  gameRoom.ball.moveY =
+    gameRoom.view.height *
+    (updatedGameRoom.ball.moveY / updatedGameRoom.view.height);
 
-props.socket.on("movePaddleOneUp", (MoveY: number) => {
-  gameRoom.playerOne.paddle.y = MoveY * gameRoom.view.height;
-});
-
-props.socket.on("movePaddleTwoUp", (MoveY: number) => {
-  gameRoom.playerTwo.paddle.y = MoveY * gameRoom.view.height;
-});
-
-props.socket.on("movePaddleOneDown", (MoveY: number) => {
-  gameRoom.playerOne.paddle.y = MoveY * gameRoom.view.height;
-});
-
-props.socket.on("movePaddleTwoDown", (MoveY: number) => {
-  gameRoom.playerTwo.paddle.y = MoveY * gameRoom.view.height;
-});
-
-props.socket.on("resetBall", (ballMoveX: number) => {
-  let ballX: number;
-
-  if (ballMoveX < 0) {
-    ballX = gameRoom.view.width - gameRoom.view.width / 4;
-  } else {
-    ballX = gameRoom.view.width / 4;
-  }
-  gameRoom.ball = {
-    radius: gameRoom.view.width * 0.014,
-    x: ballX,
-    y: gameRoom.view.height / 2,
-    moveX: (gameRoom.view.width * 0.014) / 5,
-    moveY: -((gameRoom.view.width * 0.014) / 5),
-  };
-  if (ballMoveX < 0) gameRoom.ball.moveX = -gameRoom.ball.moveX;
-  if (gameRoom.player == 1) {
-    props.socket.emit("countdown", gameRoom);
-  }
+  // update scores and winner
+  gameRoom.winner = updatedGameRoom.winner;
+  gameRoom.playerOne.score = updatedGameRoom.playerOne.score;
+  gameRoom.playerTwo.score = updatedGameRoom.playerTwo.score;
 });
 
 /****************
  * KEY HANDLERS *
  ****************/
 
-function keyDownHandler(e: KeyboardEvent) {
-  if (e.key === "Up" || e.key === "ArrowUp") {
-    key.up = true;
-  } else if (e.key === "Down" || e.key === "ArrowDown") {
-    key.down = true;
-  }
-}
-
-function keyUpHandler(e: KeyboardEvent) {
-  if (e.key === "Up" || e.key === "ArrowUp") {
-    key.up = false;
-  } else if (e.key === "Down" || e.key === "ArrowDown") {
-    key.down = false;
+function keyPressHandler(e: KeyboardEvent) {
+  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+    const input = {
+      id: gameRoom.id,
+      player: gameRoom.player,
+      direction: e.key === "ArrowUp" ? "up" : "down",
+    };
+    props.socket.emit("playerInput", input);
   }
 }
 
@@ -324,39 +297,30 @@ function colorMode() {
  *********************/
 
 props.socket.on("drawCountdown", (count: number) => {
+  window.cancelAnimationFrame(reqId);
   ctx.fillStyle = color.canvas;
   ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
   drawBorderLines();
   drawCountdownCenterLine();
   drawPaddles();
   drawCountdown(count);
-  drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
+  drawScoreboard();
+  if (count === -1) {
+    gameLoop();
+  }
 });
 
-props.socket.on("drawCanvas", () => {
-  ctx.fillStyle = color.canvas;
-  ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
-  drawCenterLine();
-  drawBorderLines();
-  drawScoreboard(gameRoom.playerOne.score, gameRoom.playerTwo.score);
-  if (gameRoom.player == 1) props.socket.emit("moveBall", gameRoom);
-  drawBall();
-  determineKeyStrokes();
-  drawPaddles();
-  drawBall();
-});
-
-async function drawScoreboard(playerOneScore: number, playerTwoScore: number) {
+function drawScoreboard() {
   ctx.beginPath();
   ctx.font = gameRoom.view.width * 0.07 + "px ArcadeClassic";
   ctx.fillStyle = color.scoreBoard;
   ctx.fillText(
-    playerOneScore.toString(),
+    gameRoom.playerOne.score.toString(),
     gameRoom.view.width / 2 - gameRoom.view.width / 16,
     gameRoom.view.height / 6
   );
   ctx.fillText(
-    playerTwoScore.toString(),
+    gameRoom.playerTwo.score.toString(),
     gameRoom.view.width / 2 + gameRoom.view.width / 16,
     gameRoom.view.height / 6
   );
@@ -435,27 +399,6 @@ function drawBall() {
   ctx.fill();
   ctx.closePath();
 }
-
-props.socket.on(
-  "drawBall",
-  (x: number, y: number, moveX: number, moveY: number) => {
-    gameRoom.ball.x = x * gameRoom.view.width;
-    gameRoom.ball.y = y * gameRoom.view.height;
-    gameRoom.ball.moveX = moveX * gameRoom.view.width;
-    gameRoom.ball.moveY = moveY * gameRoom.view.height;
-
-    ctx.beginPath();
-    ctx.rect(
-      gameRoom.ball.x,
-      gameRoom.ball.y,
-      gameRoom.ball.radius,
-      gameRoom.ball.radius
-    );
-    ctx.fillStyle = color.ball;
-    ctx.fill();
-    ctx.closePath();
-  }
-);
 
 const drawCountdown = (count: number) => {
   ctx.beginPath();
