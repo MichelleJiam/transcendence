@@ -32,8 +32,8 @@ export class PenaltyGateway
   ) {}
 
   @SubscribeMessage("newUserState")
-  async joinedChat(client: Socket) {
-    this.server.emit("userUpdate");
+  async joinedChat(client: Socket, chatroomId: number) {
+    this.server.emit("userUpdate", chatroomId);
   }
 
   @SubscribeMessage("checkBan")

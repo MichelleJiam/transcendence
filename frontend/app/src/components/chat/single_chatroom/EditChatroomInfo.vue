@@ -11,7 +11,7 @@
 
         <div class="modal-body">
           <slot name="body">
-            <form @submit.prevent="editChat(userStore.user.id)">
+            <form @submit.prevent="editChat(props.currentUserId)">
               <div>
                 <label>select type of chat:</label>
               </div>
@@ -72,20 +72,17 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from "@/stores/UserStore";
 import apiRequest from "@/utils/apiRequest";
-import { useRoute } from "vue-router";
 import { UpdateChatroomDto } from "../chatUtils";
 import { ref } from "vue";
 
 const props = defineProps({
   show: Boolean,
+  currentUserId: { type: Number, required: true },
+  chatroomId: { type: Number, required: true },
 });
 
 const updateChatroomDto = new UpdateChatroomDto();
-const route = useRoute();
-const chatroomId = route.params.id;
-const userStore = useUserStore();
 const errorMessage = ref<string>("");
 
 function errorMessageAvailable() {
@@ -100,7 +97,8 @@ function removeErrorText() {
 }
 
 function editChat(adminId: number) {
-  const url = "/chat/" + chatroomId + "/admin/" + adminId + "/update/info";
+  const url =
+    "/chat/" + props.chatroomId + "/admin/" + adminId + "/update/info";
   if (
     updateChatroomDto.type == undefined &&
     (updateChatroomDto.chatroomName == undefined ||

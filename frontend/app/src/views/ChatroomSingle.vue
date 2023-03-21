@@ -9,6 +9,7 @@
               <template #default>
                 <InviteToGame
                   v-if="chatRoomInfo.member.length == 2"
+                  :current-user-id="userStore.user.id"
                   :chatroom-id="chatRoomInfo.id"
                   :invite-to-game-user-id="chatRoomInfo.gameRequestByUserId"
                   :player-two="DMMemberTwo"
@@ -31,14 +32,22 @@
           <span v-if="isPassword == true">
             <Teleport to="body">
               <!-- use the modal component, pass in the prop -->
-              <PasswordModal :show="showPassword" @close="showPassword = false">
+              <PasswordModal
+                :current-user-id="userStore.user.id"
+                :chatroom-id="chatroomId"
+                :show="showPassword"
+                @close="showPassword = false"
+              >
               </PasswordModal> </Teleport
           ></span>
         </div>
         <div class="leave">
           <suspense>
             <template #default>
-              <LeaveChat></LeaveChat>
+              <LeaveChat
+                :current-user-id="userStore.user.id"
+                :chatroom-id="chatroomId"
+              ></LeaveChat>
             </template>
             <template #fallback><p>loading...</p></template>
           </suspense>
@@ -49,7 +58,10 @@
           <div class="sub">
             <suspense>
               <template #default>
-                <GetSingleChatroomMessages></GetSingleChatroomMessages>
+                <GetSingleChatroomMessages
+                  :current-user-id="userStore.user.id"
+                  :chatroom-id="chatroomId"
+                ></GetSingleChatroomMessages>
               </template>
               <template #fallback><p>loading...</p></template>
             </suspense>
@@ -58,7 +70,11 @@
         <div class="columnright">
           <suspense>
             <template #default>
-              <GetChatUsers :show-content="showContent"></GetChatUsers>
+              <GetChatUsers
+                :current-user-id="userStore.user.id"
+                :chatroom-id="chatroomId"
+                :show-content="showContent"
+              ></GetChatUsers>
             </template>
             <template #fallback><p>loading...</p></template>
           </suspense>
@@ -66,7 +82,10 @@
       </div>
       <div class="row">
         <div class="header post">
-          <PostMessages></PostMessages>
+          <PostMessages
+            :current-user-id="userStore.user.id"
+            :chatroom-id="chatroomId"
+          ></PostMessages>
         </div>
         <div class="leave settings">
           <button
@@ -79,7 +98,12 @@
 
           <Teleport to="body">
             <!-- use the modal component, pass in the prop -->
-            <EditChatroomInfoVue :show="showModal" @close="close()">
+            <EditChatroomInfoVue
+              :current-user-id="userStore.user.id"
+              :chatroom-id="chatroomId"
+              :show="showModal"
+              @close="close()"
+            >
             </EditChatroomInfoVue>
           </Teleport>
         </div>
@@ -103,7 +127,7 @@ import InviteToGame from "@/components/chat/single_chatroom/InviteToGame.vue";
 
 const route = useRoute();
 const routeUrl = frontendUrl + route.path;
-const chatroomId = route.params.id;
+const chatroomId = Number(route.params.id);
 const chatRoomInfo = ref([]);
 const showModal = ref<boolean>(false);
 const showPassword = ref<boolean>(false);
