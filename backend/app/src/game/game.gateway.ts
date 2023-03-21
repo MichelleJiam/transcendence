@@ -8,7 +8,13 @@ import {
 import { Server, Socket } from "socket.io";
 import { MatchService } from "src/match/match.service";
 import { GameService } from "./game.service";
-import { GameRoom, GameWithPlayer, PlayerInput } from "./pong.types";
+import {
+  Canvas,
+  GameRoom,
+  GameWithPlayer,
+  Player,
+  PlayerInput,
+} from "./pong.types";
 
 // by default will listen to same port http is listening on
 @WebSocketGateway({
@@ -203,16 +209,38 @@ export class GameGateway {
     return updatedGameRoom;
   }
 
+  handlePlayerInput(input: PlayerInput, player: Player, view: Canvas) {
+    const move = 0.05;
+
+    if (input.direction === "up") {
+      player.paddle.y = Math.max(
+        player.paddle.y - view.height * move,
+        view.offset + view.borderLines,
+      );
+    } else {
+      player.paddle.y = Math.min(
+        player.paddle.y + view.height * move,
+        view.height - player.paddle.height - view.offset - view.borderLines,
+      );
+    }
+    // return updatedGameRoom;
+  }
+
   @SubscribeMessage("playerInput")
   playerInput(@MessageBody() input: PlayerInput) {
-    let updatedGameRoom = this.gameroomMap.get(input.id) as GameRoom;
+    const updatedGameRoom = this.gameroomMap.get(input.id) as GameRoom;
     if (updatedGameRoom) {
-      if (input.player === 1) {
-        updatedGameRoom = this.handlePlayerOneInput(input);
-      }
-      if (input.player === 2) {
-        updatedGameRoom = this.handlePlayerTwoInput(input);
-      }
+      this.handlePlayerInput(
+        input,
+        updatedGameRoom.playerOne,
+        updatedGameRoom.view,
+      );
+      // if (input.player === 1) {
+      // updatedGameRoom = this.handlePlayerOneInput(input);
+      // }
+      // if (input.player === 2) {
+      //   updatedGameRoom = this.handlePlayerTwoInput(input);
+      // }
       this.gameroomMap.set(input.id, { ...updatedGameRoom });
       this.server
         .to(String(updatedGameRoom.id))
