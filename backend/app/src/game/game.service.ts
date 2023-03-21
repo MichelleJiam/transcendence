@@ -233,6 +233,7 @@ export class GameService {
       gameRoom.playerOne.score = 3;
       gameRoom.winner = 1;
     }
+    return gameRoom;
   }
 
   setDisconnectedPlayer(gameRoom: GameRoom, disconnectedPlayer: number) {

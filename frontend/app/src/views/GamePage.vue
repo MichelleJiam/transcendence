@@ -45,16 +45,14 @@
 import LoaderKnightRider from "../components/game/loaders/LoaderKnightRider.vue";
 import PongGame from "../components/game/PongGame.vue";
 import apiRequest, { baseUrl } from "../utils/apiRequest";
-import { onBeforeMount, onUnmounted, ref, onMounted, watchEffect } from "vue";
+import { onUnmounted, ref, onMounted, watchEffect } from "vue";
 import { io } from "socket.io-client";
 import {
   GameState,
-  UserStatus,
   type Game,
   type GameRoom,
 } from "../components/game/pong.types";
 import { useUserStore } from "@/stores/UserStore";
-import { updateUserStatus } from "@/utils/userStatus";
 import type { AxiosResponse } from "axios";
 
 const userStore = useUserStore();
@@ -65,33 +63,20 @@ const activeGames = ref(Array<Game>());
 const noGames = ref(true);
 game.value.state = GameState.READY;
 
-// remove?
-onBeforeMount(async () => {
-  socket.on("disconnect", () => {
-    console.log(socket.id + " disconnected from frontend");
-  });
-  await getActiveGames();
-});
-
 onMounted(async () => {
   await userStore.retrieveCurrentUserData();
   id.value = userStore.user.id;
-  console.log("id ", id.value);
   console.log("GamePage.onMounted");
   socket.on("connect", () => {
     console.log(socket.id + " connected from frontend");
   });
+  await getActiveGames();
   checkDMGames();
 });
 
 // Triggered on navigate away
 onUnmounted(async () => {
   console.log("GamePage unmounted");
-  // If a watcher or player navigates away during an active game
-  // if (game.value.state === GameState.PLAYING) {
-  //   socket.emit("activeGameLeft", game.value);
-  //   await updateUserStatus(id.value, UserStatus.ONLINE);
-  // }
   // if a player in queue navigates away
   if (game.value.state === GameState.WAITING) {
     removePlayerFromMatchQueue();
@@ -214,30 +199,6 @@ const startGame = async () => {
     });
 };
 
-// async function gameOver(gameRoom: GameRoom) {
-//   console.log(
-//     "GamePage.gameOver | ",
-//     gameRoom.id,
-//     " p1 score: ",
-//     gameRoom.playerOne.score,
-//     " p2 score: ",
-//     gameRoom.playerTwo.score
-//   );
-//   // can fail if both players disconnected and game was deleted
-//   if (game.value.player !== 0) {
-//     await apiRequest(`/game`, "put", { data: gameRoom }).catch((err) => {
-//       console.log(
-//         "GamePage.gameOver | Something went wrong with updating with game result: ",
-//         err
-//       );
-//     });
-//   }
-//   game.value.state = GameState.READY;
-//   socket.emit("leaveRoom", gameRoom.id);
-//   console.log("GamePage | ", id.value, " left room ", gameRoom.id);
-//   await getActiveGames();
-// }
-
 // function forfeitGame(gameRoom: GameRoom) {
 //   // if user is not actively watching game
 //   if (gameRoom.state !== GameState.PLAYING) {
@@ -245,28 +206,6 @@ const startGame = async () => {
 //   }
 //   socket.emit("forfeitGame", gameRoom);
 // }
-
-// socket.on("playerForfeited", async (disconnectedPlayer: number) => {
-//   // console.log(
-//   //   "playerForfeited | p1 socket: ",
-//   //   game.value.playerOne.socket,
-//   //   " p2 socket: ",
-//   //   game.value.playerTwo.socket
-//   // );
-
-//   // if user is not actively watching game
-//   if (game.value.state !== GameState.PLAYING) {
-//     return;
-//   }
-//   if (disconnectedPlayer === 1) {
-//     console.log("Player 1 forfeited");
-//     game.value.playerOne.disconnected = true;
-//   } else {
-//     console.log("Player 2 forfeited");
-//     game.value.playerTwo.disconnected = true;
-//   }
-//   socket.emit("forfeitGame", game.value);
-// });
 
 // Used by GameGateway::handleDisconnect when a watcher or queued player
 // disconnects.
@@ -353,6 +292,7 @@ async function fillGameRoomObject(res: AxiosResponse, playerNumber: number) {
 #display-content {
   align-items: center;
   justify-items: center;
+  width: 60%;
 }
 .main-game {
   display: grid;

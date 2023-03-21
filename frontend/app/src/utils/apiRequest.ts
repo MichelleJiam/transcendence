@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const domain = "localhost";
+const domain = "10.11.2.7";
 
 export const baseUrl = "http://" + domain + ":3000";
 export const frontendUrl = "http://" + domain + ":5173";

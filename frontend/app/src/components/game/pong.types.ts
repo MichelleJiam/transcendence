@@ -56,11 +56,6 @@ export interface Game {
   state: string;
 }
 
-export interface Keys {
-  up: boolean;
-  down: boolean;
-}
-
 export interface Colors {
   paddle: string;
   borderLines: string;

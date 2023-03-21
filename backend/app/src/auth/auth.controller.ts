@@ -45,11 +45,11 @@ export class AuthController {
         user.id,
         TokenType.PARTIAL,
       );
-      redirectTo = `${process.env.HOME_REDIRECT}/2fa`;
+      redirectTo = `${process.env.FRONTEND_URL}/2fa`;
       this.logger.log("2FA required, redirecting to 2FA frontend");
     } else {
       authCookie = this.authService.getCookieWithJwtToken(user.id);
-      redirectTo = `${process.env.HOME_REDIRECT}/login`;
+      redirectTo = `${process.env.FRONTEND_URL}/login`;
     }
     response.setHeader("Set-Cookie", authCookie);
     this.logger.log(`redirecting to ${redirectTo}`);
@@ -63,7 +63,7 @@ export class AuthController {
     const authCookie = this.authService.getCookieWithJwtToken(1); // assigns id 1
     response.setHeader("Set-Cookie", authCookie);
     console.log("testLogin: Set access_token cookie");
-    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
+    response.status(200).redirect(`${process.env.FRONTEND_URL}`);
   }
 
   // gets cookie for user with specified id
@@ -77,7 +77,7 @@ export class AuthController {
     const authCookie = this.authService.getCookieWithJwtToken(id);
     response.setHeader("Set-Cookie", authCookie);
     console.log("testLogin: Set access_token cookie");
-    response.status(200).redirect(`${process.env.HOME_REDIRECT}`);
+    response.status(200).redirect(`${process.env.FRONTEND_URL}`);
   }
 
   @Get("test_access")
@@ -103,13 +103,6 @@ export class AuthController {
   @Get("status")
   checkAuthentication(@currentUser() user: User) {
     this.logger.log(`Confirming authenticated status of user ${user.id}`);
-    // if (user.twoFAEnabled === true) {
-    //   return "2FA";
-    // } else if (user.playerName === null) {
-    //   return "SETUP";
-    // } else {
-    //   return "AUTHENTICATED";
-    // }
     return user;
   }
 
@@ -120,10 +113,6 @@ export class AuthController {
     @currentUser() user: User,
   ) {
     this.logger.log(`User logging out: ${user}`);
-    // response.setHeader(
-    //   "Set-Cookie",
-    //   `Authentication=; HttpOnly; Path=/; Max-Age=0`,
-    // );
     response.clearCookie("Authentication");
     response.status(200);
   }
