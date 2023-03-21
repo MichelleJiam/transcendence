@@ -33,15 +33,6 @@ export class ChatController {
 
   // GENERAL CHAT FUNCTIONS
   // GET
-  @Get()
-  async getAllChatRooms(): Promise<Chatroom[]> {
-    try {
-      return this.chatroomService.getAllChatrooms();
-    } catch (err) {
-      throw NotFoundException;
-    }
-  }
-
   @Get(":id")
   async getChatroomInfoById(
     @Param("id", ParseIntPipe) id: number,

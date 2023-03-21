@@ -25,33 +25,6 @@ export class PenaltyService {
     console.log("cleared penalties");
   }
 
-  async getAllPenalties(): Promise<Penalty[]> {
-    const foundPenalties = await this.penaltyRepository.find({
-      order: {
-        id: "asc",
-      },
-      relations: {
-        user: true,
-        chatroom: true,
-      },
-      select: {
-        user: {
-          id: true,
-          playerName: true,
-        },
-        chatroom: {
-          id: true,
-          chatroomName: true,
-        },
-        penaltyType: true,
-        time: true,
-        id: true,
-      },
-      cache: true,
-    });
-    return foundPenalties;
-  }
-
   async getPenaltiesOlderThanFiveMinutes(): Promise<Penalty[]> {
     const fiveMinutesAgo = new Date(Date.now() - 1000 * (60 * 5));
 
