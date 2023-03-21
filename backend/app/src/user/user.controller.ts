@@ -42,7 +42,7 @@ export class UserController {
   @Get()
   @UseGuards(JwtAuthGuard)
   getAllUsers() {
-    return this.userService.getAllUsers();
+    return this.userService.getAllUsersPartial();
   }
 
   /* retrieves current user from jwt auth cookie */
