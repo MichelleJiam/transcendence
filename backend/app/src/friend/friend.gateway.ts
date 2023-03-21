@@ -5,7 +5,8 @@ import { FriendService } from "./friend.service";
 
 @WebSocketGateway({
   cors: {
-    origin: "*",
+    credentials: true,
+    origin: [process.env.FRONTEND_URL, process.env.BACKEND_URL],
   },
   namespace: "friend",
 })

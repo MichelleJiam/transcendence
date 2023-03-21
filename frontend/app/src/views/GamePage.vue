@@ -49,12 +49,10 @@ import { onBeforeMount, onUnmounted, ref, onMounted, watchEffect } from "vue";
 import { io } from "socket.io-client";
 import {
   GameState,
-  UserStatus,
   type Game,
   type GameRoom,
 } from "../components/game/pong.types";
 import { useUserStore } from "@/stores/UserStore";
-import { updateUserStatus } from "@/utils/userStatus";
 import type { AxiosResponse } from "axios";
 
 const userStore = useUserStore();

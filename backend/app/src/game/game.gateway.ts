@@ -14,7 +14,9 @@ import { GameRoom, GameWithPlayer, PlayerInput } from "./pong.types";
 // by default will listen to same port http is listening on
 @WebSocketGateway({
   cors: {
-    origin: "*",
+    // origin: "*",
+    credentials: true,
+    origin: [process.env.FRONTEND_URL, process.env.BACKEND_URL],
   },
   namespace: "pong",
 })
@@ -34,7 +36,6 @@ export class GameGateway {
 
   constructor(
     private readonly gameService: GameService,
-    private readonly userService: UserService,
     private readonly matchService: MatchService,
   ) {}
 

@@ -19,11 +19,11 @@ import {
   type Canvas,
   type Colors,
   UserStatus,
-  GameState,
 } from "./pong.types";
 import { Socket } from "socket.io-client";
 import { updateUserStatus } from "@/utils/userStatus";
 import apiRequest from "../../utils/apiRequest";
+import router from "@/router";
 
 const props = defineProps({
   id: { type: Number, required: true },
@@ -180,7 +180,7 @@ function gameLoop() {
  ************/
 
 function goBack() {
-  window.location.href = "/game";
+  router.push("/leaderboard");
 }
 
 async function gameOver() {
