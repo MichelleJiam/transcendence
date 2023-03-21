@@ -132,9 +132,8 @@ function editChat(adminId: number) {
   apiRequest(url, "put", { data: updateChatroomDto })
     .then((response) => {
       location.reload();
-    }) // axios throws errors for non 2xx responses by default!
+    })
     .catch((error) => {
-      // console.error(error);
       errorMessage.value = "Could not update chatroom info.";
     });
 }

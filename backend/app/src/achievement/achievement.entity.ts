@@ -19,7 +19,7 @@ export class Achievement {
 }
 
 /*
- ** Assuming that 1) a user may have earned 0, 1 or more achievements and
- ** 2) an achievement may have been earned by 0, 1 or more users then a
- ** many-to-many relationship exists between user and achievement.
+ ** A many-to-many relationship exists between user and achievement.
+ ** A user may have earned 0, 1 or more achievements and an
+ ** achievement may have been earned by 0, 1 or more users
  */

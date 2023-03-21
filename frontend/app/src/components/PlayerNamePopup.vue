@@ -7,7 +7,6 @@
       know your player name. Enter your cool, quirky, or downright silly name
       below, and get ready to dominate the leaderboard.
     </p>
-    <!-- <label for="player-name">Player Name</label> -->
     <InputText
       id="playerName"
       v-model="playerName"

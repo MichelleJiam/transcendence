@@ -105,9 +105,6 @@
           >
             make admin
           </button>
-          <!-- <span v-if="member.id != userId && chatRoomInfo.type != 'DM'"
-            ><br /><CreateDMButton :other-player="member.id"></CreateDMButton>
-          </span> -->
         </p>
       </div>
     </div>

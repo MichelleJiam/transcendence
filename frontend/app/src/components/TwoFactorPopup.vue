@@ -43,7 +43,6 @@ async function validateAuthCode() {
     data: { twoFactorAuthCode: authCode.value },
   })
     .then(() => {
-      // alert("Two factor authentication successfully enabled!");
       emit("show-message", "Two factor authentication successfully enabled!");
       emit("close-popup");
     })
@@ -94,7 +93,6 @@ async function cancelTwoFA() {
   gap: 10px;
 }
 .validate-message {
-  /* align-self: center; */
   color: var(--validation-color);
 }
 .qr-code {

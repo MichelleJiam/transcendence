@@ -34,12 +34,10 @@ const isDisabledAvatar = ref<boolean>(true);
 const avatar: Avatar = {};
 
 async function onFileSelected(e: Event) {
-  console.debug("onFileSelected() in AvatarUpload.vue");
   const target = e.target as HTMLInputElement;
   if (target.files) {
     if (target.files[0].size > 1000000) {
       emit("show-message", "Avatar can not be larger than 1mb");
-      // alert("File can not be larger than 1mb");
       target.value = "";
       return;
     }
@@ -78,7 +76,6 @@ async function submitAvatar() {
 }
 
 button {
-  /* background-color: var(--primary-color-transparant); */
   justify-self: stretch;
 }
 

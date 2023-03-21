@@ -24,7 +24,6 @@ export const useFriendStore = defineStore("friend", {
   },
   actions: {
     async updateUserList(userId: number) {
-      console.log("updateUserList called");
       const res = await apiRequest("/friend/relation/users", "get");
       this.users = res.data;
       this.users.forEach(async (user) => {
@@ -50,12 +49,4 @@ export const useFriendStore = defineStore("friend", {
       });
     },
   },
-  // getters: {
-  //   pending(state) {
-  //     return state.users.forEach((element) => {
-  //       if (toRaw(element.relation?.status != undefined))
-  //         console.log(toRaw(element.relation.status));
-  //     });
-  //   },
-  // },
 });

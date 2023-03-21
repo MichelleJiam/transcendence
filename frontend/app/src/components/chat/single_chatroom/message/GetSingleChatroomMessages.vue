@@ -63,7 +63,7 @@ function inBlocklist(userId: number) {
 onMounted(async () => {
   await apiRequest(backendurlMessages, "get")
     .then((response) => {
-      messages.value = response.data; // returns the response data into the users variable which can then be used in the template
+      messages.value = response.data;
       for (const date of messages.value) {
         const dateTime = new Date(date.createdAt);
         date["formattedCreatedAt"] = convertDateTime(dateTime);
@@ -97,7 +97,6 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
-/* Clear floats after the columns */
 .row:after {
   content: "";
   display: table;

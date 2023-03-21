@@ -81,6 +81,11 @@ onBeforeMount(async () => {
   overflow-x: hidden;
 }
 
+.list-elements {
+  padding-top: 25px;
+  padding-bottom: 25px;
+}
+
 span:first-child {
   padding-right: 10px;
 }

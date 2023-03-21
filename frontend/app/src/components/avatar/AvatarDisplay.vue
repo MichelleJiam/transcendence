@@ -8,8 +8,6 @@ defineProps({
 });
 </script>
 
-<!-- pass css styling as prop to set the width and height of the avatar so the component can be reused -->
-
 <style scoped>
 .avatar {
   object-fit: cover;

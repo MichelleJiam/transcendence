@@ -30,7 +30,6 @@ onMounted(async () => {
         ) {
           if (friend.status == "PENDING") {
             status.value = true;
-            console.log("There is a pending request");
             return;
           }
         }

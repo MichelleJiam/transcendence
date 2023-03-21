@@ -1,10 +1,3 @@
-<!--
-    this should be the main page layout
-    so the basic nav bar and the content div
-    then there should be different components that render
-    on different circumstances
--->
-
 <template>
   <main>
     <div id="display-content">
@@ -24,7 +17,6 @@
             class="list-items"
           >
             <div class="rank">{{ inc(index) }}</div>
-            <!-- add ranking system-->
             <div class="playername">
               <a :href="'/player/' + rank.user.playerName">{{
                 rank.user.playerName
@@ -57,20 +49,8 @@ onBeforeMount(async () => {
     })
     .catch((error) => console.log(error));
 });
-// const leaderboardDummy = [
-//   { rank: 1, playername: "sanne", rate: 2000, wins: 21, losses: 2 },
-//   { rank: 2, playername: "nilo", rate: 1900, wins: 12, losses: 3 },
-//   { rank: 3, playername: "swaan", rate: 1700, wins: 10, losses: 2 },
-//   { rank: 4, playername: "michelle", rate: 1000, wins: 19, losses: 8 },
-//   { rank: 5, playername: "niks", rate: 200, wins: 0, losses: 5 },
-// ];
-
-// query all game data from the users
-// need to have there rate (score) based on that we will order them (rank)
-// we will also need there playername
-// the amount of wins they have
-// amount of losses they have
 </script>
+
 <style scoped>
 a:link {
   text-decoration: none;
@@ -80,7 +60,6 @@ h1 {
   padding-bottom: 20px;
 }
 .box-styling {
-  /* border: 2px solid pink; */
   font-family: var(--arcade-font);
 }
 

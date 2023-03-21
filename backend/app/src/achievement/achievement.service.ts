@@ -12,19 +12,6 @@ export class AchievementService {
     private readonly achievementRepository: Repository<Achievement>,
   ) {}
 
-  /* development */
-  async getAllAchievements() {
-    this.logger.log("Hit the getAllAchievements route");
-    return await this.achievementRepository.find();
-  }
-
-  /* development */
-  async addAllAchievements() {
-    this.logger.log("Hit the addAllAchievements route");
-    for (const achievement of achievements)
-      await this.achievementRepository.save(achievement);
-  }
-
   async getAchievementById(id: number) {
     this.logger.log("Hit the getAchievementById route");
     return await this.achievementRepository.findOneBy({
