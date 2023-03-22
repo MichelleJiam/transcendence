@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Get,
-  NotFoundException,
   Put,
   Delete,
   Param,
@@ -10,7 +9,6 @@ import {
   ParseIntPipe,
   UseGuards,
 } from "@nestjs/common";
-import { CreateMessageDto } from "src/message/dto/create-message.dto";
 import { CreatePenaltyDto } from "src/penalty/dto/create-penalty.dto";
 import { Penalty } from "src/penalty/penalty.entity";
 import { Message } from "src/message/message.entity";
