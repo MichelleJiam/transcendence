@@ -14,7 +14,6 @@ import {
 } from "@nestjs/common";
 import { MatchService } from "./match.service";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { CreateMatchDto } from "./dto/create-match.dto";
 import { MatchPlayerDto } from "./dto/match-player.dto";
 
 @Controller("match")
