@@ -59,7 +59,7 @@ export class PenaltyGateway
     console.log(`Disconnected: ${client.id}`);
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
+  handleConnection(client: Socket) {
     console.log(`Connected ${client.id}`);
   }
 }

@@ -181,7 +181,7 @@ async function startGamePlayer(res: AxiosResponse, player: number) {
 }
 
 const startGame = async () => {
-  await apiRequest(`/match/play/${id.value}`, "post", {
+  await apiRequest(`/match/play`, "post", {
     data: { id: id.value, socketId: socket.id },
   })
     .then(async (res) => {
@@ -198,28 +198,6 @@ const startGame = async () => {
       console.error("Could not create match: ", err);
     });
 };
-
-// function forfeitGame(gameRoom: GameRoom) {
-//   // if user is not actively watching game
-//   if (gameRoom.state !== GameState.PLAYING) {
-//     return;
-//   }
-//   socket.emit("forfeitGame", gameRoom);
-// }
-
-// Used by GameGateway::handleDisconnect when a watcher or queued player
-// disconnects.
-// socket.on("disconnection", () => {
-//   console.log("Disconnection socket");
-//   // if disconnected user was in match queue
-//   if (game.value.state === GameState.WAITING) {
-//     removePlayerFromMatchQueue();
-//   }
-//   // if disconnected user was an observer
-//   else if (game.value.player === 0) {
-//     game.value.state = GameState.READY;
-//   }
-// });
 
 async function removePlayerFromMatchQueue() {
   await apiRequest(`/match/${id.value}`, "delete").catch((err) => {

@@ -104,9 +104,9 @@ export class UserController {
     }
   }
 
-  /*********
-   * status *
-   *********/
+  /**********
+   * STATUS *
+   **********/
 
   @Put(":id/update-status")
   @UsePipes(ValidationPipe)
@@ -126,9 +126,9 @@ export class UserController {
     }
   }
 
-  /*********
-   * avatar *
-   *********/
+  /**********
+   * AVATAR *
+   **********/
 
   @Post(":id/avatar")
   @UseGuards(JwtAuthGuard)
@@ -164,9 +164,9 @@ export class UserController {
     }
   }
 
-  /***************
-   * achievements *
-   ***************/
+  /****************
+   * ACHIEVEMENTS *
+   ****************/
 
   @Get(":id/achievements")
   async getAchievements(@Param("id", ParseIntPipe) id: number) {

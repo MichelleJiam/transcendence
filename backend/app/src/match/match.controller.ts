@@ -23,7 +23,6 @@ export class MatchController {
   private readonly logger = new Logger(MatchController.name);
   constructor(private readonly matchService: MatchService) {}
 
-  /* curl http://localhost:3000/match/ */
   @Get()
   async findAll() {
     const matches = await this.matchService.findAll();
@@ -35,13 +34,8 @@ export class MatchController {
     return await this.matchService.findPlayerInMatchQueueByUserId(userId);
   }
 
-  /* curl http://localhost:3000/match/:id */
-  @Post("/play/:userId")
-  async findOpponentToPlayGame(
-    @Param("userId", ParseIntPipe) userId: number, // remove?
-    @Body() matchPlayer: MatchPlayerDto,
-  ) {
-    // console.log("finding opponent for socket ", matchPlayer.socketId);
+  @Post("/play")
+  async findOpponentToPlayGame(@Body() matchPlayer: MatchPlayerDto) {
     const game = await this.matchService
       .findOpponentToPlayGame(matchPlayer)
       .catch(() => {
@@ -50,19 +44,6 @@ export class MatchController {
     return game;
   }
 
-  /* curl -X POST -d "playerId=5" http://localhost:3000/match/ */
-  /* method not currently used */
-  @Post()
-  async create(@Body() createMatchDto: CreateMatchDto) {
-    const match = await this.matchService
-      .addToMatchQueue(createMatchDto)
-      .catch(() => {
-        throw new BadRequestException("unable to add player to match queue");
-      });
-    return match;
-  }
-
-  /* curl -X DELETE http://localhost:3000/match/1 */
   @Delete(":id")
   @HttpCode(204)
   async remove(@Param("id", ParseIntPipe) id: number) {

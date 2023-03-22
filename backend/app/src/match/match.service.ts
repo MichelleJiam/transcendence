@@ -50,7 +50,6 @@ export class MatchService {
     } else {
       if (match[0].playerId == matchPlayerDto.id) {
         this.logger.debug("cannot match player with themself");
-        /* is this even possible and do we want to throw if it does happen? */
         throw new BadRequestException();
       }
       return await this.createGame(match[0].playerId, matchPlayerDto.id);
