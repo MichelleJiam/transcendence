@@ -61,6 +61,8 @@ export class GameService {
       where: {
         id: gameId,
         state: "playing",
+        winnerId: undefined,
+        loserId: undefined,
       },
     });
     return game;
