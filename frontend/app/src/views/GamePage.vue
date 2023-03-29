@@ -175,9 +175,7 @@ async function startGamePlayer(res: AxiosResponse, player: number) {
 }
 
 const startGame = async () => {
-  await apiRequest(`/match/play`, "post", {
-    data: { id: id.value, socketId: socket.id },
-  })
+  await apiRequest(`/game/${id.value}/play`, "get")
     .then(async (res) => {
       if (res.data != "") {
         return;
