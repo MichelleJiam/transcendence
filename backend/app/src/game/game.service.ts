@@ -56,6 +56,16 @@ export class GameService {
       .execute();
   }
 
+  async findGameInPlayFromId(id: number) {
+    return await this.gameRepository
+      .createQueryBuilder("game")
+      .where(
+        "game.state = :playing AND (game.playerOne = :playerOneId OR game.playerTwo = :playerTwoId)",
+        { playing: "playing", playerOneId: id, playerTwoId: id },
+      )
+      .execute();
+  }
+
   async findGameToUpdate(gameId: number) {
     const game = await this.gameRepository.findOne({
       where: {

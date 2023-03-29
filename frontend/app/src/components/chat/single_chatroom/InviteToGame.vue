@@ -20,6 +20,7 @@
 import apiRequest, { baseUrl } from "@/utils/apiRequest";
 import { io } from "socket.io-client";
 import { ref, onMounted, onUnmounted } from "vue";
+import router from "@/router";
 
 const props = defineProps({
   currentUserId: { type: Number, required: true },
@@ -78,7 +79,6 @@ onMounted(async () => {
           .catch((err) => console.error(err));
         secondPlayer.value = payload.playerTwo;
         inviteReceived.value = true;
-        console.log("You are being invited to a game");
       }
     }
   });
@@ -89,16 +89,19 @@ onMounted(async () => {
         payload.playerTwo == props.currentUserId ||
         payload.playerOne == props.currentUserId
       ) {
-        console.log("PlayerTwo accepted your game request");
         if (payload.playerOne == props.currentUserId) {
           const createGameDto = new CreateGameDto();
           createGameDto.playerOne = payload.playerOne;
           createGameDto.playerTwo = payload.playerTwo;
           createGameDto.state = "dm";
           createGameDto.join = false;
-          await apiRequest("/game", "post", { data: createGameDto });
+          await apiRequest("/game", "post", { data: createGameDto }).catch(
+            (err) => {
+              console.error(err);
+            }
+          );
         }
-        window.location.href = "/game";
+        router.push("/game");
         inviteReceived.value = false;
       }
     }
@@ -110,7 +113,6 @@ onMounted(async () => {
         payload.playerTwo == props.currentUserId ||
         payload.playerOne == props.currentUserId
       ) {
-        console.log("Your game request was declined.");
         inviteReceived.value = false;
       }
     }
@@ -122,7 +124,6 @@ onMounted(async () => {
         payload.playerTwo == props.currentUserId ||
         payload.playerOne == props.currentUserId
       ) {
-        console.log("The game request was canceled");
         inviteReceived.value = false;
       }
     }
@@ -134,7 +135,6 @@ onMounted(async () => {
         payload.playerTwo == props.currentUserId ||
         payload.playerOne == props.currentUserId
       ) {
-        console.log("There was a problem with your game invite");
         inviteReceived.value = false;
       }
     }
@@ -149,8 +149,6 @@ onUnmounted(() => {
     inviteToGameDto.playerTwo = secondPlayer.value;
     inviteToGameDto.status = "cancel";
     socket.emit("inviteToGame", inviteToGameDto);
-  } else {
-    console.log("RespondToInvite failed.");
   }
 });
 
@@ -160,14 +158,12 @@ async function inviteToGame() {
   inviteToGameDto.playerOne = props.currentUserId;
   inviteToGameDto.playerTwo = props.playerTwo;
   inviteToGameDto.status = "waiting";
-  console.log("invite to game has been emitted");
   socket.emit("inviteToGame", inviteToGameDto);
   inviteReceived.value = false;
 }
 
 async function respondToInvite(response: string) {
   if (response != "accept" && response != "reject") {
-    console.log("bad input in invite response");
     return;
   } else {
     const inviteToGameDto = new InviteToGameDto();
@@ -177,8 +173,6 @@ async function respondToInvite(response: string) {
       inviteToGameDto.playerTwo = secondPlayer.value;
       inviteToGameDto.status = response;
       socket.emit("inviteToGame", inviteToGameDto);
-    } else {
-      console.log("RespondToInvite failed.");
     }
   }
 }
@@ -191,8 +185,6 @@ async function cancelInvite() {
     inviteToGameDto.playerTwo = secondPlayer.value;
     inviteToGameDto.status = "cancel";
     socket.emit("inviteToGame", inviteToGameDto);
-  } else {
-    console.log("cancelInvite failed.");
   }
 }
 </script>

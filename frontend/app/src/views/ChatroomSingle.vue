@@ -19,14 +19,9 @@
             </suspense>
           </span>
           <span v-if="isPrivate == true">
-            <input id="link" class="linkurl" type="text" :value="routeUrl" />
             <div class="tooltip">
-              <button class="copy" @click="copyUrl()" @mouseout="outCopy()">
-                <span id="myTooltip" class="tooltiptext">
-                  {{ copyUrlText }}</span
-                >
-                Copy
-              </button>
+              <input id="link" class="linkurl" type="text" :value="routeUrl" />
+              <span id="myTooltip" class="tooltiptext"> {{ copyUrlText }}</span>
             </div>
           </span>
           <span v-if="isPassword == true">
@@ -143,19 +138,10 @@ const DMMemberTwo = ref<number>(0);
 
 const backendurlChatName = "/chat/" + chatroomId;
 
-const copyUrlText = ref<string>("Copy to clipboard");
+const copyUrlText = ref<string>("Share this link!");
 
 function close() {
   showModal.value = false;
-}
-
-function copyUrl() {
-  navigator.clipboard.writeText(routeUrl);
-  copyUrlText.value = "Copied: " + routeUrl;
-}
-
-function outCopy() {
-  copyUrlText.value = "Copy to Clipboard";
 }
 
 onBeforeMount(async () => {
@@ -167,7 +153,6 @@ onBeforeMount(async () => {
     "/banned";
   await apiRequest(isUserBannedUrl, "get")
     .then(async (response) => {
-      console.log("are you banned? ", response.data);
       if (response.data == true) {
         alert("You are unable to join this chat.");
         window.location.href = "/chat";

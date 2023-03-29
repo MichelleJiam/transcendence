@@ -80,7 +80,7 @@ function enterChat(memberId: number) {
     .then((response) => {
       if (response.data != "") {
         rightPassword.value = true;
-        socket.emit("newUserState");
+        socket.emit("newUserState", props.chatroomId);
       } else {
         errorMessage.value = "Bad password!";
         givenPassword.value = "";
@@ -88,6 +88,7 @@ function enterChat(memberId: number) {
     })
     .catch((err) => {
       errorMessage.value = "Bad password!";
+      console.error(err);
       givenPassword.value = "";
     });
 }

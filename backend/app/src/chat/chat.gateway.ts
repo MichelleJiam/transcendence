@@ -46,7 +46,6 @@ export class ChatGateway
 
   @SubscribeMessage("inviteToGame")
   async inviteToGame(client: Socket, payload: InviteToGameDto) {
-    console.log(payload);
     if (payload.status == "waiting") {
       await this.chatService.createGameInvite(payload);
       this.server.emit("sendGameRequestToPlayerTwo", payload);

@@ -39,7 +39,6 @@ const inGame = ref(true);
 let reqId: number;
 
 onMounted(async () => {
-  console.log("onMounted");
   initCanvas();
   initGame();
   drawBorderLines();
@@ -56,7 +55,6 @@ onMounted(async () => {
 
 // Triggered on navigate away
 onUnmounted(async () => {
-  console.log("PongGame unmounted");
   // If a watcher or player navigates away during an active game
   if (inGame.value === true) {
     props.socket.emit("activeGameLeft", gameRoom);
@@ -180,6 +178,10 @@ async function gameOver() {
   inGame.value = false;
   if (gameRoom.player !== 0) {
     await apiRequest(`/game`, "put", { data: gameRoom }).catch((err) => {
+      if (err.response.status === 401) {
+        console.debug("Couldn't update game because user is logged out");
+        return;
+      }
       console.log("Something went wrong with updating with game result: ", err);
     });
   }
@@ -191,7 +193,6 @@ props.socket.on("stopGameLoop", () => {
 });
 
 props.socket.on("endGame", (winnerName: string) => {
-  console.log("PongGame.endGame");
   window.cancelAnimationFrame(reqId);
   ctx.fillStyle = color.canvas;
   ctx.fillRect(0, 0, gameRoom.view.width, gameRoom.view.height);
@@ -210,14 +211,6 @@ props.socket.on("endGame", (winnerName: string) => {
 props.socket.on(
   "updateScore",
   (playerOneScore: number, playerTwoScore: number) => {
-    console.log(
-      "Updating game ",
-      gameRoom.id,
-      " with score ",
-      playerOneScore,
-      " | ",
-      playerTwoScore
-    );
     gameRoom.playerOne.score = playerOneScore;
     gameRoom.playerTwo.score = playerTwoScore;
   }
