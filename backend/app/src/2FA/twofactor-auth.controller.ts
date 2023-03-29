@@ -72,7 +72,10 @@ export class TwoFactorAuthController {
   ) {
     this.validateCode(user, twoFactorAuthCode);
 
-    const authCookie = this.authService.getCookieWithJwtToken(user.id);
+    const authCookie = this.authService.getCookieWithJwtToken(
+      user.id,
+      user.intraId,
+    );
     response.setHeader("Set-Cookie", authCookie);
   }
 

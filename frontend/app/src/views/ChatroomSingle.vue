@@ -168,6 +168,7 @@ onBeforeMount(async () => {
 async function setup() {
   await apiRequest(backendurlChatName, "get")
     .then((response) => {
+      console.log("setup in ChatroomSingle: ", response.data);
       chatRoomInfo.value = response.data;
       if (chatRoomInfo.value.owner.id == userStore.user.id)
         isCurrentUserOwner.value = true;

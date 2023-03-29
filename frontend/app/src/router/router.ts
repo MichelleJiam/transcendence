@@ -21,7 +21,6 @@ const routes: {
   { path: "/", component: HomePage, name: "home" },
   { path: "/:id/home", component: HomePage },
   { path: "/login", component: LoginPage, name: "login" },
-  { path: "/:id/game", component: GamePage } /* temp workaround */,
   { path: "/game", component: GamePage },
   { path: "/:id/account", component: UserPage, name: "account" },
   { path: "/account", component: UserPage, alias: ["/user"] },

@@ -3,7 +3,7 @@ import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { Request } from "express";
 import { UserService } from "src/user/user.service";
-import { TokenPayload, TokenType } from "../token-payload.interface";
+import { TokenPayload } from "../token-payload.interface";
 
 @Injectable()
 export class PartialJwtStrategy extends PassportStrategy(
@@ -24,8 +24,11 @@ export class PartialJwtStrategy extends PassportStrategy(
   }
 
   async validate(payload: TokenPayload) {
-    this.logger.log(`Validating partial JWT token for user ${payload.sub}`);
-    const user = await this.userService.findUserById(payload.sub);
+    // this.logger.log(`Validating partial JWT token for user ${payload.sub}`);
+    const user = await this.userService.findUniqueUserByIdAndIntra(
+      payload.sub,
+      payload.intraId,
+    );
 
     if (!user) {
       this.logger.log("Unauthorized access caught by PartialJwtStrategy");

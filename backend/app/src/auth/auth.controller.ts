@@ -1,17 +1,5 @@
-import {
-  Controller,
-  Get,
-  Logger,
-  Param,
-  ParseIntPipe,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
-} from "@nestjs/common";
-import { Response, Request } from "express";
+import { Controller, Get, Logger, Post, Res, UseGuards } from "@nestjs/common";
+import { Response } from "express";
 import { AuthService } from "./auth.service";
 import { currentUser } from "./decorators/current-user.decorator";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
@@ -43,60 +31,22 @@ export class AuthController {
     if (user.twoFAEnabled === true) {
       authCookie = this.authService.getCookieWithJwtToken(
         user.id,
+        user.intraId,
         TokenType.PARTIAL,
       );
       redirectTo = `${process.env.FRONTEND_URL}/2fa`;
       this.logger.log("2FA required, redirecting to 2FA frontend");
     } else {
-      authCookie = this.authService.getCookieWithJwtToken(user.id);
+      authCookie = this.authService.getCookieWithJwtToken(
+        user.id,
+        user.intraId,
+      );
       redirectTo = `${process.env.FRONTEND_URL}/login`;
     }
     response.setHeader("Set-Cookie", authCookie);
     this.logger.log(`redirecting to ${redirectTo}`);
     response.status(200).redirect(redirectTo);
   }
-
-  // Debug routes. TODO: remove later
-  // gets cookie just to test routes, does not create user in db
-  @Get("test_login")
-  async testLogin(@Res({ passthrough: true }) response: Response) {
-    const authCookie = this.authService.getCookieWithJwtToken(1); // assigns id 1
-    response.setHeader("Set-Cookie", authCookie);
-    console.log("testLogin: Set access_token cookie");
-    response.status(200).redirect(`${process.env.FRONTEND_URL}`);
-  }
-
-  // gets cookie for user with specified id
-  // for testing routes as a specific user
-  @Get("test_login/:id")
-  @UsePipes(ValidationPipe)
-  async testLoginWithId(
-    @Param("id", ParseIntPipe) id: number,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const authCookie = this.authService.getCookieWithJwtToken(id);
-    response.setHeader("Set-Cookie", authCookie);
-    console.log("testLogin: Set access_token cookie");
-    response.status(200).redirect(`${process.env.FRONTEND_URL}`);
-  }
-
-  @Get("test_access")
-  @UseGuards(JwtAuthGuard)
-  async testAccess(@currentUser() user: User) {
-    console.log("User can access jwt-protected route");
-    return user;
-  }
-
-  @Get("test_cookie")
-  @UseGuards(JwtAuthGuard)
-  async testCookie(@Req() request: Request, @currentUser() user: User) {
-    console.log(
-      "testCookie (Authentication): ",
-      request?.cookies?.Authentication,
-    );
-    return user;
-  }
-  // end of debug methods
 
   // Returns user if current user is authenticated.
   @UseGuards(JwtAuthGuard)

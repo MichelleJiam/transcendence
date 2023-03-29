@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Delete,
-  NotFoundException,
   Param,
   ParseIntPipe,
   Body,

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumberString, MinLength } from "class-validator";
+import { IsNotEmpty, IsNumberString } from "class-validator";
 
 // DTOs stand for data transfer objects
 /*
@@ -9,8 +9,4 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsNumberString()
   intraId!: string;
-
-  // @IsNotEmpty()
-  // @MinLength(3)
-  // username!: string; // will be initialised upon use
 }
