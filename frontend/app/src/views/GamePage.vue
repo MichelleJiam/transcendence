@@ -66,17 +66,12 @@ game.value.state = GameState.READY;
 onMounted(async () => {
   await userStore.retrieveCurrentUserData();
   id.value = userStore.user.id;
-  console.log("GamePage.onMounted");
-  socket.on("connect", () => {
-    console.log(socket.id + " connected from frontend");
-  });
   await getActiveGames();
   checkDMGames();
 });
 
 // Triggered on navigate away
 onUnmounted(async () => {
-  console.log("GamePage unmounted");
   // if a player in queue navigates away
   if (game.value.state === GameState.WAITING) {
     removePlayerFromMatchQueue();
@@ -114,23 +109,31 @@ async function checkDMGames() {
 }
 
 async function getActiveGames() {
-  await apiRequest(`/game/active`, "get")
-    .then(async (res) => {
-      activeGames.value = res.data;
-      for (const game of activeGames.value) {
-        try {
-          const playerOne = await apiRequest(`/user/${game.playerOne}`, "get");
-          game.playerOneName = playerOne.data.playerName;
-          const playerTwo = await apiRequest(`/user/${game.playerTwo}`, "get");
-          game.playerTwoName = playerTwo.data.playerName;
-        } catch (err) {
-          console.error("Could not retrieve player: ", err);
+  if (userStore.isAuthenticated()) {
+    await apiRequest(`/game/active`, "get")
+      .then(async (res) => {
+        activeGames.value = res.data;
+        for (const game of activeGames.value) {
+          try {
+            const playerOne = await apiRequest(
+              `/user/${game.playerOne}`,
+              "get"
+            );
+            game.playerOneName = playerOne.data.playerName;
+            const playerTwo = await apiRequest(
+              `/user/${game.playerTwo}`,
+              "get"
+            );
+            game.playerTwoName = playerTwo.data.playerName;
+          } catch (err) {
+            console.error("Could not retrieve player: ", err);
+          }
         }
-      }
-    })
-    .catch((err) => {
-      console.debug("Could not retrieve active games: ", err); // not an error
-    });
+      })
+      .catch((err) => {
+        console.debug("Could not retrieve active games: ", err); // not an error
+      });
+  }
 }
 
 async function watchGame(gameId: number) {
@@ -143,7 +146,6 @@ async function watchGame(gameId: number) {
       }
       await fillGameRoomObject(res, 0);
       socket.emit("watchGame", game.value); /* adds them to gameRoom */
-      console.debug(id.value, " has joined room ", gameId, " as a WATCHER");
       game.value.state = GameState.PLAYING;
     })
     .catch((err) => {
@@ -161,7 +163,6 @@ socket.on("addPlayerOne", (gameRoom: GameRoom) => {
     game.value = gameRoom;
     game.value.player = 1;
     socket.emit("joinRoom", game.value);
-    console.debug(id.value, "has joined room ", game.value.id, " as PLAYER 1");
   }
   if (game.value.player === 1 || game.value.player === 2) {
     game.value.state = GameState.PLAYING;
@@ -171,55 +172,36 @@ socket.on("addPlayerOne", (gameRoom: GameRoom) => {
 async function startGamePlayer(res: AxiosResponse, player: number) {
   await fillGameRoomObject(res, player);
   socket.emit("joinRoom", game.value);
-  console.debug(
-    id.value,
-    " has joined room ",
-    game.value.id,
-    " as PLAYER ",
-    player
-  );
 }
 
 const startGame = async () => {
-  await apiRequest(`/match/play/${id.value}`, "post", {
-    data: { id: id.value, socketId: socket.id },
-  })
+  await apiRequest(`/game/${id.value}/play`, "get")
     .then(async (res) => {
-      /* if no one currently in queue */
-      if (res.data.id == undefined) {
-        game.value.player = 1;
-        game.value.state = GameState.WAITING;
+      if (res.data != "") {
+        return;
       } else {
-        /* else if opponent found */
-        await startGamePlayer(res, 2);
+        await apiRequest(`/match/play`, "post", {
+          data: { id: id.value, socketId: socket.id },
+        })
+          .then(async (res) => {
+            /* if no one currently in queue */
+            if (res.data.id == undefined) {
+              game.value.player = 1;
+              game.value.state = GameState.WAITING;
+            } else {
+              /* else if opponent found */
+              await startGamePlayer(res, 2);
+            }
+          })
+          .catch((err) => {
+            console.error("Could not create match: ", err);
+          });
       }
     })
     .catch((err) => {
-      console.error("Could not create match: ", err);
+      console.error("could not retrieve game in play from id: ", err);
     });
 };
-
-// function forfeitGame(gameRoom: GameRoom) {
-//   // if user is not actively watching game
-//   if (gameRoom.state !== GameState.PLAYING) {
-//     return;
-//   }
-//   socket.emit("forfeitGame", gameRoom);
-// }
-
-// Used by GameGateway::handleDisconnect when a watcher or queued player
-// disconnects.
-// socket.on("disconnection", () => {
-//   console.log("Disconnection socket");
-//   // if disconnected user was in match queue
-//   if (game.value.state === GameState.WAITING) {
-//     removePlayerFromMatchQueue();
-//   }
-//   // if disconnected user was an observer
-//   else if (game.value.player === 0) {
-//     game.value.state = GameState.READY;
-//   }
-// });
 
 async function removePlayerFromMatchQueue() {
   await apiRequest(`/match/${id.value}`, "delete").catch((err) => {

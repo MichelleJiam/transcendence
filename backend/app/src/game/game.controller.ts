@@ -52,6 +52,11 @@ export class GameController {
     return await this.gameService.findGameFromDm(id);
   }
 
+  @Get(":id/play")
+  async findGameInPlay(@Param("id", ParseIntPipe) id: number) {
+    return await this.gameService.findGameInPlayFromId(id);
+  }
+
   @Get(":id")
   async findOne(@Param("id", ParseIntPipe) id: number) {
     const game = await this.gameService.findOne(id);
@@ -73,11 +78,13 @@ export class GameController {
 
   @Put()
   async update(@Body() gameRoom: GameRoom) {
-    const game = await this.gameService.update(gameRoom).catch((err: any) => {
+    try {
+      const game = await this.gameService.update(gameRoom);
+      return game;
+    } catch (err) {
       this.logger.debug("updating game stats failed: ", err);
       throw new BadRequestException("Unable to update finished game");
-    });
-    return game;
+    }
   }
 
   @Delete(":id")

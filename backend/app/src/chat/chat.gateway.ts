@@ -46,7 +46,6 @@ export class ChatGateway
 
   @SubscribeMessage("inviteToGame")
   async inviteToGame(client: Socket, payload: InviteToGameDto) {
-    console.log(payload);
     if (payload.status == "waiting") {
       await this.chatService.createGameInvite(payload);
       this.server.emit("sendGameRequestToPlayerTwo", payload);
@@ -74,7 +73,7 @@ export class ChatGateway
     console.log(`Disconnected: ${client.id}`);
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
+  handleConnection(client: Socket) {
     console.log(`Connected ${client.id}`);
   }
 }
