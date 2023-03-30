@@ -3,11 +3,13 @@ transcendence is a [42](https://www.42network.org/)/[Codam](https://www.codam.nl
 This is a collaborative project between [mjiam](https://github.com/MichelleJiam), [nhariman](https://github.com/nhariman), [nvan-win](https://github.com/nvanwinden), [salbregh](https://github.com/salbregh), and [smiller](https://github.com/subsp4ce).  
 
 <p align="center">
-<img width="814" alt="Pong game still" src="https://user-images.githubusercontent.com/55353487/228848675-8d0c18c8-9415-440b-8df5-2cb642a0f87e.png">
+<img width="700" alt="Pong game still" src="https://user-images.githubusercontent.com/55353487/228848675-8d0c18c8-9415-440b-8df5-2cb642a0f87e.png">
 </p>
 
 ## Content
 - [Project Description](#description)
+- [Requirements](#requirements)
+- [Demos](#demos)
 - [Usage](#usage)
 - [Resources](#resources)
 - [About Us](#about-us)
@@ -29,16 +31,22 @@ Features include:
 
 This is a full-stack single-page web application built using NestJS (backend), Vue 3 (frontend), PostgreSQL (database), and Docker (environment).
 
-## Demos
-<!-- ### Starting a Game With Another User
-<video width="614" alt="Starting a game" src="https://user-images.githubusercontent.com/55353487/228854224-3bf152cd-0836-4b29-ac9d-1efb1371ac59.mov"> -->
+<p align="center">
+<img width="600" alt="User page" src="https://user-images.githubusercontent.com/55353487/228862131-5a858a46-ec6a-4acb-8951-e46b68aa2b0f.png">
+</p>
 
+## Requirements
+You can find the full list of project requirements here: [Project Requirements](https://github.com/MichelleJiam/transcendence/wiki/Requirements)
+
+
+## Demos
 ### Sending a game challenge through DM
-<video width="614" alt="Sending a game challenge through DM" src="https://user-images.githubusercontent.com/55353487/228855896-28fcd5b5-6d7f-412a-bf0f-86623d488d96.mov">
+https://user-images.githubusercontent.com/55353487/228855896-28fcd5b5-6d7f-412a-bf0f-86623d488d96.mov
 
 ### Reactive friends page
-<video width="614" alt="Friend page" src="https://user-images.githubusercontent.com/55353487/228856725-3078a3a9-446e-40e6-94e1-503ce9a2719d.mov">
+https://user-images.githubusercontent.com/55353487/228856725-3078a3a9-446e-40e6-94e1-503ce9a2719d.mov  
 	
+### More demos
 See more demos of features here: [demos](https://github.com/MichelleJiam/transcendence/wiki/Videos)
 	
 ## Usage
