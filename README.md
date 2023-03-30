@@ -1,6 +1,6 @@
 # transcendence
 transcendence is a [42](https://www.42network.org/)/[Codam](https://www.codam.nl/) fullstack web project about creating a single-page web application where users can play Pong against each other.  
-This is a collaborative project between [mjiam](https://github.com/MichelleJiam), [nhariman](https://github.com/nhariman), [nvan-win](https://github.com/nvanwinden), [salbregh](https://github.com/salbregh), and [smiller](https://github.com/subsp4ce).  
+This is a collaborative project between [Michelle Jiam](https://github.com/MichelleJiam), [Niks Hariman](https://github.com/nhariman), [Nilo Van Winden](https://github.com/nvanwinden), [Sanne Albreghs](https://github.com/salbregh), and [Swaan Miller](https://github.com/subsp4ce).  
 
 <p align="center">
 <img width="700" alt="Pong game still" src="https://user-images.githubusercontent.com/55353487/228848675-8d0c18c8-9415-440b-8df5-2cb642a0f87e.png">
