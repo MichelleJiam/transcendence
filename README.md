@@ -1,6 +1,10 @@
 # transcendence
-transcendence is a [42](https://www.42network.org/)/[Codam](https://www.codam.nl/) project about creating a single-page web application where users can play Pong against each other.  
+transcendence is a [42](https://www.42network.org/)/[Codam](https://www.codam.nl/) fullstack web project about creating a single-page web application where users can play Pong against each other.  
 This is a collaborative project between [mjiam](https://github.com/MichelleJiam), [nhariman](https://github.com/nhariman), [nvan-win](https://github.com/nvanwinden), [salbregh](https://github.com/salbregh), and [smiller](https://github.com/subsp4ce).  
+
+<p align="center">
+<img width="814" alt="Pong game still" src="https://user-images.githubusercontent.com/55353487/228848675-8d0c18c8-9415-440b-8df5-2cb642a0f87e.png">
+</p>
 
 ## Content
 - [Project Description](#description)
@@ -9,9 +13,10 @@ This is a collaborative project between [mjiam](https://github.com/MichelleJiam)
 - [About Us](#about-us)
 
 ## Description
-The web application allows users to play Pong in real-time against other users.
+🏓 Play Pong in real-time against other users and jostle for 1st place in the leaderboard to earn eternal glory as Pong Master! 🏓  
+
 Features include:
-- **Chat** 💬: users can create and join both public and private (password-protected) chatrooms, and also DM other users
+- **Chatrooms** 💬: users can create and join both public and private (password-protected) chatrooms, and also DM other users
 - **Game by invite** ✉️: users can invite specific users to a game of Pong via DM
 - **Game matchmaking** 🤝: users can enter a game queue to be matched automatically to other users looking to play a game
 - **Authentication** 🔒: users can log in using the 42 OAuth system and enable 2FA
@@ -25,8 +30,17 @@ Features include:
 This is a full-stack single-page web application built using NestJS (backend), Vue 3 (frontend), PostgreSQL (database), and Docker (environment).
 
 ## Demos
-[tba]
+<!-- ### Starting a Game With Another User
+<video width="614" alt="Starting a game" src="https://user-images.githubusercontent.com/55353487/228854224-3bf152cd-0836-4b29-ac9d-1efb1371ac59.mov"> -->
 
+### Sending a game challenge through DM
+<video width="614" alt="Sending a game challenge through DM" src="https://user-images.githubusercontent.com/55353487/228855896-28fcd5b5-6d7f-412a-bf0f-86623d488d96.mov">
+
+### Reactive friends page
+<video width="614" alt="Friend page" src="https://user-images.githubusercontent.com/55353487/228856725-3078a3a9-446e-40e6-94e1-503ce9a2719d.mov">
+	
+See more demos of features here: [demos](https://github.com/MichelleJiam/transcendence/wiki/Videos)
+	
 ## Usage
 
 ### Run
@@ -39,7 +53,6 @@ This is a full-stack single-page web application built using NestJS (backend), V
 
 |||
 | ------ | ----------- |
-| [`localhost:3000`](http://localhost:3000) | Navigate here to see backend from NestJS |
 | [`localhost:5173`](http://localhost:5173) | Navigate here to see frontend from Vue + Vite |
 | [`localhost:5050`](http://localhost:5050) | Navigate here to see GUI for postgreSQL |
 
@@ -61,24 +74,36 @@ run `./clean.sh` and select  a clean option
 ### General
 - Using [ESLint and Prettier](https://vueschool.io/articles/vuejs-tutorials/eslint-and-prettier-with-vite-and-vue-js-3/) to keep the code uniformly-formatted  
 
-### NestJS
-- [NestJS documentation](https://docs.nestjs.com/)
-- Very complete guide covering multiple requirements, including JWT tokens and 2FA: [API with NestJS](https://wanago.io/2020/05/11/nestjs-api-controllers-routing-module/)  
-- [Video: "Authentication: JWTs, Sessions, Logins, and more! | NestJS PassportJS tutorial"](https://youtu.be/_L225zpUK0M)
-- [List of validation decorators](https://github.com/typestack/class-validator#validation-decorators)
-- [NestJS-Vue 3 boilerplate](https://github.com/niclas-timm/nestjs-vue-boilerplate)
+### Typescript
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)  
+- [Typescript’s type system from an OOP POV](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes-oop.html)  
+- [Typescript strictness checks](https://www.typescriptlang.org/docs/handbook/2/basic-types.html#strictness)
 
 ### Vue 3
 - [Vue.js documentation](https://vuejs.org/guide/introduction.html)
+- [Tutorial series: Learn Vue 3 Step by Step](https://laracasts.com/series/learn-vue-3-step-by-step/)
+- State management was done using Pinia: [Video: Pinia tutorial](https://www.youtube.com/watch?v=JGC7aAC-3y8)
+- Web sockets for chat, friends, and game used [Socket.IO](https://socket.io/)
 
-### Typescript
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)  
+### NestJS
+- [NestJS documentation](https://docs.nestjs.com/)
+- [NestJS-Vue 3 boilerplate](https://github.com/niclas-timm/nestjs-vue-boilerplate)  
+- Very thorough guide covering most project requirements: [API with NestJS](https://wanago.io/2020/05/11/nestjs-api-controllers-routing-module/) 
+- [Video: "Authentication: JWTs, Sessions, Logins, and more! | NestJS PassportJS tutorial"](https://youtu.be/_L225zpUK0M)  
+- [Passport strategy for 42 OAuth system](https://www.passportjs.org/packages/passport-42/)  
+- Packages for 2FA: [qrcode](https://www.npmjs.com/package/qrcode), [otplib](https://www.npmjs.com/package/otplib)  
+- Password hashing using [bycrypt](https://www.npmjs.com/package/bcrypt)  
+- [List of validation decorators](https://github.com/typestack/class-validator#validation-decorators)
 
 ### TypeORM
 - [find options](https://typeorm.io/find-options)  
 - [Select using Query Builder](https://typeorm.io/select-query-builder)
 - [Relations in TypeORM](https://typeorm.io/relations#relations)  
 - [Eager and Lazy Relations](https://orkhan.gitbook.io/typeorm/docs/eager-and-lazy-relations)
+
+### PostgreSQL
+- [Setting up NestJS with PostgreSQL](https://blog.devgenius.io/setting-up-nestjs-with-postgresql-ac2cce9045fe)
+- [Video: PostgreSQL crash course](https://www.youtube.com/watch?v=zw4s3Ey8ayo)
 
 ### Chat
 - [Build a Real-time Chat App with Vue 3, Socket.io and Nodejs](https://masteringbackend.com/posts/build-a-real-time-chat-app-with-vue-3-socket-io-and-nodejs)  
